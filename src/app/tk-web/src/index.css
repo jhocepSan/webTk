@@ -1,0 +1,21 @@
+.offcanvas-end{
+    width: 300px;
+}
+ul li a:hover, ul li a:focus {
+    color:red;
+}
+.menuTk:hover{
+    background-color: lightslategray;
+    color:black;
+    margin-left: 1px;
+}
+.menuActivo{
+    background-color: rgb(255, 179, 37);
+    margin-left: 2px;
+}
+body{
+    background-color: rgb(197, 197, 197);
+}
+.table-active{
+    --bs-table-accent-bg: #1c91ff;
+}
