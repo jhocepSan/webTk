@@ -1,6 +1,6 @@
 import {Router} from 'express';
 import {getGrados,getCategoria,addCategoria,deleteCategoria,addCinturon,deleteGrado,deleteCinturon,
-    addSubCategoria,getSubCategoria,addGrado,getCampeonato} from '../controllers/configuracion.controllers.js'
+    addSubCategoria,getSubCategoria,addGrado,getCampeonato,deleteSubcategoria} from '../controllers/configuracion.controllers.js'
 const router = Router();
 
 router.post('/getGrados',async(req,res)=>{
@@ -13,8 +13,7 @@ router.post('/getGrados',async(req,res)=>{
     }
 });
 router.post('/getCategoria',async(req,res)=>{
-    const {info} = req.body;
-    const result = await getCategoria({info});
+    const result = await getCategoria(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{
@@ -87,6 +86,14 @@ router.post('/addCinturon',async(req,res)=>{
 router.post('/deleteCinturon',async(req,res)=>{
     const {info} = req.body;
     const result = await deleteCinturon({info});
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
+router.post('/deleteSubcategoria',async(req,res)=>{
+    const result = await deleteSubcategoria(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

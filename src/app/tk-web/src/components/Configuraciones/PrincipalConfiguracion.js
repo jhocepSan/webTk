@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useContext } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import { useNavigate } from 'react-router-dom';
 import MsgUtils from '../utils/MsgUtils';
@@ -13,7 +13,7 @@ const server = process.env.REACT_APP_SERVER;
 
 function PrincipalConfiguracion() {
   const navigate = useNavigate();
-  const { setLogin, setUserLogin } = useContext(ContextAplicacions);
+  const { setLogin, setUserLogin, campeonato, setCampeonato } = useContext(ContextAplicacions);
   const [ventana, setVentana] = useState(0);
   const [categorias, setCategorias] = useState([]);
   const [cargador, setCargador] = useState(false);
@@ -21,6 +21,7 @@ function PrincipalConfiguracion() {
   const [titulo, setTitulo] = useState('');
   const [actualizar, setActualizar] = useState(false);
   const [selectCategoria, setSelectCategoria] = useState({});
+  const [genero, setGenero] = useState('M');
   const abrirSubCategoria = (dato) => {
     setSelectCategoria(dato);
     //setActualizar(!actualizar);
@@ -69,15 +70,13 @@ function PrincipalConfiguracion() {
         'Content-Type': 'application/json;charset=utf-8',
       },
       body: JSON.stringify({
-        info: {
-
-        }
+        campeonato,genero
       })
     })
       .then(res => res.json())
       .then(data => {
         if (data.ok) {
-          console.log(data.ok);
+          setSelectCategoria({});
           setCategorias(data.ok);
         } else {
           MsgUtils.msgError(data.error);
@@ -87,8 +86,10 @@ function PrincipalConfiguracion() {
       .catch(error => MsgUtils.msgError(error));
   }, [actualizar])
   useEffect(() => {
-    var sessionActiva = JSON.parse(localStorage.getItem('login'))
+    var sessionActiva = JSON.parse(localStorage.getItem('login'));
+    var cmp = JSON.parse(localStorage.getItem('campeonato'));
     if (sessionActiva !== null) {
+      setCampeonato(cmp);
       setLogin(true);
       setUserLogin(sessionActiva);
       navigate("/config", { replace: true });
@@ -100,7 +101,7 @@ function PrincipalConfiguracion() {
       <UtilsCargador show={cargador} />
       <div className='container-fluid  bg-dark'>
         <div className="btn-group btn-group-sm">
-          <button className={`btn btn-sm btn-gradient letraBtn ${ventana === 0 ? 'menuActivo' : 'btn-secondary'}`} onClick={() => setVentana(0)}>
+          <button className={`btn btn-sm btn-gradient letraBtn ${ventana === 0 ? 'menuActivo' : 'btn-secondary'}`} onClick={() => {setVentana(0);setActualizar(!actualizar)}}>
             <i className="fa-solid fa-landmark"></i> Categorias
           </button>
           <button className={`btn btn-sm btn-gradient mx-2 letraBtn ${ventana === 1 ? 'menuActivo' : 'btn-secondary'}`} onClick={() => setVentana(1)}>
@@ -111,8 +112,18 @@ function PrincipalConfiguracion() {
           </button>
         </div>
       </div>
-      {ventana === 0 &&
-        <div className='container-fluid px-1'>
+      {ventana === 0 && <>
+        <div className='container-fluid bg-dark bg-gradient py-1'>
+          <div className="input-group input-group-sm" style={{ width: '200px' }}>
+            <span className="input-group-text bg-transparent text-light border-dark letraBtn" >Genero</span>
+            <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn" 
+              value={genero} onChange={(e) => {setGenero(e.target.value);setActualizar(!actualizar)}}>
+              <option value={'M'}>Masculino</option>
+              <option value={'F'}>Femenino</option>
+            </select>
+          </div>
+        </div>
+        <div className='container-fluid py-1 px-1'>
           <div className='row row-cols-1 row-cols-md-2 g-1'>
             <div className='col'>
               <div className='table-responsive'>
@@ -162,9 +173,9 @@ function PrincipalConfiguracion() {
                 <PrincipalSubCategoria selectCategoria={selectCategoria} />
               </div>}
           </div>
-        </div>}
+        </div></>}
       {ventana === 1 &&
-        <GradosConfig />
+        <GradosConfig campeonato={campeonato} setCampeonato={setCampeonato}/>
       }
       <Modal show={showModal} onHide={() => setShowModal(false)}
         aria-labelledby="contained-modal-title-vcenter"
@@ -178,7 +189,7 @@ function PrincipalConfiguracion() {
         </Modal.Header>
         <Modal.Body bsPrefix='modal-header m-0 p-0'>
           <AddEditCategoria actualizar={actualizar} selectCategoria={selectCategoria}
-            setActualizar={setActualizar} setShowModal={setShowModal} />
+            setActualizar={setActualizar} setShowModal={setShowModal} genero={genero} categorias={categorias}/>
         </Modal.Body>
       </Modal>
     </div>

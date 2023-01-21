@@ -7,12 +7,13 @@ const server = process.env.REACT_APP_SERVER
 
 function VistaInicio() {
   const navigate = useNavigate();
-  const { setLogin, setUserLogin,login } = useContext(ContextAplicacions);
+  const { setLogin, setUserLogin,login,campeonato,setCampeonato } = useContext(ContextAplicacions);
   const [campeonatos, setCampeonatos] = useState([]);
-  const [campeonato, setCampeonato] = useState();
+  const [idCampeonato, setIdCampeonato] = useState();
   const cambiarCampeonato = (dato) => {
     var info = campeonatos.filter((item) => item.idcampeonato == dato);
     setCampeonatos(dato);
+    setCampeonato(info[0]);
     localStorage.setItem("campeonato", JSON.stringify(info[0]));
   }
   useEffect(()=>{
@@ -29,7 +30,8 @@ function VistaInicio() {
           console.log(data.ok);
           if (data.ok) {
             setCampeonatos(data.ok);
-            setCampeonato(data.ok[0].idcampeonato);
+            setIdCampeonato(data.ok[0].idcampeonato);
+            setCampeonato(data.ok[0]);
             localStorage.setItem("campeonato", JSON.stringify(data.ok[0]));
           } else {
             MsgUtils.msgError(data.error);
@@ -64,7 +66,7 @@ function VistaInicio() {
                 </div>
                 <div className='col my-auto'>
                   <div className='btn-group btn-group-sm w-100'>
-                    <select className="form-select form-select-sm btn-secondary" value={campeonato} onChange={(e) => cambiarCampeonato(e.target.value)}>
+                    <select className="form-select form-select-sm btn-secondary" value={idCampeonato} onChange={(e) => cambiarCampeonato(e.target.value)}>
                       {campeonatos.map((item, index) => {
                         return (
                           <option value={item.idcampeonato} key={index}>{item.nombre}</option>

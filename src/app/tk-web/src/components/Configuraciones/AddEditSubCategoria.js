@@ -3,7 +3,7 @@ import MsgUtils from '../utils/MsgUtils';
 const server = process.env.REACT_APP_SERVER;
 
 function AddEditSubCategoria(props) {
-    const {idCategoria,selectSubCategoria,actualizarPagina}=props;
+    const {idCategoria,selectSubCategoria,actualizarPagina,subCategorias}=props;
     const [nombre, setNombre] = useState('');
     const [pesoIni, setPesoIni] = useState(0);
     const [pesoFin, setPesoFin] = useState(0);
@@ -23,28 +23,33 @@ function AddEditSubCategoria(props) {
     }
     const guardarSubCategoria=()=>{
         if(validarCampos()){
-            fetch(`${server}/config/addSubCategoria`, {
-                method: 'POST',
-                headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json;charset=utf-8',
-                },
-                body: JSON.stringify({
-                info: {
-                    nombre,pesoIni,pesoFin,idCategoria,selectSubCategoria
-                }
-                })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.ok) {
-                        MsgUtils.msgCorrecto("Guardado");
-                        actualizarPagina();
-                    } else {
-                        MsgUtils.msgError(data.error);
+            var sbc = subCategorias.filter((item)=>item.nombre==nombre);
+            if(sbc.length===0){
+                fetch(`${server}/config/addSubCategoria`, {
+                    method: 'POST',
+                    headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json;charset=utf-8',
+                    },
+                    body: JSON.stringify({
+                    info: {
+                        nombre,pesoIni,pesoFin,idCategoria,selectSubCategoria
                     }
+                    })
                 })
-                .catch(error => MsgUtils.msgError(error));
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.ok) {
+                            MsgUtils.msgCorrecto("Guardado");
+                            actualizarPagina();
+                        } else {
+                            MsgUtils.msgError(data.error);
+                        }
+                    })
+                    .catch(error => MsgUtils.msgError(error));
+            }else{
+                MsgUtils.msgError("Ya se tiene el mismo nombre")
+            }
         }
     }
     useEffect(()=>{

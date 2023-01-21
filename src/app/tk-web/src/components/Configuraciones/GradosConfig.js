@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import MsgUtils from '../utils/MsgUtils';
 import CardCinturon from './CardCinturon';
+//import ContextAplicacion from '../Context/ContextAplicacion';
 const server = process.env.REACT_APP_SERVER;
-function GradosConfig() {
+function GradosConfig(props) {
+    const {campeonato,setCampeonato} = props;
     const [actualizar, setActualizar] = useState(false);
     const [grados, setGrados] = useState([]);
     const [nombre, setNombre] = useState('');
@@ -19,7 +21,7 @@ function GradosConfig() {
                     },
                     body: JSON.stringify({
                         info: {
-                            nombre, tipo, idcampeonato: 0,
+                            nombre, tipo, idcampeonato: campeonato.idcampeonato,
                         }
                     })
                 })
@@ -53,7 +55,7 @@ function GradosConfig() {
             },
             body: JSON.stringify({
                 info: {
-                    idcampeonato: 0, tipo: valor
+                    idcampeonato: campeonato.idcampeonato, tipo: valor
                 }
             })
         })

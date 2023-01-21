@@ -14,11 +14,12 @@ export const getCampeonato = async()=>{
     }
 }
 
-export const getCategoria = async ()=>{
+export const getCategoria = async (info)=>{
     var conn;
     try {
         conn =await pool.getConnection();
-        const [result] = await conn.query('SELECT * FROM tkdb.categoria order by edadini;')
+        const [result] = await conn.query('SELECT * FROM tkdb.categoria where genero=? and idcampeonato=? order by edadini;',
+        [info.genero,info.campeonato.idcampeonato])
         return {"ok":result}
     } catch (error) {
         console.log(error);
@@ -33,12 +34,12 @@ export const addCategoria = async ({info})=>{
     try {
         conn =await pool.getConnection();
         if(info.selectCategoria.idcategoria===undefined){
-            const [result] = await conn.query('INSERT INTO tkdb.categoria (nombre,edadini,edadfin) value (?,?,?);',
-                [info.nombre,info.edadIni,info.edadFin])
+            const [result] = await conn.query('INSERT INTO tkdb.categoria (nombre,edadini,edadfin,idcampeonato,genero) value (?,?,?,?,?);',
+                [info.nombre,info.edadIni,info.edadFin,info.idcampeonato,info.genero])
             return {"ok":result}
         }else{
-            const [result] = await conn.query('UPDATE tkdb.categoria SET nombre=?,edadini=?,edadfin=? WHERE idcategoria=?;',
-                [info.nombre,info.edadIni,info.edadFin,info.selectCategoria.idcategoria])
+            const [result] = await conn.query('UPDATE tkdb.categoria SET nombre=?,edadini=?,edadfin=?,idcampeonato=?,genero=? WHERE idcategoria=?;',
+                [info.nombre,info.edadIni,info.edadFin,info.idcampeonato,info.genero,info.selectCategoria.idcategoria])
             return {"ok":result}
         }
     } catch (error) {
@@ -65,7 +66,6 @@ export const deleteCategoria = async ({info})=>{
 
 export const addSubCategoria = async ({info})=>{
     var conn;
-    console.log(info)
     try {
         conn =await pool.getConnection();
         if(info.selectSubCategoria.idsubcategoria===undefined){
@@ -88,7 +88,6 @@ export const addSubCategoria = async ({info})=>{
 export const getSubCategoria = async ({info})=>{
     var conn;
     try {
-        console.log(info);
         conn =await pool.getConnection();
         const [result] = await conn.query('SELECT * FROM tkdb.subcategoria where idcategoria=? order by pesoini;',[info.idcategoria])
         return {"ok":result}
@@ -102,7 +101,6 @@ export const getSubCategoria = async ({info})=>{
 export const addGrado=async({info})=>{
     var conn;
     try {
-        console.log(info);
         conn =await pool.getConnection();
         const [result] = await conn.query('INSERT INTO tkdb.grado (nombre,tipo,idcampeonato) values (?,?,?);',[info.nombre,info.tipo,info.idcampeonato]);
         return {"ok":result}
@@ -116,7 +114,6 @@ export const addGrado=async({info})=>{
 export const getGrados=async({info})=>{
     var conn;
     try {
-        console.log(info);
         conn =await pool.getConnection();
         const [result] = await conn.query('SELECT idgrado,nombre,tipo FROM tkdb.grado where estado="A" and idcampeonato=? and tipo=?;',[info.idcampeonato,info.tipo]);
         if(result.length!==0){
@@ -138,7 +135,6 @@ export const getGrados=async({info})=>{
 export const deleteGrado=async({info})=>{
     var conn;
     try {
-        console.log(info);
         conn =await pool.getConnection();
         const [result] = await conn.query('UPDATE tkdb.grado set estado="E" where idgrado=?;',[info.idgrado]);
         return {"ok":result}
@@ -152,7 +148,6 @@ export const deleteGrado=async({info})=>{
 export const addCinturon=async({info})=>{
     var conn;
     try {
-        console.log(info);
         conn =await pool.getConnection();
         const [result] = await conn.query('INSERT INTO tkdb.cinturon (nombre,idgrado) values (?,?);',[info.nombre,info.idgrado]);
         return {"ok":result}
@@ -166,9 +161,21 @@ export const addCinturon=async({info})=>{
 export const deleteCinturon=async({info})=>{
     var conn;
     try {
-        console.log(info);
         conn =await pool.getConnection();
         const [result] = await conn.query('delete from tkdb.cinturon where idcinturon=?;',[info.idcinturon]);
+        return {"ok":result}
+    } catch (error) {
+        console.log(error);
+        return {"error":error.message}
+    }finally{
+        if(conn){await conn.release();}
+    }
+}
+export const deleteSubcategoria=async(info)=>{
+    var conn;
+    try {
+        conn =await pool.getConnection();
+        const [result] = await conn.query('delete from tkdb.subcategoria where idsubcategoria=?;',[info.idsubcategoria]);
         return {"ok":result}
     } catch (error) {
         console.log(error);

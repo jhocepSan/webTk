@@ -22,6 +22,26 @@ function PrincipalSubCategoria(props) {
         setTitulo("Editar Sub Categoria "+dato.nombre);
         setShowModal(true);
     }
+    const eliminarSubCategoria=(dato)=>{
+        fetch(`${server}/config/deleteSubcategoria`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify(dato)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    setActualizar(!actualizar);
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
+                setCargador(false);
+            })
+            .catch(error => MsgUtils.msgError(error));
+    }
     useEffect(() => {
         setCargador(true);
         setIdCategoria(selectCategoria.idcategoria);
@@ -38,7 +58,6 @@ function PrincipalSubCategoria(props) {
             .then(res => res.json())
             .then(data => {
                 if (data.ok) {
-                    console.log(data.ok);
                     setSubCategorias(data.ok);
                 } else {
                     MsgUtils.msgError(data.error);
@@ -85,7 +104,7 @@ function PrincipalSubCategoria(props) {
                                         <td>{item.pesofin}</td>
                                         <td className='text-end'>
                                             <div className='btn-group btn-group-sm'>
-                                                <button className='btn btn-sm text-danger' onClick={() => console.log(item)}>
+                                                <button className='btn btn-sm text-danger' onClick={() => eliminarSubCategoria(item)}>
                                                     <i className="fa-solid fa-trash fa-xl"></i>
                                                 </button>
                                                 <button className='btn btn-sm text-warning' onClick={() => editarSubCategoria(item)}>
@@ -110,7 +129,8 @@ function PrincipalSubCategoria(props) {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsPrefix='modal-header m-0 p-0'>
-                    <AddEditSubCategoria idCategoria={idCategoria} selectSubCategoria={selectSubCategoria} actualizarPagina={actualizarPagina}/>
+                    <AddEditSubCategoria idCategoria={idCategoria} selectSubCategoria={selectSubCategoria}
+                     actualizarPagina={actualizarPagina} subCategorias={subCategorias}/>
                 </Modal.Body>
             </Modal>
         </div>

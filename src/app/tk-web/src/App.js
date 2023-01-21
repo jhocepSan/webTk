@@ -9,6 +9,7 @@ import PrincipalRegistroCompetidor from "./components/RegistroCompetidor/Princip
 import PrincipalConfiguracion from "./components/Configuraciones/PrincipalConfiguracion";
 import PrincipalRegistroClub from "./components/RegistroClub/PrincipalRegistroClub";
 import AdminUsuario from "./components/AdminUser/AdminUsuario";
+import PrincipalTesting from "./components/GamePad/PrincipalTesting";
 function App() {
   return (
     <ContextAplicacion>
@@ -20,6 +21,7 @@ function App() {
           <Route path="/config" element={<PrincipalConfiguracion/>}/>
           <Route path="/regClub" element={<PrincipalRegistroClub/>}/>
           <Route path='/adminUser' element={<AdminUsuario/>}/>
+          <Route path="/gamePad" element={<PrincipalTesting/>}/>
         </Routes>
         <ToastContainer 
           position="bottom-right"

@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import ImgHeader from '../../assets/user.png'
 
 function getFoto(info,tam=50) {
     var imagen = Buffer.from(info);
@@ -17,7 +18,7 @@ function getFotoCard(info,tam=50) {
             <img src={src} width={tam} height={tam} className="rounded-circle d-inline-block align-text-top card-img-left my-auto" />
         );
     }else{
-        return (<i className="fa-solid fa-users"></i>);
+        return (<img src={ImgHeader} alt="" width="38" height="38" className="d-inline-block align-text-top my-auto" />);
     }
 }
 function getFotoCardNoticias(info,tam=50) {

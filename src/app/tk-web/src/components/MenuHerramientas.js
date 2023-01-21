@@ -38,6 +38,12 @@ function MenuHerramientas(props) {
                     <i className="fa-solid fa-users-gear"></i> Administrar Usuarios
                 </button>
             </li>
+            <li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===5?'menuActivo':''}`}>
+                <button className={`btn btn-sm w-100 ${menuActivo===5?'text-dark':'text-light'} text-start fs-6 menuTk`} 
+                    onClick={()=>cambiarVentana(5,"PRUEBA DE MANDOS INALAMBRICOS","gamePad")}>
+                    <i className="fa-solid fa-gamepad"></i> Prueba de Mandos
+                </button>
+            </li>
         </ul>
     )
 }

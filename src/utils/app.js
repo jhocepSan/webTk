@@ -5,6 +5,7 @@ import loginRoutes from '../routes/login.routes.js'
 import clubRoutes from '../routes/club.routes.js'
 import confRoutes from '../routes/configuraciones.routes.js'
 import userRoutes from '../routes/user.routes.js'
+import competidorRoutes from '../routes/competidor.routes.js'
 import {dirname, join} from 'path'
 import {fileURLToPath} from 'url'
 const app =express();
@@ -23,6 +24,7 @@ app.use('/login',loginRoutes);
 app.use('/club',clubRoutes);
 app.use('/config',confRoutes);
 app.use('/usuario',userRoutes);
+app.use('/competidor',competidorRoutes);
 app.get("*", (req, res) => {
     res.sendFile(
       dirname(join(__dirname,"../app/tk-web/build/index.html"))
