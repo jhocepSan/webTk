@@ -1,0 +1,199 @@
+import React, { useEffect, useState, useContext } from 'react'
+import { ContextAplicacions } from '../Context/ContextAplicacion';
+import { useNavigate } from 'react-router-dom';
+import MsgUtils from '../utils/MsgUtils';
+import UtilsCargador from '../utils/UtilsCargador';
+import AddEditCategoria from './AddEditCategoria';
+import Modal from 'react-bootstrap/Modal';
+import PrincipalSubCategoria from './PrincipalSubCategoria';
+import GradosConfig from './GradosConfig';
+import Header from '../Header';
+
+const server = process.env.REACT_APP_SERVER;
+
+function PrincipalConfiguracion() {
+  const navigate = useNavigate();
+  const { setLogin, setUserLogin, campeonato, setCampeonato } = useContext(ContextAplicacions);
+  const [ventana, setVentana] = useState(0);
+  const [categorias, setCategorias] = useState([]);
+  const [cargador, setCargador] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [titulo, setTitulo] = useState('');
+  const [actualizar, setActualizar] = useState(false);
+  const [selectCategoria, setSelectCategoria] = useState({});
+  const [genero, setGenero] = useState('M');
+  const abrirSubCategoria = (dato) => {
+    setSelectCategoria(dato);
+    //setActualizar(!actualizar);
+  }
+
+  const editarCategoria = (dato) => {
+    setSelectCategoria(dato);
+    setTitulo("Editar Categoria " + dato.nombre);
+    setShowModal(true);
+  }
+
+  const eliminarCategoria = (dato) => {
+    fetch(`${server}/config/deleteCategoria`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify({
+        info: {
+          dato
+        }
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          console.log(data.ok);
+          MsgUtils.msgCorrecto("Eliminado")
+          setCategorias(categorias.filter((item) => item.idcategoria !== dato.idcategoria));
+          setSelectCategoria({});
+        } else {
+          MsgUtils.msgError(data.error);
+        }
+
+      })
+      .catch(error => MsgUtils.msgError(error));
+  }
+
+  useEffect(() => {
+    setCargador(true);
+    fetch(`${server}/config/getCategoria`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify({
+        campeonato,genero
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          setSelectCategoria({});
+          setCategorias(data.ok);
+        } else {
+          MsgUtils.msgError(data.error);
+        }
+        setCargador(false);
+      })
+      .catch(error => MsgUtils.msgError(error));
+  }, [actualizar])
+  useEffect(() => {
+    var sessionActiva = JSON.parse(localStorage.getItem('login'));
+    var cmp = JSON.parse(localStorage.getItem('campeonato'));
+    if (sessionActiva !== null) {
+      setCampeonato(cmp);
+      setLogin(true);
+      setUserLogin(sessionActiva);
+      navigate("/config", { replace: true });
+    }
+  }, [])
+  return (
+    <div>
+      <Header />
+      <UtilsCargador show={cargador} />
+      <div className='container-fluid  bg-dark'>
+        <div className="btn-group btn-group-sm">
+          <button className={`btn btn-sm btn-gradient letraBtn ${ventana === 0 ? 'menuActivo' : 'btn-secondary'}`} onClick={() => {setVentana(0);setActualizar(!actualizar)}}>
+            <i className="fa-solid fa-landmark"></i> Categorias
+          </button>
+          <button className={`btn btn-sm btn-gradient mx-2 letraBtn ${ventana === 1 ? 'menuActivo' : 'btn-secondary'}`} onClick={() => setVentana(1)}>
+            <i className="fa-solid fa-graduation-cap"></i> Grados
+          </button>
+          <button className={`btn btn-sm btn-gradient letraBtn ${ventana === 2 ? 'menuActivo' : 'btn-secondary'}`} onClick={() => setVentana(2)}>
+            <i className="fa-solid fa-hand-fist"></i> Combate
+          </button>
+        </div>
+      </div>
+      {ventana === 0 && <>
+        <div className='container-fluid bg-dark bg-gradient py-1'>
+          <div className="input-group input-group-sm" style={{ width: '200px' }}>
+            <span className="input-group-text bg-transparent text-light border-dark letraBtn" >Genero</span>
+            <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn" 
+              value={genero} onChange={(e) => {setGenero(e.target.value);setActualizar(!actualizar)}}>
+              <option value={'M'}>Masculino</option>
+              <option value={'F'}>Femenino</option>
+            </select>
+          </div>
+        </div>
+        <div className='container-fluid py-1 px-1'>
+          <div className='row row-cols-1 row-cols-md-2 g-1'>
+            <div className='col'>
+              <div className='table-responsive'>
+                <table className="table table-dark table-hover table-sm">
+                  <thead>
+                    <tr className='text-center'>
+                      <th className="col-3">Categoria</th>
+                      <th className="col-2">Edad Ini</th>
+                      <th className="col-2">Edad Fin</th>
+                      <th className="col text-end">
+                        <button className='btn btn-sm btn-success bg-gradient'
+                          onClick={() => { setSelectCategoria({}); setTitulo("Registrar Nueva Categoria"); setShowModal(true) }}>
+                          <i className="fa-solid fa-circle-plus fa-fade fa-xl"></i> Agregar
+                        </button>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {categorias.map((item, index) => {
+                      return (
+                        <tr key={index} className={`text-center ${selectCategoria.idcategoria !== undefined && selectCategoria.idcategoria === item.idcategoria ? 'table-active' : ''}`}>
+                          <th>{item.nombre}</th>
+                          <td>{item.edadini}</td>
+                          <td>{item.edadfin}</td>
+                          <td className='text-end'>
+                            <div className='btn-group btn-group-sm'>
+                              <button className='btn btn-sm text-danger' onClick={() => eliminarCategoria(item)}>
+                                <i className="fa-solid fa-trash fa-xl"></i>
+                              </button>
+                              <button className='btn btn-sm text-warning' onClick={() => editarCategoria(item)}>
+                                <i className="fa-solid fa-file-pen fa-xl"></i>
+                              </button>
+                              <button className='btn btn-sm text-success' onClick={() => abrirSubCategoria(item)}>
+                                <i className="fa-solid fa-chart-simple fa-xl"></i>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            {selectCategoria.idcategoria !== undefined &&
+              <div className='col'>
+                <PrincipalSubCategoria selectCategoria={selectCategoria} />
+              </div>}
+          </div>
+        </div></>}
+      {ventana === 1 &&
+        <GradosConfig campeonato={campeonato} setCampeonato={setCampeonato}/>
+      }
+      <Modal show={showModal} onHide={() => setShowModal(false)}
+        aria-labelledby="contained-modal-title-vcenter"
+        contentClassName='bg-dark bg-gradient'>
+        <Modal.Header closeButton closeVariant='white' bsPrefix='modal-header m-0 p-0 px-2 '>
+          <Modal.Title >
+            <div className='text-light letraMontserratr mx-auto'>
+              {titulo}
+            </div>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body bsPrefix='modal-header m-0 p-0'>
+          <AddEditCategoria actualizar={actualizar} selectCategoria={selectCategoria}
+            setActualizar={setActualizar} setShowModal={setShowModal} genero={genero} categorias={categorias}/>
+        </Modal.Body>
+      </Modal>
+    </div>
+  )
+}
+
+export default PrincipalConfiguracion
