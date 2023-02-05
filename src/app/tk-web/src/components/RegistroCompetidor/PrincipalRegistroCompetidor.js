@@ -17,13 +17,13 @@ function PrincipalRegistroCompetidor() {
   const [actualizar, setActualizar] = useState(false);
   const [idCampeonato, setIdCampeonato] = useState(0);
   const [listaCompetidores, setListaCompetidores] = useState([]);
-  const [selectItem,setSelectItem] = useState({});
-  const [cargador,setCargador] = useState(false);
-  const editarUsuario=(dato)=>{
+  const [selectItem, setSelectItem] = useState({});
+  const [cargador, setCargador] = useState(false);
+  const editarUsuario = (dato) => {
     setSelectItem(dato);
     setShowModal(true);
   }
-  const eliminarUsuario=(dato)=>{
+  function cambiarEstadoC(dato) {
     fetch(`${server}/competidor/deleteCompetidor`, {
       method: 'POST',
       headers: {
@@ -42,10 +42,40 @@ function PrincipalRegistroCompetidor() {
       })
       .catch(error => MsgUtils.msgError(error));
   }
-  function actualizarDatos(){
+  const eliminarUsuario = (dato) => {
+    dato.estado = 'E'
+    cambiarEstadoC(dato);
+  }
+  function cambiarEstado(dato) {
+    if (dato.estado === 'P') {
+      dato.estado = 'A';
+    } else {
+      dato.estado = 'P';
+    }
+    cambiarEstadoC(dato);
+  }
+  function actualizarDatos() {
     setSelectItem({});
     setShowModal(false);
     setActualizar(!actualizar);
+  }
+  function buscarCompetidor() {
+    var input, filter, table, tr, td, i;
+    input = document.getElementById("competidor");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("competidoresLista");
+    tr = table.getElementsByTagName("tr");
+    for (i = 0; i < tr.length; i++) {
+      td = tr[i].getElementsByTagName("div")[0];      
+      if (td) {
+        var valor=td.getElementsByTagName('div')[1].innerHTML;        
+        if (valor.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
   }
   useEffect(() => {
     if (tipo !== '' && genero !== '') {
@@ -71,7 +101,7 @@ function PrincipalRegistroCompetidor() {
         })
         .catch(error => MsgUtils.msgError(error));
     }
-  }, [tipo, genero,club ,actualizar])
+  }, [tipo, genero, club, actualizar])
   useEffect(() => {
     var info = JSON.parse(localStorage.getItem('campeonato'));
     var user = JSON.parse(localStorage.getItem('login'));
@@ -136,8 +166,9 @@ function PrincipalRegistroCompetidor() {
           </div>
           <div className='col-8 col-md-2'>
             <div className="input-group input-group-sm">
-              <input type="text" className="form-control form-control-sm" placeholder="Buscar Competidor" />
-              <button className='btn btn-sm btn-danger m-0 p-0'>
+              <input type="text" className="form-control form-control-sm"
+                placeholder="Buscar Competidor" id='competidor' onChange={() => buscarCompetidor()} />
+              <button className='btn btn-sm btn-danger m-0 p-0' onClick={() => {document.getElementById('competidor').value = '';buscarCompetidor();}}>
                 <i className="fa-solid fa-delete-left fa-xl"></i>
               </button>
             </div>
@@ -152,28 +183,40 @@ function PrincipalRegistroCompetidor() {
         </div>
       </div>
       <div className='table-responsive'>
-        <table className="table table-dark table-striped table-hover">
+        <table className="table table-dark table-striped table-hover" id='competidoresLista'>
           <tbody>
             {listaCompetidores.map((item, index) => {
               return (
                 <tr key={index}>
-                  <th scope="row" className='col-1 col-md-6'><Competidor user={item} /></th>
+                  <td scope="row" className='col-1 col-md-6'><Competidor user={item} /></td>
                   <td className='col-3 col-md-2'>
                     <div className='container-fluid p-0 m-0' style={{ fontSize: '13px' }}>
-                      <div className='letraMontserratr'>{'Edad: ' + item.edad}</div>
-                      <div className='letraMontserratr'>{'Peso: ' + item.peso}</div>
-                      <div className='letraMontserratr'>{'Altura: ' + item.altura}</div>
+                      <div className='letraMontserratr' id='nombre'>{'Edad: ' + item.edad + ' años'}</div>
+                      <div className='letraMontserratr'>{'Peso: ' + item.peso + ' kg'}</div>
+                      <div className='letraMontserratr'>{'Altura: ' + item.altura + ' m'}</div>
                     </div>
                   </td>
-                  <td className='my-auto col-2 col-md-1'>{item.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}</td>
+                  <td className='my-auto col-2 col-md-1'>
+                    <div className='container-fluid'>
+                      {item.genero === 'M' ? 'MASCULINO' : 'FEMENINO'}
+                    </div>
+                    <div className='container-fluid'>
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox"
+                          checked={item.estado === 'P' ? false : true}
+                          onChange={() => cambiarEstado(item)} />
+                        <label class="form-check-label" ><span class={item.estado === 'P' ? 'badge bg-warning' : 'badge bg-success'}>{item.estado === 'P' ? 'COMPETIRA?' : 'COMPETIDOR'}</span></label>
+                      </div>
+                    </div>
+                  </td>
                   <td>
                     <div className="btn-group" role="group" aria-label="Basic example">
                       <button type="button" className="btn btn-sm text-danger m-0 p-0"
-                        onClick={()=>eliminarUsuario(item)}>
+                        onClick={() => eliminarUsuario(item)}>
                         <i className="fa-solid fa-trash-can fa-xl"></i>
                       </button>
                       <button type="button" className="btn btn-sm text-warning m-0 p-0 mx-2"
-                        onClick={()=>editarUsuario(item)}>
+                        onClick={() => editarUsuario(item)}>
                         <i className="fa-solid fa-pen-to-square fa-xl"></i>
                       </button>
                     </div>
@@ -197,7 +240,7 @@ function PrincipalRegistroCompetidor() {
         </Modal.Header>
         <Modal.Body>
           <AddEditCompetidor listaClubs={listaClubs} selectItem={selectItem} club={club}
-            tipo={tipo} actualizarDatos={actualizarDatos} generoee={genero}/>
+            tipo={tipo} actualizarDatos={actualizarDatos} generoee={genero} />
         </Modal.Body>
       </Modal>
     </>

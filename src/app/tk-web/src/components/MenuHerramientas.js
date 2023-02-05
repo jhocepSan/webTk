@@ -26,6 +26,12 @@ function MenuHerramientas(props) {
                     <i className="fa-solid fa-people-group"></i> Registrar Competidor
                 </button>
             </li>
+            <li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===6?'menuActivo':''}`}>
+                <button className={`btn btn-sm w-100 ${menuActivo===6?'text-dark':'text-light'} text-start fs-6 menuTk`} 
+                    onClick={()=>cambiarVentana(6,"LISTAS COMPETIDOR","listCompe")}>
+                    <i className="fa-solid fa-people-group"></i> Lista Competidores
+                </button>
+            </li>
             <li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===3?'menuActivo':''}`}>
                 <button className={`btn btn-sm w-100 ${menuActivo===3?'text-dark':'text-light'} text-start fs-6 menuTk`} 
                     onClick={()=>cambiarVentana(3,"REGISTRO CLUB","regClub")}>

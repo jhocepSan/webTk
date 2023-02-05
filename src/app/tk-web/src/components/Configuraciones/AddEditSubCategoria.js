@@ -24,7 +24,7 @@ function AddEditSubCategoria(props) {
     const guardarSubCategoria=()=>{
         if(validarCampos()){
             var sbc = subCategorias.filter((item)=>item.nombre==nombre);
-            if(sbc.length===0){
+            if(true){
                 fetch(`${server}/config/addSubCategoria`, {
                     method: 'POST',
                     headers: {
