@@ -50,6 +50,12 @@ function MenuHerramientas(props) {
                     <i className="fa-solid fa-gamepad"></i> Prueba de Mandos
                 </button>
             </li>
+            <li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===7?'menuActivo':''}`}>
+                <button className={`btn btn-sm w-100 ${menuActivo===7?'text-dark':'text-light'} text-start fs-6 menuTk`} 
+                    onClick={()=>cambiarVentana(7,"Sistema de Puntuación","gamePunt")}>
+                    <i className="fa-solid fa-network-wired"></i> Sistema Puntuación
+                </button>
+            </li>
         </ul>
     )
 }

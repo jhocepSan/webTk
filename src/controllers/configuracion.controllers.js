@@ -29,6 +29,26 @@ export const getCategoria = async (info)=>{
     }
 }
 
+export const getConfiCategoria = async(info)=>{
+    var conn;
+    try {
+        conn =await pool.getConnection();
+        const [result] = await conn.query('SELECT * FROM tkdb.categoria where genero=? and idcampeonato=? order by edadini;',
+        [info.genero,info.idcampeonato]);
+        var information=[]
+        for (var categoria of result){
+            const [result] = await conn.query('SELECT * FROM tkdb.subcategoria where idcategoria=? order by pesoini;',[categoria.idcategoria])
+            information.push({...categoria,'SUBCATEGORIA':result})
+        }
+        return {"ok":information}
+    } catch (error) {
+        console.log(error);
+        return {"error":error.message}
+    }finally{
+        if(conn){await conn.release();}
+    }
+}
+
 export const addCategoria = async ({info})=>{
     var conn;
     try {

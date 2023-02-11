@@ -1,6 +1,6 @@
 import {Router} from 'express';
 import {getGrados,getCategoria,addCategoria,deleteCategoria,addCinturon,deleteGrado,deleteCinturon,
-    addSubCategoria,getSubCategoria,addGrado,getCampeonato,deleteSubcategoria} from '../controllers/configuracion.controllers.js'
+    addSubCategoria,getSubCategoria,addGrado,getCampeonato,deleteSubcategoria,getConfiCategoria} from '../controllers/configuracion.controllers.js'
 const router = Router();
 
 router.post('/getGrados',async(req,res)=>{
@@ -108,5 +108,12 @@ router.get('/getCampeonato',async(req,res)=>{
         res.status(404).json(result);
     }
 });
-
+router.post('/getConfiCategoria',async(req,res)=>{
+    const result = await getConfiCategoria(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
 export default router;

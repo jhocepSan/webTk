@@ -25,7 +25,7 @@ function AddEditCategoria(props) {
     const guardarCategoria=()=>{
         if(validarCampos()){
             var ctg=categorias.filter((item)=>item.nombre==nombre);
-            if(ctg.length==0){
+            if(true){
                 var idcampeonato = JSON.parse(localStorage.getItem('campeonato')).idcampeonato;
                 fetch(`${server}/config/addCategoria`, {
                     method: 'POST',

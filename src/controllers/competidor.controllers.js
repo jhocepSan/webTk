@@ -49,3 +49,30 @@ export const deleteCompetidor=async(info)=>{
         if (conn) { await conn.release(); }
     }
 }
+
+export const getCompetidorClasificado=async(info)=>{
+    var sql='SELECT *,(select nombre from tkdb.club where idclub=c.idclub) as club, '+
+        '(select nombre from tkdb.cinturon where idcinturon=c.idcinturon) as cinturon, '+
+        '(SELECT gr.nombre FROM tkdb.grado gr inner join tkdb.cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, '+
+        '(select cate.idcategoria from tkdb.categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin '+
+        'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as idcategoria, '+
+        '(select cate.nombre from tkdb.categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin '+
+        'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as nombrecategoria, '+
+        '(select subcate.idsubcategoria from tkdb.categoria cate inner join tkdb.subcategoria subcate on subcate.idcategoria=cate.idcategoria '+
+        'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as idsubcategoria, '+
+        '(select subcate.nombre from tkdb.categoria cate inner join tkdb.subcategoria subcate on subcate.idcategoria=cate.idcategoria '+
+        'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria '+
+        'FROM tkdb.competidor c WHERE c.idcampeonato=? and c.tipo=? and c.genero=? and c.estado="A";'
+    var conn;
+    try {
+        conn = await pool.getConnection();
+        const [result] = await conn.query(sql,
+            [ info.idCampeonato, info.tipo,info.genero])
+        return { "ok": result }
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}

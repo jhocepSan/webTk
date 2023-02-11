@@ -33,6 +33,7 @@ export const iniciarSession = async ({correo,password})=>{
     try {
         conn =await pool.getConnection();
         const [result] = await conn.query('select * from tkdb.usuario where correo=?',[correo])
+        console.log(result)
         if(result.length!==0){
             if(bycript.compareSync(password, result[0].password)){
                 return {"ok":{
