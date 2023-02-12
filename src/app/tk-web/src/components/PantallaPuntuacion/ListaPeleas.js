@@ -1,9 +1,11 @@
 import React, { useContext } from 'react'
 import { ContextPuntuacion } from './PrincipalPuntuacion';
 function ListaPeleas() {
-    const { setPausa, setJugadorAzul, setJugadorRojo } = useContext(ContextPuntuacion);
+    const { setPausa, setJugadorAzul, setJugadorRojo,setShowModal } = useContext(ContextPuntuacion);
     function seleccionarPelea(){
         console.log("hola")
+        setPausa(true)
+        setShowModal(false)
     }
     return (
         <div className='container-fluid py-2'>
