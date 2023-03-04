@@ -7,9 +7,9 @@ export const agregarUsuario = async ({info})=>{
     try {
         var newPassword = bycript.hashSync(info.password,10);
         conn =await pool.getConnection();
-        const [result] = await conn.query('SELECT idusuario from tkdb.usuario where correo=?',[info.correo])
+        const [result] = await conn.query('SELECT idusuario from usuario where correo=?',[info.correo])
         if(result.length===0){
-            const [rows]=await conn.query('INSERT INTO tkdb.usuario (correo,password,nombres,apellidos,ci) values (?,?,?,?,?)',[
+            const [rows]=await conn.query('INSERT INTO usuario (correo,password,nombres,apellidos,ci) values (?,?,?,?,?)',[
                 info.correo,newPassword,info.nombres,info.apellidos,info.ciUser
             ]);
             return {"ok":{
@@ -32,7 +32,7 @@ export const iniciarSession = async ({correo,password})=>{
     var conn;
     try {
         conn =await pool.getConnection();
-        const [result] = await conn.query('select * from tkdb.usuario where correo=?',[correo])
+        const [result] = await conn.query('select * from usuario where correo=?',[correo])
         console.log(result)
         if(result.length!==0){
             if(bycript.compareSync(password, result[0].password)){

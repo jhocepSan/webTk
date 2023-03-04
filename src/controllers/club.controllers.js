@@ -4,7 +4,7 @@ export const getListaClub = async ()=>{
     var conn;
     try {
         conn =await pool.getConnection();
-        const [result] = await conn.query('SELECT * FROM tkdb.club where estado="A";')
+        const [result] = await conn.query('SELECT * FROM club where estado="A";')
         return {"ok":result}
     } catch (error) {
         console.log(error);
@@ -20,7 +20,7 @@ export const addClub = async ({info})=>{
     try {
         var buf = Buffer.from(info.direccion);
         conn =await pool.getConnection();
-        const [result] = await conn.query('insert into tkdb.club (nombre,abreviado,direccion,telefono) value (?,?,?,?)',[
+        const [result] = await conn.query('insert into club (nombre,abreviado,direccion,telefono) value (?,?,?,?)',[
             info.nombre,info.nombreAbr,buf,info.telefono
         ])
         return {"ok":result}
@@ -36,7 +36,7 @@ export const deleteClub = async ({info})=>{
     var conn;
     try {
         conn =await pool.getConnection();
-        const [result] = await conn.query('update tkdb.club set estado="E" where idclub=?;',info.idclub)
+        const [result] = await conn.query('update club set estado="E" where idclub=?;',info.idclub)
         return {"ok":result}
     } catch (error) {
         console.log(error);
@@ -50,7 +50,7 @@ export const editarClub = async ({info})=>{
     try {
         var buf = Buffer.from(info.direccion);
         conn =await pool.getConnection();
-        const [result] = await conn.query('update tkdb.club set nombre=?,abreviado=?,direccion=?,telefono=? where idclub=?;',
+        const [result] = await conn.query('update club set nombre=?,abreviado=?,direccion=?,telefono=? where idclub=?;',
         [info.nombre,info.nombreAbr,buf,info.telefono,info.idClub]);
         return {"ok":result}
     } catch (error) {

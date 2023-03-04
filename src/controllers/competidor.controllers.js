@@ -5,11 +5,11 @@ export const addEditCompetidor = async (info) => {
     try {
         conn = await pool.getConnection();
         if (info.idCompetidor === 0) {
-            const [result] = await conn.query('INSERT INTO tkdb.competidor (nombres,apellidos,fecha,edad,peso,ci,idclub,idcinturon,idcampeonato,tipo,idgrado,genero,altura) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);',
+            const [result] = await conn.query('INSERT INTO competidor (nombres,apellidos,fecha,edad,peso,ci,idclub,idcinturon,idcampeonato,tipo,idgrado,genero,altura) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);',
                 [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado,info.genero,info.altura])
             return { "ok": "GUARDADO" }
         } else {
-            const [result] = await conn.query('UPDATE tkdb.competidor SET nombres=?,apellidos=?,fecha=?,edad=?,peso=?,ci=?,idclub=?,idcinturon=?,idcampeonato=?,tipo=?,idgrado=?,genero=?,altura=? WHERE idcompetidor=?;',
+            const [result] = await conn.query('UPDATE competidor SET nombres=?,apellidos=?,fecha=?,edad=?,peso=?,ci=?,idclub=?,idcinturon=?,idcampeonato=?,tipo=?,idgrado=?,genero=?,altura=? WHERE idcompetidor=?;',
                 [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado,info.genero,info.altura,info.idCompetidor])
             return { "ok": "ACTUALIZANDO" }
         }
@@ -24,7 +24,7 @@ export const getCompetidores = async (info) => {
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query('SELECT *,(select nombre from tkdb.club where idclub=c.idclub) as club,(select nombre from tkdb.cinturon where idcinturon=c.idcinturon) as cinturon FROM tkdb.competidor c WHERE c.idcampeonato=? and c.idclub=? and c.tipo=? and c.genero=? and c.estado!="E";',
+        const [result] = await conn.query('SELECT *,(select nombre from club where idclub=c.idclub) as club,(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon FROM competidor c WHERE c.idcampeonato=? and c.idclub=? and c.tipo=? and c.genero=? and c.estado!="E";',
             [ info.idCampeonato,info.club, info.tipo,info.genero])
         return { "ok": result }
     } catch (error) {
@@ -39,7 +39,7 @@ export const deleteCompetidor=async(info)=>{
     try {
         console.log(info);
         conn = await pool.getConnection();
-        const [result] = await conn.query('UPDATE tkdb.competidor SET estado=? WHERE idcompetidor=?;',
+        const [result] = await conn.query('UPDATE competidor SET estado=? WHERE idcompetidor=?;',
             [ info.estado,info.idcompetidor])
         return { "ok": result }
     } catch (error) {
@@ -51,18 +51,18 @@ export const deleteCompetidor=async(info)=>{
 }
 
 export const getCompetidorClasificado=async(info)=>{
-    var sql='SELECT *,(select nombre from tkdb.club where idclub=c.idclub) as club, '+
-        '(select nombre from tkdb.cinturon where idcinturon=c.idcinturon) as cinturon, '+
-        '(SELECT gr.nombre FROM tkdb.grado gr inner join tkdb.cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, '+
-        '(select cate.idcategoria from tkdb.categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin '+
+    var sql='SELECT *,(select nombre from club where idclub=c.idclub) as club, '+
+        '(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, '+
+        '(SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, '+
+        '(select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin '+
         'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as idcategoria, '+
-        '(select cate.nombre from tkdb.categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin '+
+        '(select cate.nombre from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin '+
         'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as nombrecategoria, '+
-        '(select subcate.idsubcategoria from tkdb.categoria cate inner join tkdb.subcategoria subcate on subcate.idcategoria=cate.idcategoria '+
+        '(select subcate.idsubcategoria from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria '+
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as idsubcategoria, '+
-        '(select subcate.nombre from tkdb.categoria cate inner join tkdb.subcategoria subcate on subcate.idcategoria=cate.idcategoria '+
+        '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria '+
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria '+
-        'FROM tkdb.competidor c WHERE c.idcampeonato=? and c.tipo=? and c.genero=? and c.estado="A" order by c.idgrado;'
+        'FROM competidor c WHERE c.idcampeonato=? and c.tipo=? and c.genero=? and c.estado="A" order by c.idgrado;'
     var conn;
     try {
         conn = await pool.getConnection();
@@ -77,18 +77,18 @@ export const getCompetidorClasificado=async(info)=>{
     }
 }
 export const getCompetidorSinPelea=async(info)=>{
-    var sql='SELECT *,(select nombre from tkdb.club where idclub=c.idclub) as club, '+
-        '(select nombre from tkdb.cinturon where idcinturon=c.idcinturon) as cinturon, '+
-        '(SELECT gr.nombre FROM tkdb.grado gr inner join tkdb.cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, '+
-        '(select cate.idcategoria from tkdb.categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin '+
+    var sql='SELECT *,(select nombre from club where idclub=c.idclub) as club, '+
+        '(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, '+
+        '(SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, '+
+        '(select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin '+
         'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as idcategoria, '+
-        '(select cate.nombre from tkdb.categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin '+
+        '(select cate.nombre from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin '+
         'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as nombrecategoria, '+
-        '(select subcate.idsubcategoria from tkdb.categoria cate inner join tkdb.subcategoria subcate on subcate.idcategoria=cate.idcategoria '+
+        '(select subcate.idsubcategoria from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria '+
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as idsubcategoria, '+
-        '(select subcate.nombre from tkdb.categoria cate inner join tkdb.subcategoria subcate on subcate.idcategoria=cate.idcategoria '+
+        '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria '+
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria '+
-        'FROM tkdb.competidorsinpelea c WHERE c.idcampeonato=? and c.tipo=? and c.genero=? and c.estado="A" order by c.idgrado;'
+        'FROM competidorsinpelea c WHERE c.idcampeonato=? and c.tipo=? and c.genero=? and c.estado="A" order by c.idgrado;'
     var conn;
     try {
         conn = await pool.getConnection();
@@ -103,18 +103,18 @@ export const getCompetidorSinPelea=async(info)=>{
     }
 }
 const getCompetidorClasificados=async (info)=>{
-    var sql='SELECT * FROM (SELECT *,(select nombre from tkdb.club where idclub=c.idclub) as club, '+
-        '(select nombre from tkdb.cinturon where idcinturon=c.idcinturon) as cinturon, '+
-        '(SELECT gr.nombre FROM tkdb.grado gr inner join tkdb.cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, '+
-        '(select cate.idcategoria from tkdb.categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin '+
+    var sql='SELECT * FROM (SELECT *,(select nombre from club where idclub=c.idclub) as club, '+
+        '(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, '+
+        '(SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, '+
+        '(select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin '+
         'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as idcategoria, '+
-        '(select cate.nombre from tkdb.categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin '+
+        '(select cate.nombre from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin '+
         'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as nombrecategoria, '+
-        '(select subcate.idsubcategoria from tkdb.categoria cate inner join tkdb.subcategoria subcate on subcate.idcategoria=cate.idcategoria '+
+        '(select subcate.idsubcategoria from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria '+
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as idsubcategoria, '+
-        '(select subcate.nombre from tkdb.categoria cate inner join tkdb.subcategoria subcate on subcate.idcategoria=cate.idcategoria '+
+        '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria '+
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria '+
-        'FROM tkdb.competidor c WHERE c.idcampeonato=? and c.tipo=? and c.genero=? and c.estado="A" and c.idgrado=?)res '+
+        'FROM competidor c WHERE c.idcampeonato=? and c.tipo=? and c.genero=? and c.estado="A" and c.idgrado=?)res '+
         'where res.idcategoria=? and res.idsubcategoria=? ; '
     var conn;
     try {
@@ -130,7 +130,7 @@ const getCompetidorClasificados=async (info)=>{
     }
 }
 const generarPelea = async (info)=>{
-    var sql = 'INSERT INTO tkdb.pelea (idllave,idcompetidor1,idcompetidor2,nropelea) VALUES (?,?,?,?);'
+    var sql = 'INSERT INTO pelea (idllave,idcompetidor1,idcompetidor2,nropelea) VALUES (?,?,?,?);'
     var conn;
     try {
         var competidores = info.COMPETIDORES.sort(function(a,b){return (Math.random()-0.5)})
@@ -155,8 +155,8 @@ const generarPelea = async (info)=>{
     }
 }
 export const generateLLaves=async(info)=>{
-    var sql='SELECT idgrado,nombre,tipo FROM tkdb.grado where estado="A" and idcampeonato=? and tipo=?;'
-    var sql2='INSERT INTO tkdb.llave (tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato) VALUES (?,?,?,?,?,?) ;'
+    var sql='SELECT idgrado,nombre,tipo FROM grado where estado="A" and idcampeonato=? and tipo=?;'
+    var sql2='INSERT INTO llave (tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato) VALUES (?,?,?,?,?,?) ;'
     var conn;
     try {
         conn = await pool.getConnection();
@@ -185,7 +185,7 @@ export const generateLLaves=async(info)=>{
                             }
                         }else if(competidores.ok.length==1){
                             var est = competidores.ok[0]
-                            const [result] = await conn.query('INSERT INTO tkdb.competidorsinpelea (nombres,apellidos,fecha,edad,peso,ci,idclub,idcinturon,idcampeonato,tipo,idgrado,genero,altura) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);',
+                            const [result] = await conn.query('INSERT INTO competidorsinpelea (nombres,apellidos,fecha,edad,peso,ci,idclub,idcinturon,idcampeonato,tipo,idgrado,genero,altura) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);',
                                 [est.nombres, est.apellidos,est.fecha, est.edad, est.peso, est.ci, est.idclub, est.idcinturon, est.idcampeonato, est.tipo, est.idgrado,est.genero,est.altura])
                             console.log(result)
                             console.log(result.insertId)
@@ -207,9 +207,9 @@ export const generateLLaves=async(info)=>{
 }
 
 export const generateLLaveManual = async (info)=>{
-    var sql = 'INSERT INTO tkdb.pelea (idllave,idcompetidor1,idcompetidor2,nropelea) VALUES (?,?,?,?);'
-    var sql2='INSERT INTO tkdb.llave (tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato) VALUES (?,?,?,?,?,?) ;'
-    var sql3='UPDATE tkdb.competidorsinpelea SET estado="E" WHERE idcompetidor=? '
+    var sql = 'INSERT INTO pelea (idllave,idcompetidor1,idcompetidor2,nropelea) VALUES (?,?,?,?);'
+    var sql2='INSERT INTO llave (tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato) VALUES (?,?,?,?,?,?) ;'
+    var sql3='UPDATE competidorsinpelea SET estado="E" WHERE idcompetidor=? '
     var conn;
     try {
         conn = await pool.getConnection();
@@ -243,17 +243,17 @@ export const generateLLaveManual = async (info)=>{
 export const obtenerLlaves=async(info)=>{
     var sql = 'SELECT lv.idllave,lv.fecha,lv.tipo,lv.idgrado,lv.genero,lv.idcategoria,lv.idsubcategoria,lv.idcampeonato,lv.estado, '+
         'gr.nombre as nombregrado,cat.nombre as nombrecategoria,scat.nombre as nombresubcategoria,cat.edadini,cat.edadfin,scat.pesoini,scat.pesofin '+
-        'FROM tkdb.llave lv INNER JOIN tkdb.grado gr on gr.idgrado=lv.idgrado '+
-        'INNER JOIN tkdb.categoria cat on cat.idcategoria=lv.idcategoria '+
-        'INNER JOIN tkdb.subcategoria scat on scat.idsubcategoria=lv.idsubcategoria '+
+        'FROM llave lv INNER JOIN grado gr on gr.idgrado=lv.idgrado '+
+        'INNER JOIN categoria cat on cat.idcategoria=lv.idcategoria '+
+        'INNER JOIN subcategoria scat on scat.idsubcategoria=lv.idsubcategoria '+
         'WHERE lv.tipo=? and lv.idcampeonato=? and lv.genero=? '+
-        'UNION SELECT idllave,fecha,tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato,estado,"MANUAL","MANUAL","MANUAL",1,1,1,1 FROM tkdb.llave where idgrado=-1 ;';
+        'UNION SELECT idllave,fecha,tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato,estado,"MANUAL","MANUAL","MANUAL",1,1,1,1 FROM llave where idgrado=-1 ;';
     var sql2 = 'SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,res.nropelea,res.idganador,res.idperdedor,res.nombres,res.apellidos,res.clubuno, '+
-        'cm.nombres as nombres2,cm.apellidos as apellidos2,(select cl.nombre from tkdb.club cl where cl.idclub=cm.idclub) as clubdos FROM '+
+        'cm.nombres as nombres2,cm.apellidos as apellidos2,(select cl.nombre from club cl where cl.idclub=cm.idclub) as clubdos FROM '+
         '(SELECT p.idpelea,p.idpeleapadre,p.idllave,p.idcompetidor1,p.idcompetidor2,p.nropelea,p.idganador,p.idperdedor,c.nombres,c.apellidos, '+
-        '(select cl.nombre from tkdb.club cl where cl.idclub=c.idclub) as clubuno '+
-        'FROM tkdb.pelea p inner join tkdb.competidor c on c.idcompetidor=p.idcompetidor1) res '+
-        'INNER JOIN tkdb.competidor cm on cm.idcompetidor=res.idcompetidor2 where res.idllave=?'; 
+        '(select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno '+
+        'FROM pelea p inner join competidor c on c.idcompetidor=p.idcompetidor1) res '+
+        'INNER JOIN competidor cm on cm.idcompetidor=res.idcompetidor2 where res.idllave=?'; 
     var conn;
     try {
         conn = await pool.getConnection();
