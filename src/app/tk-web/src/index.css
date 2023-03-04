@@ -57,10 +57,27 @@ body{
 	letter-spacing: 2px; /* Espacio entre letras */
 	position: fixed;
 	bottom: 5px;
-	left: 5px;
 	transition: all 300ms ease 0ms;
 	box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
 	z-index: 99;
+}
+.relojPelea{
+    font-size: 60px; /* Cambiar el tamaño de la tipografia */
+	text-transform: uppercase; /* Texto en mayusculas */
+	font-weight: bold; /* Fuente en negrita o bold */
+	background-color: rgba(12, 0, 0, 0.11);
+	border-radius: 5px; /* Borde del boton */
+	letter-spacing: 2px; /* Espacio entre letras */
+	position: fixed;
+	top: 40px;
+	left: 40%;
+	right: 40%;
+	transition: all 300ms ease 0ms;
+	box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+	z-index: 99;
+}
+.reloj-digital{
+	background-color: rgba(236, 236, 236, 0.733);
 }
 .botonMenu{
     background-color: rgba(48, 45, 45, 0.075);
@@ -82,4 +99,15 @@ body{
 .btnScore{
     font-size: xx-large;
     color: rgba(255, 255, 255, 0.712);
+}
+.colorSelection td{
+	background: rgba(67, 139, 67, 0.473) !important;
+	color: black;
+}
+.tableIgual{
+	height: 350px !important;
+}
+.botonLlave{
+	background-color: rgba(160, 74, 241, 0.562);
+	color: #ffffff;
 }

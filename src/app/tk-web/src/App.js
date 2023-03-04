@@ -12,6 +12,7 @@ import AdminUsuario from "./components/AdminUser/AdminUsuario";
 import PrincipalTesting from "./components/GamePad/PrincipalTesting";
 import PrincipalListaCompetidor from "./components/ListaCompetidores/PrincipalListaCompetidor";
 import PrincipalPuntuacion from "./components/PantallaPuntuacion/PrincipalPuntuacion";
+import PrincipalListaSinPelea from "./components/ListaCompetidores/PrincipalListaSinPelea";
 function App() {
   return (
     <ContextAplicacion>
@@ -26,6 +27,7 @@ function App() {
           <Route path="/gamePad" element={<PrincipalTesting/>}/>
           <Route path="/listCompe" element={<PrincipalListaCompetidor/>}/>
           <Route path='/gamePunt' element={<PrincipalPuntuacion/>} />
+          <Route path="/listCompeSN" element={<PrincipalListaSinPelea/>}/>
         </Routes>
         <ToastContainer 
           position="bottom-right"

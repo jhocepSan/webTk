@@ -4,6 +4,7 @@ import PuntuacionUser from './PuntuacionUser';
 import Modal from 'react-bootstrap/Modal';
 import Configuraciones from './Configuraciones';
 import ListaPeleas from './ListaPeleas';
+import RelojPelea from './RelojPelea';
 export const ContextPuntuacion = createContext();
 
 function PrincipalPuntuacion() {
@@ -18,7 +19,7 @@ function PrincipalPuntuacion() {
     return (
         <ContextPuntuacion.Provider value={{
             pausa,setPausa, puntoAzul, setPuntoAzul, puntoRojo, setPuntoRojo,setShowModal,
-            jugadorAzul,setJugadorAzul,jugadorRojo,setJugadorRojo
+            jugadorAzul,setJugadorAzul,jugadorRojo,setJugadorRojo,runPelea,setRunPelea
         }}>
             <Header puntuacion={true} />
             <div className='bg-transparent menu-flotante'>
@@ -27,7 +28,8 @@ function PrincipalPuntuacion() {
                         <i className="fa-solid fa-gear"></i> Configuraciones</button>
                     <button type="button" className="btn mx-1 btn-sm botonMenu" onClick={() => { setTipoModal('P'); setShowModal(true); }}>
                         <i className="fa-solid fa-network-wired"></i> Peleas</button>
-                    <button type="button" className="btn mx-1 btn-sm botonMenu"><i className="fa-solid fa-broom"></i> Reset</button>
+                    <button type="button" className="btn mx-1 btn-sm botonMenu">
+                        <i className="fa-solid fa-broom"></i> Reset</button>
                     {runPelea === true && <button type="button" className="btn mx-1 btn-sm botonMenu" onClick={() => { setPausa(true); setRunPelea(false) }}>
                         <i className="fa-solid fa-circle-pause"></i> Pausar
                     </button>}
@@ -45,6 +47,9 @@ function PrincipalPuntuacion() {
                         <PuntuacionUser position={false} />
                     </div>
                 </div>
+            </div>
+            <div className='relojPelea'>
+                <RelojPelea/>
             </div>
             {pausa && <div className='container-fluid footer-flotante'>
                 <div className='row row-cols-2 g-0'>
@@ -122,11 +127,11 @@ function PrincipalPuntuacion() {
                     </div>
                 </div>
             </div>}
-            <Modal show={showModal}
+            <Modal show={showModal} onHide={()=>setShowModal(false)}
                 size={'xl'}
                 aria-labelledby="contained-modal-title-vcenter"
                 contentClassName='bg-dark bg-gradient'>
-                <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 '>
+                <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 ' closeButton closeVariant='white'>
                     <Modal.Title >
                         {tipoModal === 'C' && <div className='text-light letraMontserratr mx-auto'>
                             <i className="fa-solid fa-gear fa-xl"></i> Configuraciones

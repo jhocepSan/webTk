@@ -1,14 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Header from '../Header';
-import Modal from 'react-bootstrap/Modal';
 import UtilsCargador from '../utils/UtilsCargador';
 import MsgUtils from '../utils/MsgUtils';
 import Competidor from '../RegistroCompetidor/Competidor';
 import { downloadExcel } from 'react-export-table-to-excel';
-import PrincipalLlaves from './PrincipalLlaves';
 const server = process.env.REACT_APP_SERVER;
 
-function PrincipalListaCompetidor() {
+function PrincipalListaSinPelea() {
     const tableRef = useRef(null);
     const [cargador, setCargador] = useState(false);
     const [titulo, setTitulo] = useState('');
@@ -21,9 +19,10 @@ function PrincipalListaCompetidor() {
     const [idSubCategoria, setIdSubCategoria] = useState(0);
     const [listaCompetidores, setListaCompetidores] = useState([]);
     const [buscado, setBuscado] = useState(false);
-    const [hayLlaves, setHayLlaves] = useState(false);
-    const [listaLlaves, setListaLlaves] = useState([]);
-    const [showModal,setShowModal] = useState(false);
+    const [genManual, setGenManual] = useState(false);
+    const [selectItem, setSelectItem] = useState({});
+    const [listaManual, setListaManual] = useState([]);
+    const [actualizar,setActualizar] = useState(false);
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
 
     function handleDownloadExcel() {
@@ -126,33 +125,8 @@ function PrincipalListaCompetidor() {
             buscarCategoria('', 5);
         }
     }
-    function obtenerLLaves() {
-        fetch(`${server}/competidor/obtenerLlaves`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json;charset=utf-8',
-            },
-            body: JSON.stringify({ idCampeonato, genero, tipo })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok) {
-                    console.log(data.ok);
-                    setListaLlaves(data.ok);
-                    if (data.ok.length !== 0) {
-                        setHayLlaves(true);
-                    } else {
-                        setHayLlaves(false);
-                    }
-                } else {
-                    MsgUtils.msgError(data.error);
-                }
-            })
-            .catch(error => MsgUtils.msgError(error));
-    }
     function buscarCompetidores() {
-        fetch(`${server}/competidor/getCompetidorClasificado`, {
+        fetch(`${server}/competidor/getCompetidorSinPelea`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -163,7 +137,6 @@ function PrincipalListaCompetidor() {
             .then(res => res.json())
             .then(data => {
                 if (data.ok) {
-                    obtenerLLaves();
                     console.log(data.ok);
                     setListaCompetidores(data.ok);
                     setBuscado(true);
@@ -174,19 +147,50 @@ function PrincipalListaCompetidor() {
             .catch(error => MsgUtils.msgError(error));
     }
     function GenerarLlaves() {
-        console.log("generar llaves")
-        fetch(`${server}/competidor/generateLLaves`, {
+        if(genManual){
+            if(listaManual.length!==0){
+                setListaCompetidores([...listaCompetidores,...listaManual]);
+                setListaManual([]);
+                setActualizar(!actualizar);
+            }
+        }
+        setSelectItem({});
+        setGenManual(!genManual);
+    }
+    function agregarListaManual() {
+        if (selectItem) {
+            listaManual.push(selectItem);
+            setListaCompetidores(listaCompetidores.filter((item) => item.idcompetidor !== selectItem.idcompetidor));
+            setSelectItem({});
+        } else {
+            MsgUtils.msgError("Seleccione de la lista de sin peleas.")
+        }
+    }
+    function sacarListaManual() {
+        if (selectItem) {
+            setListaManual(listaManual.filter((item) => item.idcompetidor !== selectItem.idcompetidor));
+            listaCompetidores.push(selectItem);
+            setSelectItem({});
+        } else {
+            MsgUtils.msgError("Seleccione que estudiante sacar de la lista.")
+        }
+    }
+    function crearLlaveManual(){
+        fetch(`${server}/competidor/generateLLaveManual`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json;charset=utf-8',
             },
-            body: JSON.stringify({ categorias, idCampeonato, genero, tipo })
+            body: JSON.stringify({ idCampeonato, genero, tipo,listaManual })
         })
             .then(res => res.json())
             .then(data => {
                 if (data.ok) {
-                    console.log(data.ok);
+                    MsgUtils.msgCorrecto(data.ok);
+                    setListaManual([]);
+                    setGenManual(false);
+                    setActualizar(!actualizar);
                 } else {
                     MsgUtils.msgError(data.error);
                 }
@@ -197,7 +201,7 @@ function PrincipalListaCompetidor() {
         if (genero != '') {
             getInformacionCategoria({ idcampeonato: idCampeonato, genero })
         }
-    }, [genero])
+    }, [genero,actualizar])
     useEffect(() => {
         var info = JSON.parse(localStorage.getItem('campeonato'));
         var user = JSON.parse(localStorage.getItem('login'));
@@ -216,7 +220,7 @@ function PrincipalListaCompetidor() {
                         </div>
                     </div>
                     <div className='col-4 col-md-2'>
-                        <select className="form-select form-select-sm btn-secondary letraBtn" value={tipo}
+                        <select className="form-select form-select-sm btn-secondary" value={tipo}
                             onChange={(e) => { setTipo(e.target.value); setBuscado(false) }}>
                             <option value=''>Tipo (Ninguno)</option>
                             <option value="C">Combate</option>
@@ -226,7 +230,7 @@ function PrincipalListaCompetidor() {
                         </select>
                     </div>
                     <div className='col-4 col-md-2'>
-                        <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
+                        <select className="form-select form-select-sm bg-secondary text-light border-secondary"
                             value={genero} onChange={(e) => { setGenero(e.target.value); setBuscado(false) }}>
                             <option value={''}>Genero</option>
                             <option value={'M'}>Masculino</option>
@@ -234,20 +238,15 @@ function PrincipalListaCompetidor() {
                         </select>
                     </div>
                     <div className='col-4 col-md-1'>
-                        <button className='btn btn-sm btn-success letraBtn' onClick={() => buscarCompetidores()}>
-                            <i className="fa-solid fa-spinner "></i> Buscar
+                        <button className='btn btn-sm btn-success' onClick={() => buscarCompetidores()}>
+                            <i className="fa-solid fa-spinner fa-xl"></i> Buscar
                         </button>
                     </div>
-                    {hayLlaves === false && <div className='col-4 col-md-1'>
-                        <button className='btn btn-sm btn-primary letraBtn' onClick={() => GenerarLlaves()}>
-                            <i className="fa-solid fa-network-wired"></i> Gen.Llaves
+                    <div className='col-4 col-md-1'>
+                        <button className={`btn btn-sm bg-gradient ${genManual ? 'btn-danger' : 'btn-primary'}`} onClick={() => GenerarLlaves()}>
+                            <i className="fa-solid fa-network-wired"></i> {genManual ? 'Desactivar' : 'Gen.Llaves'}
                         </button>
-                    </div>}
-                    {hayLlaves && <div className='col-4 col-md-1'>
-                        <button className='btn btn-sm btn-primary letraBtn' onClick={()=>setShowModal(true)}>
-                            <i className="fa-solid fa-network-wired"></i> Llaves
-                        </button>
-                    </div>}
+                    </div>
                 </div>
             </div>
             {buscado && <>
@@ -259,7 +258,7 @@ function PrincipalListaCompetidor() {
                             </div>
                         </div>
                         <div className='col-4 col-md-2'>
-                            <select className="form-select form-select-sm btn-secondary letraBtn" value={idCategoria}
+                            <select className="form-select form-select-sm btn-secondary" value={idCategoria}
                                 onChange={(e) => cambiarCategoria(e.target.value)}>
                                 <option value={0}>Categoria ?</option>
                                 {categorias.map((item, index) => {
@@ -270,7 +269,7 @@ function PrincipalListaCompetidor() {
                             </select>
                         </div>
                         <div className='col-4 col-md-2'>
-                            <select className="form-select form-select-sm btn-secondary letraBtn" value={idSubCategoria}
+                            <select className="form-select form-select-sm btn-secondary" value={idSubCategoria}
                                 onChange={(e) => cambiarSubCategoria(e.target.value)}>
                                 <option value={0}>Sub Categoria ?</option>
                                 {subCategorias.map((item, index) => {
@@ -295,8 +294,8 @@ function PrincipalListaCompetidor() {
                         </div>
                     </div>
                 </div>
-                <div className='table-responsive py-2'>
-                    <table className="table table-dark table-striped table-hover table-bordered" id='competidoresLista' ref={tableRef}>
+                <div className={`table-responsive py-2 ${genManual?'tableIgual':''}`} >
+                    <table className="table table-dark table-hover table-bordered" id='competidoresLista' ref={tableRef}>
                         <thead>
                             <tr className='text-center'>
                                 <th scope="col">Estudiante</th>
@@ -308,7 +307,8 @@ function PrincipalListaCompetidor() {
                         <tbody>
                             {listaCompetidores.map((item, index) => {
                                 return (
-                                    <tr key={index}>
+                                    <tr key={index} onClick={() => setSelectItem(item)}
+                                        className={`${(genManual && selectItem.idcompetidor === item.idcompetidor) ? 'colorSelection' : ''}`}>
                                         <td scope="row" className='col-1 col-md-4'>
                                             <Competidor user={item} /></td>
                                         <td className='col-3 col-md-2'>
@@ -344,23 +344,83 @@ function PrincipalListaCompetidor() {
                         </tbody>
                     </table>
                 </div></>}
-            <Modal show={showModal} onHide={() => setShowModal(false)}
-                size={'xl'}
-                aria-labelledby="contained-modal-title-vcenter"
-                contentClassName='bg-dark bg-gradient'>
-                <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 ' closeButton closeVariant='white'>
-                    <Modal.Title >
-                        <div className='text-light letraMontserratr mx-auto'>
-                            <i className="fa-solid fa-network-wired fa-xl"></i> LLaves Generadas
+            {genManual &&
+                <div className=''>
+                    <div className='container-fluid text-center'>
+                        <div className='row row-cols-2 g-0'>
+                            <div className='col text-end'>
+                                <button className='btn btn-sm' onClick={() => agregarListaManual()} style={{ fontSize: '40px' }}>
+                                    <i className="fa-solid fa-circle-down" ></i>
+                                </button>
+                            </div>
+                            <div className='col text-start'  >
+                                <button className='btn btn-sm' onClick={() => sacarListaManual()} style={{ fontSize: '40px' }}>
+                                    <i className="fa-solid fa-circle-up"></i>
+                                </button>
+                            </div>
                         </div>
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body bsPrefix='modal-body m-0 p-0 '>
-                    <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves}/>
-                </Modal.Body>
-            </Modal>
+                    </div>
+                    <div className={`table-responsive py-2 ${genManual?'tableIgual':''}`} >
+                        <table className="table table-dark table-hover table-bordered">
+                            <thead>
+                                <tr className='text-center'>
+                                    {listaManual.length<2&&<th scope="col">Estudiante</th>}
+                                    {listaManual.length>=2&&
+                                    <th>
+                                        <button className='btn btn-sm btn-success bg-gradient' onClick={()=>crearLlaveManual()}>
+                                            <i className="fa-solid fa-network-wired"></i> Guardar
+                                        </button>
+                                    </th>
+                                    }
+                                    <th scope="col">Datos</th>
+                                    <th scope="col">Genero</th>
+                                    <th scope="col">Datos Campeonato</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {listaManual.map((item, index) => {
+                                    return (
+                                        <tr key={index} onClick={() => setSelectItem(item)}
+                                            className={`${(genManual && selectItem.idcompetidor === item.idcompetidor) ? 'colorSelection' : ''}`}>
+                                            <td scope="row" className='col-1 col-md-4'>
+                                                <Competidor user={item} /></td>
+                                            <td className='col-3 col-md-2'>
+                                                <div className='container-fluid p-0 m-0' style={{ fontSize: '13px' }}>
+                                                    <div className='letraMontserratr'>{'Edad: ' + item.edad + ' años'}</div>
+                                                    <div className='letraMontserratr'>{'Peso: ' + item.peso + ' kg'}</div>
+                                                    <div className='letraMontserratr'>{'Altura: ' + item.altura + ' m'}</div>
+                                                </div>
+                                            </td>
+                                            <td className='my-auto col-2 col-md-1'>
+                                                <div className='container-fluid'>
+                                                    {item.genero === 'M' ? 'MASCULINO' : 'FEMENINO'}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className='container-fluid p-0 m-0' style={{ fontSize: '13px' }}>
+                                                    <div className='letraMontserratr' >{'GRADO: ' + item.grado}</div>
+                                                    <div className='letraMontserratr'>{'CATEGORIA: ' + item.nombrecategoria}</div>
+                                                    <div className='letraMontserratr'>{'SUB-CATEGORIA: ' + item.nombresubcategoria}</div>
+                                                    {(item.idsubcategoria == null || item.idcategoria == null) &&
+                                                        <div className='badge bg-danger'>Inconcistencia</div>}
+                                                </div>
+                                            </td>
+                                            <td className='d-none'>
+                                                {item.idcategoria}
+                                            </td>
+                                            <td className='d-none'>
+                                                {item.idsubcategoria}
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
         </div>
     )
 }
 
-export default PrincipalListaCompetidor
+export default PrincipalListaSinPelea

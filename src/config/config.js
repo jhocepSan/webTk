@@ -1,3 +1,5 @@
+import {DB_HOST,DB_NAME,DB_PASSWORD,
+DB_PORT,DB_USER} from './configDeploy.js'
 export const configuraciones = {
     CONFIGDBRED:{
         user:'vq7v81dtac95ini7cia5',
@@ -12,11 +14,11 @@ export const configuraciones = {
         queueLimit: 0
     },
     CONFIGDBLOCAL:{
-        user:'root',
-        password:'usbw',
-        database: 'tkdb',
-        host: 'localhost',
-        port:3306,
+        user:DB_USER,
+        password:DB_PASSWORD,
+        database: DB_NAME,
+        host: DB_HOST,
+        port:DB_PORT,
         waitForConnections: true,
         connectionLimit: 20,
         queueLimit: 0

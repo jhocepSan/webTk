@@ -8,10 +8,11 @@ import userRoutes from '../routes/user.routes.js'
 import competidorRoutes from '../routes/competidor.routes.js'
 import {dirname, join} from 'path'
 import {fileURLToPath} from 'url'
+import {PORT}from '../config/configDeploy.js'
 const app =express();
 const __dirname = dirname(fileURLToPath(import.meta.url))
 //Settings
-app.set('port',process.env.PORT || 4000);
+app.set('port',PORT);
 //Middlewares
 app.use(cors());
 app.use(morgan('dev'));
@@ -25,6 +26,7 @@ app.use('/club',clubRoutes);
 app.use('/config',confRoutes);
 app.use('/usuario',userRoutes);
 app.use('/competidor',competidorRoutes);
+
 app.get("*", (req, res) => {
     res.sendFile(
       dirname(join(__dirname,"../app/tk-web/build/index.html"))
