@@ -137,7 +137,7 @@ const generarPelea = async (info)=>{
         var numPelea=1;
         conn = await pool.getConnection();
         for(let i=0;i<competidores.length;i+=2){
-            if(i===competidores.length-1){
+            if(i+1<=competidores.length-1){
                 const [result] = await conn.query(sql,[info.idllave,competidores[i].idcompetidor,competidores[i+1].idcompetidor,numPelea]);
                 await conn.commit();
                 numPelea+=1;
@@ -159,8 +159,10 @@ export const generateLLaves=async(info)=>{
     var sql2='INSERT INTO llave (tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato) VALUES (?,?,?,?,?,?) ;'
     var conn;
     try {
+        console.log(info);
         conn = await pool.getConnection();
         const [result] = await conn.query(sql,[ info.idCampeonato, info.tipo])
+        console.log(result)
         for (var grado of result){
             for(var cat of info.categorias){
                 var subcategorias= cat.SUBCATEGORIA;
@@ -174,6 +176,7 @@ export const generateLLaves=async(info)=>{
                         'idsubcategoria':subc.idsubcategoria
                     }
                     var competidores = await getCompetidorClasificados(filtros)
+                    console.log(competidores)
                     if(competidores.ok){
                         if(competidores.ok.length>=2){
                             const [result] = await conn.query(sql2,[info.tipo,grado.idgrado,info.genero,cat.idcategoria,subc.idsubcategoria,info.idCampeonato])
@@ -219,7 +222,7 @@ export const generateLLaveManual = async (info)=>{
         var competidores = info.listaManual.sort(function(a,b){return (Math.random()-0.5)})
         var numPelea=1;
         for(let i=0;i<competidores.length;i+=2){
-            if(i==competidores.length-1){
+            if(i+1<=competidores.length-1){
                 const [result] = await conn.query(sql,[idllave,competidores[i].idcompetidor,competidores[i+1].idcompetidor,numPelea]);
                 await conn.query(sql3,[competidores[i].idcompetidor]);
                 await conn.query(sql3,[competidores[i+1].idcompetidor]);
@@ -253,7 +256,7 @@ export const obtenerLlaves=async(info)=>{
         '(SELECT p.idpelea,p.idpeleapadre,p.idllave,p.idcompetidor1,p.idcompetidor2,p.nropelea,p.idganador,p.idperdedor,c.nombres,c.apellidos, '+
         '(select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno '+
         'FROM pelea p inner join competidor c on c.idcompetidor=p.idcompetidor1) res '+
-        'INNER JOIN competidor cm on cm.idcompetidor=res.idcompetidor2 where res.idllave=?'; 
+        'INNER JOIN (select * from tkdb.competidor union select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null) cm on cm.idcompetidor=res.idcompetidor2 where res.idllave=? order by res.nropelea'; 
     var conn;
     try {
         conn = await pool.getConnection();

@@ -31,7 +31,7 @@ function Header(props) {
                     <div className="navbar-brand card flex-row bg-transparent m-0 p-0" >
                         <img src={ImgHeader} alt="" width="38" height="38" className="d-inline-block align-text-top fa-flip my-auto" />
                         <div className='ps-2 my-auto d-none d-sm-inline'>
-                            <div className="tituloHeader">SISTEMA TK</div>
+                            <div className="tituloHeader">SISTEMA TKD</div>
                             <div className='tituloHeader'>CBBA</div>
                         </div>
                     </div>

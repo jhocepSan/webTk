@@ -96,7 +96,7 @@ function PrincipalListaSinPelea() {
             td = tr[i].getElementsByTagName("td")[row];
             if (td) {
                 txtValue = td.textContent || td.innerText;
-                if (txtValue.toUpperCase().indexOf(dato) > -1) {
+                if (txtValue.toUpperCase()===(''+dato)) {
                     tr[i].style.display = "";
                 } else {
                     tr[i].style.display = "none";
@@ -126,25 +126,29 @@ function PrincipalListaSinPelea() {
         }
     }
     function buscarCompetidores() {
-        fetch(`${server}/competidor/getCompetidorSinPelea`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json;charset=utf-8',
-            },
-            body: JSON.stringify({ idCampeonato, genero, tipo })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok) {
-                    console.log(data.ok);
-                    setListaCompetidores(data.ok);
-                    setBuscado(true);
-                } else {
-                    MsgUtils.msgError(data.error);
-                }
+        if(genero!==''&&tipo!==''){
+            fetch(`${server}/competidor/getCompetidorSinPelea`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json;charset=utf-8',
+                },
+                body: JSON.stringify({ idCampeonato, genero, tipo })
             })
-            .catch(error => MsgUtils.msgError(error));
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok) {
+                        console.log(data.ok);
+                        setListaCompetidores(data.ok);
+                        setBuscado(true);
+                    } else {
+                        MsgUtils.msgError(data.error);
+                    }
+                })
+                .catch(error => MsgUtils.msgError(error));
+        }else{
+            MsgUtils.msgError("Elija el tipo y genero por favor")
+        }
     }
     function GenerarLlaves() {
         if(genManual){
@@ -212,9 +216,9 @@ function PrincipalListaSinPelea() {
         <div>
             <Header />
             <UtilsCargador show={cargador} />
-            <div className='container-fluid bg-dark bg-gradient my-1'>
+            <div className='container-fluid bg-dark bg-gradient py-1'>
                 <div className='row g-2'>
-                    <div className='col-8 col-md-4 my-auto'>
+                    <div className='col-8 col-md-3 my-auto'>
                         <div className='text-light letraMontserratr'>
                             Competidores Camp. {titulo}
                         </div>
@@ -225,7 +229,7 @@ function PrincipalListaSinPelea() {
                             <option value=''>Tipo (Ninguno)</option>
                             <option value="C">Combate</option>
                             <option value="P">Poomse</option>
-                            <option value="CN">Cintas Negras</option>
+                            <option value="D">Demostraciones</option>
                             <option value="R">Rompimiento</option>
                         </select>
                     </div>
@@ -243,14 +247,14 @@ function PrincipalListaSinPelea() {
                         </button>
                     </div>
                     <div className='col-4 col-md-1'>
-                        <button className={`btn btn-sm bg-gradient ${genManual ? 'btn-danger' : 'btn-primary'}`} onClick={() => GenerarLlaves()}>
-                            <i className="fa-solid fa-network-wired"></i> {genManual ? 'Desactivar' : 'Gen.Llaves'}
+                        <button className={`btn btn-sm bg-gradient ${genManual ? 'btn-danger' : 'btn-warning'}`} onClick={() => GenerarLlaves()}>
+                            <i className="fa-solid fa-network-wired"></i> {genManual ? 'Desactivar' : 'Crear'}
                         </button>
                     </div>
                 </div>
             </div>
             {buscado && <>
-                <div className='container-fluid bg-dark bg-gradient'>
+                <div className='container-fluid colorFiltro bg-gradient py-1'>
                     <div className='row g-1'>
                         <div className='col-3 col-md-1 my-auto'>
                             <div className='text-light letraMontserratr'>
@@ -258,7 +262,7 @@ function PrincipalListaSinPelea() {
                             </div>
                         </div>
                         <div className='col-4 col-md-2'>
-                            <select className="form-select form-select-sm btn-secondary" value={idCategoria}
+                            <select className="form-select form-select-sm btn-dark" value={idCategoria}
                                 onChange={(e) => cambiarCategoria(e.target.value)}>
                                 <option value={0}>Categoria ?</option>
                                 {categorias.map((item, index) => {
@@ -269,7 +273,7 @@ function PrincipalListaSinPelea() {
                             </select>
                         </div>
                         <div className='col-4 col-md-2'>
-                            <select className="form-select form-select-sm btn-secondary" value={idSubCategoria}
+                            <select className="form-select form-select-sm btn-dark" value={idSubCategoria}
                                 onChange={(e) => cambiarSubCategoria(e.target.value)}>
                                 <option value={0}>Sub Categoria ?</option>
                                 {subCategorias.map((item, index) => {

@@ -118,7 +118,7 @@ function GradosConfig(props) {
                         <option value=''>Ninguno</option>
                         <option value="C">Combate</option>
                         <option value="P">Poomse</option>
-                        <option value="CN">Cintas Negras</option>
+                        <option value="D">Demostraciones</option>
                         <option value="R">Rompimiento</option>
                     </select>
                     {tipo !== '' &&

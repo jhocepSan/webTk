@@ -107,9 +107,6 @@ function PrincipalConfiguracion() {
           <button className={`btn btn-sm btn-gradient mx-2 letraBtn ${ventana === 1 ? 'menuActivo' : 'btn-secondary'}`} onClick={() => setVentana(1)}>
             <i className="fa-solid fa-graduation-cap"></i> Grados
           </button>
-          <button className={`btn btn-sm btn-gradient letraBtn ${ventana === 2 ? 'menuActivo' : 'btn-secondary'}`} onClick={() => setVentana(2)}>
-            <i className="fa-solid fa-hand-fist"></i> Combate
-          </button>
         </div>
       </div>
       {ventana === 0 && <>

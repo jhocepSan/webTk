@@ -152,7 +152,7 @@ function PrincipalRegistroCompetidor() {
               <option value=''>Tipo (Ninguno)</option>
               <option value="C">Combate</option>
               <option value="P">Poomse</option>
-              <option value="CN">Cintas Negras</option>
+              <option value="D">Demostraciones</option>
               <option value="R">Rompimiento</option>
             </select>
           </div>
@@ -201,11 +201,11 @@ function PrincipalRegistroCompetidor() {
                       {item.genero === 'M' ? 'MASCULINO' : 'FEMENINO'}
                     </div>
                     <div className='container-fluid'>
-                      <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox"
+                      <div className="form-check form-switch">
+                        <input className="form-check-input" type="checkbox"
                           checked={item.estado === 'P' ? false : true}
                           onChange={() => cambiarEstado(item)} />
-                        <label class="form-check-label" ><span class={item.estado === 'P' ? 'badge bg-warning' : 'badge bg-success'}>{item.estado === 'P' ? 'COMPETIRA?' : 'COMPETIDOR'}</span></label>
+                        <label className="form-check-label" ><span className={item.estado === 'P' ? 'badge bg-warning' : 'badge bg-success'}>{item.estado === 'P' ? 'COMPETIRA?' : 'COMPETIDOR'}</span></label>
                       </div>
                     </div>
                   </td>

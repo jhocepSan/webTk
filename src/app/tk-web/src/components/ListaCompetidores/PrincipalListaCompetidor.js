@@ -24,6 +24,7 @@ function PrincipalListaCompetidor() {
     const [hayLlaves, setHayLlaves] = useState(false);
     const [listaLlaves, setListaLlaves] = useState([]);
     const [showModal,setShowModal] = useState(false);
+    const [noValido,setNoValido] = useState(false);
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
 
     function handleDownloadExcel() {
@@ -97,7 +98,7 @@ function PrincipalListaCompetidor() {
             td = tr[i].getElementsByTagName("td")[row];
             if (td) {
                 txtValue = td.textContent || td.innerText;
-                if (txtValue.toUpperCase().indexOf(dato) > -1) {
+                if (txtValue.toUpperCase()===(''+dato)) {
                     tr[i].style.display = "";
                 } else {
                     tr[i].style.display = "none";
@@ -106,10 +107,12 @@ function PrincipalListaCompetidor() {
         }
     }
     function cambiarCategoria(i) {
+        console.log(i,"categoria");
         setIdCategoria(i);
-        //setBuscado(false);
         var cat = categorias.filter((item) => item.idcategoria === parseInt(i));
+        console.log(cat);
         if (cat.length !== 0) {
+            setIdSubCategoria(0);
             setSubCategorias(cat[0].SUBCATEGORIA);
             buscarCategoria(i, 4);
         } else {
@@ -119,6 +122,7 @@ function PrincipalListaCompetidor() {
         }
     }
     function cambiarSubCategoria(i) {
+        console.log(i,"subcategoria");
         setIdSubCategoria(i);
         if (i != 0) {
             buscarCategoria(i, 5);
@@ -152,46 +156,62 @@ function PrincipalListaCompetidor() {
             .catch(error => MsgUtils.msgError(error));
     }
     function buscarCompetidores() {
-        fetch(`${server}/competidor/getCompetidorClasificado`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json;charset=utf-8',
-            },
-            body: JSON.stringify({ idCampeonato, genero, tipo })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok) {
-                    obtenerLLaves();
-                    console.log(data.ok);
-                    setListaCompetidores(data.ok);
-                    setBuscado(true);
-                } else {
-                    MsgUtils.msgError(data.error);
-                }
+        if(genero!==''&&tipo!==''){
+            fetch(`${server}/competidor/getCompetidorClasificado`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json;charset=utf-8',
+                },
+                body: JSON.stringify({ idCampeonato, genero, tipo })
             })
-            .catch(error => MsgUtils.msgError(error));
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok) {
+                        obtenerLLaves();
+                        comprobarEstado(data.ok);
+                        setListaCompetidores(data.ok);
+                        setBuscado(true);
+                    } else {
+                        MsgUtils.msgError(data.error);
+                    }
+                })
+                .catch(error => MsgUtils.msgError(error));
+        }else{
+            MsgUtils.msgError("Elija el tipo y el genero para buscar")
+        }
     }
     function GenerarLlaves() {
         console.log("generar llaves")
-        fetch(`${server}/competidor/generateLLaves`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json;charset=utf-8',
-            },
-            body: JSON.stringify({ categorias, idCampeonato, genero, tipo })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok) {
-                    console.log(data.ok);
-                } else {
-                    MsgUtils.msgError(data.error);
-                }
+        if(tipo!==''&&genero!==''){
+            fetch(`${server}/competidor/generateLLaves`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json;charset=utf-8',
+                },
+                body: JSON.stringify({ categorias, idCampeonato, genero, tipo })
             })
-            .catch(error => MsgUtils.msgError(error));
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok) {
+                        console.log(data.ok);
+                    } else {
+                        MsgUtils.msgError(data.error);
+                    }
+                })
+                .catch(error => MsgUtils.msgError(error));
+        }else{
+            MsgUtils.msgError("Elija el tipo y el genero para generar las LLAVES")
+        }
+    }
+    function comprobarEstado(dato){
+        var info=dato.filter((item)=>item.idsubcategoria == null || item.idcategoria == null)       
+        if(info.length!==0){
+            setNoValido(true);
+        }else{
+            setNoValido(false);
+        }
     }
     useEffect(() => {
         if (genero != '') {
@@ -208,9 +228,9 @@ function PrincipalListaCompetidor() {
         <div>
             <Header />
             <UtilsCargador show={cargador} />
-            <div className='container-fluid bg-dark bg-gradient my-1'>
+            <div className='container-fluid bg-dark bg-gradient py-1'>
                 <div className='row g-2'>
-                    <div className='col-8 col-md-4 my-auto'>
+                    <div className='col-8 col-md-3 my-auto'>
                         <div className='text-light letraMontserratr'>
                             Competidores Camp. {titulo}
                         </div>
@@ -221,7 +241,7 @@ function PrincipalListaCompetidor() {
                             <option value=''>Tipo (Ninguno)</option>
                             <option value="C">Combate</option>
                             <option value="P">Poomse</option>
-                            <option value="CN">Cintas Negras</option>
+                            <option value="D">Demostraciones</option>
                             <option value="R">Rompimiento</option>
                         </select>
                     </div>
@@ -239,8 +259,10 @@ function PrincipalListaCompetidor() {
                         </button>
                     </div>
                     {hayLlaves === false && <div className='col-4 col-md-1'>
-                        <button className='btn btn-sm btn-primary letraBtn' onClick={() => GenerarLlaves()}>
-                            <i className="fa-solid fa-network-wired"></i> Gen.Llaves
+                        <button className='btn btn-sm btn-warning letraBtn' 
+                        disabled={noValido}
+                        onClick={() => GenerarLlaves()}>
+                            <i className="fa-solid fa-network-wired"></i> Crear
                         </button>
                     </div>}
                     {hayLlaves && <div className='col-4 col-md-1'>
@@ -251,7 +273,7 @@ function PrincipalListaCompetidor() {
                 </div>
             </div>
             {buscado && <>
-                <div className='container-fluid bg-dark bg-gradient'>
+                <div className='container-fluid colorFiltro bg-gradient py-1'>
                     <div className='row g-1'>
                         <div className='col-3 col-md-1 my-auto'>
                             <div className='text-light letraMontserratr'>
@@ -259,7 +281,7 @@ function PrincipalListaCompetidor() {
                             </div>
                         </div>
                         <div className='col-4 col-md-2'>
-                            <select className="form-select form-select-sm btn-secondary letraBtn" value={idCategoria}
+                            <select className="form-select form-select-sm btn-dark letraBtn" value={idCategoria}
                                 onChange={(e) => cambiarCategoria(e.target.value)}>
                                 <option value={0}>Categoria ?</option>
                                 {categorias.map((item, index) => {
@@ -270,7 +292,7 @@ function PrincipalListaCompetidor() {
                             </select>
                         </div>
                         <div className='col-4 col-md-2'>
-                            <select className="form-select form-select-sm btn-secondary letraBtn" value={idSubCategoria}
+                            <select className="form-select form-select-sm btn-dark letraBtn" value={idSubCategoria}
                                 onChange={(e) => cambiarSubCategoria(e.target.value)}>
                                 <option value={0}>Sub Categoria ?</option>
                                 {subCategorias.map((item, index) => {

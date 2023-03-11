@@ -1,0 +1,9 @@
+#envio de datos de mando
+POST http://localhost:4000/mandojuec/enviarDatos
+content-type: application/json
+
+{
+    "name": "sample",
+    "time": "Wed, 21 Oct 2015 18:27:50 GMT"
+}
+

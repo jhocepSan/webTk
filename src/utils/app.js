@@ -6,6 +6,7 @@ import clubRoutes from '../routes/club.routes.js'
 import confRoutes from '../routes/configuraciones.routes.js'
 import userRoutes from '../routes/user.routes.js'
 import competidorRoutes from '../routes/competidor.routes.js'
+import mandoRoutes from '../routes/mando.routes.js'
 import {dirname, join} from 'path'
 import {fileURLToPath} from 'url'
 import {PORT}from '../config/configDeploy.js'
@@ -26,6 +27,7 @@ app.use('/club',clubRoutes);
 app.use('/config',confRoutes);
 app.use('/usuario',userRoutes);
 app.use('/competidor',competidorRoutes);
+app.use('/mandojuec',mandoRoutes);
 
 app.get("*", (req, res) => {
     res.sendFile(
