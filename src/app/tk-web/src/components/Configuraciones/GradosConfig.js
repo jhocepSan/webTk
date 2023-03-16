@@ -4,7 +4,7 @@ import CardCinturon from './CardCinturon';
 //import ContextAplicacion from '../Context/ContextAplicacion';
 const server = process.env.REACT_APP_SERVER;
 function GradosConfig(props) {
-    const {campeonato,setCampeonato} = props;
+    const { campeonato, setCampeonato } = props;
     const [actualizar, setActualizar] = useState(false);
     const [grados, setGrados] = useState([]);
     const [nombre, setNombre] = useState('');
@@ -112,25 +112,31 @@ function GradosConfig(props) {
     return (
         <>
             <div className='container-fluid bg-dark bg-gradient py-2'>
-                <div className="btn-group btn-group-sm">
-                    <select className="form-select form-select-sm btn-secondary" style={{ width: '120px' }} value={tipo}
-                        onChange={(e) => recuperarDatos(e)}>
-                        <option value=''>Ninguno</option>
-                        <option value="C">Combate</option>
-                        <option value="P">Poomse</option>
-                        <option value="D">Demostraciones</option>
-                        <option value="R">Rompimiento</option>
-                    </select>
+                <div className="row row-cols-1 row-cols-sm-1 row-cols-md-3 g-1">
+                    <div className='col-4 col-md-1'>
+                        <select className="form-select form-select-sm btn-secondary"  value={tipo}
+                            onChange={(e) => recuperarDatos(e)}>
+                            <option value=''>Ninguno</option>
+                            <option value="C">Combate</option>
+                            <option value="P">Poomse</option>
+                            <option value="D">Demostraciones</option>
+                            <option value="R">Rompimiento</option>
+                        </select>
+                    </div>
+                    <div className='col-8 col-md-8'>
                     {tipo !== '' &&
                         <div className="input-group input-group-sm ">
                             <span className="input-group-text bg-transparent border-dark text-light letraMontserratr" >Nombre Grado: </span>
                             <input type="text" className="form-control letraMontserratr "
                                 placeholder="Grado" value={nombre} onChange={(e) => setNombre(e.target.value.toUpperCase())} />
                         </div>}
+                    </div>
+                    <div className='col-4 col-md-3'>
                     {tipo !== '' &&
-                        <button className='btn btn-sm btn-success col-4 letraBtn' onClick={() => agregarGrado()}>
+                        <button className='btn btn-sm btn-success letraBtn' onClick={() => agregarGrado()}>
                             <i className="fa-solid fa-circle-plus fa-fade fa-xl "></i> Agregar
                         </button>}
+                    </div>
                 </div>
             </div>
             <div className='container-fluid py-2'>
