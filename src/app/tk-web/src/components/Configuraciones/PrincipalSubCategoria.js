@@ -83,7 +83,7 @@ function PrincipalSubCategoria(props) {
                                             <div className='col-10'>SubCategoria</div>
                                             <div className='col-2'>
                                                 <button className='btn btn-sm text-success m-0 p-0'
-                                                    onClick={() => { setShowModal(true); setTitulo("Agregar Nueva SubCategoria") }}>
+                                                    onClick={() => {setSelectSubCategoria({}); setShowModal(true); setTitulo("Agregar Nueva SubCategoria") }}>
                                                     <i className="fa-solid fa-circle-plus fa-fade fa-xl"></i>
                                                 </button>
                                             </div>
