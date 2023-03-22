@@ -75,3 +75,26 @@ export const crearCampeonato = async ({nombre,descripcion})=>{
         if(conn){await conn.release();}
     }
 }
+
+export const recuperarCuenta= async(info)=>{
+    var conn;
+    try {
+        var newPassword = bycript.hashSync(info.newPassword,10);
+        conn =await pool.getConnection();
+        const [result] = await conn.query('SELECT idusuario from usuario where correo=? and ci=?',[info.email,info.ci])
+        console.log(result)
+        if(result.length!==0){
+            const [rows]=await conn.query('UPDATE usuario SET password=?',[
+                newPassword
+            ]);
+            return {"ok":"Ingresa al sistemas con su nuevos datos, por favor ..."}
+        }else{
+            return {"error":"El correo o el ci, no existe en la cuenta, verifique por favor !!"}
+        }
+    } catch (error) {
+        console.log(error);
+        return {"error":error.message}
+    }finally{
+        if(conn){await conn.release();}
+    }
+}

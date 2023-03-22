@@ -189,23 +189,27 @@ function PrincipalListaCompetidor() {
     function GenerarLlaves() {
         console.log("generar llaves")
         if (tipo !== '' && genero !== '') {
-            fetch(`${server}/competidor/generateLLaves`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json;charset=utf-8',
-                },
-                body: JSON.stringify({ categorias, idCampeonato, genero, tipo })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.ok) {
-                        console.log(data.ok);
-                    } else {
-                        MsgUtils.msgError(data.error);
-                    }
+            if(listaCompetidores.length!==0){
+                fetch(`${server}/competidor/generateLLaves`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json;charset=utf-8',
+                    },
+                    body: JSON.stringify({ categorias, idCampeonato, genero, tipo })
                 })
-                .catch(error => MsgUtils.msgError(error));
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.ok) {
+                            MsgUtils.msgCorrecto(data.ok);
+                        } else {
+                            MsgUtils.msgError(data.error);
+                        }
+                    })
+                    .catch(error => MsgUtils.msgError(error));
+            }else{
+                MsgUtils.msgError("No hay competidores registrados")
+            }
         } else {
             MsgUtils.msgError("Elija el tipo y el genero para generar las LLAVES")
         }
@@ -268,7 +272,8 @@ function PrincipalListaCompetidor() {
                             <i className="fa-solid fa-spinner "></i> Buscar
                         </button>
                     </div>
-                    {hayLlaves === false && <div className='col-4 col-md-1'>
+                    {hayLlaves === false && listaCompetidores.length!==0 &&
+                    <div className='col-4 col-md-1'>
                         <button className='btn btn-sm btn-warning letraBtn'
                             disabled={noValido}
                             onClick={() => GenerarLlaves()}>
