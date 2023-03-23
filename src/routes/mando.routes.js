@@ -5,7 +5,7 @@ const router = Router();
 
 router.post('/enviarDatos',async(req,res)=>{
     var info = req.body;
-    console.log(JSON.parse(info.info),info.dato)
+    console.log(info.info.id,info.dato,info.sector)
     var result={"ok":"conectado"}
     if(result.ok){
         res.status(200).json(result);

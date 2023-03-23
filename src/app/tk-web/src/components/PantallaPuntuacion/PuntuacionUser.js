@@ -38,7 +38,7 @@ function PuntuacionUser(props) {
                     </div>
                     <div className='col col-8'>
                         <div className=' card fondoPuntuacion '>
-                            <div className='card-header m-0 p-0'>
+                            <div className='card-header m-0 p-0 text-light'>
                                 Nombre
                             </div>
                             <div className='card-body text-center m-0 p-0'>
@@ -76,7 +76,7 @@ function PuntuacionUser(props) {
                 <div className='row row-cols-2 g-0'>
                     <div className='col col-8'>
                         <div className=' card fondoPuntuacion '>
-                            <div className='card-header m-0 p-0'>
+                            <div className='card-header m-0 p-0 text-light'>
                                 Nombre
                             </div>
                             <div className='card-body text-center m-0 p-0'>

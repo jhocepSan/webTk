@@ -5,6 +5,7 @@ import ImgLogin from '../../assets/login.png';
 import SingUp from './SingUp';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import Header from '../Header';
+import ForgotPassword from './ForgotPassword';
 
 const server = process.env.REACT_APP_SERVER
 
@@ -94,7 +95,8 @@ function LoginUser() {
                             </div>
                             <div className='text-center'>
                                 <div>
-                                    <a className='text-light fw-bold btn btn-transparent'>Olvidaste tu Contraseña ?</a>
+                                    <a className='text-light fw-bold btn btn-transparent' onClick={()=>setVentana(2)}
+                                    >Olvidaste tu Contraseña ?</a>
                                 </div>
                                 <div>
                                     <a className='text-light fw-bold btn btn-transparent' onClick={() => setVentana(1)}>Crear una Cuenta</a>
@@ -112,6 +114,7 @@ function LoginUser() {
                     </div>
                 </div>}
             {ventana === 1 && <SingUp setVentana={setVentana} />}
+            {ventana === 2 && <ForgotPassword setVentana={setVentana} />}
         </div>
     )
 }

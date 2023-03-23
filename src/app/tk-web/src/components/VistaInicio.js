@@ -2,22 +2,53 @@ import React, { useEffect, useState, useContext } from 'react'
 import { ContextAplicacions } from './Context/ContextAplicacion';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
+import Modal from 'react-bootstrap/Modal';
 import MsgUtils from './utils/MsgUtils';
 const server = process.env.REACT_APP_SERVER
 
 function VistaInicio() {
   const navigate = useNavigate();
-  const { setLogin, setUserLogin,login,campeonato,setCampeonato } = useContext(ContextAplicacions);
+  const { setLogin, setUserLogin, login, campeonato, setCampeonato } = useContext(ContextAplicacions);
   const [campeonatos, setCampeonatos] = useState([]);
   const [idCampeonato, setIdCampeonato] = useState();
+  const [showModal, setShowModal] = useState(false);
+  const [nombre, setNombre] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+  const [actualizar,setActualizar] = useState(false);
   const cambiarCampeonato = (dato) => {
     var info = campeonatos.filter((item) => item.idcampeonato == dato);
     setCampeonatos(dato);
     setCampeonato(info[0]);
     localStorage.setItem("campeonato", JSON.stringify(info[0]));
   }
-  useEffect(()=>{
-    if(login){
+  function guardarCampeonato() {
+    if (nombre !== '') {
+      fetch(`${server}/login/crearCampeonato`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json;charset=utf-8',
+        },
+        body: JSON.stringify({ nombre, descripcion })
+      })
+        .then(res => res.json())
+        .then(data => { 
+          if (data.ok) {
+            setNombre('');
+            setDescripcion('');
+            setActualizar(!actualizar); 
+            setShowModal(false);
+          } else {
+            MsgUtils.msgError(data.error);
+          }
+        })
+        .catch(error => MsgUtils.msgError(error));
+    } else {
+      MsgUtils.msgError("Colocar nombre del campeonato por favor .");
+    }
+  }
+  useEffect(() => {
+    if (login) {
       fetch(`${server}/config/getCampeonato`, {
         method: 'GET',
         headers: {
@@ -39,7 +70,7 @@ function VistaInicio() {
         })
         .catch(error => MsgUtils.msgError(error));
     }
-  },[login])
+  }, [login,actualizar])
   useEffect(() => {
     var sessionActiva = JSON.parse(localStorage.getItem('login'))
     if (sessionActiva !== null) {
@@ -65,17 +96,23 @@ function VistaInicio() {
                   </div>
                 </div>
                 <div className='col my-auto'>
-                  <div className='btn-group btn-group-sm w-100'>
-                    <select className="form-select form-select-sm btn-secondary" value={idCampeonato} onChange={(e) => cambiarCampeonato(e.target.value)}>
-                      {campeonatos.map((item, index) => {
-                        return (
-                          <option value={item.idcampeonato} key={index}>{item.nombre}</option>
-                        )
-                      })}
-                    </select>
-                    <button className='btn btn-sm btn-success bg-gradient w-25'>
-                      <i className="fa-solid fa-circle-plus"></i> Nuevo
-                    </button>
+                  <div className='container-fluid btn-group-sm w-100'>
+                    <div className='row row-cols-1 row-cols-sm-1 row-cols-md-2 g-0'>
+                      <div className='col col-sm-12 col-md-6'>
+                        <select className="form-select form-select-sm btn-secondary" value={idCampeonato} onChange={(e) => cambiarCampeonato(e.target.value)}>
+                          {campeonatos.map((item, index) => {
+                            return (
+                              <option value={item.idcampeonato} key={index}>{item.nombre}</option>
+                            )
+                          })}
+                        </select>
+                      </div>
+                      <div className='col col-sm-12 col-md-6'>
+                        <button className='btn btn-sm btn-success bg-gradient w-100' onClick={() => setShowModal(true)}>
+                          <i className="fa-solid fa-circle-plus"></i> Nuevo
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -96,6 +133,32 @@ function VistaInicio() {
           </div>
         </div>
       </div>
+      <Modal show={showModal} onHide={() => setShowModal(false)}
+        aria-labelledby="contained-modal-title-vcenter"
+        contentClassName='bg-dark bg-gradient'>
+        <Modal.Header closeButton closeVariant='white' bsPrefix='modal-header m-0 p-0 px-2 '>
+          <Modal.Title >
+            <div className='text-light letraMontserratr mx-auto'>
+              Crear un Nuevo Campeonato
+            </div>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body bsPrefix='modal-header m-0 p-0'>
+          <div className='container-fluid'>
+            <div className="mb-3">
+              <label className="form-label text-light fw-bold"><i className="fa-solid fa-signature fa-fade"></i> Nombre Campeonato</label>
+              <input type="text" className="form-control" placeholder='Escriba el nombre unico del campeonato' value={nombre} onChange={(e) => setNombre(e.target.value.toUpperCase())} />
+            </div>
+            <div className="mb-3">
+              <label className="form-label text-light fw-bold"><i className="fa-solid fa-file-signature fa-fade"></i> Descripción</label>
+              <textarea type="text" className="form-control" placeholder='Escriba el nombre unico del campeonato' value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+            </div>
+            <button className='btn btn-sm w-100 bg-gradient bg-success mb-3 text-light' onClick={() => guardarCampeonato()}>
+              <i className="fa-solid fa-floppy-disk"></i> Guardar
+            </button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </>
   )
 }

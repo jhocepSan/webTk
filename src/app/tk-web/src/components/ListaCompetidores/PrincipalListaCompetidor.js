@@ -6,10 +6,12 @@ import MsgUtils from '../utils/MsgUtils';
 import Competidor from '../RegistroCompetidor/Competidor';
 import { downloadExcel } from 'react-export-table-to-excel';
 import PrincipalLlaves from './PrincipalLlaves';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import CompetidoresPdf from './CompetidoresPdf';
 const server = process.env.REACT_APP_SERVER;
 
 function PrincipalListaCompetidor() {
-    const tableRef = useRef(null);
     const [cargador, setCargador] = useState(false);
     const [titulo, setTitulo] = useState('');
     const [idCampeonato, setIdCampeonato] = useState(0);
@@ -23,8 +25,10 @@ function PrincipalListaCompetidor() {
     const [buscado, setBuscado] = useState(false);
     const [hayLlaves, setHayLlaves] = useState(false);
     const [listaLlaves, setListaLlaves] = useState([]);
-    const [showModal,setShowModal] = useState(false);
-    const [noValido,setNoValido] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [tituloModal, setTituloModal] = useState('');
+    const [noValido, setNoValido] = useState(false);
+    const [tipoM, setTipoM] = useState('');
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
 
     function handleDownloadExcel() {
@@ -98,7 +102,7 @@ function PrincipalListaCompetidor() {
             td = tr[i].getElementsByTagName("td")[row];
             if (td) {
                 txtValue = td.textContent || td.innerText;
-                if (txtValue.toUpperCase()===(''+dato)) {
+                if (txtValue.toUpperCase() === ('' + dato) || dato === '') {
                     tr[i].style.display = "";
                 } else {
                     tr[i].style.display = "none";
@@ -107,7 +111,7 @@ function PrincipalListaCompetidor() {
         }
     }
     function cambiarCategoria(i) {
-        console.log(i,"categoria");
+        console.log(i, "categoria");
         setIdCategoria(i);
         var cat = categorias.filter((item) => item.idcategoria === parseInt(i));
         console.log(cat);
@@ -116,13 +120,14 @@ function PrincipalListaCompetidor() {
             setSubCategorias(cat[0].SUBCATEGORIA);
             buscarCategoria(i, 4);
         } else {
+            console.log("entro")
             setIdSubCategoria(0);
             setSubCategorias([]);
             buscarCategoria('', 4);
         }
     }
     function cambiarSubCategoria(i) {
-        console.log(i,"subcategoria");
+        console.log(i, "subcategoria");
         setIdSubCategoria(i);
         if (i != 0) {
             buscarCategoria(i, 5);
@@ -156,7 +161,7 @@ function PrincipalListaCompetidor() {
             .catch(error => MsgUtils.msgError(error));
     }
     function buscarCompetidores() {
-        if(genero!==''&&tipo!==''){
+        if (genero !== '' && tipo !== '') {
             fetch(`${server}/competidor/getCompetidorClasificado`, {
                 method: 'POST',
                 headers: {
@@ -177,42 +182,51 @@ function PrincipalListaCompetidor() {
                     }
                 })
                 .catch(error => MsgUtils.msgError(error));
-        }else{
+        } else {
             MsgUtils.msgError("Elija el tipo y el genero para buscar")
         }
     }
     function GenerarLlaves() {
         console.log("generar llaves")
-        if(tipo!==''&&genero!==''){
-            fetch(`${server}/competidor/generateLLaves`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json;charset=utf-8',
-                },
-                body: JSON.stringify({ categorias, idCampeonato, genero, tipo })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.ok) {
-                        console.log(data.ok);
-                    } else {
-                        MsgUtils.msgError(data.error);
-                    }
+        if (tipo !== '' && genero !== '') {
+            if (listaCompetidores.length !== 0) {
+                fetch(`${server}/competidor/generateLLaves`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json;charset=utf-8',
+                    },
+                    body: JSON.stringify({ categorias, idCampeonato, genero, tipo })
                 })
-                .catch(error => MsgUtils.msgError(error));
-        }else{
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.ok) {
+                            MsgUtils.msgCorrecto(data.ok);
+                        } else {
+                            MsgUtils.msgError(data.error);
+                        }
+                    })
+                    .catch(error => MsgUtils.msgError(error));
+            } else {
+                MsgUtils.msgError("No hay competidores registrados")
+            }
+        } else {
             MsgUtils.msgError("Elija el tipo y el genero para generar las LLAVES")
         }
     }
-    function comprobarEstado(dato){
-        var info=dato.filter((item)=>item.idsubcategoria == null || item.idcategoria == null)       
-        if(info.length!==0){
+    function comprobarEstado(dato) {
+        var info = dato.filter((item) => item.idsubcategoria == null || item.idcategoria == null || item.grado == null || item.cinturon == null)
+        if (info.length !== 0) {
             setNoValido(true);
-        }else{
+        } else {
             setNoValido(false);
         }
     }
+    const handleDownload = () => {
+        setTipoM('P');
+        setTituloModal('Clasificación de Competidores');
+        setShowModal(true);
+    };
     useEffect(() => {
         if (genero != '') {
             getInformacionCategoria({ idcampeonato: idCampeonato, genero })
@@ -258,15 +272,16 @@ function PrincipalListaCompetidor() {
                             <i className="fa-solid fa-spinner "></i> Buscar
                         </button>
                     </div>
-                    {hayLlaves === false && <div className='col-4 col-md-1'>
-                        <button className='btn btn-sm btn-warning letraBtn' 
-                        disabled={noValido}
-                        onClick={() => GenerarLlaves()}>
-                            <i className="fa-solid fa-network-wired"></i> Crear
-                        </button>
-                    </div>}
+                    {hayLlaves === false && listaCompetidores.length !== 0 &&
+                        <div className='col-4 col-md-1'>
+                            <button className='btn btn-sm btn-warning letraBtn'
+                                disabled={noValido}
+                                onClick={() => GenerarLlaves()}>
+                                <i className="fa-solid fa-network-wired"></i> Crear
+                            </button>
+                        </div>}
                     {hayLlaves && <div className='col-4 col-md-1'>
-                        <button className='btn btn-sm btn-primary letraBtn' onClick={()=>setShowModal(true)}>
+                        <button className='btn btn-sm btn-primary letraBtn' onClick={() => { setTipoM('L'); setTituloModal('Llaves Generadas'); setShowModal(true) }}>
                             <i className="fa-solid fa-network-wired"></i> Llaves
                         </button>
                     </div>}
@@ -315,10 +330,14 @@ function PrincipalListaCompetidor() {
                             <button className='btn btn-sm btn-success' onClick={() => handleDownloadExcel()}>
                                 <i className="fa-solid fa-file-excel"></i> Exportar excel </button>
                         </div>
+                        <div className='col-6 col-md-2'>
+                            <button className='btn btn-sm btn-success' onClick={() => handleDownload()}>
+                                <i className="fa-solid fa-file-pdf"></i> Generar Pdf</button>
+                        </div>
                     </div>
                 </div>
                 <div className='table-responsive py-2'>
-                    <table className="table table-dark table-striped table-hover table-bordered" id='competidoresLista' ref={tableRef}>
+                    <table className="table table-dark table-striped table-hover table-bordered" id='competidoresLista' >
                         <thead>
                             <tr className='text-center'>
                                 <th scope="col">Estudiante</th>
@@ -350,7 +369,7 @@ function PrincipalListaCompetidor() {
                                                 <div className='letraMontserratr' >{'GRADO: ' + item.grado}</div>
                                                 <div className='letraMontserratr'>{'CATEGORIA: ' + item.nombrecategoria}</div>
                                                 <div className='letraMontserratr'>{'SUB-CATEGORIA: ' + item.nombresubcategoria}</div>
-                                                {(item.idsubcategoria == null || item.idcategoria == null) &&
+                                                {(item.idsubcategoria == null || item.idcategoria == null || item.grado == null || item.cinturon == null) &&
                                                     <div className='badge bg-danger'>Inconcistencia</div>}
                                             </div>
                                         </td>
@@ -373,12 +392,13 @@ function PrincipalListaCompetidor() {
                 <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 ' closeButton closeVariant='white'>
                     <Modal.Title >
                         <div className='text-light letraMontserratr mx-auto'>
-                            <i className="fa-solid fa-network-wired fa-xl"></i> LLaves Generadas
+                            <i className="fa-solid fa-network-wired fa-xl"></i> {tituloModal}
                         </div>
                     </Modal.Title>
                 </Modal.Header>
-                <Modal.Body bsPrefix='modal-body m-0 p-0 '>
-                    <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves}/>
+                <Modal.Body bsPrefix='modal-body'>
+                    {tipoM === 'L' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} />}
+                    {tipoM === 'P' && <CompetidoresPdf categorias={categorias} listaCompetidores={listaCompetidores} campeonato={titulo} />}
                 </Modal.Body>
             </Modal>
         </div>

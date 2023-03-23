@@ -191,6 +191,7 @@ function AddEditCompetidor(props) {
                         <label className="form-label text-light fw-bold"><i className="fa-solid fa-graduation-cap fa-fade"></i> Cinturon</label>
                         <select className="form-select form-select-sm bg-secondary text-light border-secondary"
                             value={cinturon} onChange={(e) => cambiarCinturon(e.target.value)}>
+                                <option value={0} >Ninguno</option>
                             {grados.map((item, index) => {
                                 return (
                                     <optgroup key={index} label={item.nombre}>
@@ -203,6 +204,9 @@ function AddEditCompetidor(props) {
                                 )
                             })}
                         </select>
+                        {error.error !== undefined && cinturon === 0 && <div className="alert alert-danger m-0 p-0" role="alert">
+                            {error.error}
+                        </div>}
                     </div>
                 </div>
             </div>

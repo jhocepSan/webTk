@@ -60,7 +60,26 @@ function PrincipalConfiguracion() {
       })
       .catch(error => MsgUtils.msgError(error));
   }
-
+  function cambiarEstadoCate(dato) {
+    console.log("cambiando de estado")
+    fetch(`${server}/config/cambiarEstadoCategoria`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify(dato)
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          setActualizar(!actualizar);
+        } else {
+          MsgUtils.msgError(data.error);
+        }
+      })
+      .catch(error => MsgUtils.msgError(error));
+  }
   useEffect(() => {
     setCargador(true);
     fetch(`${server}/config/getCategoria`, {
@@ -70,7 +89,7 @@ function PrincipalConfiguracion() {
         'Content-Type': 'application/json;charset=utf-8',
       },
       body: JSON.stringify({
-        campeonato,genero
+        campeonato, genero
       })
     })
       .then(res => res.json())
@@ -101,7 +120,7 @@ function PrincipalConfiguracion() {
       <UtilsCargador show={cargador} />
       <div className='container-fluid  bg-dark'>
         <div className="btn-group btn-group-sm">
-          <button className={`btn btn-sm btn-gradient letraBtn ${ventana === 0 ? 'menuActivo' : 'btn-secondary'}`} onClick={() => {setVentana(0);setActualizar(!actualizar)}}>
+          <button className={`btn btn-sm btn-gradient letraBtn ${ventana === 0 ? 'menuActivo' : 'btn-secondary'}`} onClick={() => { setVentana(0); setActualizar(!actualizar) }}>
             <i className="fa-solid fa-landmark"></i> Categorias
           </button>
           <button className={`btn btn-sm btn-gradient mx-2 letraBtn ${ventana === 1 ? 'menuActivo' : 'btn-secondary'}`} onClick={() => setVentana(1)}>
@@ -113,8 +132,8 @@ function PrincipalConfiguracion() {
         <div className='container-fluid bg-dark bg-gradient py-1'>
           <div className="input-group input-group-sm" style={{ width: '200px' }}>
             <span className="input-group-text bg-transparent text-light border-dark letraBtn" >Genero</span>
-            <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn" 
-              value={genero} onChange={(e) => {setGenero(e.target.value);setActualizar(!actualizar)}}>
+            <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
+              value={genero} onChange={(e) => { setGenero(e.target.value); setActualizar(!actualizar) }}>
               <option value={'M'}>Masculino</option>
               <option value={'F'}>Femenino</option>
             </select>
@@ -130,6 +149,7 @@ function PrincipalConfiguracion() {
                       <th className="col-3">Categoria</th>
                       <th className="col-2">Edad Ini</th>
                       <th className="col-2">Edad Fin</th>
+                      <th className="col-2">Estado</th>
                       <th className="col text-end">
                         <button className='btn btn-sm btn-success bg-gradient'
                           onClick={() => { setSelectCategoria({}); setTitulo("Registrar Nueva Categoria"); setShowModal(true) }}>
@@ -145,6 +165,14 @@ function PrincipalConfiguracion() {
                           <th>{item.nombre}</th>
                           <td>{item.edadini}</td>
                           <td>{item.edadfin}</td>
+                          <td>
+                            <div className="form-check form-switch">
+                              <input className="form-check-input" type="checkbox"
+                                checked={item.estado === 'P' ? false : true}
+                                onChange={() => cambiarEstadoCate(item)} />
+                              <label className="form-check-label" ><span className={item.estado === 'P' ? 'badge bg-warning text-dark' : 'badge bg-success'}>{item.estado === 'P' ? 'No Llave' : 'Si Llave'}</span></label>
+                            </div>
+                          </td>
                           <td className='text-end'>
                             <div className='btn-group btn-group-sm'>
                               <button className='btn btn-sm text-danger' onClick={() => eliminarCategoria(item)}>
@@ -172,7 +200,7 @@ function PrincipalConfiguracion() {
           </div>
         </div></>}
       {ventana === 1 &&
-        <GradosConfig campeonato={campeonato} setCampeonato={setCampeonato}/>
+        <GradosConfig campeonato={campeonato} setCampeonato={setCampeonato} />
       }
       <Modal show={showModal} onHide={() => setShowModal(false)}
         aria-labelledby="contained-modal-title-vcenter"
@@ -186,7 +214,7 @@ function PrincipalConfiguracion() {
         </Modal.Header>
         <Modal.Body bsPrefix='modal-header m-0 p-0'>
           <AddEditCategoria actualizar={actualizar} selectCategoria={selectCategoria}
-            setActualizar={setActualizar} setShowModal={setShowModal} genero={genero} categorias={categorias}/>
+            setActualizar={setActualizar} setShowModal={setShowModal} genero={genero} categorias={categorias} />
         </Modal.Body>
       </Modal>
     </div>

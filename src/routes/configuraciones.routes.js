@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {getGrados,getCategoria,addCategoria,deleteCategoria,addCinturon,deleteGrado,deleteCinturon,
+import {getGrados,getCategoria,addCategoria,deleteCategoria,addCinturon,deleteGrado,deleteCinturon,cambiarEstadoCategoria,
     addSubCategoria,getSubCategoria,addGrado,getCampeonato,deleteSubcategoria,getConfiCategoria} from '../controllers/configuracion.controllers.js'
 const router = Router();
 
@@ -116,4 +116,12 @@ router.post('/getConfiCategoria',async(req,res)=>{
         res.status(404).json(result);
     }
 });
+router.post('/cambiarEstadoCategoria',async(req,res)=>{
+    const result = await cambiarEstadoCategoria(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
 export default router;

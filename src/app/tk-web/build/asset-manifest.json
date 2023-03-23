@@ -1,7 +1,10 @@
 {
   "files": {
-    "main.css": "/static/css/main.f25ff5df.css",
-    "main.js": "/static/js/main.c3d3a17e.js",
+    "main.css": "/static/css/main.cbce9140.css",
+    "main.js": "/static/js/main.52e21531.js",
+    "static/js/498.bb515b11.chunk.js": "/static/js/498.bb515b11.chunk.js",
+    "static/js/703.bf3b874c.chunk.js": "/static/js/703.bf3b874c.chunk.js",
+    "static/js/541.88edf6c2.chunk.js": "/static/js/541.88edf6c2.chunk.js",
     "static/media/tkd.png": "/static/media/tkd.c614b83bb089cb403398.png",
     "static/media/TheCaliforniaDemo.otf": "/static/media/TheCaliforniaDemo.99009c2e76675570304e.otf",
     "static/media/Montserrat-Regular.ttf": "/static/media/Montserrat-Regular.3cd786652b8a2e9d41f2.ttf",
@@ -12,11 +15,14 @@
     "static/media/login.png": "/static/media/login.30c43f2f0ef31edbcc4e.png",
     "static/media/Planeto.otf": "/static/media/Planeto.8052b5ce4d62e4eac8a5.otf",
     "index.html": "/index.html",
-    "main.f25ff5df.css.map": "/static/css/main.f25ff5df.css.map",
-    "main.c3d3a17e.js.map": "/static/js/main.c3d3a17e.js.map"
+    "main.cbce9140.css.map": "/static/css/main.cbce9140.css.map",
+    "main.52e21531.js.map": "/static/js/main.52e21531.js.map",
+    "498.bb515b11.chunk.js.map": "/static/js/498.bb515b11.chunk.js.map",
+    "703.bf3b874c.chunk.js.map": "/static/js/703.bf3b874c.chunk.js.map",
+    "541.88edf6c2.chunk.js.map": "/static/js/541.88edf6c2.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.f25ff5df.css",
-    "static/js/main.c3d3a17e.js"
+    "static/css/main.cbce9140.css",
+    "static/js/main.52e21531.js"
   ]
 }

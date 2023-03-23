@@ -51,7 +51,7 @@ export const deleteCompetidor=async(info)=>{
 }
 
 export const getCompetidorClasificado=async(info)=>{
-    var sql='SELECT *,(select nombre from club where idclub=c.idclub) as club, '+
+    var sql='SELECT * FROM (SELECT *,(select nombre from club where idclub=c.idclub) as club, '+
         '(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, '+
         '(SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, '+
         '(select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin '+
@@ -62,7 +62,7 @@ export const getCompetidorClasificado=async(info)=>{
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as idsubcategoria, '+
         '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria '+
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria '+
-        'FROM competidor c WHERE c.idcampeonato=? and c.tipo=? and c.genero=? and c.estado="A" order by c.idgrado;'
+        'FROM competidor c WHERE c.idcampeonato=? and c.tipo=? and c.genero=? and c.estado="A") as res where res.idcategoria in (select idcategoria from categoria where estado="A") order by res.idgrado;'
     var conn;
     try {
         conn = await pool.getConnection();

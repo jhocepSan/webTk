@@ -33,7 +33,7 @@ export const getConfiCategoria = async(info)=>{
     var conn;
     try {
         conn =await pool.getConnection();
-        const [result] = await conn.query('SELECT * FROM categoria where genero=? and idcampeonato=? order by edadini;',
+        const [result] = await conn.query('SELECT * FROM categoria where estado="A" and genero=? and idcampeonato=? order by edadini;',
         [info.genero,info.idcampeonato]);
         var information=[]
         for (var categoria of result){
@@ -196,6 +196,21 @@ export const deleteSubcategoria=async(info)=>{
     try {
         conn =await pool.getConnection();
         const [result] = await conn.query('delete from subcategoria where idsubcategoria=?;',[info.idsubcategoria]);
+        return {"ok":result}
+    } catch (error) {
+        console.log(error);
+        return {"error":error.message}
+    }finally{
+        if(conn){await conn.release();}
+    }
+}
+export const cambiarEstadoCategoria=async(info)=>{
+    var conn;
+    try {
+        console.log(info)
+        conn =await pool.getConnection();
+        const [result] = await conn.query('update categoria set estado=? where idcategoria=? and idcampeonato=?;',
+        [info.estado==='A'?'P':'A',info.idcategoria,info.idcampeonato]);
         return {"ok":result}
     } catch (error) {
         console.log(error);
