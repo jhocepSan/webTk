@@ -87,7 +87,7 @@ function AddEditCompetidor(props) {
         if(fechaHoy.getMonth()<fechaEle.getMonth()){
             setEdad(fechaHoy.getFullYear()-fechaEle.getFullYear());
         }else{
-            setEdad(fechaHoy.getFullYear()-fechaEle.getFullYear())
+            setEdad(fechaHoy.getFullYear()-fechaEle.getFullYear()-1)
         }
         setFecha(date);
     }

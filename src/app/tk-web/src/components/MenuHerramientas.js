@@ -32,6 +32,12 @@ function MenuHerramientas(props) {
                     <i className="fa-solid fa-people-group"></i> Lista Competidores
                 </button>
             </li>
+            <li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===9?'menuActivo':''}`}>
+                <button className={`btn btn-sm w-100 ${menuActivo===9?'text-dark':'text-light'} text-start fs-6 menuTk`} 
+                    onClick={()=>cambiarVentana(9,"LISTAS FESTIVAL","listCompeFest")}>
+                    <i className="fa-solid fa-people-group"></i> Lista Festivales
+                </button>
+            </li>
             <li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===8?'menuActivo':''}`}>
                 <button className={`btn btn-sm w-100 ${menuActivo===8?'text-dark':'text-light'} text-start fs-6 menuTk`} 
                     onClick={()=>cambiarVentana(8,"COMPETIDORES SIN PELEA","listCompeSN")}>

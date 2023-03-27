@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useEffect, useState } from 'react'
 import Header from '../Header';
 import PuntuacionUser from './PuntuacionUser';
 import Modal from 'react-bootstrap/Modal';
@@ -16,10 +16,18 @@ function PrincipalPuntuacion() {
     const [puntoRojo, setPuntoRojo] = useState(0);
     const [jugadorAzul,setJugadorAzul]=useState({});
     const [jugadorRojo,setJugadorRojo]=useState({});
+    const [config,setConfig] = useState(false);
+    const [nameConfig,setNameConfig] = useState('');
+    const [tipo,setTipo] = useState('');
+    const [genero,setGenero] = useState('');
+    const [campeonato,setCampeonato] = useState({})
+    useEffect(()=>{
+        setCampeonato(JSON.parse(localStorage.getItem('campeonato')));
+    },[])
     return (
         <ContextPuntuacion.Provider value={{
-            pausa,setPausa, puntoAzul, setPuntoAzul, puntoRojo, setPuntoRojo,setShowModal,
-            jugadorAzul,setJugadorAzul,jugadorRojo,setJugadorRojo,runPelea,setRunPelea
+            pausa,setPausa, puntoAzul, setPuntoAzul, puntoRojo, setPuntoRojo,setShowModal,campeonato,
+            jugadorAzul,setJugadorAzul,jugadorRojo,setJugadorRojo,runPelea,setRunPelea,tipo,setTipo,genero,setGenero
         }}>
             <Header puntuacion={true} />
             <div className='bg-transparent menu-flotante'>
@@ -49,6 +57,7 @@ function PrincipalPuntuacion() {
                 </div>
             </div>
             <div className='relojPelea'>
+                {config&&<div className='nameSeccion text-center'>Sección {nameConfig}</div>}
                 <RelojPelea/>
             </div>
             {pausa && <div className='container-fluid footer-flotante'>
@@ -142,7 +151,9 @@ function PrincipalPuntuacion() {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsPrefix='modal-body m-0 p-0 '>
-                    {tipoModal === 'C' && <Configuraciones setShowModal={setShowModal}/>}
+                    {tipoModal === 'C' && <Configuraciones setShowModal={setShowModal} 
+                        nameConfig={nameConfig} setNameConfig={setNameConfig}
+                        config={config} setConfig={setConfig}/>}
                     {tipoModal === 'P' && <ListaPeleas />}
                 </Modal.Body>
             </Modal>

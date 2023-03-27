@@ -58,7 +58,7 @@ function PrincipalLlaves(props) {
                 })}
                 <button className={`btn btn-sm letraBtn ${selectItem === -1 ? 'botonLlave' : 'btn-light'}`} onClick={() => verLlavesCategoria(-1)}
                     style={{ marginRight: '2px' }}>
-                    MANUALES
+                    EXHIBICIONES
                 </button>
             </div>
             {lista.length !== 0 &&
