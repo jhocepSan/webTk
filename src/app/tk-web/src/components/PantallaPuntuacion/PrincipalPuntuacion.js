@@ -32,17 +32,28 @@ function PrincipalPuntuacion() {
             <Header puntuacion={true} />
             <div className='bg-transparent menu-flotante'>
                 <div className="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                    <button type="button" className="btn btn-sm botonMenu" onClick={() => { setTipoModal('C'); setShowModal(true); }}>
-                        <i className="fa-solid fa-gear"></i> Configuraciones</button>
-                    <button type="button" className="btn mx-1 btn-sm botonMenu" onClick={() => { setTipoModal('P'); setShowModal(true); }}>
-                        <i className="fa-solid fa-network-wired"></i> Peleas</button>
+                    <button className='btn btn-sm botonMenu' data-bs-toggle="tooltip" data-bs-placement="bottom" title="Abrir pantalla extendida"> 
+                        <i className="fa-brands fa-windows"></i>
+                    </button>
+                    <button type="button" className="btn mx-1 btn-sm botonMenu" 
+                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Configuraciones de puntuacion"
+                        onClick={() => { setTipoModal('C'); setShowModal(true); }}>
+                        <i className="fa-solid fa-gear"></i></button>
+                    <button type="button" className="btn mx-1 btn-sm botonMenu" 
+                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver peleas del Campeonato"
+                        onClick={() => { setTipoModal('P'); setShowModal(true); }}>
+                        <i className="fa-solid fa-network-wired"></i></button>
                     <button type="button" className="btn mx-1 btn-sm botonMenu">
                         <i className="fa-solid fa-broom"></i> Reset</button>
-                    {runPelea === true && <button type="button" className="btn mx-1 btn-sm botonMenu" onClick={() => { setPausa(true); setRunPelea(false) }}>
-                        <i className="fa-solid fa-circle-pause"></i> Pausar
+                    {runPelea === true && <button type="button" className="btn mx-1 btn-sm botonMenu" 
+                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Pausar Competencia"
+                        onClick={() => { setPausa(true); setRunPelea(false) }}>
+                        <i className="fa-solid fa-circle-pause"></i>
                     </button>}
-                    {pausa && <button type="button" className="btn mx-1 btn-sm botonMenu" onClick={() => { setPausa(false); setRunPelea(true); }}>
-                        <i className="fa-solid fa-circle-play"></i> Iniciar
+                    {pausa && <button type="button" className="btn mx-1 btn-sm botonMenu" 
+                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Iniciar Competencia"
+                        onClick={() => { setPausa(false); setRunPelea(true); }}>
+                        <i className="fa-solid fa-circle-play"></i>
                     </button>}
                 </div>
             </div>

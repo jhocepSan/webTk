@@ -5,7 +5,7 @@ import ImgUser from '../../assets/user.png'
 const server = process.env.REACT_APP_SERVER;
 
 function PrincipalLlaves(props) {
-    const { idcampeonato, genero, llaves } = props;
+    const { idcampeonato, genero, llaves,callback } = props;
     const [categorias, setCategorias] = useState([]);
     const [selectItem, setSelectItem] = useState(0);
     const [lista, setLista] = useState([]);
@@ -102,7 +102,7 @@ function PrincipalLlaves(props) {
                                                         </div>
                                                         <div className='row row-cols-2 g-0'>
                                                             <div className='col-2 my-auto'>
-                                                                <button className='btn btn-sm btn-dark'>
+                                                                <button className='btn btn-sm btn-dark' onClick={()=>callback(item)}>
                                                                     {item.nropelea}
                                                                 </button>
                                                             </div>

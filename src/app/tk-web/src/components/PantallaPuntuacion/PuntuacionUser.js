@@ -3,7 +3,7 @@ import UtilsBuffer from '../utils/UtilsBuffer'
 import { ContextPuntuacion } from './PrincipalPuntuacion';
 function PuntuacionUser(props) {
     const { position } = props;
-    const {pausa,puntoRojo,setPuntoRojo,puntoAzul,setPuntoAzul}=useContext(ContextPuntuacion);
+    const {pausa,puntoRojo,setPuntoRojo,puntoAzul,setPuntoAzul,jugadorAzul,jugadorRojo}=useContext(ContextPuntuacion);
     return (
         <>
             {position && <div className='container-fluid my-auto'>
@@ -28,8 +28,8 @@ function PuntuacionUser(props) {
                                     <div className="card bg-transparent m-0 p-0 " style={{ border: 'none' }}>
                                         <div className='text-center'>{UtilsBuffer.getFotoCard(undefined, 40)}</div>
                                         <div className='ps-2 d-none d-sm-inline fondoNombre'>
-                                            <div className='letrasContenido '>{'CLUB: ' + 'user.club'}</div>
-                                            <div className='letrasContenido '>{'CINTURON: ' + 'user.cinturon'}</div>
+                                            <div className='letrasContenido text-light'>{`CLUB: ${jugadorAzul.club}`}</div>
+                                            <div className='letrasContenido text-light'>{`CINTURON: ${jugadorAzul.cinturon}`}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -39,7 +39,7 @@ function PuntuacionUser(props) {
                     <div className='col col-8'>
                         <div className=' card fondoPuntuacion '>
                             <div className='card-header m-0 p-0 text-light'>
-                                Nombre
+                                {jugadorAzul.nombre}
                             </div>
                             <div className='card-body text-center m-0 p-0'>
                                 <div className='puntuacionText'>
@@ -76,8 +76,8 @@ function PuntuacionUser(props) {
                 <div className='row row-cols-2 g-0'>
                     <div className='col col-8'>
                         <div className=' card fondoPuntuacion '>
-                            <div className='card-header m-0 p-0 text-light'>
-                                Nombre
+                            <div className='card-header m-0 p-0 text-light text-end'>
+                                {jugadorRojo.nombre}
                             </div>
                             <div className='card-body text-center m-0 p-0'>
                                 <div className='puntuacionText'>
@@ -115,8 +115,8 @@ function PuntuacionUser(props) {
                                     <div className="card bg-transparent m-0 p-0 " style={{ border: 'none' }}>
                                         <div className='text-center'>{UtilsBuffer.getFotoCard(undefined, 40)}</div>
                                         <div className='ps-2 d-none d-sm-inline fondoNombre'>
-                                            <div className='letrasContenido '>{'CLUB: ' + 'user.club'}</div>
-                                            <div className='letrasContenido '>{'CINTURON: ' + 'user.cinturon'}</div>
+                                            <div className='letrasContenido text-light'>{`CLUB: ${jugadorRojo.club}`}</div>
+                                            <div className='letrasContenido text-light'>{`CINTURON: ${jugadorRojo.cinturon}`}</div>
                                         </div>
                                     </div>
                                 </div>

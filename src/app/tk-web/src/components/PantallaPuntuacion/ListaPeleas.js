@@ -29,8 +29,20 @@ function ListaPeleas() {
                 .catch(error => MsgUtils.msgError(error));
         }
     }
-    function seleccionarPelea() {
-        console.log("hola")
+    function seleccionarPelea(dato) {
+        console.log(dato);
+        setJugadorAzul({
+            "nombre":dato.nombres+' '+dato.apellidos,
+            "club":dato.clubuno,
+            'idcompetidor':dato.idcompetidor1,
+            'cinturon':dato.cinturonuno
+        })
+        setJugadorRojo({
+            "nombre":dato.nombres2+' '+dato.apellidos2,
+            "club":dato.clubdos,
+            'idcompetidor':dato.idcompetidor2,
+            'cinturon':dato.cinturondos
+        })
         setPausa(true)
         setShowModal(false)
     }
@@ -65,7 +77,9 @@ function ListaPeleas() {
                 </div>
             </div>
             {listaLlaves&&listaLlaves.length!==0&&
-                <PrincipalLlaves idcampeonato={campeonato.idcampeonato} genero={genero} llaves={listaLlaves} />    
+                <PrincipalLlaves idcampeonato={campeonato.idcampeonato} 
+                    callback={(dato)=>seleccionarPelea(dato)}
+                    genero={genero} llaves={listaLlaves} />    
             }
         </div>
     )

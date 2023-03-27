@@ -311,11 +311,13 @@ export const obtenerLlaves = async (info) => {
         'INNER JOIN subcategoria scat on scat.idsubcategoria=lv.idsubcategoria ' +
         'WHERE lv.tipo=? and lv.idcampeonato=? and lv.genero=? ' +
         'UNION SELECT idllave,fecha,tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato,estado,"EXHIBICIÓN","EXHIBICIÓN","EXHIBICIÓN",1,1,1,1 FROM llave where idgrado=-1 ;';
-    var sql2 = 'SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,res.nropelea,res.idganador,res.idperdedor,res.nombres,res.apellidos,res.clubuno, ' +
-        'cm.nombres as nombres2,cm.apellidos as apellidos2,(select cl.nombre from club cl where cl.idclub=cm.idclub) as clubdos FROM ' +
-        '(SELECT p.idpelea,p.idpeleapadre,p.idllave,p.idcompetidor1,p.idcompetidor2,p.nropelea,p.idganador,p.idperdedor,c.nombres,c.apellidos, ' +
-        '(select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno ' +
-        'FROM pelea p inner join competidor c on c.idcompetidor=p.idcompetidor1) res ' +
+    var sql2 = 'SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,res.nropelea,res.idganador,res.idperdedor,res.nombres,res.apellidos,res.clubuno, '+
+        'res.idcinturon,res.cinturonuno,cm.idcinturon as idcinturondos,(select cin.nombre from cinturon cin where cin.idcinturon=cm.idcinturon)as cinturondos, '+
+        'cm.nombres as nombres2,cm.apellidos as apellidos2,(select cl.nombre from club cl where cl.idclub=cm.idclub) as clubdos FROM '+
+        '(SELECT p.idpelea,p.idpeleapadre,p.idllave,p.idcompetidor1,p.idcompetidor2,p.nropelea,p.idganador,p.idperdedor,c.nombres,c.apellidos,c.idcinturon, '+
+        '(select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturonuno, '+
+        '(select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno '+
+        'FROM pelea p inner join competidor c on c.idcompetidor=p.idcompetidor1) res '+
         'INNER JOIN (select * from tkdb.competidor union select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null) cm on cm.idcompetidor=res.idcompetidor2 where res.idllave=? order by res.nropelea';
     var conn;
     try {
