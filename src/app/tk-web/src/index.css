@@ -92,6 +92,10 @@ body{
     font-size: 17rem;
     font-family: Arial, Helvetica, sans-serif;
     color: #ffffff;
+	padding-top: 0%;
+	padding-bottom: 0%;
+	margin-top: 0;
+	margin-bottom: 0;
 }
 .fondoPuntuacion{
     background-color: rgba(49, 48, 48, 0.075);

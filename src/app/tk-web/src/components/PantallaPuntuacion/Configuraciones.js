@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import MsgUtils from '../utils/MsgUtils';
+import { ContextPuntuacion } from './PrincipalPuntuacion';
 
 function Configuraciones(props) {
-    const { setShowModal,setConfig,config,nameConfig,setNameConfig } = props;
+    const { setShowModal,setConfig,config,nameConfig,setNameConfig,setConfigJuego } = useContext(ContextPuntuacion);
     const [enableDif, setEnableDif] = useState(false);
     const [nameSeccion,setNameSeccion] = useState('');
     const [numRound,setNumRound] = useState(0);
@@ -34,11 +35,13 @@ function Configuraciones(props) {
     }
     function guardarConfiguracion(){
         if(validarCampos()){
-            setNameConfig(nameSeccion);
-            localStorage.setItem(nameSeccion,JSON.stringify({
+            var datos={
                 nameSeccion,numRound,timeRound,falta,maxFaltas,timeDescanso,numMandos,puntosCabeza,
                 puntosCabezaGiro,puntosPunio,puntosPeto,puntosPetoGiro,enableDif,diffPuntos
-            }))
+            }
+            setConfigJuego(datos);
+            setNameConfig(nameSeccion);
+            localStorage.setItem(nameSeccion,JSON.stringify(datos));
             MsgUtils.msgCorrecto("Configuracion correcta del Area: "+nameSeccion)
             setShowModal(false);
             setConfig(true);

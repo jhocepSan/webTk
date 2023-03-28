@@ -64,3 +64,11 @@
     font-family: montserratr;
     font-size: 14px;
 }
+.nombreJugador{
+    font-family: montserratb;
+    font-size: 19px;
+}
+.ganadorTitulo{
+    font-size: 120px;
+    font-family: montserratr;
+}

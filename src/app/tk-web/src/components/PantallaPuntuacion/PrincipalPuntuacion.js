@@ -14,43 +14,71 @@ function PrincipalPuntuacion() {
     const [runPelea, setRunPelea] = useState(false);
     const [puntoAzul, setPuntoAzul] = useState(0);
     const [puntoRojo, setPuntoRojo] = useState(0);
-    const [jugadorAzul,setJugadorAzul]=useState({});
-    const [jugadorRojo,setJugadorRojo]=useState({});
-    const [config,setConfig] = useState(false);
-    const [nameConfig,setNameConfig] = useState('');
-    const [tipo,setTipo] = useState('');
-    const [genero,setGenero] = useState('');
-    const [campeonato,setCampeonato] = useState({})
-    useEffect(()=>{
+    const [faltasAzul, setFaltasAzul] = useState(0);
+    const [faltasRojo, setFaltasRojo] = useState(0);
+    const [jugadorAzul, setJugadorAzul] = useState({});
+    const [jugadorRojo, setJugadorRojo] = useState({});
+    const [configJuego, setConfigJuego] = useState({});
+    const [config, setConfig] = useState(false);
+    const [nameConfig, setNameConfig] = useState('');
+    const [tipo, setTipo] = useState('');
+    const [genero, setGenero] = useState('');
+    const [campeonato, setCampeonato] = useState({});
+    const [playGanador,setPlayGanador] =useState({});
+    function procesarFalta(tipo, color) {
+        if (tipo) {
+            if (color == 'A') {
+                setFaltasAzul(faltasAzul + 1);
+                setPuntoRojo(puntoRojo + parseInt(configJuego.falta));
+            } else {
+                setFaltasRojo(faltasRojo + 1);
+                setPuntoAzul(puntoAzul + parseInt(configJuego.falta));
+            }
+        } else {
+            if (color == 'A') {
+                setFaltasAzul(faltasAzul - 1);
+                setPuntoRojo(puntoRojo - parseInt(configJuego.falta));
+            } else {
+                setFaltasRojo(faltasRojo - 1);
+                setPuntoAzul(puntoAzul - parseInt(configJuego.falta));
+            }
+        }
+    }
+    function guardarDatosGanador(){
+        
+    }
+    useEffect(() => {
         setCampeonato(JSON.parse(localStorage.getItem('campeonato')));
-    },[])
+    }, [])
     return (
         <ContextPuntuacion.Provider value={{
-            pausa,setPausa, puntoAzul, setPuntoAzul, puntoRojo, setPuntoRojo,setShowModal,campeonato,
-            jugadorAzul,setJugadorAzul,jugadorRojo,setJugadorRojo,runPelea,setRunPelea,tipo,setTipo,genero,setGenero
+            pausa, setPausa, puntoAzul, setPuntoAzul, puntoRojo, setPuntoRojo, setShowModal, campeonato, setConfigJuego, configJuego,
+            jugadorAzul, setJugadorAzul, jugadorRojo, setJugadorRojo, runPelea, setRunPelea, tipo, setTipo, genero, setGenero,
+            nameConfig, setNameConfig, config, setConfig, faltasAzul, setFaltasAzul, faltasRojo, setFaltasRojo,setTipoModal,
+            playGanador,setPlayGanador
         }}>
             <Header puntuacion={true} />
             <div className='bg-transparent menu-flotante'>
                 <div className="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                    <button className='btn btn-sm botonMenu' data-bs-toggle="tooltip" data-bs-placement="bottom" title="Abrir pantalla extendida"> 
+                    <button className='btn btn-sm botonMenu' data-bs-toggle="tooltip" data-bs-placement="bottom" title="Abrir pantalla extendida">
                         <i className="fa-brands fa-windows"></i>
                     </button>
-                    <button type="button" className="btn mx-1 btn-sm botonMenu" 
+                    <button type="button" className="btn mx-1 btn-sm botonMenu"
                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Configuraciones de puntuacion"
                         onClick={() => { setTipoModal('C'); setShowModal(true); }}>
                         <i className="fa-solid fa-gear"></i></button>
-                    <button type="button" className="btn mx-1 btn-sm botonMenu" 
+                    <button type="button" className="btn mx-1 btn-sm botonMenu"
                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver peleas del Campeonato"
                         onClick={() => { setTipoModal('P'); setShowModal(true); }}>
                         <i className="fa-solid fa-network-wired"></i></button>
                     <button type="button" className="btn mx-1 btn-sm botonMenu">
                         <i className="fa-solid fa-broom"></i> Reset</button>
-                    {runPelea === true && <button type="button" className="btn mx-1 btn-sm botonMenu" 
+                    {runPelea === true && <button type="button" className="btn mx-1 btn-sm botonMenu"
                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Pausar Competencia"
                         onClick={() => { setPausa(true); setRunPelea(false) }}>
                         <i className="fa-solid fa-circle-pause"></i>
                     </button>}
-                    {pausa && <button type="button" className="btn mx-1 btn-sm botonMenu" 
+                    {pausa && <button type="button" className="btn mx-1 btn-sm botonMenu"
                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Iniciar Competencia"
                         onClick={() => { setPausa(false); setRunPelea(true); }}>
                         <i className="fa-solid fa-circle-play"></i>
@@ -68,8 +96,8 @@ function PrincipalPuntuacion() {
                 </div>
             </div>
             <div className='relojPelea'>
-                {config&&<div className='nameSeccion text-center'>Sección {nameConfig}</div>}
-                <RelojPelea/>
+                {config && <div className='nameSeccion text-center'>Sección {nameConfig}</div>}
+                <RelojPelea />
             </div>
             {pausa && <div className='container-fluid footer-flotante'>
                 <div className='row row-cols-2 g-0'>
@@ -97,10 +125,10 @@ function PrincipalPuntuacion() {
                                     </div>
                                     <div className='container-fluid'>
                                         <div className="btn-group btn-group-sm">
-                                            <button className='btn btn-sm btnScore'>
+                                            <button className='btn btn-sm btnScore' onClick={() => procesarFalta(true, 'A')}>
                                                 <i className="fa-solid fa-circle-plus fa-2xl"></i>
                                             </button>
-                                            <button className='btn btn-sm btnScore'>
+                                            <button className='btn btn-sm btnScore' onClick={() => procesarFalta(false, 'A')}>
                                                 <i className="fa-solid fa-circle-minus fa-2xl"></i>
                                             </button>
                                         </div>
@@ -133,10 +161,10 @@ function PrincipalPuntuacion() {
                                     </div>
                                     <div className='container-fluid'>
                                         <div className="btn-group btn-group-sm">
-                                            <button className='btn btn-sm btnScore'>
+                                            <button className='btn btn-sm btnScore' onClick={() => procesarFalta(true, 'R')}>
                                                 <i className="fa-solid fa-circle-plus fa-2xl"></i>
                                             </button>
-                                            <button className='btn btn-sm btnScore'>
+                                            <button className='btn btn-sm btnScore' onClick={() => procesarFalta(false, 'R')}>
                                                 <i className="fa-solid fa-circle-minus fa-2xl"></i>
                                             </button>
                                         </div>
@@ -147,25 +175,37 @@ function PrincipalPuntuacion() {
                     </div>
                 </div>
             </div>}
-            <Modal show={showModal} onHide={()=>setShowModal(false)}
+            <Modal show={showModal} onHide={() => setShowModal(false)}
                 size={'xl'}
+                backdrop="static"
                 aria-labelledby="contained-modal-title-vcenter"
                 contentClassName='bg-dark bg-gradient'>
-                <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 ' closeButton closeVariant='white'>
-                    <Modal.Title >
-                        {tipoModal === 'C' && <div className='text-light letraMontserratr mx-auto'>
-                            <i className="fa-solid fa-gear fa-xl"></i> Configuraciones
-                        </div>}
-                        {tipoModal === 'P' && <div className='text-light letraMontserratr mx-auto'>
-                            <i className="fa-solid fa-network-wired fa-xl"></i> Peleas
-                        </div>}
-                    </Modal.Title>
+                <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 w-100' closeButton={tipoModal==='W'?false:true} closeVariant='white'>
+                    {tipoModal === 'C' && <div className='text-light letraMontserratr mx-auto'>
+                        <i className="fa-solid fa-gear fa-xl"></i> Configuraciones
+                    </div>}
+                    {tipoModal === 'P' && <div className='text-light letraMontserratr mx-auto'>
+                        <i className="fa-solid fa-network-wired fa-xl"></i> Peleas
+                    </div>}
+                    {tipoModal === 'W' && <div className='text-light letraMontserratr mx-auto w-100 text-center'>
+                        <i className="fa-solid fa-burst fa-xl fa-fade"></i> Hay Ganador <i className="fa-solid fa-burst fa-xl fa-fade"></i>
+                    </div>}
                 </Modal.Header>
                 <Modal.Body bsPrefix='modal-body m-0 p-0 '>
-                    {tipoModal === 'C' && <Configuraciones setShowModal={setShowModal} 
-                        nameConfig={nameConfig} setNameConfig={setNameConfig}
-                        config={config} setConfig={setConfig}/>}
+                    {tipoModal === 'C' && <Configuraciones />}
                     {tipoModal === 'P' && <ListaPeleas />}
+                    {tipoModal === 'W' &&
+                    <div className={`container-fluid bg-gradient ${playGanador.color==='R'?'bg-danger':'bg-primary'}`}>
+                        <div className='ganadorTitulo fa-fade text-center'>
+                            {playGanador.nombre}
+                        </div>
+                        <div className='py-1 w-100'>
+                            <button className='btn btn-sm bg-gradient btn-success w-100' onClick={()=>guardarDatosGanador()}>
+                                Aceptar
+                            </button>
+                        </div>
+                    </div>
+                    }
                 </Modal.Body>
             </Modal>
         </ContextPuntuacion.Provider>
