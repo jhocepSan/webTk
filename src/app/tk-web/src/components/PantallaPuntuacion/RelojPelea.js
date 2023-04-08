@@ -2,13 +2,19 @@ import React, { useContext, useEffect, useState } from 'react'
 import { ContextPuntuacion } from './PrincipalPuntuacion';
 
 function RelojPelea() {
-    const {runPelea,setRunPelea} = useContext(ContextPuntuacion)
+    const {runPelea,setRunPelea,configJuego} = useContext(ContextPuntuacion)
     const [segundo,setSegundo] = useState(0);
-    const [minuto,setMinuto] = useState(2);
+    const [minuto,setMinuto] = useState(null);
     const [tiempo,setTiempo] = useState('00:00');
     const [compensar,setCompensar] = useState(false);
     setTimeout(() => {
         if(runPelea){
+            if(minuto==null){
+                var numero = configJuego.timeRound.split(':');
+                console.log(parseInt(numero[2])/60);
+                numero= parseInt(numero[1])+(parseInt(numero[2])/60)
+                setMinuto(numero);
+            }
             setSegundo(segundo + 1);
         }
     }, 1000);
@@ -37,7 +43,7 @@ function RelojPelea() {
             }
         }
     }, [segundo]);
-
+    
     return (
         <div className='card reloj-digital text-center'>
             {tiempo}

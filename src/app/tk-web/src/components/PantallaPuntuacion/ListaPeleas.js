@@ -5,7 +5,8 @@ import { ContextPuntuacion } from './PrincipalPuntuacion';
 const server = process.env.REACT_APP_SERVER;
 
 function ListaPeleas() {
-    const { setPausa, setJugadorAzul, setJugadorRojo, setShowModal,genero,setGenero,tipo,setTipo,campeonato } = useContext(ContextPuntuacion);
+    const { setPausa, setJugadorAzul, setJugadorRojo, setNumPelea,
+        setShowModal,genero,setGenero,tipo,setTipo,campeonato } = useContext(ContextPuntuacion);
     const [listaLlaves,setListaLlaves] = useState([]);
     function obtenerLLaves() {
         if(tipo!==''&&genero!==''){
@@ -35,16 +36,23 @@ function ListaPeleas() {
             "nombre":dato.nombres+' '+dato.apellidos,
             "club":dato.clubuno,
             'idcompetidor':dato.idcompetidor1,
-            'cinturon':dato.cinturonuno
+            'cinturon':dato.cinturonuno,
+            'idllave':dato.idllave,
+            'idpelea':dato.idpelea,
+            'nropelea':dato.nropelea
         })
         setJugadorRojo({
             "nombre":dato.nombres2+' '+dato.apellidos2,
             "club":dato.clubdos,
             'idcompetidor':dato.idcompetidor2,
-            'cinturon':dato.cinturondos
+            'cinturon':dato.cinturondos,
+            'idllave':dato.idllave,
+            'idpelea':dato.idpelea,
+            'nropelea':dato.nropelea
         })
-        setPausa(true)
-        setShowModal(false)
+        setNumPelea(dato.nropelea);
+        setPausa(true);
+        setShowModal(false);
     }
     useEffect(()=>{
         

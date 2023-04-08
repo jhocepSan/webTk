@@ -6,7 +6,7 @@ import { ContextAplicacions } from '../Context/ContextAplicacion';
 const server = process.env.REACT_APP_SERVER
 
 function SingUp(props) {
-    const { setVentana } = props;
+    const { setVentana,setCargador } = props;
     const navigate = useNavigate();
     const { setLogin, setUserLogin } = useContext(ContextAplicacions);
     const [nombres, setNombres] = useState('');
@@ -33,6 +33,7 @@ function SingUp(props) {
     }
     const guardarInformacion = () => {
         if (validarInfomacion()) {
+            setCargador(true);
             var info = {
                 nombres,
                 apellidos,
@@ -53,6 +54,7 @@ function SingUp(props) {
             })
                 .then(res => res.json())
                 .then(data => {
+                    setCargador(false);
                     if (data.ok) {
                         localStorage.setItem("login", JSON.stringify(data.ok));
                         setLogin(true);

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Modal from 'react-bootstrap/Modal';
 import MsgUtils from './utils/MsgUtils';
+import UtilsCargador from './utils/UtilsCargador';
 const server = process.env.REACT_APP_SERVER
 
 function VistaInicio() {
@@ -15,6 +16,7 @@ function VistaInicio() {
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [actualizar,setActualizar] = useState(false);
+  const [cargador,setCargador] = useState(false);
   const cambiarCampeonato = (dato) => {
     var info = campeonatos.filter((item) => item.idcampeonato == dato);
     setCampeonatos(dato);
@@ -23,6 +25,7 @@ function VistaInicio() {
   }
   function guardarCampeonato() {
     if (nombre !== '') {
+      setCargador(true);
       fetch(`${server}/login/crearCampeonato`, {
         method: 'POST',
         headers: {
@@ -33,6 +36,7 @@ function VistaInicio() {
       })
         .then(res => res.json())
         .then(data => { 
+          setCargador(false);
           if (data.ok) {
             setNombre('');
             setDescripcion('');
@@ -159,6 +163,7 @@ function VistaInicio() {
           </div>
         </Modal.Body>
       </Modal>
+      <UtilsCargador show={cargador} />
     </>
   )
 }

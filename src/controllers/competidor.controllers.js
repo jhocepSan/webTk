@@ -49,6 +49,21 @@ export const deleteCompetidor = async (info) => {
         if (conn) { await conn.release(); }
     }
 }
+export const deleteCompetidorSP = async (info) => {
+    var conn;
+    try {
+        console.log(info);
+        conn = await pool.getConnection();
+        const [result] = await conn.query('UPDATE competidorsinpelea SET estado=? WHERE idcompetidor=?;',
+            [info.estado, info.idcompetidor])
+        return { "ok": result }
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}
 
 export const getCompetidorClasificado = async (info) => {
     var sql = 'SELECT * FROM (SELECT *,(select nombre from club where idclub=c.idclub) as club, ' +

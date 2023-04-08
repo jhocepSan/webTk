@@ -48,7 +48,6 @@
 }
 .letrasContenido{
     font-family: montserratr;
-    font-size: 12px;
 }
 .letraBtn{
     font-family: montserratr;
@@ -66,9 +65,14 @@
 }
 .nombreJugador{
     font-family: montserratb;
-    font-size: 19px;
+    font-size: 23px;
+}
+.numeroPelea{
+    font-family: montserratb;
+    font-size: 45px;
 }
 .ganadorTitulo{
     font-size: 120px;
-    font-family: montserratr;
+    font-family: montserratb;
+    color: white;
 }

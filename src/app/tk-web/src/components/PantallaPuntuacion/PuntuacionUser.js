@@ -7,6 +7,44 @@ function PuntuacionUser(props) {
         jugadorAzul, jugadorRojo, faltasRojo, faltasAzul, configJuego,setPlayGanador } = useContext(ContextPuntuacion);
     const [listaAzul, setListaAzul] = useState([]);
     const [listaRojo, setListaRojo] = useState([]);
+    function hayDiferencia(azul,rojo){
+        if(configJuego.enableDif){
+            if(parseInt(azul)>parseInt(rojo)){
+                var diferencia = Math.abs(azul-rojo);
+                if(diferencia>=parseInt(configJuego.diffPuntos)){
+                    setPlayGanador({...jugadorAzul,'color':'A'});
+                    setTipoModal('W');
+                    setShowModal(true);
+                }
+            }else{
+                var diferencia = Math.abs(azul-rojo);
+                if(diferencia>=parseInt(configJuego.diffPuntos)){
+                    setPlayGanador({...jugadorRojo,'color':'R'});
+                    setTipoModal('W');
+                    setShowModal(true);
+                }
+            }
+        }
+    }
+    function puntoManual(color,tipo){
+        if(tipo){
+            if(color=='R'){
+                hayDiferencia(puntoAzul,puntoRojo + 1);
+                setPuntoRojo(puntoRojo + 1);
+            }else{
+                hayDiferencia(puntoAzul+1,puntoRojo);
+                setPuntoAzul(puntoAzul + 1);
+            }
+        }else{
+            if(color=='R'){
+                hayDiferencia(puntoAzul,puntoRojo-1);
+                setPuntoRojo(puntoRojo - 1);
+            }else{
+                hayDiferencia(puntoAzul-1,puntoRojo);
+                setPuntoAzul(puntoAzul - 1);
+            }
+        }
+    }
     useEffect(() => {
         setListaAzul(Array(faltasAzul).fill(0));
         setListaRojo(Array(faltasRojo).fill(0));
@@ -30,12 +68,12 @@ function PuntuacionUser(props) {
                                 <div className='col'>
                                     <div className='text-center text-light'> Puntuación</div>
                                     {pausa && <div className='text-center'>
-                                        <button className='btn btn-sm btnScore' onClick={() => setPuntoAzul(puntoAzul + 1)}>
+                                        <button className='btn btn-sm btnScore' onClick={() => puntoManual('A',true)}>
                                             <i className="fa-solid fa-circle-plus"></i>
                                         </button>
                                     </div>}
                                     {pausa && <div className='text-center'>
-                                        <button className='btn btn-sm btnScore' onClick={() => setPuntoAzul(puntoAzul - 1)}>
+                                        <button className='btn btn-sm btnScore' onClick={() => puntoManual('A',false)}>
                                             <i className="fa-solid fa-circle-minus"></i>
                                         </button>
                                     </div>}
@@ -66,7 +104,7 @@ function PuntuacionUser(props) {
                                 <div className='container-fluid'>
                                     <div className='row row-cols-2'>
                                         <div className='col-4'>
-                                            <div className='tituloMenu text-light'>Gam-jeon</div>
+                                            <div className='nombreJugador text-light'>Gam-jeon</div>
                                         </div>
                                         <div className='col'>
                                             {listaAzul && <div className="btn-group btn-group-sm">
@@ -102,7 +140,7 @@ function PuntuacionUser(props) {
                                 <div className='container-fluid'>
                                     <div className='row row-cols-2'>
                                         <div className='col-4'>
-                                            <div className='tituloMenu text-light'>Gam-jeon</div>
+                                            <div className='nombreJugador text-light'>Gam-jeon</div>
                                         </div>
                                         <div className='col'>
                                             {listaRojo && <div className="btn-group btn-group-sm">
@@ -135,12 +173,12 @@ function PuntuacionUser(props) {
                                 <div className='col'>
                                     <div className='text-center text-light'> Puntuación</div>
                                     {pausa && <div className='text-center'>
-                                        <button className='btn btn-sm btnScore' onClick={() => setPuntoRojo(puntoRojo + 1)}>
+                                        <button className='btn btn-sm btnScore' onClick={() => puntoManual('R',true)}>
                                             <i className="fa-solid fa-circle-plus"></i>
                                         </button>
                                     </div>}
                                     {pausa && <div className='text-center'>
-                                        <button className='btn btn-sm btnScore' onClick={() => setPuntoRojo(puntoRojo - 1)}>
+                                        <button className='btn btn-sm btnScore' onClick={() => puntoManual('R',false)}>
                                             <i className="fa-solid fa-circle-minus"></i>
                                         </button>
                                     </div>}

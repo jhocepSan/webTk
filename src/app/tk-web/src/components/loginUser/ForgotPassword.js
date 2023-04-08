@@ -4,7 +4,7 @@ import MsgUtils from '../utils/MsgUtils';
 const server = process.env.REACT_APP_SERVER
  
 function ForgotPassword(props) {
-    const { setVentana } = props;
+    const { setVentana,setCargador } = props;
     const [error, setError] = useState({});
     const [email, setEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -26,6 +26,7 @@ function ForgotPassword(props) {
     }
     function guardarNuevaContraseña() {
         if (validarCampos()) {
+            setCargador(true);
             fetch(`${server}/login/recuperarCuenta`, {
                 method: 'POST',
                 headers: {
@@ -38,6 +39,7 @@ function ForgotPassword(props) {
             })
                 .then(res => res.json())
                 .then(data => {
+                    setCargador(false);
                     if (data.ok) {
                         setVentana(0);
                         MsgUtils.msgCorrecto(data.ok);

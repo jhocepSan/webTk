@@ -25,6 +25,7 @@ function PrincipalPuntuacion() {
     const [genero, setGenero] = useState('');
     const [campeonato, setCampeonato] = useState({});
     const [playGanador,setPlayGanador] =useState({});
+    const [numPelea,setNumPelea]=useState('');
     function procesarFalta(tipo, color) {
         if (tipo) {
             if (color == 'A') {
@@ -45,7 +46,7 @@ function PrincipalPuntuacion() {
         }
     }
     function guardarDatosGanador(){
-        
+        setShowModal(false);
     }
     useEffect(() => {
         setCampeonato(JSON.parse(localStorage.getItem('campeonato')));
@@ -55,35 +56,39 @@ function PrincipalPuntuacion() {
             pausa, setPausa, puntoAzul, setPuntoAzul, puntoRojo, setPuntoRojo, setShowModal, campeonato, setConfigJuego, configJuego,
             jugadorAzul, setJugadorAzul, jugadorRojo, setJugadorRojo, runPelea, setRunPelea, tipo, setTipo, genero, setGenero,
             nameConfig, setNameConfig, config, setConfig, faltasAzul, setFaltasAzul, faltasRojo, setFaltasRojo,setTipoModal,
-            playGanador,setPlayGanador
+            playGanador,setPlayGanador,numPelea,setNumPelea
         }}>
             <Header puntuacion={true} />
             <div className='bg-transparent menu-flotante'>
                 <div className="btn-group btn-group-sm" role="group" aria-label="Basic example">
                     <button className='btn btn-sm botonMenu' data-bs-toggle="tooltip" data-bs-placement="bottom" title="Abrir pantalla extendida">
-                        <i className="fa-brands fa-windows"></i>
+                        <i className="fa-brands fa-windows fa-2xl"></i>
                     </button>
                     <button type="button" className="btn mx-1 btn-sm botonMenu"
                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Configuraciones de puntuacion"
                         onClick={() => { setTipoModal('C'); setShowModal(true); }}>
-                        <i className="fa-solid fa-gear"></i></button>
+                        <i className="fa-solid fa-gear fa-2xl"></i></button>
                     <button type="button" className="btn mx-1 btn-sm botonMenu"
                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Ver peleas del Campeonato"
                         onClick={() => { setTipoModal('P'); setShowModal(true); }}>
-                        <i className="fa-solid fa-network-wired"></i></button>
-                    <button type="button" className="btn mx-1 btn-sm botonMenu">
-                        <i className="fa-solid fa-broom"></i> Reset</button>
+                        <i className="fa-solid fa-network-wired fa-2xl"></i></button>
+                    <button type="button" className="btn mx-1 btn-sm botonMenu"
+                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Recetear valores iniciales">
+                        <i className="fa-solid fa-repeat fa-2xl"></i></button>
                     {runPelea === true && <button type="button" className="btn mx-1 btn-sm botonMenu"
                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Pausar Competencia"
                         onClick={() => { setPausa(true); setRunPelea(false) }}>
-                        <i className="fa-solid fa-circle-pause"></i>
+                        <i className="fa-solid fa-circle-pause fa-2xl"></i>
                     </button>}
                     {pausa && <button type="button" className="btn mx-1 btn-sm botonMenu"
                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Iniciar Competencia"
                         onClick={() => { setPausa(false); setRunPelea(true); }}>
-                        <i className="fa-solid fa-circle-play"></i>
+                        <i className="fa-solid fa-circle-play fa-2xl"></i>
                     </button>}
                 </div>
+                {numPelea!==''&&<div className='numeroPelea text-light fa-fade'>
+                    {`Pelea #${numPelea}`}
+                </div>}
             </div>
             <div className='container-fluid'>
                 <div className='row row-cols-2 vh-100'>
@@ -96,7 +101,7 @@ function PrincipalPuntuacion() {
                 </div>
             </div>
             <div className='relojPelea'>
-                {config && <div className='nameSeccion text-center'>Sección {nameConfig}</div>}
+                {config && <div className='nameSeccion text-center'>Area # {nameConfig}</div>}
                 <RelojPelea />
             </div>
             {pausa && <div className='container-fluid footer-flotante'>

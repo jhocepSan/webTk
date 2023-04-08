@@ -6,6 +6,7 @@ import UtilsBuffer from '../utils/UtilsBuffer';
 import AddEditClub from './AddEditClub';
 import Modal from 'react-bootstrap/Modal';
 import Header from '../Header';
+import UtilsCargador from '../utils/UtilsCargador';
 const server = process.env.REACT_APP_SERVER
 
 function PrincipalRegistroClub() {
@@ -16,6 +17,7 @@ function PrincipalRegistroClub() {
   const [showModal, setShowModal] = useState(false);
   const [titulo, setTitulo] = useState('');
   const [clubSelect, setClubSelect] = useState({});
+  const [cargador,setCargador] = useState(false);
   const eliminarClub = (clb) => {
     fetch(`${server}/club/deleteClub`, {
       method: 'POST',
@@ -43,7 +45,32 @@ function PrincipalRegistroClub() {
     setTitulo("Editar Club " + clb.abreviado);
     setShowModal(true);
   }
+  function cambiarEstadoPuntuacion(dato) {
+    if (dato.puntuado === 'I') {
+      dato.puntuado = 'A';
+    } else {
+      dato.puntuado = 'I';
+    }
+    fetch(`${server}/club/setPuntuadoClub`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify(dato)
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          setActualizar(!actualizar);
+        } else {
+          MsgUtils.msgError(data.error);
+        }
+      })
+      .catch(error => MsgUtils.msgError(error));
+  }
   useEffect(() => {
+    setCargador(true);
     fetch(`${server}/club/getListaClub`, {
       method: 'GET',
       headers: {
@@ -53,6 +80,7 @@ function PrincipalRegistroClub() {
     })
       .then(res => res.json())
       .then(data => {
+        setCargador(false);
         if (data.ok) {
           setListaClubs(data.ok);
         } else {
@@ -72,9 +100,9 @@ function PrincipalRegistroClub() {
   return (
     <div>
       <Header />
-      <div className='container-fluid bg-dark bg-gradient'>
+      <div className='container-fluid bg-secondary bg-gradient py-2'>
         <div className='row row-cols-2 g-0'>
-          <div className='col-9 m-0 p-0'>
+          <div className='col-9 m-0 p-0 my-auto'>
             <div className='text-center fw-bold text-light tituloMenu'>Lista de los Clubs   </div>
           </div>
           <div className='col-3 m-0 p-0 text-end'>
@@ -87,13 +115,14 @@ function PrincipalRegistroClub() {
         </div>
       </div>
       <div className='table-responsive'>
-        <table className="table table-sm table-dark table-striped table-hover">
+        <table className="table table-sm table-dark table-striped table-hover table-bordered">
           <thead>
             <tr className='text-center'>
               <th scope="col">CLUB</th>
               <th scope="col">ABR.</th>
               <th scope="col">DIRECCION</th>
-              <th scope="col"></th>
+              <th className='col-1'>CLUB PUNTUADO</th>
+              <th className="col-1"></th>
             </tr>
           </thead>
           <tbody>
@@ -103,6 +132,18 @@ function PrincipalRegistroClub() {
                   <th scope="row" className='col-2'>{item.nombre}</th>
                   <td className='col-1'>{item.abreviado}</td>
                   <td>{UtilsBuffer.getText(item.direccion)}</td>
+                  <td>
+                    <div className="form-check form-switch text-center">
+                      <input className="form-check-input" type="checkbox"
+                        checked={item.puntuado === 'I' ? false : true}
+                        onChange={() => cambiarEstadoPuntuacion(item)} />
+                      <label className="form-check-label letraMontserratr" >
+                        <span className={item.puntuado === 'I' ? 'badge bg-danger' : 'badge bg-success'}>
+                          {item.puntuado === 'I' ? 'No entra a Puntuación' : 'Entra a Puntuación'}
+                        </span>
+                      </label>
+                    </div>
+                  </td>
                   <td className='text-end'>
                     <div className="btn-group btn-group-sm" role="group" aria-label="Basic example">
                       <button type="button" className="btn btn-transparent text-warning"
@@ -138,6 +179,7 @@ function PrincipalRegistroClub() {
             setShowModal={setShowModal} />
         </Modal.Body>
       </Modal>
+      <UtilsCargador show={cargador} />
     </div>
   )
 }

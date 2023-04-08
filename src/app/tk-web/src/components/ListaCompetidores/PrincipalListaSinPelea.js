@@ -22,7 +22,7 @@ function PrincipalListaSinPelea() {
     const [genManual, setGenManual] = useState(false);
     const [selectItem, setSelectItem] = useState({});
     const [listaManual, setListaManual] = useState([]);
-    const [actualizar,setActualizar] = useState(false);
+    const [actualizar, setActualizar] = useState(false);
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
 
     function handleDownloadExcel() {
@@ -96,7 +96,7 @@ function PrincipalListaSinPelea() {
             td = tr[i].getElementsByTagName("td")[row];
             if (td) {
                 txtValue = td.textContent || td.innerText;
-                if (txtValue.toUpperCase()===(''+dato)) {
+                if (txtValue.toUpperCase() === ('' + dato)) {
                     tr[i].style.display = "";
                 } else {
                     tr[i].style.display = "none";
@@ -126,7 +126,7 @@ function PrincipalListaSinPelea() {
         }
     }
     function buscarCompetidores() {
-        if(genero!==''&&tipo!==''){
+        if (genero !== '' && tipo !== '') {
             fetch(`${server}/competidor/getCompetidorSinPelea`, {
                 method: 'POST',
                 headers: {
@@ -146,14 +146,14 @@ function PrincipalListaSinPelea() {
                     }
                 })
                 .catch(error => MsgUtils.msgError(error));
-        }else{
+        } else {
             MsgUtils.msgError("Elija el tipo y genero por favor")
         }
     }
     function GenerarLlaves() {
-        if(genManual){
-            if(listaManual.length!==0){
-                setListaCompetidores([...listaCompetidores,...listaManual]);
+        if (genManual) {
+            if (listaManual.length !== 0) {
+                setListaCompetidores([...listaCompetidores, ...listaManual]);
                 setListaManual([]);
                 setActualizar(!actualizar);
             }
@@ -179,14 +179,14 @@ function PrincipalListaSinPelea() {
             MsgUtils.msgError("Seleccione que estudiante sacar de la lista.")
         }
     }
-    function crearLlaveManual(){
+    function crearLlaveManual() {
         fetch(`${server}/competidor/generateLLaveManual`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json;charset=utf-8',
             },
-            body: JSON.stringify({ idCampeonato, genero, tipo,listaManual })
+            body: JSON.stringify({ idCampeonato, genero, tipo, listaManual })
         })
             .then(res => res.json())
             .then(data => {
@@ -201,11 +201,34 @@ function PrincipalListaSinPelea() {
             })
             .catch(error => MsgUtils.msgError(error));
     }
+    function cambiarEstadoC(dato) {
+        fetch(`${server}/competidor/deleteCompetidorSP`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json;charset=utf-8',
+          },
+          body: JSON.stringify(dato)
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.ok) {
+              setActualizar(!actualizar);
+            } else {
+              MsgUtils.msgError(data.error);
+            }
+          })
+          .catch(error => MsgUtils.msgError(error));
+      }
+    function sacarDeListas(dato){
+        dato.estado = 'I'
+        cambiarEstadoC(dato);
+    }
     useEffect(() => {
         if (genero != '') {
             getInformacionCategoria({ idcampeonato: idCampeonato, genero })
         }
-    }, [genero,actualizar])
+    }, [genero, actualizar])
     useEffect(() => {
         var info = JSON.parse(localStorage.getItem('campeonato'));
         var user = JSON.parse(localStorage.getItem('login'));
@@ -298,7 +321,7 @@ function PrincipalListaSinPelea() {
                         </div>
                     </div>
                 </div>
-                <div className={`table-responsive py-2 ${genManual?'tableIgual':''}`} >
+                <div className={`table-responsive py-2 ${genManual ? 'tableIgual' : ''}`} >
                     <table className="table table-dark table-hover table-bordered" id='competidoresLista' ref={tableRef}>
                         <thead>
                             <tr className='text-center'>
@@ -306,6 +329,7 @@ function PrincipalListaSinPelea() {
                                 <th scope="col">Datos</th>
                                 <th scope="col">Genero</th>
                                 <th scope="col">Datos Campeonato</th>
+                                <th className='col-1'></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -316,25 +340,30 @@ function PrincipalListaSinPelea() {
                                         <td scope="row" className='col-1 col-md-4'>
                                             <Competidor user={item} /></td>
                                         <td className='col-3 col-md-2'>
-                                            <div className='container-fluid p-0 m-0' style={{ fontSize: '13px' }}>
+                                            <div className='container-fluid p-0 m-0' style={{ fontSize: '16px' }}>
                                                 <div className='letraMontserratr'>{'Edad: ' + item.edad + ' años'}</div>
                                                 <div className='letraMontserratr'>{'Peso: ' + item.peso + ' kg'}</div>
                                                 <div className='letraMontserratr'>{'Altura: ' + item.altura + ' m'}</div>
                                             </div>
                                         </td>
                                         <td className='my-auto col-2 col-md-1'>
-                                            <div className='container-fluid'>
+                                            <div className='container-fluid letraMontserratr'>
                                                 {item.genero === 'M' ? 'MASCULINO' : 'FEMENINO'}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className='container-fluid p-0 m-0' style={{ fontSize: '13px' }}>
+                                            <div className='container-fluid p-0 m-0' style={{ fontSize: '16px' }}>
                                                 <div className='letraMontserratr' >{'GRADO: ' + item.grado}</div>
                                                 <div className='letraMontserratr'>{'CATEGORIA: ' + item.nombrecategoria}</div>
                                                 <div className='letraMontserratr'>{'SUB-CATEGORIA: ' + item.nombresubcategoria}</div>
                                                 {(item.idsubcategoria == null || item.idcategoria == null) &&
                                                     <div className='badge bg-danger'>Inconcistencia</div>}
                                             </div>
+                                        </td>
+                                        <td className='my-auto text-center'>
+                                            <button className='btn text-danger' onClick={() => sacarDeListas(item)}>
+                                                <i class="fa-regular fa-circle-xmark fa-2xl"></i>
+                                            </button>
                                         </td>
                                         <td className='d-none'>
                                             {item.idcategoria}
@@ -364,17 +393,17 @@ function PrincipalListaSinPelea() {
                             </div>
                         </div>
                     </div>
-                    <div className={`table-responsive py-2 ${genManual?'tableIgual':''}`} >
+                    <div className={`table-responsive py-2 ${genManual ? 'tableIgual' : ''}`} >
                         <table className="table table-dark table-hover table-bordered">
                             <thead>
                                 <tr className='text-center'>
-                                    {listaManual.length<2&&<th scope="col">Estudiante</th>}
-                                    {listaManual.length>=2&&
-                                    <th>
-                                        <button className='btn btn-sm btn-success bg-gradient' onClick={()=>crearLlaveManual()}>
-                                            <i className="fa-solid fa-network-wired"></i> Guardar
-                                        </button>
-                                    </th>
+                                    {listaManual.length < 2 && <th scope="col">Estudiante</th>}
+                                    {listaManual.length >= 2 &&
+                                        <th>
+                                            <button className='btn btn-sm btn-success bg-gradient' onClick={() => crearLlaveManual()}>
+                                                <i className="fa-solid fa-network-wired"></i> Guardar
+                                            </button>
+                                        </th>
                                     }
                                     <th scope="col">Datos</th>
                                     <th scope="col">Genero</th>

@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import { getListaClub, addClub, deleteClub,editarClub } from '../controllers/club.controllers.js';
+import { getListaClub, addClub, deleteClub,editarClub,setPuntuadoClub } from '../controllers/club.controllers.js';
 
 const router = Router();
 
@@ -33,6 +33,15 @@ router.post('/deleteClub',async(req,res)=>{
 router.post('/editarClub',async(req,res)=>{
     const {info} = req.body;
     const result = await editarClub({info});
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
+
+router.post('/setPuntuadoClub',async(req,res)=>{
+    const result = await setPuntuadoClub(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

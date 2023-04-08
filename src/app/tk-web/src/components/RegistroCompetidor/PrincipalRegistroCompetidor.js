@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import UtilsCargador from '../utils/UtilsCargador';
 import Header from '../Header';
 import MsgUtils from '../utils/MsgUtils';
 import Modal from 'react-bootstrap/Modal';
 import AddEditCompetidor from './AddEditCompetidor';
 import Competidor from './Competidor';
+import { ContextAplicacions } from '../Context/ContextAplicacion';
+import { useNavigate } from 'react-router-dom';
 const server = process.env.REACT_APP_SERVER;
 
 function PrincipalRegistroCompetidor() {
-  const [titulo, setTitulo] = useState('');
+  const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
+  const navigate = useNavigate();
+  const [cmp, setCmp] = useState('');
   const [listaClubs, setListaClubs] = useState([]);
   const [club, setClub] = useState(0);
   const [showModal, setShowModal] = useState(false);
@@ -105,8 +109,15 @@ function PrincipalRegistroCompetidor() {
   useEffect(() => {
     var info = JSON.parse(localStorage.getItem('campeonato'));
     var user = JSON.parse(localStorage.getItem('login'));
-    setTitulo(info.nombre);
-    setIdCampeonato(info.idcampeonato);
+    if (user !== null) {
+      setCmp(info.nombre);
+      setIdCampeonato(info.idcampeonato);
+      setTitulo('Registro Competidor')
+      setCampeonato(info);
+      setLogin(true);
+      setUserLogin(user);
+      navigate("/regCompe", { replace: true });
+  }
     fetch(`${server}/club/getListaClub`, {
       method: 'GET',
       headers: {
@@ -129,14 +140,14 @@ function PrincipalRegistroCompetidor() {
     <>
       <Header />
       <UtilsCargador show={cargador} />
-      <div className='container-fluid bg-dark bg-gradient'>
+      <div className='container-fluid bg-dark bg-gradient py-1'>
         <div className='row g-1'>
-          <div className='col-8 col-md-4 my-auto'>
+          <div className='col-12 col-md-4 my-auto'>
             <div className='text-light letraMontserratr'>
-              Registro Campeonato <u><b>{titulo}</b></u> del Club:
+              Registro Campeonato <u><b>{cmp}</b></u> del Club:
             </div>
           </div>
-          <div className='col-4 col-md-2'>
+          <div className='col' style={{maxWidth:'140px',minWidth:'140px'}}>
             <select className="form-select form-select-sm bg-secondary text-light border-secondary"
               value={club} onChange={(e) => setClub(e.target.value)}>
               {listaClubs.map((item, index) => {
@@ -146,7 +157,7 @@ function PrincipalRegistroCompetidor() {
               })}
             </select>
           </div>
-          <div className='col-4 col-md-2'>
+          <div className='col' style={{maxWidth:'130px',minWidth:'130px'}}>
             <select className="form-select form-select-sm btn-secondary" value={tipo}
               onChange={(e) => setTipo(e.target.value)}>
               <option value=''>Tipo (Ninguno)</option>
@@ -156,7 +167,7 @@ function PrincipalRegistroCompetidor() {
               <option value="R">Rompimiento</option>
             </select>
           </div>
-          <div className='col-4 col-md-2'>
+          <div className='col' style={{maxWidth:'120px',minWidth:'120px'}}>
             <select className="form-select form-select-sm bg-secondary text-light border-secondary"
               value={genero} onChange={(e) => setGenero(e.target.value)}>
               <option value={''}>Genero</option>
@@ -164,7 +175,7 @@ function PrincipalRegistroCompetidor() {
               <option value={'F'}>Femenino</option>
             </select>
           </div>
-          <div className='col-8 col-md-2'>
+          <div className='col' style={{maxWidth:'160px',minWidth:'160px'}}>
             <div className="input-group input-group-sm">
               <input type="text" className="form-control form-control-sm"
                 placeholder="Buscar Competidor" id='competidor' onChange={() => buscarCompetidor()} />
@@ -173,7 +184,7 @@ function PrincipalRegistroCompetidor() {
               </button>
             </div>
           </div>
-          <div className='col col-md-2 text-start'>
+          <div className='col text-start' style={{maxWidth:'120px',minWidth:'120px'}}>
             <button className='btn btn-sm btn-success bg-gradient '
               disabled={(genero !== '' && tipo !== '') ? false : true}
               onClick={() => setShowModal(true)}>
@@ -190,7 +201,7 @@ function PrincipalRegistroCompetidor() {
                 <tr key={index}>
                   <td scope="row" className='col-1 col-md-6'><Competidor user={item} /></td>
                   <td className='col-3 col-md-2'>
-                    <div className='container-fluid p-0 m-0' style={{ fontSize: '13px' }}>
+                    <div className='container-fluid p-0 m-0' style={{ fontSize: '16px' }}>
                       <div className='letraMontserratr' id='nombre'>{'Edad: ' + item.edad + ' años'}</div>
                       <div className='letraMontserratr'>{'Peso: ' + item.peso + ' kg'}</div>
                       <div className='letraMontserratr'>{'Altura: ' + item.altura + ' m'}</div>

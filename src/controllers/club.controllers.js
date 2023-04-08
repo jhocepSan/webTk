@@ -60,3 +60,17 @@ export const editarClub = async ({info})=>{
         if(conn){await conn.release();}
     }
 }
+
+export const setPuntuadoClub = async (info)=>{
+    var conn;
+    try {
+        conn =await pool.getConnection();
+        const [result] = await conn.query('update club set puntuado=? where idclub=?;',[info.puntuado,info.idclub])
+        return {"ok":result}
+    } catch (error) {
+        console.log(error);
+        return {"error":error.message}
+    }finally{
+        if(conn){await conn.release();}
+    }
+}

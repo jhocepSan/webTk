@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import {addEditCompetidor,getCompetidores,generateLLaves,getCompetidorSinPelea,getCompetidoresFestival,
+import {addEditCompetidor,getCompetidores,generateLLaves,getCompetidorSinPelea,getCompetidoresFestival,deleteCompetidorSP,
     deleteCompetidor,getCompetidorClasificado,generateLLaveManual,obtenerLlaves} from '../controllers/competidor.controllers.js'
 const router = Router();
 
@@ -21,6 +21,14 @@ router.post('/getCompetidores',async(req,res)=>{
 });
 router.post('/deleteCompetidor',async(req,res)=>{
     const result = await deleteCompetidor(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
+router.post('/deleteCompetidorSP',async(req,res)=>{
+    const result = await deleteCompetidorSP(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

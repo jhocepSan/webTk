@@ -6,6 +6,7 @@ import SingUp from './SingUp';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import Header from '../Header';
 import ForgotPassword from './ForgotPassword';
+import UtilsCargador from '../utils/UtilsCargador';
 
 const server = process.env.REACT_APP_SERVER
 
@@ -16,6 +17,7 @@ function LoginUser() {
     const [correo, setCorreo] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState({});
+    const [cargador,setCargador] = useState(false);
     function validarInformacion() {
         if (correo !== '' && password !== '') {
             return true;
@@ -26,6 +28,7 @@ function LoginUser() {
     }
     const ingresarSistema = () => {
         if (validarInformacion()) {
+            setCargador(true);
             fetch(`${server}/login/iniciarSession`, {
                 method: 'POST',
                 headers: {
@@ -38,6 +41,7 @@ function LoginUser() {
             })
                 .then(res => res.json())
                 .then(data => {
+                    setCargador(false);
                     if (data.ok) {
                         localStorage.setItem("login", JSON.stringify(data.ok));
                         setLogin(true);
@@ -113,8 +117,9 @@ function LoginUser() {
                         </div>
                     </div>
                 </div>}
-            {ventana === 1 && <SingUp setVentana={setVentana} />}
-            {ventana === 2 && <ForgotPassword setVentana={setVentana} />}
+            {ventana === 1 && <SingUp setVentana={setVentana} setCargador={setCargador}/>}
+            {ventana === 2 && <ForgotPassword setVentana={setVentana} setCargador={setCargador}/>}
+            <UtilsCargador show={cargador} />
         </div>
     )
 }

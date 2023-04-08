@@ -16,7 +16,8 @@ function PrincipalListaFestivales() {
     const [listaCompetidores, setListaCompetidores] = useState([]);
     const [genManual, setGenManual] = useState(false);
     const [listaManual, setListaManual] = useState([]);
-    const [selectItem, setSelectItem] = useState({})
+    const [selectItem, setSelectItem] = useState({});
+    const [actualizar,setActualizar] = useState(false);
     function getListaFestival() {
         if (tipo !== '' && genero !== '') {
             setCargador(true);
@@ -91,6 +92,29 @@ function PrincipalListaFestivales() {
             })
             .catch(error => MsgUtils.msgError(error));
     }
+    function cambiarEstadoC(dato) {
+        fetch(`${server}/competidor/deleteCompetidor`, {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json;charset=utf-8',
+          },
+          body: JSON.stringify(dato)
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.ok) {
+              setActualizar(!actualizar);
+            } else {
+              MsgUtils.msgError(data.error);
+            }
+          })
+          .catch(error => MsgUtils.msgError(error));
+      }
+    function sacarDeListas(dato){
+        dato.estado = 'I'
+        cambiarEstadoC(dato);
+    }
     useEffect(() => {
         var sessionActiva = JSON.parse(localStorage.getItem('login'));
         var cmp = JSON.parse(localStorage.getItem('campeonato'));
@@ -102,6 +126,11 @@ function PrincipalListaFestivales() {
             navigate("/listCompeFest", { replace: true });
         }
     }, [])
+    useEffect(()=>{
+        if(listaCompetidores.length!==0){
+            getListaFestival()
+        }
+    },[actualizar])
     return (
         <>
             <Header />
@@ -150,10 +179,11 @@ function PrincipalListaFestivales() {
                 <table className="table table-dark table-hover table-bordered" id='competidoresLista' >
                     <thead>
                         <tr className='text-center'>
-                            <th scope="col">Estudiante</th>
-                            <th scope="col">Datos</th>
-                            <th scope="col">Genero</th>
-                            <th scope="col">Datos Campeonato</th>
+                            <th className="col-3">Estudiante</th>
+                            <th className="col-2">Datos</th>
+                            <th className="col-2">Genero</th>
+                            <th className="col">Datos Campeonato</th>
+                            <th className='col-1'></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -164,7 +194,7 @@ function PrincipalListaFestivales() {
                                     <td scope="row" className='col-1 col-md-4'>
                                         <Competidor user={item} /></td>
                                     <td className='col-3 col-md-2'>
-                                        <div className='container-fluid p-0 m-0' style={{ fontSize: '13px' }}>
+                                        <div className='container-fluid p-0 m-0' style={{ fontSize: '16px' }}>
                                             <div className='letraMontserratr'>{'Edad: ' + item.edad + ' años'}</div>
                                             <div className='letraMontserratr'>{'Peso: ' + item.peso + ' kg'}</div>
                                             <div className='letraMontserratr'>{'Altura: ' + item.altura + ' m'}</div>
@@ -176,11 +206,16 @@ function PrincipalListaFestivales() {
                                         </div>
                                     </td>
                                     <td>
-                                        <div className='container-fluid p-0 m-0' style={{ fontSize: '13px' }}>
+                                        <div className='container-fluid p-0 m-0' style={{ fontSize: '16px' }}>
                                             <div className='letraMontserratr' >{'GRADO: ' + item.grado}</div>
                                             <div className='letraMontserratr'>{'CATEGORIA: ' + item.nombrecategoria}</div>
                                             <div className='letraMontserratr'>{'SUB-CATEGORIA: ' + item.nombresubcategoria}</div>
                                         </div>
+                                    </td>
+                                    <td className='my-auto text-center'>
+                                        <button className='btn text-danger' onClick={()=>sacarDeListas(item)}>
+                                            <i className="fa-regular fa-circle-xmark fa-2xl"></i>
+                                        </button>
                                     </td>
                                     <td className='d-none'>
                                         {item.idcategoria}

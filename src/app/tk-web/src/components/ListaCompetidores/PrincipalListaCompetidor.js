@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import Header from '../Header';
 import Modal from 'react-bootstrap/Modal';
 import UtilsCargador from '../utils/UtilsCargador';
@@ -9,11 +9,15 @@ import PrincipalLlaves from './PrincipalLlaves';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import CompetidoresPdf from './CompetidoresPdf';
+import { ContextAplicacions } from '../Context/ContextAplicacion';
+import { useNavigate } from 'react-router-dom';
 const server = process.env.REACT_APP_SERVER;
 
 function PrincipalListaCompetidor() {
+    const navigate = useNavigate();
+    const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
     const [cargador, setCargador] = useState(false);
-    const [titulo, setTitulo] = useState('');
+    const [tituloo, setTituloo] = useState('');
     const [idCampeonato, setIdCampeonato] = useState(0);
     const [tipo, setTipo] = useState('');
     const [genero, setGenero] = useState('');
@@ -162,6 +166,7 @@ function PrincipalListaCompetidor() {
     }
     function buscarCompetidores() {
         if (genero !== '' && tipo !== '') {
+            setCargador(true);
             fetch(`${server}/competidor/getCompetidorClasificado`, {
                 method: 'POST',
                 headers: {
@@ -172,6 +177,7 @@ function PrincipalListaCompetidor() {
             })
                 .then(res => res.json())
                 .then(data => {
+                    setCargador(false);
                     if (data.ok) {
                         obtenerLLaves();
                         comprobarEstado(data.ok);
@@ -189,6 +195,7 @@ function PrincipalListaCompetidor() {
     function GenerarLlaves() {
         console.log("generar llaves")
         if (tipo !== '' && genero !== '') {
+            setCargador(true);
             if (listaCompetidores.length !== 0) {
                 fetch(`${server}/competidor/generateLLaves`, {
                     method: 'POST',
@@ -201,6 +208,7 @@ function PrincipalListaCompetidor() {
                     .then(res => res.json())
                     .then(data => {
                         if (data.ok) {
+                            buscarCompetidores();
                             MsgUtils.msgCorrecto(data.ok);
                         } else {
                             MsgUtils.msgError(data.error);
@@ -234,19 +242,26 @@ function PrincipalListaCompetidor() {
     }, [genero])
     useEffect(() => {
         var info = JSON.parse(localStorage.getItem('campeonato'));
-        var user = JSON.parse(localStorage.getItem('login'));
-        setTitulo(info.nombre);
+        var sessionActiva = JSON.parse(localStorage.getItem('login'));
+        setTituloo(info.nombre);
         setIdCampeonato(info.idcampeonato);
+        if (sessionActiva !== null) {
+            setTitulo('LISTA COMPETIDORES')
+            setCampeonato(info);
+            setLogin(true);
+            setUserLogin(sessionActiva);
+            navigate("/listCompe", { replace: true });
+        }
     }, [])
     return (
         <div>
             <Header />
             <UtilsCargador show={cargador} />
-            <div className='container-fluid bg-dark bg-gradient py-1'>
+            <div className='container-fluid bg-dark bg-gradient py-2'>
                 <div className='row g-2'>
-                    <div className='col-8 col-md-3 my-auto'>
+                    <div className='col-12 col-md-3 my-auto'>
                         <div className='text-light letraMontserratr'>
-                            Competidores Camp. {titulo}
+                            Competidores Camp. {tituloo}
                         </div>
                     </div>
                     <div className='col-4 col-md-2'>
@@ -353,19 +368,19 @@ function PrincipalListaCompetidor() {
                                         <td scope="row" className='col-1 col-md-4'>
                                             <Competidor user={item} /></td>
                                         <td className='col-3 col-md-2'>
-                                            <div className='container-fluid p-0 m-0' style={{ fontSize: '13px' }}>
+                                            <div className='container-fluid p-0 m-0' style={{ fontSize: '16px' }}>
                                                 <div className='letraMontserratr'>{'Edad: ' + item.edad + ' años'}</div>
                                                 <div className='letraMontserratr'>{'Peso: ' + item.peso + ' kg'}</div>
                                                 <div className='letraMontserratr'>{'Altura: ' + item.altura + ' m'}</div>
                                             </div>
                                         </td>
                                         <td className='my-auto col-2 col-md-1'>
-                                            <div className='container-fluid'>
+                                            <div className='container-fluid letraMontserratr'>
                                                 {item.genero === 'M' ? 'MASCULINO' : 'FEMENINO'}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className='container-fluid p-0 m-0' style={{ fontSize: '13px' }}>
+                                            <div className='container-fluid p-0 m-0' style={{ fontSize: '16px' }}>
                                                 <div className='letraMontserratr' >{'GRADO: ' + item.grado}</div>
                                                 <div className='letraMontserratr'>{'CATEGORIA: ' + item.nombrecategoria}</div>
                                                 <div className='letraMontserratr'>{'SUB-CATEGORIA: ' + item.nombresubcategoria}</div>
@@ -398,7 +413,7 @@ function PrincipalListaCompetidor() {
                 </Modal.Header>
                 <Modal.Body bsPrefix='modal-body'>
                     {tipoM === 'L' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} />}
-                    {tipoM === 'P' && <CompetidoresPdf categorias={categorias} listaCompetidores={listaCompetidores} campeonato={titulo} />}
+                    {tipoM === 'P' && <CompetidoresPdf categorias={categorias} listaCompetidores={listaCompetidores} campeonato={tituloo} />}
                 </Modal.Body>
             </Modal>
         </div>
