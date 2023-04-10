@@ -1,6 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
+import { downloadExcel } from 'react-export-table-to-excel';
 import Header from '../Header'
 import Competidor from '../RegistroCompetidor/Competidor';
 import MsgUtils from '../utils/MsgUtils';
@@ -8,6 +9,7 @@ import UtilsCargador from '../utils/UtilsCargador'
 const server = process.env.REACT_APP_SERVER;
 
 function PrincipalListaFestivales() {
+    const tableRef = useRef(null);
     const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
     const navigate = useNavigate();
     const [cargador, setCargador] = useState(false);
@@ -17,7 +19,9 @@ function PrincipalListaFestivales() {
     const [genManual, setGenManual] = useState(false);
     const [listaManual, setListaManual] = useState([]);
     const [selectItem, setSelectItem] = useState({});
-    const [actualizar,setActualizar] = useState(false);
+    const [actualizar, setActualizar] = useState(false);
+    const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
+
     function getListaFestival() {
         if (tipo !== '' && genero !== '') {
             setCargador(true);
@@ -63,24 +67,24 @@ function PrincipalListaFestivales() {
         }
     }
     function GenerarLlaves() {
-        if(genManual){
-            if(listaManual.length!==0){
-                setListaCompetidores([...listaCompetidores,...listaManual]);
+        if (genManual) {
+            if (listaManual.length !== 0) {
+                setListaCompetidores([...listaCompetidores, ...listaManual]);
                 setListaManual([]);
-            
+
             }
         }
         setSelectItem({});
         setGenManual(!genManual);
     }
-    function crearLlaveManual(){
+    function crearLlaveManual() {
         fetch(`${server}/competidor/generateLLaveManual`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json;charset=utf-8',
             },
-            body: JSON.stringify({  })
+            body: JSON.stringify({})
         })
             .then(res => res.json())
             .then(data => {
@@ -94,26 +98,52 @@ function PrincipalListaFestivales() {
     }
     function cambiarEstadoC(dato) {
         fetch(`${server}/competidor/deleteCompetidor`, {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json;charset=utf-8',
-          },
-          body: JSON.stringify(dato)
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify(dato)
         })
-          .then(res => res.json())
-          .then(data => {
-            if (data.ok) {
-              setActualizar(!actualizar);
-            } else {
-              MsgUtils.msgError(data.error);
-            }
-          })
-          .catch(error => MsgUtils.msgError(error));
-      }
-    function sacarDeListas(dato){
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    setActualizar(!actualizar);
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
+            })
+            .catch(error => MsgUtils.msgError(error));
+    }
+    function sacarDeListas(dato) {
         dato.estado = 'I'
         cambiarEstadoC(dato);
+    }
+    function handleDownloadExcel() {
+        var body = []
+        var listafiltrada = listaCompetidores;
+        for (var item of listafiltrada) {
+            body.push({
+                "nombres": item.nombres,
+                "apellidos": item.apellidos,
+                "edad": item.edad,
+                "peso": item.peso,
+                "altura": item.altura,
+                "club": item.club,
+                "cinturon": item.cinturon,
+                "grado": item.grado,
+                "categoria": item.nombrecategoria,
+                "subcategoria": item.nombresubcategoria
+            })
+        }
+        downloadExcel({
+            fileName: "react-export-table-to-excel -> downloadExcel method",
+            sheet: "react-export-table-to-excel",
+            tablePayload: {
+                header,
+                body: body,
+            },
+        });
     }
     useEffect(() => {
         var sessionActiva = JSON.parse(localStorage.getItem('login'));
@@ -126,11 +156,11 @@ function PrincipalListaFestivales() {
             navigate("/listCompeFest", { replace: true });
         }
     }, [])
-    useEffect(()=>{
-        if(listaCompetidores.length!==0){
+    useEffect(() => {
+        if (listaCompetidores.length !== 0) {
             getListaFestival()
         }
-    },[actualizar])
+    }, [actualizar])
     return (
         <>
             <Header />
@@ -161,6 +191,10 @@ function PrincipalListaFestivales() {
                             <i className="fa-solid fa-rotate-right fa-fade fa-xl"></i> Listar
                         </button>
                     </div>
+                    <div className='col' style={{ minWidth: '150px', maxWidth: '150px' }}>
+                        <button className='btn btn-sm btn-success w-100' onClick={() => handleDownloadExcel()}>
+                            <i className="fa-solid fa-file-excel"></i> Exportar excel </button>
+                    </div>
                     {listaCompetidores.length !== 0 &&
                         <div className='col' style={{ maxWidth: '130px' }}>
                             <button className={`btn btn-sm bg-gradient w-100 ${genManual ? 'btn-danger' : 'btn-primary'}`} onClick={() => GenerarLlaves()}>
@@ -176,7 +210,7 @@ function PrincipalListaFestivales() {
                 </div>
             </div>
             {<div className='table-responsive py-2'>
-                <table className="table table-dark table-hover table-bordered" id='competidoresLista' >
+                <table className="table table-dark table-hover table-bordered" id='competidoresLista' ref={tableRef}>
                     <thead>
                         <tr className='text-center'>
                             <th className="col-3">Estudiante</th>
@@ -190,7 +224,7 @@ function PrincipalListaFestivales() {
                         {listaCompetidores.map((item, index) => {
                             return (
                                 <tr key={index} onClick={() => setSelectItem(item)}
-                                className={`${(genManual && selectItem.idcompetidor === item.idcompetidor) ? 'colorSelection' : ''}`}>
+                                    className={`${(genManual && selectItem.idcompetidor === item.idcompetidor) ? 'colorSelection' : ''}`}>
                                     <td scope="row" className='col-1 col-md-4'>
                                         <Competidor user={item} /></td>
                                     <td className='col-3 col-md-2'>
@@ -213,7 +247,7 @@ function PrincipalListaFestivales() {
                                         </div>
                                     </td>
                                     <td className='my-auto text-center'>
-                                        <button className='btn text-danger' onClick={()=>sacarDeListas(item)}>
+                                        <button className='btn text-danger' onClick={() => sacarDeListas(item)}>
                                             <i className="fa-regular fa-circle-xmark fa-2xl"></i>
                                         </button>
                                     </td>

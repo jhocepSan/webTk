@@ -414,7 +414,7 @@ function PrincipalListaCompetidor() {
                 </Modal.Header>
                 <Modal.Body bsPrefix='modal-body'>
                     {tipoM === 'L' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} />}
-                    {tipoM === 'P' && <CompetidoresPdf categorias={categorias} listaCompetidores={listaCompetidores} campeonato={tituloo} />}
+                    {tipoM === 'P' && <CompetidoresPdf categorias={categorias} listaCompetidores={listaCompetidores} campeonato={tituloo} tipo={tipo} idcampeonato={idCampeonato}/>}
                 </Modal.Body>
             </Modal>
         </div>

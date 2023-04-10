@@ -1,15 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import Header from '../Header';
 import UtilsCargador from '../utils/UtilsCargador';
 import MsgUtils from '../utils/MsgUtils';
 import Competidor from '../RegistroCompetidor/Competidor';
 import { downloadExcel } from 'react-export-table-to-excel';
+import { ContextAplicacions } from '../Context/ContextAplicacion';
+import { useNavigate } from 'react-router-dom';
 const server = process.env.REACT_APP_SERVER;
 
 function PrincipalListaSinPelea() {
     const tableRef = useRef(null);
+    const navigate = useNavigate();
+    const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
     const [cargador, setCargador] = useState(false);
-    const [titulo, setTitulo] = useState('');
+    const [tituloo, setTituloo] = useState('');
     const [idCampeonato, setIdCampeonato] = useState(0);
     const [tipo, setTipo] = useState('');
     const [genero, setGenero] = useState('');
@@ -231,9 +235,16 @@ function PrincipalListaSinPelea() {
     }, [genero, actualizar])
     useEffect(() => {
         var info = JSON.parse(localStorage.getItem('campeonato'));
-        var user = JSON.parse(localStorage.getItem('login'));
-        setTitulo(info.nombre);
+        var sessionActiva = JSON.parse(localStorage.getItem('login'));
+        setTituloo(info.nombre);
         setIdCampeonato(info.idcampeonato);
+        if (sessionActiva !== null) {
+            setTitulo('LISTA SIN PELEA')
+            setCampeonato(info);
+            setLogin(true);
+            setUserLogin(sessionActiva);
+            navigate("/listCompeSN", { replace: true });
+        }
     }, [])
     return (
         <div>
@@ -243,10 +254,10 @@ function PrincipalListaSinPelea() {
                 <div className='row g-2'>
                     <div className='col-8 col-md-3 my-auto'>
                         <div className='text-light letraMontserratr'>
-                            Competidores Camp. {titulo}
+                            Competidores Camp. {tituloo}
                         </div>
                     </div>
-                    <div className='col-4 col-md-2'>
+                    <div className='col' style={{minWidth:'120px',maxWidth:'120px'}}>
                         <select className="form-select form-select-sm btn-secondary" value={tipo}
                             onChange={(e) => { setTipo(e.target.value); setBuscado(false) }}>
                             <option value=''>Tipo (Ninguno)</option>
@@ -256,7 +267,7 @@ function PrincipalListaSinPelea() {
                             <option value="R">Rompimiento</option>
                         </select>
                     </div>
-                    <div className='col-4 col-md-2'>
+                    <div className='col' style={{minWidth:'120px',maxWidth:'120px'}}>
                         <select className="form-select form-select-sm bg-secondary text-light border-secondary"
                             value={genero} onChange={(e) => { setGenero(e.target.value); setBuscado(false) }}>
                             <option value={''}>Genero</option>
@@ -264,13 +275,13 @@ function PrincipalListaSinPelea() {
                             <option value={'F'}>Femenino</option>
                         </select>
                     </div>
-                    <div className='col-4 col-md-1'>
-                        <button className='btn btn-sm btn-success' onClick={() => buscarCompetidores()}>
+                    <div className='col' style={{minWidth:'120px',maxWidth:'120px'}}>
+                        <button className='btn btn-sm btn-success w-100' onClick={() => buscarCompetidores()}>
                             <i className="fa-solid fa-spinner fa-xl"></i> Buscar
                         </button>
                     </div>
-                    <div className='col-4 col-md-1'>
-                        <button className={`btn btn-sm bg-gradient ${genManual ? 'btn-danger' : 'btn-warning'}`} onClick={() => GenerarLlaves()}>
+                    <div className='col' style={{minWidth:'120px',maxWidth:'120px'}}>
+                        <button className={`btn btn-sm bg-gradient  w-100 ${genManual ? 'btn-danger' : 'btn-warning'}`} onClick={() => GenerarLlaves()}>
                             <i className="fa-solid fa-network-wired"></i> {genManual ? 'Desactivar' : 'Crear'}
                         </button>
                     </div>
@@ -279,12 +290,12 @@ function PrincipalListaSinPelea() {
             {buscado && <>
                 <div className='container-fluid colorFiltro bg-gradient py-1'>
                     <div className='row g-1'>
-                        <div className='col-3 col-md-1 my-auto'>
+                        <div className='col' style={{minWidth:'120px',maxWidth:'120px'}}>
                             <div className='text-light letraMontserratr'>
                                 Filtros
                             </div>
                         </div>
-                        <div className='col-4 col-md-2'>
+                        <div className='col' style={{minWidth:'140px',maxWidth:'140px'}}>
                             <select className="form-select form-select-sm btn-dark" value={idCategoria}
                                 onChange={(e) => cambiarCategoria(e.target.value)}>
                                 <option value={0}>Categoria ?</option>
@@ -295,7 +306,7 @@ function PrincipalListaSinPelea() {
                                 })}
                             </select>
                         </div>
-                        <div className='col-4 col-md-2'>
+                        <div className='col' style={{minWidth:'140px',maxWidth:'140px'}}>
                             <select className="form-select form-select-sm btn-dark" value={idSubCategoria}
                                 onChange={(e) => cambiarSubCategoria(e.target.value)}>
                                 <option value={0}>Sub Categoria ?</option>
@@ -306,7 +317,7 @@ function PrincipalListaSinPelea() {
                                 })}
                             </select>
                         </div>
-                        <div className='col-8 col-md-2'>
+                        <div className='col' style={{minWidth:'150px',maxWidth:'150px'}}>
                             <div className="input-group input-group-sm">
                                 <input type="text" className="form-control form-control-sm"
                                     placeholder="Buscar Competidor" id='competidor' onChange={() => buscarCompetidor()} />
@@ -315,7 +326,7 @@ function PrincipalListaSinPelea() {
                                 </button>
                             </div>
                         </div>
-                        <div className='col-6 col-md-2'>
+                        <div className='col' style={{minWidth:'150px',maxWidth:'150px'}}>
                             <button className='btn btn-sm btn-success' onClick={() => handleDownloadExcel()}>
                                 <i className="fa-solid fa-file-excel"></i> Exportar excel </button>
                         </div>
@@ -362,7 +373,7 @@ function PrincipalListaSinPelea() {
                                         </td>
                                         <td className='my-auto text-center'>
                                             <button className='btn text-danger' onClick={() => sacarDeListas(item)}>
-                                                <i class="fa-regular fa-circle-xmark fa-2xl"></i>
+                                                <i className="fa-regular fa-circle-xmark fa-2xl"></i>
                                             </button>
                                         </td>
                                         <td className='d-none'>
