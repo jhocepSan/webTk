@@ -4,7 +4,8 @@ import { ContextPuntuacion } from './PrincipalPuntuacion';
 function PuntuacionUser(props) {
     const { position } = props;
     const { pausa, puntoRojo, setPuntoRojo, puntoAzul, setPuntoAzul,setTipoModal,setShowModal,
-        jugadorAzul, jugadorRojo, faltasRojo, faltasAzul, configJuego,setPlayGanador } = useContext(ContextPuntuacion);
+        jugadorAzul, jugadorRojo, faltasRojo, faltasAzul, configJuego,setPlayGanador,roundWinAzul,
+        setRoundWinAzul,roundWinRojo,setRoundWinRojo } = useContext(ContextPuntuacion);
     const [listaAzul, setListaAzul] = useState([]);
     const [listaRojo, setListaRojo] = useState([]);
     function hayDiferencia(azul,rojo){
@@ -12,6 +13,7 @@ function PuntuacionUser(props) {
             if(parseInt(azul)>parseInt(rojo)){
                 var diferencia = Math.abs(azul-rojo);
                 if(diferencia>=parseInt(configJuego.diffPuntos)){
+                    setRoundWinAzul(roundWinAzul+1);
                     setPlayGanador({...jugadorAzul,'color':'A'});
                     setTipoModal('W');
                     setShowModal(true);
@@ -19,6 +21,7 @@ function PuntuacionUser(props) {
             }else{
                 var diferencia = Math.abs(azul-rojo);
                 if(diferencia>=parseInt(configJuego.diffPuntos)){
+                    setRoundWinRojo(roundWinRojo+1);
                     setPlayGanador({...jugadorRojo,'color':'R'});
                     setTipoModal('W');
                     setShowModal(true);

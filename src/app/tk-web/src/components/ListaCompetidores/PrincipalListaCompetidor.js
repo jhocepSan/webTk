@@ -91,6 +91,7 @@ function PrincipalListaCompetidor() {
             .then(res => res.json())
             .then(data => {
                 if (data.ok) {
+                    console.log(data.ok);
                     setCategorias(data.ok);
                 } else {
                     MsgUtils.msgError(data.error);

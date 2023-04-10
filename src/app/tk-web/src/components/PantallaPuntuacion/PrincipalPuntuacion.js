@@ -5,6 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 import Configuraciones from './Configuraciones';
 import ListaPeleas from './ListaPeleas';
 import RelojPelea from './RelojPelea';
+import RelojPausa from './RelojPausa';
 export const ContextPuntuacion = createContext();
 
 function PrincipalPuntuacion() {
@@ -24,8 +25,31 @@ function PrincipalPuntuacion() {
     const [tipo, setTipo] = useState('');
     const [genero, setGenero] = useState('');
     const [campeonato, setCampeonato] = useState({});
-    const [playGanador,setPlayGanador] =useState({});
-    const [numPelea,setNumPelea]=useState('');
+    const [playGanador, setPlayGanador] = useState({});
+    const [numPelea, setNumPelea] = useState('');
+    const [resetJuego, setResetJuego] = useState(false);
+    const [numeroRound, setNumeRound] = useState(0);
+    const [listaNumRound,setListaNumRound] = useState([]);
+    const [roundWinAzul,setRoundWinAzul] = useState(0);
+    const [roundWinRojo,setRoundWinRojo] = useState(0);
+    const [endTiempo,setEndTiempo] = useState(false);
+    function recetearValores() {
+        setListaNumRound([]);
+        setRoundWinAzul(0);
+        setRoundWinRojo(0);
+        setNumeRound(0);
+        setPausa(false);
+        setRunPelea(false);
+        setPuntoAzul(0);
+        setPuntoRojo(0);
+        setFaltasAzul(0);
+        setFaltasRojo(0);
+        setJugadorAzul({});
+        setJugadorRojo({});
+        setNumPelea('');
+        setPlayGanador({});
+        setResetJuego(!resetJuego);
+    }
     function procesarFalta(tipo, color) {
         if (tipo) {
             if (color == 'A') {
@@ -45,9 +69,45 @@ function PrincipalPuntuacion() {
             }
         }
     }
-    function guardarDatosGanador(){
+    function guardarDatosGanador() {
         setShowModal(false);
+        if(configJuego.enableMaxRound === true){
+            if(endTiempo===true){
+                setEndTiempo(false);
+                if(numeroRound===parseInt(configJuego.numRound)){
+                    //mostrar ganador final
+                }else{
+                    setPuntoAzul(0);
+                    setPuntoRojo(0);
+                    setFaltasAzul(0);
+                    setFaltasRojo(0);
+                }
+            }else{
+                //VALIDAR GANADOR
+            }
+        }
     }
+    useEffect(()=>{
+        console.log("aumento lista de round")
+        if(config&&endTiempo===true){
+            setListaNumRound(Array(numeroRound).fill(0));
+            if(configJuego.enableMaxRound===true){
+                if(puntoAzul>puntoRojo){
+                    setRoundWinAzul(roundWinAzul+1);
+                    setTipoModal('W');
+                    setPlayGanador({...jugadorAzul,'color':'A'});
+                    setShowModal(true);
+                }else if(puntoAzul<puntoRojo){
+                    setRoundWinRojo(roundWinRojo+1);
+                    setTipoModal('W');
+                    setPlayGanador({...jugadorRojo,'color':'R'});
+                    setShowModal(true);
+                }else{
+                    //empate
+                }
+            }
+        }
+    },[numeroRound])
     useEffect(() => {
         setCampeonato(JSON.parse(localStorage.getItem('campeonato')));
     }, [])
@@ -55,8 +115,9 @@ function PrincipalPuntuacion() {
         <ContextPuntuacion.Provider value={{
             pausa, setPausa, puntoAzul, setPuntoAzul, puntoRojo, setPuntoRojo, setShowModal, campeonato, setConfigJuego, configJuego,
             jugadorAzul, setJugadorAzul, jugadorRojo, setJugadorRojo, runPelea, setRunPelea, tipo, setTipo, genero, setGenero,
-            nameConfig, setNameConfig, config, setConfig, faltasAzul, setFaltasAzul, faltasRojo, setFaltasRojo,setTipoModal,
-            playGanador,setPlayGanador,numPelea,setNumPelea
+            nameConfig, setNameConfig, config, setConfig, faltasAzul, setFaltasAzul, faltasRojo, setFaltasRojo, setTipoModal,
+            playGanador, setPlayGanador, numPelea, setNumPelea, resetJuego, numeroRound, setNumeRound,endTiempo,setEndTiempo,
+            roundWinAzul,setRoundWinAzul,roundWinRojo,setRoundWinRojo
         }}>
             <Header puntuacion={true} />
             <div className='bg-transparent menu-flotante'>
@@ -73,7 +134,8 @@ function PrincipalPuntuacion() {
                         onClick={() => { setTipoModal('P'); setShowModal(true); }}>
                         <i className="fa-solid fa-network-wired fa-2xl"></i></button>
                     <button type="button" className="btn mx-1 btn-sm botonMenu"
-                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Recetear valores iniciales">
+                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Recetear valores iniciales"
+                        onClick={() => recetearValores()}>
                         <i className="fa-solid fa-repeat fa-2xl"></i></button>
                     {runPelea === true && <button type="button" className="btn mx-1 btn-sm botonMenu"
                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Pausar Competencia"
@@ -86,9 +148,22 @@ function PrincipalPuntuacion() {
                         <i className="fa-solid fa-circle-play fa-2xl"></i>
                     </button>}
                 </div>
-                {numPelea!==''&&<div className='numeroPelea text-light fa-fade'>
-                    {`Pelea #${numPelea}`}
-                </div>}
+                {numPelea !== '' &&
+                    <div>
+                        <div className='numeroPelea text-light fa-fade'>
+                            {`Pelea #${numPelea}`}
+                        </div>
+                        {listaNumRound && 
+                        <div className="btn-group btn-group-sm">
+                            {listaNumRound.map((i, j) => {
+                                return (
+                                    <button className='btn btn-sm btn-success mx-1 text-light text-center' key={j}>
+                                        <i className="fa-solid fa-circle"></i>
+                                    </button>
+                                )
+                            })}
+                        </div>}
+                    </div>}
             </div>
             <div className='container-fluid'>
                 <div className='row row-cols-2 vh-100'>
@@ -103,6 +178,7 @@ function PrincipalPuntuacion() {
             <div className='relojPelea'>
                 {config && <div className='nameSeccion text-center'>Area # {nameConfig}</div>}
                 <RelojPelea />
+                {pausa && runPelea == false && <RelojPausa />}
             </div>
             {pausa && <div className='container-fluid footer-flotante'>
                 <div className='row row-cols-2 g-0'>
@@ -147,21 +223,6 @@ function PrincipalPuntuacion() {
                             <div className='row row-cols-2 g-0'>
                                 <div className='col'>
                                     <div className='text-light'>
-                                        Kyong-go
-                                    </div>
-                                    <div className='container-fluid'>
-                                        <div className="btn-group btn-group-sm">
-                                            <button className='btn btn-sm btnScore'>
-                                                <i className="fa-solid fa-circle-plus fa-2xl"></i>
-                                            </button>
-                                            <button className='btn btn-sm btnScore'>
-                                                <i className="fa-solid fa-circle-minus fa-2xl"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className='col'>
-                                    <div className='text-light'>
                                         Gam-jeom
                                     </div>
                                     <div className='container-fluid'>
@@ -170,6 +231,21 @@ function PrincipalPuntuacion() {
                                                 <i className="fa-solid fa-circle-plus fa-2xl"></i>
                                             </button>
                                             <button className='btn btn-sm btnScore' onClick={() => procesarFalta(false, 'R')}>
+                                                <i className="fa-solid fa-circle-minus fa-2xl"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className='col'>
+                                    <div className='text-light'>
+                                        Kyong-go
+                                    </div>
+                                    <div className='container-fluid'>
+                                        <div className="btn-group btn-group-sm">
+                                            <button className='btn btn-sm btnScore'>
+                                                <i className="fa-solid fa-circle-plus fa-2xl"></i>
+                                            </button>
+                                            <button className='btn btn-sm btnScore'>
                                                 <i className="fa-solid fa-circle-minus fa-2xl"></i>
                                             </button>
                                         </div>
@@ -185,7 +261,7 @@ function PrincipalPuntuacion() {
                 backdrop="static"
                 aria-labelledby="contained-modal-title-vcenter"
                 contentClassName='bg-dark bg-gradient'>
-                <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 w-100' closeButton={tipoModal==='W'?false:true} closeVariant='white'>
+                <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 w-100' closeButton={tipoModal === 'W' ? false : true} closeVariant='white'>
                     {tipoModal === 'C' && <div className='text-light letraMontserratr mx-auto'>
                         <i className="fa-solid fa-gear fa-xl"></i> Configuraciones
                     </div>}
@@ -200,16 +276,16 @@ function PrincipalPuntuacion() {
                     {tipoModal === 'C' && <Configuraciones />}
                     {tipoModal === 'P' && <ListaPeleas />}
                     {tipoModal === 'W' &&
-                    <div className={`container-fluid bg-gradient ${playGanador.color==='R'?'bg-danger':'bg-primary'}`}>
-                        <div className='ganadorTitulo fa-fade text-center'>
-                            {playGanador.nombre}
+                        <div className={`container-fluid bg-gradient ${playGanador.color === 'R' ? 'bg-danger' : 'bg-primary'}`}>
+                            <div className='ganadorTitulo fa-fade text-center'>
+                                {playGanador.nombre}
+                            </div>
+                            <div className='py-1 w-100'>
+                                <button className='btn btn-sm bg-gradient btn-success w-100' onClick={() => guardarDatosGanador()}>
+                                    Aceptar
+                                </button>
+                            </div>
                         </div>
-                        <div className='py-1 w-100'>
-                            <button className='btn btn-sm bg-gradient btn-success w-100' onClick={()=>guardarDatosGanador()}>
-                                Aceptar
-                            </button>
-                        </div>
-                    </div>
                     }
                 </Modal.Body>
             </Modal>
