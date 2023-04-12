@@ -1,6 +1,6 @@
 import {Router} from 'express';
 import {addEditCompetidor,getCompetidores,generateLLaves,getCompetidorSinPelea,getCompetidoresFestival,deleteCompetidorSP,
-    deleteCompetidor,getCompetidorClasificado,generateLLaveManual,obtenerLlaves} from '../controllers/competidor.controllers.js'
+    deleteCompetidor,getCompetidorClasificado,generateLLaveManual,obtenerLlaves,cambiarNumPelea} from '../controllers/competidor.controllers.js'
 const router = Router();
 
 router.post('/addEditCompetidor',async(req,res)=>{
@@ -78,6 +78,15 @@ router.post('/generateLLaveManual',async(req,res)=>{
 
 router.post('/obtenerLlaves',async(req,res)=>{
     const result = await obtenerLlaves(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
+
+router.post('/cambiarNumPelea',async(req,res)=>{
+    const result = await cambiarNumPelea(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

@@ -413,7 +413,7 @@ function PrincipalListaCompetidor() {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsPrefix='modal-body'>
-                    {tipoM === 'L' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} />}
+                    {tipoM === 'L' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipoL={'E'} callback={obtenerLLaves}/>}
                     {tipoM === 'P' && <CompetidoresPdf categorias={categorias} listaCompetidores={listaCompetidores} campeonato={tituloo} tipo={tipo} idcampeonato={idCampeonato}/>}
                 </Modal.Body>
             </Modal>

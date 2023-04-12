@@ -114,19 +114,19 @@ function PrincipalListaSinPelea() {
         var cat = categorias.filter((item) => item.idcategoria === parseInt(i));
         if (cat.length !== 0) {
             setSubCategorias(cat[0].SUBCATEGORIA);
-            buscarCategoria(i, 4);
+            buscarCategoria(i, 5);
         } else {
             setIdSubCategoria(0);
             setSubCategorias([]);
-            buscarCategoria('', 4);
+            buscarCategoria('', 5);
         }
     }
     function cambiarSubCategoria(i) {
         setIdSubCategoria(i);
         if (i != 0) {
-            buscarCategoria(i, 5);
+            buscarCategoria(i, 6);
         } else {
-            buscarCategoria('', 5);
+            buscarCategoria('', 6);
         }
     }
     function buscarCompetidores() {

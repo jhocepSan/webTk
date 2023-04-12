@@ -351,3 +351,19 @@ export const obtenerLlaves = async (info) => {
         if (conn) { await conn.release() }
     }
 }
+
+export const cambiarNumPelea = async (info) => {
+    var sql = 'UPDATE pelea set nropelea=? where idpelea=?'
+    var conn;
+    try {
+        conn = await pool.getConnection();
+        const [result] = await conn.query(sql, [info.nropelea,info.idpelea])
+        await conn.commit();
+        return { "ok": "Se cambio el numero de pelea ..." }
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}

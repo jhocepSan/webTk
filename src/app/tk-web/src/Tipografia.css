@@ -79,3 +79,7 @@
 .relojPausa{
     background-color: rgb(211, 144, 144);
 }
+.letraNumPelea{
+    font-family: montserratb;
+    font-size: 23px;
+}

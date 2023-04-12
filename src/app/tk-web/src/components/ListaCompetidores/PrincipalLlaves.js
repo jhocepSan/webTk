@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import MsgUtils from '../utils/MsgUtils';
 import UtilsDate from '../utils/UtilsDate';
+import jsPDF from 'jspdf';
 import ImgUser from '../../assets/user.png'
 const server = process.env.REACT_APP_SERVER;
 
 function PrincipalLlaves(props) {
-    const { idcampeonato, genero, llaves,callback } = props;
+    const { idcampeonato, genero, llaves,callback,tipoL } = props;
+    const pdfRef = useRef(null);
     const [categorias, setCategorias] = useState([]);
     const [selectItem, setSelectItem] = useState(0);
     const [lista, setLista] = useState([]);
     const [numLlave, setNumLlave] = useState(0);
+    const [actualizar,setActualizar] = useState(0);
     function verLlavesCategoria(dato) {
         setSelectItem(dato);
         setLista(llaves.filter((item) => item.idcategoria === dato));
@@ -25,6 +28,41 @@ function PrincipalLlaves(props) {
                 setNumLlave(numLlave - 1);
             }
         }
+    }
+    const exportPDF = () => {
+        const content = pdfRef.current;
+        const unit = "pt";
+        const size = "A4"; // Use A1, A2, A3 or A4
+        const orientation = "portrait"; // portrait or landscape
+        const doc = new jsPDF(orientation, unit, size);
+        doc.html(content, {
+            callback: function (doc) {
+                doc.save('listaCampeonato.pdf');
+            },
+            html2canvas: { scale: 0.54 },
+            windowWidth: 700
+        });
+    }
+    function cambiarValor(dato,valor){
+        setSelectItem(0);
+        fetch(`${server}/competidor/cambiarNumPelea`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({ 'nropelea':valor, 'idpelea':dato.idpelea })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    callback();
+                    MsgUtils.msgCorrecto(data.ok);
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
+            })
+            .catch(error => MsgUtils.msgError(error));
     }
     useEffect(() => {
         fetch(`${server}/config/getConfiCategoria`, {
@@ -45,6 +83,9 @@ function PrincipalLlaves(props) {
             })
             .catch(error => MsgUtils.msgError(error));
     }, [])
+    useEffect(()=>{
+        
+    },[llaves])
     return (
         <div className='container-fluid py-2'>
             <div className='btn-group btn-group-sm mb-2'>
@@ -60,30 +101,33 @@ function PrincipalLlaves(props) {
                     style={{ marginRight: '2px' }}>
                     EXHIBICIONES
                 </button>
+                {tipoL=='E'&&<button className='btn btn-sm letraBtn btn-success' onClick={exportPDF}>
+                    <i className="fa-solid fa-file-pdf"></i> PDF
+                </button>}
             </div>
-            {lista.length !== 0 &&
-                <div className='card bg-light bg-gradient'>
-                    <div className='card-header'>
+            {lista.length !== 0 && selectItem!==0 &&
+                <div className='card' ref={pdfRef}>
+                    <div className='card-header bg-transparent'>
                         <div className='row row-cols-2 g-0'>
                             <div className='col'>
-                                <div className='tituloHeader'>
+                                <div className='tituloHeader' style={{fontSize:'20px'}}>
                                     {lista[numLlave].nombregrado}
                                 </div>
-                                <div className='tituloHeader'>
+                                <div className='tituloHeader' style={{fontSize:'20px'}}>
                                     {lista[numLlave].nombrecategoria + ' => ' + lista[numLlave].edadini + ' - ' + lista[numLlave].edadfin + ' Años'}
                                 </div>
                             </div>
                             <div className='col'>
-                                <div className='tituloHeader'>
+                                <div className='tituloHeader' style={{fontSize:'20px'}}>
                                     {UtilsDate.getDateFormato(lista[numLlave].fecha)}
                                 </div>
-                                <div className='tituloHeader'>
+                                <div className='tituloHeader' style={{fontSize:'20px'}}>
                                     {lista[numLlave].nombresubcategoria + ' => ' + lista[numLlave].pesoini + ' - ' + lista[numLlave].pesofin + ' Kg'}
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className='card-body'>
+                    <div className='card-body' >
                         <div className='table table-responsibe'>
                             <table className="table">
                                 <tbody>
@@ -92,37 +136,42 @@ function PrincipalLlaves(props) {
                                             <tr key={index} >
                                                 <th className='col-4'>
                                                     <div className='container-fluid'>
-                                                        <div className="navbar-brand card flex-row bg-primary bg-gradient m-0 p-0 " >
+                                                        <div className="navbar-brand card flex-row bg-primary m-0 p-0 " >
                                                             <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
                                                             <div className='ps-2 my-auto d-none d-sm-inline'>
-                                                                <div className="userHeader text-light">{item.nombres}</div>
-                                                                <div className='userHeader text-light'>{item.apellidos}</div>
-                                                                <div className='userHeader text-light'>{item.clubuno}</div>
+                                                                <div className="userHeader text-light"  style={{fontSize:'20px'}}>{item.nombres}</div>
+                                                                <div className='userHeader text-light'  style={{fontSize:'20px'}}>{item.apellidos}</div>
+                                                                <div className='userHeader text-light'  style={{fontSize:'20px'}}>{item.clubuno}</div>
                                                             </div>
                                                         </div>
                                                         <div className='row row-cols-2 g-0'>
-                                                            <div className='col-2 my-auto'>
-                                                                <button className='btn btn-sm btn-dark' onClick={()=>callback(item)}>
+                                                            <div className='col-4 my-auto'>
+                                                                {tipoL=='O'&&<button className='btn btn-sm btn-dark letraNumPelea w-100' onClick={()=>callback(item)}>
                                                                     {item.nropelea}
-                                                                </button>
+                                                                </button>}
+                                                                {tipoL=='E'&&
+                                                                <input className="form-control form-control-lg text-light bg-secondary" 
+                                                                type="number" placeholder="#" 
+                                                                value={item.nropelea} onChange={(e)=>cambiarValor(item,e.target.value)}>
+                                                                </input>}
                                                             </div>
-                                                            <div className='col-10 my-auto'>
-                                                                <hr style={{border:"15px",background:"#f6f6f"}}></hr>
+                                                            <div className='col-8 my-auto'>
+                                                                #PELEA<hr style={{border:"15px",background:"#f6f6f"}}></hr>
                                                             </div>
                                                         </div>
-                                                        <div className="navbar-brand card flex-row bg-danger bg-gradient m-0 p-0 " >
+                                                        <div className="navbar-brand card flex-row bg-danger m-0 p-0 " >
                                                             <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
                                                             <div className='ps-2 my-auto d-none d-sm-inline'>
-                                                                <div className="userHeader text-light">{item.nombres2}</div>
-                                                                <div className='userHeader text-light'>{item.apellidos2}</div>
-                                                                <div className='userHeader text-light'>{item.clubdos}</div>
+                                                                <div className="userHeader text-light" style={{fontSize:'20px'}}>{item.nombres2}</div>
+                                                                <div className='userHeader text-light' style={{fontSize:'20px'}}>{item.apellidos2}</div>
+                                                                <div className='userHeader text-light' style={{fontSize:'20px'}}>{item.clubdos}</div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <td>Mark</td>
-                                                <td>Otto</td>
-                                                <td>@mdo</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
                                             </tr>
                                         )
                                     })}

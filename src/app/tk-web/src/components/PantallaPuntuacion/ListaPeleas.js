@@ -87,7 +87,7 @@ function ListaPeleas() {
             {listaLlaves&&listaLlaves.length!==0&&
                 <PrincipalLlaves idcampeonato={campeonato.idcampeonato} 
                     callback={(dato)=>seleccionarPelea(dato)}
-                    genero={genero} llaves={listaLlaves} />    
+                    genero={genero} llaves={listaLlaves} tipoL='O'/>    
             }
         </div>
     )
