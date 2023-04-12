@@ -149,7 +149,7 @@ function PrincipalRegistroCompetidor() {
           </div>
           <div className='col' style={{maxWidth:'140px',minWidth:'140px'}}>
             <select className="form-select form-select-sm bg-secondary text-light border-secondary"
-              value={club} onChange={(e) => setClub(e.target.value)} disabled={userLogin.estado=='A'?false:true}>
+              value={club} onChange={(e) => setClub(e.target.value)} disabled={userLogin.tipo=='A'?false:true}>
               {listaClubs.map((item, index) => {
                 return (
                   <option value={item.idclub} key={index}>{item.nombre}</option>

@@ -112,7 +112,7 @@ function VistaInicio() {
                         </select>
                       </div>
                       <div className='col col-sm-12 col-md-6'>
-                        {userLogin.estado=='A'&&<button className='btn btn-sm btn-success bg-gradient w-100' onClick={() => setShowModal(true)}>
+                        {userLogin.tipo==='A'&&<button className='btn btn-sm btn-success bg-gradient w-100' onClick={() => setShowModal(true)}>
                           <i className="fa-solid fa-circle-plus"></i> Nuevo
                         </button>}
                       </div>
