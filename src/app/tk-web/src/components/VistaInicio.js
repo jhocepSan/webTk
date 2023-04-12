@@ -9,7 +9,7 @@ const server = process.env.REACT_APP_SERVER
 
 function VistaInicio() {
   const navigate = useNavigate();
-  const { setLogin, setUserLogin, login, campeonato, setCampeonato } = useContext(ContextAplicacions);
+  const { setLogin, setUserLogin, login, campeonato, setCampeonato,userLogin } = useContext(ContextAplicacions);
   const [campeonatos, setCampeonatos] = useState([]);
   const [idCampeonato, setIdCampeonato] = useState();
   const [showModal, setShowModal] = useState(false);
@@ -112,9 +112,9 @@ function VistaInicio() {
                         </select>
                       </div>
                       <div className='col col-sm-12 col-md-6'>
-                        <button className='btn btn-sm btn-success bg-gradient w-100' onClick={() => setShowModal(true)}>
+                        {userLogin.estado=='A'&&<button className='btn btn-sm btn-success bg-gradient w-100' onClick={() => setShowModal(true)}>
                           <i className="fa-solid fa-circle-plus"></i> Nuevo
-                        </button>
+                        </button>}
                       </div>
                     </div>
                   </div>

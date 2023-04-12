@@ -42,7 +42,8 @@ export const iniciarSession = async ({correo,password})=>{
                     correo:result[0].correo,
                     nombres:result[0].nombres,
                     apellido:result[0].apellidos,
-                    idclub:result[0].idclub
+                    idclub:result[0].idclub,
+                    tipo:result[0].estado
                 }}
             }
         }

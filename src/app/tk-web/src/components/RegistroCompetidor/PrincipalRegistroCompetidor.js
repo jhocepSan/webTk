@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 const server = process.env.REACT_APP_SERVER;
 
 function PrincipalRegistroCompetidor() {
-  const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
+  const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo,userLogin } = useContext(ContextAplicacions);
   const navigate = useNavigate();
   const [cmp, setCmp] = useState('');
   const [listaClubs, setListaClubs] = useState([]);
@@ -149,7 +149,7 @@ function PrincipalRegistroCompetidor() {
           </div>
           <div className='col' style={{maxWidth:'140px',minWidth:'140px'}}>
             <select className="form-select form-select-sm bg-secondary text-light border-secondary"
-              value={club} onChange={(e) => setClub(e.target.value)}>
+              value={club} onChange={(e) => setClub(e.target.value)} disabled={userLogin.estado=='A'?false:true}>
               {listaClubs.map((item, index) => {
                 return (
                   <option value={item.idclub} key={index}>{item.nombre}</option>
