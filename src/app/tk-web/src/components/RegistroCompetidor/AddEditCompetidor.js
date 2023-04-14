@@ -84,11 +84,7 @@ function AddEditCompetidor(props) {
     function cambiarFecha(date){
         var fechaHoy= new Date();
         var fechaEle=new Date(date);
-        if(fechaHoy.getMonth()<fechaEle.getMonth()){
-            setEdad(fechaHoy.getFullYear()-fechaEle.getFullYear());
-        }else{
-            setEdad(fechaHoy.getFullYear()-fechaEle.getFullYear()-1)
-        }
+        setEdad(fechaHoy.getFullYear()-fechaEle.getFullYear());
         setFecha(date);
     }
     useEffect(() => {

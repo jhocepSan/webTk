@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { ContextPuntuacion } from './PrincipalPuntuacion';
 
 function RelojPelea() {
-    const {runPelea,setRunPelea,configJuego,resetJuego,setPausa,numeroRound,setNumeRound,setEndTiempo} = useContext(ContextPuntuacion)
+    const {runPelea,setRunPelea,configJuego,resetJuego,setPausa,numeroRound,setNumeRound,setEndTiempo,getPuntosMando} = useContext(ContextPuntuacion)
     const [segundo,setSegundo] = useState(0);
     const [minuto,setMinuto] = useState(null);
     const [tiempo,setTiempo] = useState('00:00');
@@ -30,6 +30,7 @@ function RelojPelea() {
     }
     useEffect(() => {
         if(runPelea){
+            getPuntosMando();
             setCompensar(false);
             var sec=(minuto*60)-segundo;
             var aux=Math.round(((sec/60)-Math.trunc(sec/60))*60);

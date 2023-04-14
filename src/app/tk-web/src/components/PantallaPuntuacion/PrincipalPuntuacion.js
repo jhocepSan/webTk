@@ -6,7 +6,9 @@ import Configuraciones from './Configuraciones';
 import ListaPeleas from './ListaPeleas';
 import RelojPelea from './RelojPelea';
 import RelojPausa from './RelojPausa';
+import MsgUtils from '../utils/MsgUtils';
 export const ContextPuntuacion = createContext();
+const server = process.env.REACT_APP_SERVER;
 
 function PrincipalPuntuacion() {
     const [showModal, setShowModal] = useState(false);
@@ -29,10 +31,10 @@ function PrincipalPuntuacion() {
     const [numPelea, setNumPelea] = useState('');
     const [resetJuego, setResetJuego] = useState(false);
     const [numeroRound, setNumeRound] = useState(0);
-    const [listaNumRound,setListaNumRound] = useState([]);
-    const [roundWinAzul,setRoundWinAzul] = useState(0);
-    const [roundWinRojo,setRoundWinRojo] = useState(0);
-    const [endTiempo,setEndTiempo] = useState(false);
+    const [listaNumRound, setListaNumRound] = useState([]);
+    const [roundWinAzul, setRoundWinAzul] = useState(0);
+    const [roundWinRojo, setRoundWinRojo] = useState(0);
+    const [endTiempo, setEndTiempo] = useState(false);
     function recetearValores() {
         setListaNumRound([]);
         setRoundWinAzul(0);
@@ -71,43 +73,60 @@ function PrincipalPuntuacion() {
     }
     function guardarDatosGanador() {
         setShowModal(false);
-        if(configJuego.enableMaxRound === true){
-            if(endTiempo===true){
+        if (configJuego.enableMaxRound === true) {
+            if (endTiempo === true) {
                 setEndTiempo(false);
-                if(numeroRound===parseInt(configJuego.numRound)){
+                if (numeroRound === parseInt(configJuego.numRound)) {
                     //mostrar ganador final
-                }else{
+                } else {
                     setPuntoAzul(0);
                     setPuntoRojo(0);
                     setFaltasAzul(0);
                     setFaltasRojo(0);
                 }
-            }else{
+            } else {
                 //VALIDAR GANADOR
             }
         }
     }
-    useEffect(()=>{
+    function getPuntosMando() {
+        fetch(`${server}/mandojuec/getPuntosMando`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({
+                'sector':nameConfig,'numMandos':configJuego.numMandos
+            })
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data.ok);
+            })
+            .catch(error => MsgUtils.msgError(error));
+    }
+    useEffect(() => {
         console.log("aumento lista de round")
-        if(config&&endTiempo===true){
+        if (config && endTiempo === true) {
             setListaNumRound(Array(numeroRound).fill(0));
-            if(configJuego.enableMaxRound===true){
-                if(puntoAzul>puntoRojo){
-                    setRoundWinAzul(roundWinAzul+1);
+            if (configJuego.enableMaxRound === true) {
+                if (puntoAzul > puntoRojo) {
+                    setRoundWinAzul(roundWinAzul + 1);
                     setTipoModal('W');
-                    setPlayGanador({...jugadorAzul,'color':'A'});
+                    setPlayGanador({ ...jugadorAzul, 'color': 'A' });
                     setShowModal(true);
-                }else if(puntoAzul<puntoRojo){
-                    setRoundWinRojo(roundWinRojo+1);
+                } else if (puntoAzul < puntoRojo) {
+                    setRoundWinRojo(roundWinRojo + 1);
                     setTipoModal('W');
-                    setPlayGanador({...jugadorRojo,'color':'R'});
+                    setPlayGanador({ ...jugadorRojo, 'color': 'R' });
                     setShowModal(true);
-                }else{
+                } else {
                     //empate
                 }
             }
         }
-    },[numeroRound])
+    }, [numeroRound])
     useEffect(() => {
         setCampeonato(JSON.parse(localStorage.getItem('campeonato')));
     }, [])
@@ -116,8 +135,8 @@ function PrincipalPuntuacion() {
             pausa, setPausa, puntoAzul, setPuntoAzul, puntoRojo, setPuntoRojo, setShowModal, campeonato, setConfigJuego, configJuego,
             jugadorAzul, setJugadorAzul, jugadorRojo, setJugadorRojo, runPelea, setRunPelea, tipo, setTipo, genero, setGenero,
             nameConfig, setNameConfig, config, setConfig, faltasAzul, setFaltasAzul, faltasRojo, setFaltasRojo, setTipoModal,
-            playGanador, setPlayGanador, numPelea, setNumPelea, resetJuego, numeroRound, setNumeRound,endTiempo,setEndTiempo,
-            roundWinAzul,setRoundWinAzul,roundWinRojo,setRoundWinRojo
+            playGanador, setPlayGanador, numPelea, setNumPelea, resetJuego, numeroRound, setNumeRound, endTiempo, setEndTiempo,
+            roundWinAzul, setRoundWinAzul, roundWinRojo, setRoundWinRojo, getPuntosMando
         }}>
             <Header puntuacion={true} />
             <div className='bg-transparent menu-flotante'>
@@ -153,16 +172,16 @@ function PrincipalPuntuacion() {
                         <div className='numeroPelea text-light fa-fade'>
                             {`Pelea #${numPelea}`}
                         </div>
-                        {listaNumRound && 
-                        <div className="btn-group btn-group-sm">
-                            {listaNumRound.map((i, j) => {
-                                return (
-                                    <button className='btn btn-sm btn-success mx-1 text-light text-center' key={j}>
-                                        <i className="fa-solid fa-circle"></i>
-                                    </button>
-                                )
-                            })}
-                        </div>}
+                        {listaNumRound &&
+                            <div className="btn-group btn-group-sm">
+                                {listaNumRound.map((i, j) => {
+                                    return (
+                                        <button className='btn btn-sm btn-success mx-1 text-light text-center' key={j}>
+                                            <i className="fa-solid fa-circle"></i>
+                                        </button>
+                                    )
+                                })}
+                            </div>}
                     </div>}
             </div>
             <div className='container-fluid'>
