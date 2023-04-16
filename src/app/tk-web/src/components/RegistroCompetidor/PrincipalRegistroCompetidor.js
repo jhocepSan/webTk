@@ -211,7 +211,7 @@ function PrincipalRegistroCompetidor() {
                     <div className='container-fluid'>
                       {item.genero === 'M' ? 'MASCULINO' : 'FEMENINO'}
                     </div>
-                    {userLogin.tipo=='A'==<div className='container-fluid'>
+                    {userLogin.tipo=='A'==<div className='container-fluid d-none'>
                       <div className="form-check form-switch">
                         <input className="form-check-input" type="checkbox"
                           checked={item.estado === 'P' ? false : true}
