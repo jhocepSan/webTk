@@ -1,0 +1,18 @@
+###prueba de ping 
+POST http://192.168.79.147:4001/login/iniciarSession HTTP/1.1
+content-type: application/json
+
+{
+    "correo":"jjchsan@gmail.com",
+    "password":"6001Sajhy"
+}
+
+###control de servidor
+
+get http://192.168.79.147:4001/mandojuec/conectar HTTP/1.1
+content-type: application/json
+
+{
+    "correo":"jjchsan@gmail.com",
+    "password":"6001Sajhy"
+}

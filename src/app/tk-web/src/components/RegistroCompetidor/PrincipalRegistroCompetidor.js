@@ -211,14 +211,14 @@ function PrincipalRegistroCompetidor() {
                     <div className='container-fluid'>
                       {item.genero === 'M' ? 'MASCULINO' : 'FEMENINO'}
                     </div>
-                    <div className='container-fluid'>
+                    {userLogin.tipo=='A'==<div className='container-fluid'>
                       <div className="form-check form-switch">
                         <input className="form-check-input" type="checkbox"
                           checked={item.estado === 'P' ? false : true}
                           onChange={() => cambiarEstado(item)} />
                         <label className="form-check-label" ><span className={item.estado === 'P' ? 'badge bg-warning' : 'badge bg-success'}>{item.estado === 'P' ? 'COMPETIRA?' : 'COMPETIDOR'}</span></label>
                       </div>
-                    </div>
+                    </div>}
                   </td>
                   <td>
                     <div className="btn-group" role="group" aria-label="Basic example">
