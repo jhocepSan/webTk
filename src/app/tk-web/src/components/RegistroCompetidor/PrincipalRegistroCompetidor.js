@@ -222,11 +222,11 @@ function PrincipalRegistroCompetidor() {
                   </td>
                   <td>
                     <div className="btn-group" role="group" aria-label="Basic example">
-                      <button type="button" className="btn btn-sm text-danger m-0 p-0"
+                      <button type="button" className="btn btn-sm text-danger m-0 p-0 d-none"
                         onClick={() => eliminarUsuario(item)}>
                         <i className="fa-solid fa-trash-can fa-xl"></i>
                       </button>
-                      <button type="button" className="btn btn-sm text-warning m-0 p-0 mx-2"
+                      <button type="button" className="btn btn-sm text-warning m-0 p-0 mx-2 d-none"
                         onClick={() => editarUsuario(item)}>
                         <i className="fa-solid fa-pen-to-square fa-xl"></i>
                       </button>
