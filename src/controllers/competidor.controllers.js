@@ -333,7 +333,7 @@ export const obtenerLlaves = async (info) => {
         '(select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturonuno, '+
         '(select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno '+
         'FROM pelea p inner join competidor c on c.idcompetidor=p.idcompetidor1) res '+
-        'INNER JOIN (select * from tkdb.competidor union select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null) cm on cm.idcompetidor=res.idcompetidor2 where res.idllave=? order by res.nropelea';
+        'INNER JOIN (select * from competidor union select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null) cm on cm.idcompetidor=res.idcompetidor2 where res.idllave=? order by res.nropelea';
     var conn;
     try {
         conn = await pool.getConnection();
