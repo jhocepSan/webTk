@@ -149,7 +149,7 @@ function PuntuacionUser(props) {
                                             {listaRojo && <div className="btn-group btn-group-sm">
                                                 {listaRojo.map((i, j) => {
                                                     return (
-                                                        <button className='btn btn-sm btn-warning mx-1 text-light text-center' key={j}>
+                                                        <button className='btn btn-sm btn-warning mx-1 text-light text-center ' key={j}>
                                                             {configJuego.falta}
                                                         </button>
                                                     )

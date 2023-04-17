@@ -3,7 +3,7 @@ import MsgUtils from '../utils/MsgUtils';
 import { ContextPuntuacion } from './PrincipalPuntuacion';
 
 function Configuraciones(props) {
-    const { setShowModal, setConfig, config, nameConfig, setNameConfig, setConfigJuego } = useContext(ContextPuntuacion);
+    const { setShowModal, setConfig, config, nameConfig, setNameConfig, setConfigJuego,setMapPuntos } = useContext(ContextPuntuacion);
     const [enableDif, setEnableDif] = useState(false);
     const [enableMaxRound,setEnableMaxRound] = useState(false);
     const [enableMaxPoint,setEnableMaxPoint] = useState(false);
@@ -21,6 +21,7 @@ function Configuraciones(props) {
     const [puntosPunio, setPuntosPunio] = useState(0);
     const [puntosPeto, setPuntosPeto] = useState(0);
     const [puntosPetoGiro, setPuntosPetoGiro] = useState(0);
+    const [maxJueces,setMaxJueces] = useState(0);
     function validarCampos() {
         if (nameSeccion !== '' && numRound !== 0 && timeRound !== '' && falta !== 0 && maxFaltas !== 0 &&
             timeDescanso !== '' && numMandos !== 0 && puntosCabeza !== 0 && puntosCabezaGiro !== 0
@@ -41,8 +42,10 @@ function Configuraciones(props) {
             var datos = {
                 nameSeccion, numRound, timeRound, falta, maxFaltas, timeDescanso, numMandos, puntosCabeza,
                 puntosCabezaGiro, puntosPunio, puntosPeto, puntosPetoGiro, enableDif, diffPuntos,puntosOro,
-                enableMaxPoint,enableMaxRound
+                enableMaxPoint,enableMaxRound,maxJueces
             }
+            setMapPuntos({'d':puntosCabeza,'D':puntosCabezaGiro,'P':puntosPunio,'c':puntosPeto,'C':puntosPetoGiro,
+            'b':puntosCabeza,'B':puntosCabezaGiro,'E':puntosPunio,'a':puntosPeto,'A':puntosPetoGiro})
             setConfigJuego(datos);
             setNameConfig(nameSeccion);
             localStorage.setItem(nameSeccion, JSON.stringify(datos));
@@ -78,6 +81,7 @@ function Configuraciones(props) {
             setPuntosOro(datos.puntosOro);
             setEnableMaxPoint(datos.enableMaxPoint);
             setEnableMaxRound(datos.enableMaxRound);
+            setMaxJueces(datos.maxJueces);
         }
     }, [])
     return (
@@ -203,6 +207,21 @@ function Configuraciones(props) {
                         <div className="input-group input-group-sm mb-3">
                             <span className="input-group-text ">Numero de JUECES</span>
                             <select className="form-select form-select-sm text-center" value={numMandos} onChange={(e) => setNumMandos(e.target.value)}>
+                                <option value={1}>1</option>
+                                <option value={2}>2</option>
+                                <option value={3}>3</option>
+                                <option value={4}>4</option>
+                                <option value={5}>5</option>
+                                <option value={6}>6</option>
+                                <option value={7}>7</option>
+                                <option value={8}>8</option>
+                                <option value={9}>9</option>
+                                <option value={10}>10</option>
+                            </select>
+                        </div>
+                        <div className="input-group input-group-sm mb-3">
+                            <span className="input-group-text ">Marcaciòn minima JUECES</span>
+                            <select className="form-select form-select-sm text-center" value={maxJueces} onChange={(e) => setMaxJueces(e.target.value)}>
                                 <option value={1}>1</option>
                                 <option value={2}>2</option>
                                 <option value={3}>3</option>

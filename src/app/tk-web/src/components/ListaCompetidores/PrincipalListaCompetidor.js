@@ -352,6 +352,9 @@ function PrincipalListaCompetidor() {
                         </div>
                     </div>
                 </div>
+                <div className='container-fluid text-danger '>
+                    Numero Competidores {listaCompetidores.length}
+                </div>
                 <div className='table-responsive py-2'>
                     <table className="table table-dark table-striped table-hover table-bordered" id='competidoresLista' >
                         <thead>

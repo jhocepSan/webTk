@@ -211,22 +211,22 @@ function PrincipalRegistroCompetidor() {
                     <div className='container-fluid'>
                       {item.genero === 'M' ? 'MASCULINO' : 'FEMENINO'}
                     </div>
-                    {userLogin.tipo=='A'==<div className='container-fluid d-none'>
+                    <div className='container-fluid'>
                       <div className="form-check form-switch">
                         <input className="form-check-input" type="checkbox"
                           checked={item.estado === 'P' ? false : true}
                           onChange={() => cambiarEstado(item)} />
                         <label className="form-check-label" ><span className={item.estado === 'P' ? 'badge bg-warning' : 'badge bg-success'}>{item.estado === 'P' ? 'COMPETIRA?' : 'COMPETIDOR'}</span></label>
                       </div>
-                    </div>}
+                    </div>
                   </td>
                   <td>
                     <div className="btn-group" role="group" aria-label="Basic example">
-                      <button type="button" className="btn btn-sm text-danger m-0 p-0 d-none"
+                      <button type="button" className="btn btn-sm text-danger m-0 p-0"
                         onClick={() => eliminarUsuario(item)}>
                         <i className="fa-solid fa-trash-can fa-xl"></i>
                       </button>
-                      <button type="button" className="btn btn-sm text-warning m-0 p-0 mx-2 d-none"
+                      <button type="button" className="btn btn-sm text-warning m-0 p-0 mx-2"
                         onClick={() => editarUsuario(item)}>
                         <i className="fa-solid fa-pen-to-square fa-xl"></i>
                       </button>

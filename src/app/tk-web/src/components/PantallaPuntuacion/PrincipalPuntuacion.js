@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 import Header from '../Header';
 import PuntuacionUser from './PuntuacionUser';
 import Modal from 'react-bootstrap/Modal';
@@ -7,10 +7,14 @@ import ListaPeleas from './ListaPeleas';
 import RelojPelea from './RelojPelea';
 import RelojPausa from './RelojPausa';
 import MsgUtils from '../utils/MsgUtils';
+import { ContextAplicacions } from '../Context/ContextAplicacion';
+import { useNavigate } from 'react-router-dom';
 export const ContextPuntuacion = createContext();
 const server = process.env.REACT_APP_SERVER;
 
 function PrincipalPuntuacion() {
+    const navigate = useNavigate();
+    const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
     const [showModal, setShowModal] = useState(false);
     const [tipoModal, setTipoModal] = useState(false);
     const [pausa, setPausa] = useState(false);
@@ -26,7 +30,6 @@ function PrincipalPuntuacion() {
     const [nameConfig, setNameConfig] = useState('');
     const [tipo, setTipo] = useState('');
     const [genero, setGenero] = useState('');
-    const [campeonato, setCampeonato] = useState({});
     const [playGanador, setPlayGanador] = useState({});
     const [numPelea, setNumPelea] = useState('');
     const [resetJuego, setResetJuego] = useState(false);
@@ -35,6 +38,7 @@ function PrincipalPuntuacion() {
     const [roundWinAzul, setRoundWinAzul] = useState(0);
     const [roundWinRojo, setRoundWinRojo] = useState(0);
     const [endTiempo, setEndTiempo] = useState(false);
+    const [mapPuntos,setMapPuntos] = useState({});
     function recetearValores() {
         setListaNumRound([]);
         setRoundWinAzul(0);
@@ -85,7 +89,46 @@ function PrincipalPuntuacion() {
                     setFaltasRojo(0);
                 }
             } else {
-                //VALIDAR GANADOR
+                setEndTiempo(false);
+                console.log(playGanador);
+            }
+        }
+    }
+    function functionContarPunto(lista){
+        let conteo = {}
+        let rep_max = 0;
+        let elem_max;
+        lista.map(element=> {
+            if(conteo[element]){
+                conteo[element] += 1;
+            }else{
+                conteo[element] = 1;   
+            }
+            if(rep_max<conteo[element]){
+                rep_max=conteo[element];
+                elem_max=element
+            }
+        });
+        return [rep_max,elem_max]
+    }
+    function hayDiferencia(azul,rojo){
+        if(configJuego.enableDif){
+            if(parseInt(azul)>parseInt(rojo)){
+                var diferencia = Math.abs(azul-rojo);
+                if(diferencia>=parseInt(configJuego.diffPuntos)){
+                    setRoundWinAzul(roundWinAzul+1);
+                    setPlayGanador({...jugadorAzul,'color':'A'});
+                    setTipoModal('W');
+                    setShowModal(true);
+                }
+            }else{
+                var diferencia = Math.abs(azul-rojo);
+                if(diferencia>=parseInt(configJuego.diffPuntos)){
+                    setRoundWinRojo(roundWinRojo+1);
+                    setPlayGanador({...jugadorRojo,'color':'R'});
+                    setTipoModal('W');
+                    setShowModal(true);
+                }
             }
         }
     }
@@ -102,7 +145,27 @@ function PrincipalPuntuacion() {
         })
             .then(res => res.json())
             .then(data => {
-                console.log(data.ok);
+                if(data.ok){
+                    var puntos = data.ok.map(item=>item.dato)
+                    puntos = functionContarPunto(puntos)
+                    console.log(puntos);
+                    if(puntos[1]!=''&& puntos[0]>=configJuego.maxJueces){
+                        if(puntos[1]=='d'||puntos[1]=='D'||puntos[1]=='P'||puntos[1]=='c'||puntos[1]=='C'){
+                            console.log("agregando punto al azul");
+                            var ptA = puntoAzul+parseInt(mapPuntos[puntos[1]]);
+                            hayDiferencia(ptA,puntoRojo);
+                            setPuntoAzul(ptA);
+                            
+                        }else{
+                            console.log("agregar punto al rojo");
+                            var ptR = puntoRojo+parseInt(mapPuntos[puntos[1]]);
+                            hayDiferencia(puntoAzul,ptR);
+                            setPuntoRojo(ptR);
+                        }
+                        //validar si hay diferencia de puntos
+                        //
+                    }
+                }
             })
             .catch(error => MsgUtils.msgError(error));
     }
@@ -128,7 +191,15 @@ function PrincipalPuntuacion() {
         }
     }, [numeroRound])
     useEffect(() => {
-        setCampeonato(JSON.parse(localStorage.getItem('campeonato')));
+        var sessionActiva = JSON.parse(localStorage.getItem('login'));
+        var cmp = JSON.parse(localStorage.getItem('campeonato'));
+        if (sessionActiva !== null) {
+            setTitulo('')
+            setCampeonato(cmp);
+            setLogin(true);
+            setUserLogin(sessionActiva);
+            navigate("/gamePunt", { replace: true });
+        }
     }, [])
     return (
         <ContextPuntuacion.Provider value={{
@@ -136,7 +207,7 @@ function PrincipalPuntuacion() {
             jugadorAzul, setJugadorAzul, jugadorRojo, setJugadorRojo, runPelea, setRunPelea, tipo, setTipo, genero, setGenero,
             nameConfig, setNameConfig, config, setConfig, faltasAzul, setFaltasAzul, faltasRojo, setFaltasRojo, setTipoModal,
             playGanador, setPlayGanador, numPelea, setNumPelea, resetJuego, numeroRound, setNumeRound, endTiempo, setEndTiempo,
-            roundWinAzul, setRoundWinAzul, roundWinRojo, setRoundWinRojo, getPuntosMando
+            roundWinAzul, setRoundWinAzul, roundWinRojo, setRoundWinRojo, getPuntosMando,mapPuntos,setMapPuntos
         }}>
             <Header puntuacion={true} />
             <div className='bg-transparent menu-flotante'>
@@ -177,7 +248,7 @@ function PrincipalPuntuacion() {
                                 {listaNumRound.map((i, j) => {
                                     return (
                                         <button className='btn btn-sm btn-success mx-1 text-light text-center' key={j}>
-                                            <i className="fa-solid fa-circle"></i>
+                                            <i className="fa-solid fa-circle fa-2xl"></i>
                                         </button>
                                     )
                                 })}
@@ -206,15 +277,15 @@ function PrincipalPuntuacion() {
                             <div className='row row-cols-2 g-0'>
                                 <div className='col'>
                                     <div className='text-light'>
-                                        Kyong-go
+                                        Derrota por
                                     </div>
                                     <div className='container-fluid'>
                                         <div className="btn-group btn-group-sm">
-                                            <button className='btn btn-sm btnScore'>
-                                                <i className="fa-solid fa-circle-plus fa-2xl"></i>
+                                            <button className='btn btn-sm btnScore text-danger'>
+                                                <i className="fa-solid fa-skull-crossbones fa-2xl"></i>
                                             </button>
-                                            <button className='btn btn-sm btnScore'>
-                                                <i className="fa-solid fa-circle-minus fa-2xl"></i>
+                                            <button className='btn btn-sm btnScore text-warning'>
+                                                <i className="fa-solid fa-diamond fa-2xl"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -257,15 +328,15 @@ function PrincipalPuntuacion() {
                                 </div>
                                 <div className='col'>
                                     <div className='text-light'>
-                                        Kyong-go
+                                        Derrota Por
                                     </div>
                                     <div className='container-fluid'>
                                         <div className="btn-group btn-group-sm">
-                                            <button className='btn btn-sm btnScore'>
-                                                <i className="fa-solid fa-circle-plus fa-2xl"></i>
+                                            <button className='btn btn-sm btnScore text-warning'>
+                                                <i className="fa-solid fa-diamond fa-2xl"></i>
                                             </button>
-                                            <button className='btn btn-sm btnScore'>
-                                                <i className="fa-solid fa-circle-minus fa-2xl"></i>
+                                            <button className='btn btn-sm btnScore text-danger'>
+                                                <i className="fa-solid fa-skull-crossbones fa-2xl"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -298,6 +369,9 @@ function PrincipalPuntuacion() {
                         <div className={`container-fluid bg-gradient ${playGanador.color === 'R' ? 'bg-danger' : 'bg-primary'}`}>
                             <div className='ganadorTitulo fa-fade text-center'>
                                 {playGanador.nombre}
+                            </div>
+                            <div className='ganadorSubtitulo fa-fade text-center bg-dark w-100'>
+                                {playGanador.club}
                             </div>
                             <div className='py-1 w-100'>
                                 <button className='btn btn-sm bg-gradient btn-success w-100' onClick={() => guardarDatosGanador()}>

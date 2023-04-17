@@ -82,11 +82,11 @@ export const recuperarCuenta= async(info)=>{
     try {
         var newPassword = bycript.hashSync(info.newPassword,10);
         conn =await pool.getConnection();
-        const [result] = await conn.query('SELECT idusuario from usuario where correo=? and ci=?',[info.email,info.ci])
+        const [result] = await conn.query('SELECT idusuario from usuario where correo=? and ci=? and estado!="E"',[info.email,info.ci])
         console.log(result)
         if(result.length!==0){
-            const [rows]=await conn.query('UPDATE usuario SET password=?',[
-                newPassword
+            const [rows]=await conn.query('UPDATE usuario SET password=? WHERE idusuario=? and estado!="E"',[
+                newPassword,result[0].idusuario
             ]);
             return {"ok":"Ingresa al sistemas con su nuevos datos, por favor ..."}
         }else{

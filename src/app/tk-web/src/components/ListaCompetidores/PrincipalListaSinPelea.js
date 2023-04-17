@@ -332,6 +332,9 @@ function PrincipalListaSinPelea() {
                         </div>
                     </div>
                 </div>
+                <div className='container-fluid text-danger '>
+                    Numero Estudiantes {listaCompetidores.length}
+                </div>
                 <div className={`table-responsive py-2 ${genManual ? 'tableIgual' : ''}`} >
                     <table className="table table-dark table-hover table-bordered" id='competidoresLista' ref={tableRef}>
                         <thead>
@@ -376,10 +379,10 @@ function PrincipalListaSinPelea() {
                                                 <i className="fa-regular fa-circle-xmark fa-2xl"></i>
                                             </button>
                                         </td>
-                                        <td className='d-none'>
+                                        <td className=''>
                                             {item.idcategoria}
                                         </td>
-                                        <td className='d-none'>
+                                        <td className=''>
                                             {item.idsubcategoria}
                                         </td>
                                     </tr>

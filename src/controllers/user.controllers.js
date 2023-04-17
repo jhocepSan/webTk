@@ -20,6 +20,9 @@ export const cambiarEstadoAlbitro = async (info) => {
         conn = await pool.getConnection();
         const [result] = await conn.query('UPDATE usuario SET albitro=? WHERE idusuario=?;',
             [info.estado, info.idusuario])
+        const [infoUser] = await conn.query('UPDATE mandopunto SET estado=? WHERE idusuario=?;',
+            [info.estado,info.idusuario])
+        await conn.commit();
         return { "ok": result }
     } catch (error) {
         console.log(error);

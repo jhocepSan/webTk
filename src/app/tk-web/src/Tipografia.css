@@ -69,10 +69,15 @@
 }
 .numeroPelea{
     font-family: montserratb;
-    font-size: 45px;
+    font-size: 65px;
 }
 .ganadorTitulo{
     font-size: 120px;
+    font-family: montserratb;
+    color: white;
+}
+.ganadorSubtitulo{
+    font-size: 90px;
     font-family: montserratb;
     color: white;
 }
