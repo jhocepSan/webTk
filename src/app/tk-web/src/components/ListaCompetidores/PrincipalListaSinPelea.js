@@ -111,7 +111,7 @@ function PrincipalListaSinPelea() {
     function cambiarCategoria(i) {
         setIdCategoria(i);
         //setBuscado(false);
-        var cat = categorias.filter((item) => item.idcategoria === parseInt(i));
+        /*var cat = categorias.filter((item) => item.idcategoria === parseInt(i));
         if (cat.length !== 0) {
             setSubCategorias(cat[0].SUBCATEGORIA);
             buscarCategoria(i, 5);
@@ -119,7 +119,7 @@ function PrincipalListaSinPelea() {
             setIdSubCategoria(0);
             setSubCategorias([]);
             buscarCategoria('', 5);
-        }
+        }*/
     }
     function cambiarSubCategoria(i) {
         setIdSubCategoria(i);
@@ -137,7 +137,7 @@ function PrincipalListaSinPelea() {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json;charset=utf-8',
                 },
-                body: JSON.stringify({ idCampeonato, genero, tipo })
+                body: JSON.stringify({ idCampeonato, genero, tipo,idCategoria })
             })
                 .then(res => res.json())
                 .then(data => {
@@ -207,24 +207,24 @@ function PrincipalListaSinPelea() {
     }
     function cambiarEstadoC(dato) {
         fetch(`${server}/competidor/deleteCompetidorSP`, {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json;charset=utf-8',
-          },
-          body: JSON.stringify(dato)
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify(dato)
         })
-          .then(res => res.json())
-          .then(data => {
-            if (data.ok) {
-              setActualizar(!actualizar);
-            } else {
-              MsgUtils.msgError(data.error);
-            }
-          })
-          .catch(error => MsgUtils.msgError(error));
-      }
-    function sacarDeListas(dato){
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    setActualizar(!actualizar);
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
+            })
+            .catch(error => MsgUtils.msgError(error));
+    }
+    function sacarDeListas(dato) {
         dato.estado = 'I'
         cambiarEstadoC(dato);
     }
@@ -257,7 +257,7 @@ function PrincipalListaSinPelea() {
                             Competidores Camp. {tituloo}
                         </div>
                     </div>
-                    <div className='col' style={{minWidth:'120px',maxWidth:'120px'}}>
+                    <div className='col' style={{ minWidth: '120px', maxWidth: '120px' }}>
                         <select className="form-select form-select-sm btn-secondary" value={tipo}
                             onChange={(e) => { setTipo(e.target.value); setBuscado(false) }}>
                             <option value=''>Tipo (Ninguno)</option>
@@ -267,7 +267,7 @@ function PrincipalListaSinPelea() {
                             <option value="R">Rompimiento</option>
                         </select>
                     </div>
-                    <div className='col' style={{minWidth:'120px',maxWidth:'120px'}}>
+                    <div className='col' style={{ minWidth: '120px', maxWidth: '120px' }}>
                         <select className="form-select form-select-sm bg-secondary text-light border-secondary"
                             value={genero} onChange={(e) => { setGenero(e.target.value); setBuscado(false) }}>
                             <option value={''}>Genero</option>
@@ -275,12 +275,23 @@ function PrincipalListaSinPelea() {
                             <option value={'F'}>Femenino</option>
                         </select>
                     </div>
-                    <div className='col' style={{minWidth:'120px',maxWidth:'120px'}}>
+                    <div className='col' style={{ minWidth: '140px', maxWidth: '140px' }}>
+                        <select className="form-select form-select-sm btn-secondary" value={idCategoria}
+                            onChange={(e) => cambiarCategoria(e.target.value)}>
+                            <option value={0}>Categoria ?</option>
+                            {categorias.map((item, index) => {
+                                return (
+                                    <option value={item.idcategoria} key={index}>{item.nombre}</option>
+                                )
+                            })}
+                        </select>
+                    </div>
+                    <div className='col' style={{ minWidth: '120px', maxWidth: '120px' }}>
                         <button className='btn btn-sm btn-success w-100' onClick={() => buscarCompetidores()}>
                             <i className="fa-solid fa-spinner fa-xl"></i> Buscar
                         </button>
                     </div>
-                    <div className='col' style={{minWidth:'120px',maxWidth:'120px'}}>
+                    <div className='col' style={{ minWidth: '120px', maxWidth: '120px' }}>
                         <button className={`btn btn-sm bg-gradient  w-100 ${genManual ? 'btn-danger' : 'btn-warning'}`} onClick={() => GenerarLlaves()}>
                             <i className="fa-solid fa-network-wired"></i> {genManual ? 'Desactivar' : 'Crear'}
                         </button>
@@ -290,34 +301,12 @@ function PrincipalListaSinPelea() {
             {buscado && <>
                 <div className='container-fluid colorFiltro bg-gradient py-1'>
                     <div className='row g-1'>
-                        <div className='col' style={{minWidth:'120px',maxWidth:'120px'}}>
+                        <div className='col' style={{ minWidth: '220px', maxWidth: '220px' }}>
                             <div className='text-light letraMontserratr'>
-                                Filtros
+                                Buscar por nombre
                             </div>
                         </div>
-                        <div className='col' style={{minWidth:'140px',maxWidth:'140px'}}>
-                            <select className="form-select form-select-sm btn-dark" value={idCategoria}
-                                onChange={(e) => cambiarCategoria(e.target.value)}>
-                                <option value={0}>Categoria ?</option>
-                                {categorias.map((item, index) => {
-                                    return (
-                                        <option value={item.idcategoria} key={index}>{item.nombre}</option>
-                                    )
-                                })}
-                            </select>
-                        </div>
-                        <div className='col' style={{minWidth:'140px',maxWidth:'140px'}}>
-                            <select className="form-select form-select-sm btn-dark" value={idSubCategoria}
-                                onChange={(e) => cambiarSubCategoria(e.target.value)}>
-                                <option value={0}>Sub Categoria ?</option>
-                                {subCategorias.map((item, index) => {
-                                    return (
-                                        <option value={item.idsubcategoria} key={index}>{item.nombre}</option>
-                                    )
-                                })}
-                            </select>
-                        </div>
-                        <div className='col' style={{minWidth:'150px',maxWidth:'150px'}}>
+                        <div className='col' style={{ minWidth: '150px', maxWidth: '150px' }}>
                             <div className="input-group input-group-sm">
                                 <input type="text" className="form-control form-control-sm"
                                     placeholder="Buscar Competidor" id='competidor' onChange={() => buscarCompetidor()} />
@@ -326,7 +315,7 @@ function PrincipalListaSinPelea() {
                                 </button>
                             </div>
                         </div>
-                        <div className='col' style={{minWidth:'150px',maxWidth:'150px'}}>
+                        <div className='col' style={{ minWidth: '150px', maxWidth: '150px' }}>
                             <button className='btn btn-sm btn-success' onClick={() => handleDownloadExcel()}>
                                 <i className="fa-solid fa-file-excel"></i> Exportar excel </button>
                         </div>

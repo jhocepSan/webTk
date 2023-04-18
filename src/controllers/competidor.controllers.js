@@ -92,7 +92,7 @@ export const getCompetidorClasificado = async (info) => {
     }
 }
 export const getCompetidorSinPelea = async (info) => {
-    var sql = 'SELECT *,(select nombre from club where idclub=c.idclub) as club, ' +
+    var sql = 'SELECT * FROM (SELECT *,(select nombre from club where idclub=c.idclub) as club, ' +
         '(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, ' +
         '(SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, ' +
         '(select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin ' +
@@ -103,12 +103,12 @@ export const getCompetidorSinPelea = async (info) => {
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as idsubcategoria, ' +
         '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria ' +
-        'FROM competidorsinpelea c WHERE c.idcampeonato=? and c.tipo=? and c.genero=? and c.estado="A" order by c.idgrado;'
+        'FROM competidorsinpelea c WHERE c.idcampeonato=? and c.tipo=? and c.genero=? and c.estado="A") res where (res.idcategoria=? or 0=?) order by res.idgrado;'
     var conn;
     try {
         conn = await pool.getConnection();
         const [result] = await conn.query(sql,
-            [info.idCampeonato, info.tipo, info.genero])
+            [info.idCampeonato, info.tipo, info.genero,info.idCategoria,info.idCategoria])
         return { "ok": result }
     } catch (error) {
         console.log(error);
@@ -324,7 +324,7 @@ export const obtenerLlaves = async (info) => {
         'FROM llave lv INNER JOIN grado gr on gr.idgrado=lv.idgrado ' +
         'INNER JOIN categoria cat on cat.idcategoria=lv.idcategoria ' +
         'INNER JOIN subcategoria scat on scat.idsubcategoria=lv.idsubcategoria ' +
-        'WHERE lv.tipo=? and lv.idcampeonato=? and lv.genero=? ' +
+        'WHERE lv.tipo=? and lv.idcampeonato=? and lv.genero=? and lv.estado="A"' +
         'UNION SELECT idllave,fecha,tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato,estado,"EXHIBICIÓN","EXHIBICIÓN","EXHIBICIÓN",1,1,1,1 FROM llave where idgrado=-1 ;';
     var sql2 = 'SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,res.nropelea,res.idganador,res.idperdedor,res.nombres,res.apellidos,res.clubuno, '+
         'res.idcinturon,res.cinturonuno,cm.idcinturon as idcinturondos,(select cin.nombre from cinturon cin where cin.idcinturon=cm.idcinturon)as cinturondos, '+
@@ -351,7 +351,32 @@ export const obtenerLlaves = async (info) => {
         if (conn) { await conn.release() }
     }
 }
-
+export const obtenerLlavesManuales = async (info) => {
+    var sql = 'select * from llave where tipo=? and idcampeonato=? and genero=? and idcategoria=? ;';
+    var sql2 = 'select res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,res.nropelea,res.idganador,res.idperdedor,res.nombres,res.apellidos,res.clubuno,res.cinturonuno, '+
+        'c.nombres as nombres2,c.apellidos as apellidos2,(select cl.nombre from club cl where cl.idclub=c.idclub) as clubdos,(select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturondos '+
+        'from(select p.idpelea,p.idpeleapadre,p.idllave,p.idcompetidor1,p.idcompetidor2,p.nropelea,p.idganador,p.idperdedor,c.nombres,c.apellidos, '+
+        '(select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno,c.edad,c.peso,genero, '+
+        '(select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturonuno '+
+        'from pelea p inner join competidorsinpelea c on p.idcompetidor1=c.idcompetidor) res inner join (select * from competidorsinpelea union select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null) c on res.idcompetidor2=c.idcompetidor '+
+        'where res.idllave=? order by res.nropelea';
+    var conn;
+    try {
+        conn = await pool.getConnection();
+        const [result] = await conn.query(sql, [info.tipo, info.idCampeonato, info.genero,info.idCategoria]);
+        var resultado = []
+        for (var llaves of result) {
+            const [result] = await conn.query(sql2, [llaves.idllave])
+            resultado.push({ ...llaves, "PELEAS": result })
+        }
+        return { "ok": resultado }
+    } catch (error) {
+        console.log(error)
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release() }
+    }
+}
 export const cambiarNumPelea = async (info) => {
     var sql = 'UPDATE pelea set nropelea=? where idpelea=?'
     var conn;
