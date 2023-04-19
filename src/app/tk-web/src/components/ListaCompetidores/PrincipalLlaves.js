@@ -112,7 +112,7 @@ function PrincipalLlaves(props) {
     }, [])
     useEffect(() => {
 
-    }, [llaves])
+    }, [llaves,selectItem])
     return (
         <div className='container-fluid py-2'>
             <div className='overflow-auto'>
@@ -180,10 +180,12 @@ function PrincipalLlaves(props) {
                                                                         {itemm.nropelea}
                                                                     </button>}
                                                                     {tipoL == 'E' &&
+                                                                    <div className='btn-group'>
                                                                         <input className="form-control form-control-lg text-light bg-secondary" 
-                                                                            type="number" id={`${lista[numLlave].nombrecategoria}-${lista[numLlave].idcategoria}-${lista[numLlave].idsubcategoria}`}
-                                                                            defaultValue={itemm.nropelea} onChange={(e)=>cambiarValor(itemm,e.target.value)}>
+                                                                            type="number" defaultValue={itemm.nropelea} onChange={(e)=>cambiarValor(itemm,e.target.value)}>
                                                                         </input>
+                                                                        <h1 className='tituloHeader'>{itemm.nropelea}</h1>
+                                                                    </div>
                                                                     }
                                                                 </div>
                                                                 <div className='col-8 my-auto'>
@@ -255,12 +257,13 @@ function PrincipalLlaves(props) {
                                                                                 {itemm.nropelea}
                                                                             </button>}
                                                                             {tipoL == 'E' &&
-                                                                            <>
+                                                                            <div className='btn-group'>
                                                                                 <input className="form-control form-control-lg text-light bg-secondary"
                                                                                     type="number"
                                                                                     defaultValue={itemm.nropelea} onChange={(e) => cambiarValor(itemm, e.target.value)}>
                                                                                 </input>
-                                                                            </>}
+                                                                                <h1 className='tituloHeader'>{itemm.nropelea}</h1>
+                                                                            </div>}
                                                                         </div>
                                                                         <div className='col-8 my-auto'>
                                                                             #PELEA<hr style={{ border: "15px", background: "#f6f6f" }}></hr>
