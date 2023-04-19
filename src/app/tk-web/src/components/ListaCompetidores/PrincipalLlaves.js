@@ -90,10 +90,6 @@ function PrincipalLlaves(props) {
             })
             .catch(error => MsgUtils.msgError(error));
     }
-    function setNumeroPelea(id,valor,idpelea){
-        document.getElementById(id).value=valor;
-        lista[numLlave].PELEAS.filter(item=>item.idpelea==idpelea)[0].nropelea=valor;
-    }
     useEffect(() => {
         fetch(`${server}/config/getConfiCategoriaUnido`, {
             method: 'POST',
@@ -183,16 +179,11 @@ function PrincipalLlaves(props) {
                                                                     {tipoL == 'O' && <button className='btn btn-sm btn-dark letraNumPelea w-100' onClick={() => callback(itemm)}>
                                                                         {itemm.nropelea}
                                                                     </button>}
-                                                                    {tipoL == 'E' &&<>
+                                                                    {tipoL == 'E' &&
                                                                         <input className="form-control form-control-lg text-light bg-secondary" 
                                                                             type="number" id={`${lista[numLlave].nombrecategoria}-${lista[numLlave].idcategoria}-${lista[numLlave].idsubcategoria}`}
                                                                             defaultValue={itemm.nropelea} onChange={(e)=>cambiarValor(itemm,e.target.value)}>
                                                                         </input>
-                                                                        <button className='btn btn-sm btn-success d-none' onClick={()=>cambiarValor(itemm,document.getElementById(`${lista[numLlave].nombrecategoria}-${lista[numLlave].idcategoria}-${lista[numLlave].idsubcategoria}`).value)}
-                                                                        >
-                                                                            Guardar
-                                                                        </button>
-                                                                        </>
                                                                     }
                                                                 </div>
                                                                 <div className='col-8 my-auto'>
