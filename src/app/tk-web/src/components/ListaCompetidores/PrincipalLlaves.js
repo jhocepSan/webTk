@@ -241,6 +241,7 @@ function PrincipalLlaves(props) {
                                                                             <div className="userHeader text-light" style={{ fontSize: '20px' }}>{itemm.nombres}</div>
                                                                             <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.apellidos}</div>
                                                                             <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.clubuno}</div>
+                                                                            <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.edad}</div>
                                                                         </div>
                                                                     </div>
                                                                     <div className='row row-cols-2 g-0'>
@@ -264,6 +265,7 @@ function PrincipalLlaves(props) {
                                                                             <div className="userHeader text-light" style={{ fontSize: '20px' }}>{itemm.nombres2}</div>
                                                                             <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.apellidos2}</div>
                                                                             <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.clubdos}</div>
+                                                                            <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.edad2} años</div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
