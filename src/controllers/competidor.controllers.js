@@ -319,13 +319,13 @@ export const generateLLaveManualFestival = async (info) => {
 }
 
 export const obtenerLlaves = async (info) => {
-    var sql = 'SELECT lv.idllave,lv.fecha,lv.tipo,lv.idgrado,lv.genero,lv.idcategoria,lv.idsubcategoria,lv.idcampeonato,lv.estado, ' +
+    var sql = 'select * from (SELECT lv.idllave,lv.fecha,lv.tipo,lv.idgrado,lv.genero,lv.idcategoria,lv.idsubcategoria,lv.idcampeonato,lv.estado, ' +
         'gr.nombre as nombregrado,cat.nombre as nombrecategoria,scat.nombre as nombresubcategoria,cat.edadini,cat.edadfin,scat.pesoini,scat.pesofin ' +
         'FROM llave lv INNER JOIN grado gr on gr.idgrado=lv.idgrado ' +
         'INNER JOIN categoria cat on cat.idcategoria=lv.idcategoria ' +
         'INNER JOIN subcategoria scat on scat.idsubcategoria=lv.idsubcategoria ' +
-        'WHERE lv.tipo=? and lv.idcampeonato=? and lv.genero=? and lv.estado="A"' +
-        'UNION SELECT idllave,fecha,tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato,estado,"EXHIBICIÓN","EXHIBICIÓN","EXHIBICIÓN",1,1,1,1 FROM llave where idgrado=-1 ;';
+        'WHERE lv.tipo=? and lv.idcampeonato=? and lv.estado="A" ' +
+        'UNION SELECT idllave,fecha,tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato,estado,"EXHIBICIÓN","EXHIBICIÓN","EXHIBICIÓN",1,1,1,1 FROM llave where idgrado=-1 )res order by res.genero ;';
     var sql2 = 'SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,res.nropelea,res.idganador,res.idperdedor,res.nombres,res.apellidos,res.clubuno, '+
         'res.idcinturon,res.cinturonuno,cm.idcinturon as idcinturondos,(select cin.nombre from cinturon cin where cin.idcinturon=cm.idcinturon)as cinturondos, '+
         'cm.nombres as nombres2,cm.apellidos as apellidos2,(select cl.nombre from club cl where cl.idclub=cm.idclub) as clubdos FROM '+
@@ -333,11 +333,11 @@ export const obtenerLlaves = async (info) => {
         '(select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturonuno, '+
         '(select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno '+
         'FROM pelea p inner join competidor c on c.idcompetidor=p.idcompetidor1) res '+
-        'INNER JOIN (select * from competidor union select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null) cm on cm.idcompetidor=res.idcompetidor2 where res.idllave=? order by res.nropelea';
+        'INNER JOIN (select * from competidor union select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null) cm on cm.idcompetidor=res.idcompetidor2 where res.idllave=?';
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql, [info.tipo, info.idCampeonato, info.genero]);
+        const [result] = await conn.query(sql, [info.tipo, info.idCampeonato]);
         var resultado = []
         for (var llaves of result) {
             const [result] = await conn.query(sql2, [llaves.idllave])
@@ -352,7 +352,7 @@ export const obtenerLlaves = async (info) => {
     }
 }
 export const obtenerLlavesManuales = async (info) => {
-    var sql = 'select * from llave where tipo=? and idcampeonato=? and genero=? and idcategoria=? ;';
+    var sql = 'select * from llave where tipo=? and idcampeonato=? and idcategoria=? order by genero ;';
     var sql2 = 'select res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,res.nropelea,res.idganador,res.idperdedor,res.nombres,res.edad,res.peso,res.apellidos,res.clubuno,res.cinturonuno, '+
         'c.nombres as nombres2,c.apellidos as apellidos2,(select cl.nombre from club cl where cl.idclub=c.idclub) as clubdos,(select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturondos, '+
         'c.peso as peso2,c.edad as edad2 '+
@@ -364,7 +364,7 @@ export const obtenerLlavesManuales = async (info) => {
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql, [info.tipo, info.idCampeonato, info.genero,info.idCategoria]);
+        const [result] = await conn.query(sql, [info.tipo, info.idCampeonato,info.idCategoria]);
         var resultado = []
         for (var llaves of result) {
             const [result] = await conn.query(sql2, [llaves.idllave])

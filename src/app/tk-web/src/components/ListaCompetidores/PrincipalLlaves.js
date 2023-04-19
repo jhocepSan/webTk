@@ -70,7 +70,7 @@ function PrincipalLlaves(props) {
         });
     }
     function cambiarValor(dato, valor) {
-        setSelectItem(0);
+        //setSelectItem(0);
         fetch(`${server}/competidor/cambiarNumPelea`, {
             method: 'POST',
             headers: {
@@ -90,18 +90,23 @@ function PrincipalLlaves(props) {
             })
             .catch(error => MsgUtils.msgError(error));
     }
+    function setNumeroPelea(id,valor,idpelea){
+        document.getElementById(id).value=valor;
+        lista[numLlave].PELEAS.filter(item=>item.idpelea==idpelea)[0].nropelea=valor;
+    }
     useEffect(() => {
-        fetch(`${server}/config/getConfiCategoria`, {
+        fetch(`${server}/config/getConfiCategoriaUnido`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json;charset=utf-8',
             },
-            body: JSON.stringify({ idcampeonato, genero })
+            body: JSON.stringify({ idcampeonato })
         })
             .then(res => res.json())
             .then(data => {
                 if (data.ok) {
+                    console.log(data.ok);
                     setCategorias(data.ok);
                 } else {
                     MsgUtils.msgError(data.error);
@@ -114,6 +119,7 @@ function PrincipalLlaves(props) {
     }, [llaves])
     return (
         <div className='container-fluid py-2'>
+            <div className='overflow-auto'>
             <div className='btn-group btn-group-sm mb-2'>
                 {categorias.map((item, index) => {
                     return (
@@ -131,6 +137,7 @@ function PrincipalLlaves(props) {
                     <i className="fa-solid fa-file-pdf"></i> PDF
                 </button>}
             </div>
+            </div>
             <div className='container-fluid' ref={pdfRef}>
                 {lista.length !== 0 && selectItem !== 0 && selectItem !== -1 &&
                     <div className='card'>
@@ -138,7 +145,7 @@ function PrincipalLlaves(props) {
                             <div className='row row-cols-2 g-0'>
                                 <div className='col'>
                                     <div className='tituloHeader' style={{ fontSize: '20px' }}>
-                                        {`${lista[numLlave].nombregrado} ${genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`}
+                                        {`${lista[numLlave].nombregrado} ${lista[numLlave].genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`}
                                     </div>
                                     <div className='tituloHeader' style={{ fontSize: '20px' }}>
                                         {lista[numLlave].nombrecategoria + ' => ' + lista[numLlave].edadini + ' - ' + lista[numLlave].edadfin + ' Años'}
@@ -176,15 +183,22 @@ function PrincipalLlaves(props) {
                                                                     {tipoL == 'O' && <button className='btn btn-sm btn-dark letraNumPelea w-100' onClick={() => callback(itemm)}>
                                                                         {itemm.nropelea}
                                                                     </button>}
-                                                                    {tipoL == 'E' &&
-                                                                        <input className="form-control form-control-lg text-light bg-secondary"
-                                                                            type="number" placeholder="#"
-                                                                            value={itemm.nropelea} onChange={(e) => cambiarValor(itemm, e.target.value)}>
-                                                                        </input>}
+                                                                    {tipoL == 'E' &&<>
+                                                                        <input className="form-control form-control-lg text-light bg-secondary" 
+                                                                            type="number" id={`${lista[numLlave].nombrecategoria}-${lista[numLlave].idcategoria}-${lista[numLlave].idsubcategoria}`}
+                                                                            defaultValue={itemm.nropelea} onChange={(e)=>setNumeroPelea(`${lista[numLlave].nombrecategoria}-${lista[numLlave].idcategoria}-${lista[numLlave].idsubcategoria}`,e.target.value,itemm.idpelea)}>
+                                                                        </input>
+                                                                        <button className='btn btn-sm btn-success' onClick={()=>cambiarValor(itemm,document.getElementById(`${lista[numLlave].nombrecategoria}-${lista[numLlave].idcategoria}-${lista[numLlave].idsubcategoria}`).value)}
+                                                                        >
+                                                                            Guardar
+                                                                        </button>
+                                                                        </>
+                                                                    }
                                                                 </div>
                                                                 <div className='col-8 my-auto'>
                                                                     #PELEA<hr style={{ border: "15px", background: "#f6f6f" }}></hr>
                                                                 </div>
+                                                                
                                                             </div>
                                                             <div className="navbar-brand card flex-row bg-danger m-0 p-0 " >
                                                                 <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
@@ -216,7 +230,7 @@ function PrincipalLlaves(props) {
                                     <div className='row row-cols-2 g-0'>
                                         <div className='col'>
                                             <div className='tituloHeader' style={{ fontSize: '20px' }}>
-                                                EXHIBICIONES {genero == 'M' ? 'MASCULINO' : 'FEMENINO'}
+                                                EXHIBICIONES {item.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}
                                             </div>
                                         </div>
                                         <div className='col'>
@@ -241,7 +255,7 @@ function PrincipalLlaves(props) {
                                                                             <div className="userHeader text-light" style={{ fontSize: '20px' }}>{itemm.nombres}</div>
                                                                             <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.apellidos}</div>
                                                                             <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.clubuno}</div>
-                                                                            <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.edad}</div>
+                                                                            <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.edad} años</div>
                                                                         </div>
                                                                     </div>
                                                                     <div className='row row-cols-2 g-0'>
@@ -250,10 +264,12 @@ function PrincipalLlaves(props) {
                                                                                 {itemm.nropelea}
                                                                             </button>}
                                                                             {tipoL == 'E' &&
+                                                                            <>
                                                                                 <input className="form-control form-control-lg text-light bg-secondary"
-                                                                                    type="number" placeholder="#"
-                                                                                    value={itemm.nropelea} onChange={(e) => cambiarValor(itemm, e.target.value)}>
-                                                                                </input>}
+                                                                                    type="number"
+                                                                                    defaultValue={itemm.nropelea} onChange={(e) => cambiarValor(itemm, e.target.value)}>
+                                                                                </input>
+                                                                            </>}
                                                                         </div>
                                                                         <div className='col-8 my-auto'>
                                                                             #PELEA<hr style={{ border: "15px", background: "#f6f6f" }}></hr>
