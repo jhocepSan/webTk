@@ -70,7 +70,7 @@ function PrincipalLlaves(props) {
         });
     }
     function cambiarValor(dato, valor) {
-        //setSelectItem(0);
+        console.log(dato,valor);
         fetch(`${server}/competidor/cambiarNumPelea`, {
             method: 'POST',
             headers: {

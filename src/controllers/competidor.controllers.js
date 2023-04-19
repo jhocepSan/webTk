@@ -382,6 +382,7 @@ export const cambiarNumPelea = async (info) => {
     var sql = 'UPDATE pelea set nropelea=? where idpelea=?'
     var conn;
     try {
+        console.log(info);
         conn = await pool.getConnection();
         const [result] = await conn.query(sql, [info.nropelea,info.idpelea])
         await conn.commit();
