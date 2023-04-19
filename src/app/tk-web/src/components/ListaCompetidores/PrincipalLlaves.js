@@ -186,9 +186,9 @@ function PrincipalLlaves(props) {
                                                                     {tipoL == 'E' &&<>
                                                                         <input className="form-control form-control-lg text-light bg-secondary" 
                                                                             type="number" id={`${lista[numLlave].nombrecategoria}-${lista[numLlave].idcategoria}-${lista[numLlave].idsubcategoria}`}
-                                                                            defaultValue={itemm.nropelea} onChange={(e)=>setNumeroPelea(`${lista[numLlave].nombrecategoria}-${lista[numLlave].idcategoria}-${lista[numLlave].idsubcategoria}`,e.target.value,itemm.idpelea)}>
+                                                                            defaultValue={itemm.nropelea} onChange={(e)=>cambiarValor(itemm,e.target.value)}>
                                                                         </input>
-                                                                        <button className='btn btn-sm btn-success' onClick={()=>cambiarValor(itemm,document.getElementById(`${lista[numLlave].nombrecategoria}-${lista[numLlave].idcategoria}-${lista[numLlave].idsubcategoria}`).value)}
+                                                                        <button className='btn btn-sm btn-success d-none' onClick={()=>cambiarValor(itemm,document.getElementById(`${lista[numLlave].nombrecategoria}-${lista[numLlave].idcategoria}-${lista[numLlave].idsubcategoria}`).value)}
                                                                         >
                                                                             Guardar
                                                                         </button>
