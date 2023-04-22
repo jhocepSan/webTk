@@ -7,10 +7,11 @@ function ContextAplicacion({children}) {
     const [menuActivo,setMenuActivo] = useState(0);
     const [titulo,setTitulo] = useState('');
     const [campeonato,setCampeonato] = useState({});
+    const [listaCampeonatos,setListaCampeonatos] = useState([]);
   return (
     <ContextAplicacions.Provider value={{
         login,setLogin,userLogin,setUserLogin,menuActivo,setMenuActivo,titulo,setTitulo,
-        campeonato,setCampeonato
+        campeonato,setCampeonato,listaCampeonatos,setListaCampeonatos
     }}>
         {children}
     </ContextAplicacions.Provider>

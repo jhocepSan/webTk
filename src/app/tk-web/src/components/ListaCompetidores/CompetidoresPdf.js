@@ -92,7 +92,7 @@ function CompetidoresPdf(props) {
                                     var listaFiltrada = listaCompetidores.filter((dato) => dato.idcategoria == item.idcategoria && dato.idsubcategoria == subcat.idsubcategoria)
                                     if(listaFiltrada.length!==0){
                                     return (
-                                        <div key={idx}>
+                                        <div key={idx} >
                                             <div className='subtituloPdf text-dark'>{`Categoria: ${item.nombre} -> Edad ${item.edadini} - ${item.edadfin} años`}</div>
                                             <div className='subtituloPdf text-dark'>{`Sub Categoria: ${subcat.nombre} -> Peso ${subcat.pesoini} - ${subcat.pesofin} kg`}</div>
                                             <div className='table-responsive'>
@@ -137,7 +137,7 @@ function CompetidoresPdf(props) {
                                     var listaFiltrada = listaCompetidores.filter((dato) => dato.idcategoria == cate.idcategoria && dato.idgrado == item.idgrado)
                                     if(listaFiltrada.length!==0){
                                     return (
-                                        <div key={idx}>
+                                        <div key={idx} className='mb-2'>
                                             <div className='subtituloPdf text-dark'>{`Nombre del grado: ${item.nombre}`} </div>
                                             <div className='subtituloPdf text-dark'>{`Categoria: ${cate.nombre} -> EDAD ${cate.edadini} - ${cate.edadfin} años`}</div>
                                             <div className='table-responsive'>

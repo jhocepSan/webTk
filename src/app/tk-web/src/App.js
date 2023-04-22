@@ -14,6 +14,7 @@ import PrincipalListaCompetidor from "./components/ListaCompetidores/PrincipalLi
 import PrincipalPuntuacion from "./components/PantallaPuntuacion/PrincipalPuntuacion";
 import PrincipalListaSinPelea from "./components/ListaCompetidores/PrincipalListaSinPelea";
 import PrincipalListaFestivales from "./components/ListaCompetidores/PrincipalListaFestivales";
+import PrincipalResultados from "./components/ResultadoCamp/PrincipalResultados";
 function App() {
   return (
     <ContextAplicacion>
@@ -30,6 +31,7 @@ function App() {
           <Route path='/gamePunt' element={<PrincipalPuntuacion/>} />
           <Route path="/listCompeSN" element={<PrincipalListaSinPelea/>}/>
           <Route path="/listCompeFest" element={<PrincipalListaFestivales/>}/>
+          <Route path="/resultCamp" element={<PrincipalResultados/>}/>
         </Routes>
         <ToastContainer 
           position="bottom-right"

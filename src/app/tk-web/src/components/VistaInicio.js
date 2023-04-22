@@ -9,7 +9,7 @@ const server = process.env.REACT_APP_SERVER
 
 function VistaInicio() {
   const navigate = useNavigate();
-  const { setLogin, setUserLogin, login, campeonato, setCampeonato,userLogin } = useContext(ContextAplicacions);
+  const { setLogin, setUserLogin, login, campeonato, setCampeonato,userLogin,listaCampeonatos,setListaCampeonatos } = useContext(ContextAplicacions);
   const [campeonatos, setCampeonatos] = useState([]);
   const [idCampeonato, setIdCampeonato] = useState();
   const [showModal, setShowModal] = useState(false);
@@ -64,6 +64,7 @@ function VistaInicio() {
         .then(data => {
           console.log(data.ok);
           if (data.ok) {
+            setListaCampeonatos(data.ok);
             setCampeonatos(data.ok);
             setIdCampeonato(data.ok[0].idcampeonato);
             setCampeonato(data.ok[0]);
