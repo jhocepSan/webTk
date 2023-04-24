@@ -14,6 +14,20 @@ export const getListaClub = async ()=>{
     }
 }
 
+export const getListaClubPuntuado = async ()=>{
+    var conn;
+    try {
+        conn =await pool.getConnection();
+        const [result] = await conn.query('SELECT * FROM club where estado="A" and puntuado="A";')
+        return {"ok":result}
+    } catch (error) {
+        console.log(error);
+        return {"error":error.message}
+    }finally{
+        if(conn){await conn.release();}
+    }
+}
+
 export const addClub = async ({info})=>{
     console.log(info);
     var conn;

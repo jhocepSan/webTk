@@ -20,6 +20,8 @@ function PrincipalListaFestivales() {
     const [listaManual, setListaManual] = useState([]);
     const [selectItem, setSelectItem] = useState({});
     const [actualizar, setActualizar] = useState(false);
+    const [listaClubs, setListaClubs] = useState([]);
+    const [idClub, setIdClub] = useState(0);
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
 
     function getListaFestival() {
@@ -31,7 +33,7 @@ function PrincipalListaFestivales() {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json;charset=utf-8',
                 },
-                body: JSON.stringify({ "idCampeonato": campeonato.idcampeonato, genero, tipo })
+                body: JSON.stringify({ "idCampeonato": campeonato.idcampeonato, genero, tipo,idClub })
             })
                 .then(res => res.json())
                 .then(data => {
@@ -115,6 +117,24 @@ function PrincipalListaFestivales() {
             })
             .catch(error => MsgUtils.msgError(error));
     }
+    function buscarCompetidor() {
+        var input, filter, table, tr, td, i;
+        input = document.getElementById("competidor");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("competidoresLista");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("div")[0];
+            if (td) {
+                var valor = td.getElementsByTagName('div')[1].innerHTML;
+                if (valor.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
     function sacarDeListas(dato) {
         dato.estado = 'I'
         cambiarEstadoC(dato);
@@ -155,7 +175,31 @@ function PrincipalListaFestivales() {
             setUserLogin(sessionActiva);
             navigate("/listCompeFest", { replace: true });
         }
+        
     }, [])
+    useEffect(()=>{
+        if (listaClubs.length == 0) {
+            setCargador(true);
+            fetch(`${server}/club/getListaClubPuntuado`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json;charset=utf-8',
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    setCargador(false);
+                    if (data.ok) {
+                        console.log(data.ok);
+                        setListaClubs(data.ok);
+                    } else {
+                        MsgUtils.msgError(data.error);
+                    }
+                })
+                .catch(error => MsgUtils.msgError(error));
+        }
+    },[])
     useEffect(() => {
         if (listaCompetidores.length !== 0) {
             getListaFestival()
@@ -186,6 +230,17 @@ function PrincipalListaFestivales() {
                             <option value={'F'}>Femenino</option>
                         </select>
                     </div>
+                    <div className='col' style={{ maxWidth: '150px' }}>
+                        <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
+                            value={idClub} onChange={(e) => { setIdClub(e.target.value) }}>
+                            <option value={0}>Club?(Todos)</option>
+                            {listaClubs.map((item, index) => {
+                                return (
+                                    <option value={item.idclub} key={index}>{item.nombre}</option>
+                                )
+                            })}
+                        </select>
+                    </div>
                     <div className='col' style={{ maxWidth: '100px' }}>
                         <button className='btn btn-sm btn-success bg-gradient w-100' onClick={() => getListaFestival()}>
                             <i className="fa-solid fa-rotate-right fa-fade fa-xl"></i> Listar
@@ -194,6 +249,15 @@ function PrincipalListaFestivales() {
                     <div className='col' style={{ minWidth: '150px', maxWidth: '150px' }}>
                         <button className='btn btn-sm btn-success w-100' onClick={() => handleDownloadExcel()}>
                             <i className="fa-solid fa-file-excel"></i> Exportar excel </button>
+                    </div>
+                    <div className='col' style={{ minWidth: '150px', maxWidth: '150px' }}>
+                        <div className="input-group input-group-sm">
+                            <input type="text" className="form-control form-control-sm"
+                                placeholder="Buscar Competidor" id='competidor' onChange={() => buscarCompetidor()} />
+                            <button className='btn btn-sm btn-danger m-0 p-0' onClick={() => { document.getElementById('competidor').value = ''; buscarCompetidor(); }}>
+                                <i className="fa-solid fa-delete-left fa-xl"></i>
+                            </button>
+                        </div>
                     </div>
                     {listaCompetidores.length !== 0 &&
                         <div className='col' style={{ maxWidth: '130px' }}>
@@ -282,7 +346,7 @@ function PrincipalListaFestivales() {
                             </div>
                         </div>
                     </div>
-                    
+
                     <div className={`table-responsive py-2 ${genManual ? 'tableIgual' : ''}`} >
                         <table className="table table-dark table-hover table-bordered">
                             <thead>
