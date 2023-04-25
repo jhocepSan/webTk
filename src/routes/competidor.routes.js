@@ -1,7 +1,7 @@
 import {Router} from 'express';
 import {addEditCompetidor,getCompetidores,generateLLaves,getCompetidorSinPelea,
     getCompetidoresFestival,deleteCompetidorSP,obtenerDatosPuntuados,
-    deleteCompetidor,getCompetidorClasificado,generateLLaveManual,
+    deleteCompetidor,getCompetidorClasificado,generateLLaveManual,getCompetidorClasificadoLista,
     obtenerLlaves,cambiarNumPelea,obtenerLlavesManuales} from '../controllers/competidor.controllers.js'
 const router = Router();
 
@@ -39,6 +39,14 @@ router.post('/deleteCompetidorSP',async(req,res)=>{
 });
 router.post('/getCompetidorClasificado',async(req,res)=>{
     const result = await getCompetidorClasificado(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
+router.post('/getCompetidorClasificadoLista',async(req,res)=>{
+    const result = await getCompetidorClasificadoLista(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

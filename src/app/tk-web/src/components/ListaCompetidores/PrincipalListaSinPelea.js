@@ -27,6 +27,8 @@ function PrincipalListaSinPelea() {
     const [selectItem, setSelectItem] = useState({});
     const [listaManual, setListaManual] = useState([]);
     const [actualizar, setActualizar] = useState(false);
+    const [listaClubs,setListaClubs] = useState([]);
+    const [idClub,setIdClub] = useState(0);
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
 
     function handleDownloadExcel() {
@@ -137,7 +139,7 @@ function PrincipalListaSinPelea() {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json;charset=utf-8',
                 },
-                body: JSON.stringify({ idCampeonato, genero, tipo,idCategoria })
+                body: JSON.stringify({ idCampeonato, genero, tipo,idCategoria,idClub })
             })
                 .then(res => res.json())
                 .then(data => {
@@ -246,6 +248,29 @@ function PrincipalListaSinPelea() {
             navigate("/listCompeSN", { replace: true });
         }
     }, [])
+    useEffect(()=>{
+        if (listaClubs.length == 0) {
+            setCargador(true);
+            fetch(`${server}/club/getListaClubPuntuado`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json;charset=utf-8',
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    setCargador(false);
+                    if (data.ok) {
+                        console.log(data.ok);
+                        setListaClubs(data.ok);
+                    } else {
+                        MsgUtils.msgError(data.error);
+                    }
+                })
+                .catch(error => MsgUtils.msgError(error));
+        }
+    },[])
     return (
         <div>
             <Header />
@@ -275,10 +300,21 @@ function PrincipalListaSinPelea() {
                             <option value={'F'}>Femenino</option>
                         </select>
                     </div>
-                    <div className='col' style={{ minWidth: '140px', maxWidth: '140px' }}>
+                    <div className='col' style={{ maxWidth: '150px' }}>
+                        <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
+                            value={idClub} onChange={(e) => { setIdClub(e.target.value) }}>
+                            <option value={0}>Club?(Todos)</option>
+                            {listaClubs.map((item, index) => {
+                                return (
+                                    <option value={item.idclub} key={index}>{item.nombre}</option>
+                                )
+                            })}
+                        </select>
+                    </div>
+                    <div className='col' style={{ minWidth: '170px', maxWidth: '170px' }}>
                         <select className="form-select form-select-sm btn-secondary" value={idCategoria}
                             onChange={(e) => cambiarCategoria(e.target.value)}>
-                            <option value={0}>Categoria ?</option>
+                            <option value={0}>Categoria(TODOS) ?</option>
                             {categorias.map((item, index) => {
                                 return (
                                     <option value={item.idcategoria} key={index}>{item.nombre}</option>
@@ -368,10 +404,10 @@ function PrincipalListaSinPelea() {
                                                 <i className="fa-regular fa-circle-xmark fa-2xl"></i>
                                             </button>
                                         </td>
-                                        <td className=''>
+                                        <td className='d-none'>
                                             {item.idcategoria}
                                         </td>
-                                        <td className=''>
+                                        <td className='d-none'>
                                             {item.idsubcategoria}
                                         </td>
                                     </tr>

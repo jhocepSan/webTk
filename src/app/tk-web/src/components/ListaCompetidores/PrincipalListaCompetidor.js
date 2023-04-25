@@ -33,6 +33,8 @@ function PrincipalListaCompetidor() {
     const [tituloModal, setTituloModal] = useState('');
     const [noValido, setNoValido] = useState(false);
     const [tipoM, setTipoM] = useState('');
+    const [listaClubs,setListaClubs] = useState([]);
+    const [idClub,setIdClub] = useState(0);
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
 
     function handleDownloadExcel() {
@@ -71,6 +73,24 @@ function PrincipalListaCompetidor() {
             td = tr[i].getElementsByTagName("div")[0];
             if (td) {
                 var valor = td.getElementsByTagName('div')[1].innerHTML;
+                if (valor.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+    function buscarClub(){
+        var input, filter, table, tr, td, i;
+        input = document.getElementById("nombreClub");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("competidoresLista");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("div")[0];
+            if (td) {
+                var valor = td.getElementsByTagName('div')[2].innerHTML;
                 if (valor.toUpperCase().indexOf(filter) > -1) {
                     tr[i].style.display = "";
                 } else {
@@ -168,13 +188,13 @@ function PrincipalListaCompetidor() {
     function buscarCompetidores() {
         if (genero !== '' && tipo !== '') {
             setCargador(true);
-            fetch(`${server}/competidor/getCompetidorClasificado`, {
+            fetch(`${server}/competidor/getCompetidorClasificadoLista`, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json;charset=utf-8',
                 },
-                body: JSON.stringify({ idCampeonato, genero, tipo })
+                body: JSON.stringify({ idCampeonato, genero, tipo,idClub })
             })
                 .then(res => res.json())
                 .then(data => {
@@ -254,6 +274,29 @@ function PrincipalListaCompetidor() {
             navigate("/listCompe", { replace: true });
         }
     }, [])
+    useEffect(()=>{
+        if (listaClubs.length == 0) {
+            setCargador(true);
+            fetch(`${server}/club/getListaClubPuntuado`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json;charset=utf-8',
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    setCargador(false);
+                    if (data.ok) {
+                        console.log(data.ok);
+                        setListaClubs(data.ok);
+                    } else {
+                        MsgUtils.msgError(data.error);
+                    }
+                })
+                .catch(error => MsgUtils.msgError(error));
+        }
+    },[])
     return (
         <div>
             <Header />
@@ -265,7 +308,7 @@ function PrincipalListaCompetidor() {
                             Competidores Camp. {tituloo}
                         </div>
                     </div>
-                    <div className='col-4 col-md-2'>
+                    <div className='col' style={{ maxWidth: '120px' }}>
                         <select className="form-select form-select-sm btn-secondary letraBtn" value={tipo}
                             onChange={(e) => { setTipo(e.target.value); setBuscado(false) }}>
                             <option value=''>Tipo (Ninguno)</option>
@@ -275,7 +318,7 @@ function PrincipalListaCompetidor() {
                             <option value="R">Rompimiento</option>
                         </select>
                     </div>
-                    <div className='col-4 col-md-2'>
+                    <div className='col' style={{ maxWidth: '120px' }}>
                         <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
                             value={genero} onChange={(e) => { setGenero(e.target.value); setBuscado(false) }}>
                             <option value={''}>Genero</option>
@@ -283,8 +326,19 @@ function PrincipalListaCompetidor() {
                             <option value={'F'}>Femenino</option>
                         </select>
                     </div>
-                    <div className='col-4 col-md-1'>
-                        <button className='btn btn-sm btn-success letraBtn' onClick={() => buscarCompetidores()}>
+                    <div className='col' style={{ maxWidth: '150px' }}>
+                        <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
+                            value={idClub} onChange={(e) => { setIdClub(e.target.value) }}>
+                            <option value={0}>Club?(Todos)</option>
+                            {listaClubs.map((item, index) => {
+                                return (
+                                    <option value={item.idclub} key={index}>{item.nombre}</option>
+                                )
+                            })}
+                        </select>
+                    </div>
+                    <div className='col' style={{ maxWidth: '120px' }}>
+                        <button className='btn btn-sm btn-success letraBtn w-100' onClick={() => buscarCompetidores()}>
                             <i className="fa-solid fa-spinner "></i> Buscar
                         </button>
                     </div>
@@ -306,12 +360,12 @@ function PrincipalListaCompetidor() {
             {buscado && <>
                 <div className='container-fluid colorFiltro bg-gradient py-1'>
                     <div className='row g-1'>
-                        <div className='col-3 col-md-1 my-auto'>
+                        <div className='col my-auto' style={{maxWidth:'90px'}}>
                             <div className='text-light letraMontserratr'>
                                 Filtros
                             </div>
                         </div>
-                        <div className='col-4 col-md-2'>
+                        <div className='col' style={{maxWidth:'130px'}}>
                             <select className="form-select form-select-sm btn-dark letraBtn" value={idCategoria}
                                 onChange={(e) => cambiarCategoria(e.target.value)}>
                                 <option value={0}>Categoria ?</option>
@@ -322,7 +376,7 @@ function PrincipalListaCompetidor() {
                                 })}
                             </select>
                         </div>
-                        <div className='col-4 col-md-2'>
+                        <div className='col' style={{maxWidth:'130px'}}>
                             <select className="form-select form-select-sm btn-dark letraBtn" value={idSubCategoria}
                                 onChange={(e) => cambiarSubCategoria(e.target.value)}>
                                 <option value={0}>Sub Categoria ?</option>
@@ -333,7 +387,7 @@ function PrincipalListaCompetidor() {
                                 })}
                             </select>
                         </div>
-                        <div className='col-8 col-md-2'>
+                        <div className='col' style={{maxWidth:'160px'}}>
                             <div className="input-group input-group-sm">
                                 <input type="text" className="form-control form-control-sm"
                                     placeholder="Buscar Competidor" id='competidor' onChange={() => buscarCompetidor()} />
@@ -342,12 +396,21 @@ function PrincipalListaCompetidor() {
                                 </button>
                             </div>
                         </div>
-                        <div className='col-6 col-md-2'>
-                            <button className='btn btn-sm btn-success' onClick={() => handleDownloadExcel()}>
+                        <div className='col d-none' style={{maxWidth:'160px'}}>
+                            <div className="input-group input-group-sm">
+                                <input type="text" className="form-control form-control-sm"
+                                    placeholder="Buscar CLUB" id='nombreClub' onChange={() => buscarClub()} />
+                                <button className='btn btn-sm btn-danger m-0 p-0' onClick={() => { document.getElementById('nombreClub').value = ''; buscarClub(); }}>
+                                    <i className="fa-solid fa-delete-left fa-xl"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div className='col' style={{maxWidth:'140px'}}>
+                            <button className='btn btn-sm btn-success w-100' onClick={() => handleDownloadExcel()}>
                                 <i className="fa-solid fa-file-excel"></i> Exportar excel </button>
                         </div>
-                        <div className='col-6 col-md-2'>
-                            <button className='btn btn-sm btn-success' onClick={() => handleDownload()}>
+                        <div className='col' style={{maxWidth:'140px'}}>
+                            <button className='btn btn-sm btn-success w-100' onClick={() => handleDownload()}>
                                 <i className="fa-solid fa-file-pdf"></i> Generar Pdf</button>
                         </div>
                     </div>
