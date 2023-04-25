@@ -44,6 +44,9 @@ function PrincipalResultados() {
   const [data, setData] = useState(null)
   const [dataP, setDataP] = useState(null)
   const [listaSN, setListaSN] = useState(null);
+  const [listaCF, setListaCF] = useState([]);
+  const [listaPF, setListaPF] = useState([]);
+  const [listaSNP, setListaSNP] = useState([]);
   function obtenerPuntuacion() {
     setData(null);
     setDataP(null);
@@ -61,6 +64,9 @@ function PrincipalResultados() {
       .then(data => {
         console.log(data);
         if (data.ok) {
+          setListaCF(data.ok.FC)
+          setListaPF(data.ok.FP)
+          setListaSNP(data.ok.SNP)
           var datos = data.ok.FC.map(item => item.oro)
           var datosP = data.ok.FP.map(item => item.oro)
           console.log(datos);
@@ -85,11 +91,11 @@ function PrincipalResultados() {
             ]
           })
           setListaSN({
-            labels:data.ok.SNP.map(item=>item.nombre),
-            datasets:[
+            labels: data.ok.SNP.map(item => item.nombre),
+            datasets: [
               {
-                label:'COMPETIDOR SIN PELEA',
-                data: data.ok.SNP.map(item=>item.oro),
+                label: 'COMPETIDOR SIN PELEA',
+                data: data.ok.SNP.map(item => item.oro),
                 backgroundColor: '#E8B400',
               }
             ]
@@ -139,9 +145,53 @@ function PrincipalResultados() {
       <div className='container-fluid py-2'>
         <div className='row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 g-2'>
           {data != null && <div className='col bg-light'>
+            <div className='table-responsive py-2'>
+              <table className='table table-sm table-striped table-hover'>
+                <thead className='text-center bg-primary text-light'>
+                  <tr>
+                    <th className='col-1'>Club</th>
+                    <th className='col-4'>Nombre</th>
+                    <th className='col-1'>Medalla ORO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {listaCF.map((item, index) => {
+                    return (
+                      <tr key={index}>
+                        <th className='col-1'>{item.abreviado}</th>
+                        <th className='col-4'>{item.nombre}</th>
+                        <th className='col-1'>{item.oro}</th>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
             <Bar options={options} data={data} />
           </div>}
           {dataP != null && <div className='col bg-light'>
+            <div className='table-responsive py-2'>
+              <table className='table table-sm table-striped table-hover'>
+                <thead className='text-center bg-primary text-light'>
+                  <tr>
+                    <th className='col-1'>Club</th>
+                    <th className='col-4'>Nombre</th>
+                    <th className='col-1'>Medalla ORO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {listaPF.map((item, index) => {
+                    return (
+                      <tr key={index}>
+                        <th className='col-1'>{item.abreviado}</th>
+                        <th className='col-4'>{item.nombre}</th>
+                        <th className='col-1'>{item.oro}</th>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
             <Bar options={options} data={dataP} />
           </div>}
         </div>
@@ -149,6 +199,28 @@ function PrincipalResultados() {
       <div className='container-fluid py-2'>
         <div className='row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 g-2'>
           {listaSN != null && <div className='col bg-light'>
+            <div className='table-responsive py-2'>
+              <table className='table table-sm table-striped table-hover'>
+                <thead className='text-center bg-primary text-light'>
+                  <tr>
+                    <th className='col-1'>Club</th>
+                    <th className='col-4'>Nombre</th>
+                    <th className='col-1'>Medalla ORO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {listaSNP.map((item, index) => {
+                    return (
+                      <tr key={index}>
+                        <th className='col-1'>{item.abreviado}</th>
+                        <th className='col-4'>{item.nombre}</th>
+                        <th className='col-1'>{item.oro}</th>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
             <Bar options={options} data={listaSN} />
           </div>}
         </div>

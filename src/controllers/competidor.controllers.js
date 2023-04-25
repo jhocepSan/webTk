@@ -408,7 +408,7 @@ export const obtenerDatosPuntuados = async (info) => {
         const [resultP] = await conn.query(sql, [info.idCampeonato,'P'])
         const [resultC] = await conn.query(sql, [info.idCampeonato,'C'])
         const [resultSN] = await conn.query(sql2,[info.idCampeonato])
-        return { "ok": {"FC":resultP,"FP":resultC,'SNP':resultSN}}
+        return { "ok": {"FP":resultP,"FC":resultC,'SNP':resultSN}}
     } catch (error) {
         console.log(error);
         return { "error": error.message }
