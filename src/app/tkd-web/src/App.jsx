@@ -19,20 +19,20 @@ function App() {
     <ContextAplicacion>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<LoginUser/>}/>
-          <Route path="/inicio" element={<VistaInicio/>}/>
-          <Route path="/regCompe" element={<PrincipalRegistroCompetidor/>}/>
-          <Route path="/config" element={<PrincipalConfiguracion/>}/>
-          <Route path="/regClub" element={<PrincipalRegistroClub/>}/>
-          <Route path='/adminUser' element={<AdminUsuario/>}/>
-          <Route path="/gamePad" element={<PrincipalTesting/>}/>
-          <Route path="/listCompe" element={<PrincipalListaCompetidor/>}/>
-          <Route path='/gamePunt' element={<PrincipalPuntuacion/>} />
-          <Route path="/listCompeSN" element={<PrincipalListaSinPelea/>}/>
-          <Route path="/listCompeFest" element={<PrincipalListaFestivales/>}/>
-          <Route path="/resultCamp" element={<PrincipalResultados/>}/>
+          <Route path="/" element={<LoginUser />} />
+          <Route path="/inicio" element={<VistaInicio />} />
+          <Route path="/regCompe" element={<PrincipalRegistroCompetidor />} />
+          <Route path="/config" element={<PrincipalConfiguracion />} />
+          <Route path="/regClub" element={<PrincipalRegistroClub />} />
+          <Route path='/adminUser' element={<AdminUsuario />} />
+          <Route path="/gamePad" element={<PrincipalTesting />} />
+          <Route path="/listCompe" element={<PrincipalListaCompetidor />} />
+          <Route path='/gamePunt' element={<PrincipalPuntuacion />} />
+          <Route path="/listCompeSN" element={<PrincipalListaSinPelea />} />
+          <Route path="/listCompeFest" element={<PrincipalListaFestivales />} />
+          <Route path="/resultCamp" element={<PrincipalResultados />} />
         </Routes>
-        <ToastContainer 
+        <ToastContainer
           position="bottom-right"
           autoClose={5000}
           hideProgressBar={false}

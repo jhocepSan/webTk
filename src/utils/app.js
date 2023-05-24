@@ -20,7 +20,8 @@ app.use(morgan('dev'));
 app.use(express.json());
 console.log(__dirname)
 //file static
-app.use(express.static(join(__dirname,"../app/tk-web/build/")))
+//app.use(express.static(join(__dirname,"../app/tk-web/build/")))
+app.use(express.static(join(__dirname,"../app/tkd-web/dist/")))
 //Routes
 app.use('/login',loginRoutes);
 app.use('/club',clubRoutes);
@@ -30,8 +31,11 @@ app.use('/competidor',competidorRoutes);
 app.use('/mandojuec',mandoRoutes);
 
 app.get("*", (req, res) => {
-    res.sendFile(
+    /*res.sendFile(
       dirname(join(__dirname,"../app/tk-web/build/index.html"))
+    );*/
+    res.sendFile(
+      dirname(join(__dirname,"../app/tkd-web/dist/index.html"))
     );
   });
 

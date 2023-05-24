@@ -33,10 +33,10 @@ export const iniciarSession = async ({correo,password})=>{
     var conn;
     try {
         conn =await pool.getConnection();
-        const [result] = await conn.query('select * from usuario where correo=?',[correo])
+        const [result] = await conn.query('select * from usuario where correo=?',[correo.replace(' ','')])
         console.log(result)
         if(result.length!==0){
-            if(bycript.compareSync(password, result[0].password)){
+            if(bycript.compareSync(password.replace(' ',''), result[0].password)){
                 return {"ok":{
                     id:result[0].idusuario,
                     correo:result[0].correo,

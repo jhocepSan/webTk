@@ -4,13 +4,14 @@ export const addEditCompetidor = async (info) => {
     var conn;
     try {
         conn = await pool.getConnection();
+        var tipoComt = info.listaCTipoC.map((item)=>item.idtipo).join(":");
         if (info.idCompetidor === 0) {
-            const [result] = await conn.query('INSERT INTO competidor (nombres,apellidos,fecha,edad,peso,ci,idclub,idcinturon,idcampeonato,tipo,idgrado,genero,altura) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);',
-                [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado, info.genero, info.altura])
+            const [result] = await conn.query('INSERT INTO competidor (nombres,apellidos,fecha,edad,peso,ci,idclub,idcinturon,idcampeonato,tipo,idgrado,genero,altura,idtipocompetencia) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);',
+                [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado, info.genero, info.altura,tipoComt])
             return { "ok": "GUARDADO" }
         } else {
-            const [result] = await conn.query('UPDATE competidor SET nombres=?,apellidos=?,fecha=?,edad=?,peso=?,ci=?,idclub=?,idcinturon=?,idcampeonato=?,tipo=?,idgrado=?,genero=?,altura=? WHERE idcompetidor=?;',
-                [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado, info.genero, info.altura, info.idCompetidor])
+            const [result] = await conn.query('UPDATE competidor SET nombres=?,apellidos=?,fecha=?,edad=?,peso=?,ci=?,idclub=?,idcinturon=?,idcampeonato=?,tipo=?,idgrado=?,genero=?,altura=?,idtipocompetencia=? WHERE idcompetidor=?;',
+                [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado, info.genero, info.altura, info.idCompetidor,tipoComt])
             return { "ok": "ACTUALIZANDO" }
         }
     } catch (error) {

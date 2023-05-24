@@ -1,6 +1,7 @@
 import {Router} from 'express';
 import {getGrados,getCategoria,addCategoria,deleteCategoria,addCinturon,deleteGrado,deleteCinturon,cambiarEstadoCategoria,
-    addSubCategoria,getSubCategoria,addGrado,getCampeonato,deleteSubcategoria,getConfiCategoria,getConfiCategoriaUnido} from '../controllers/configuracion.controllers.js'
+    addSubCategoria,getSubCategoria,addGrado,getCampeonato,deleteSubcategoria,getConfiCategoria,getConfiCategoriaUnido,
+    getTiposCampeonato,addTiposCampeonato} from '../controllers/configuracion.controllers.js'
 const router = Router();
 
 router.post('/getGrados',async(req,res)=>{
@@ -126,6 +127,22 @@ router.post('/getConfiCategoriaUnido',async(req,res)=>{
 });
 router.post('/cambiarEstadoCategoria',async(req,res)=>{
     const result = await cambiarEstadoCategoria(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
+router.post('/getTiposCampeonato',async(req,res)=>{
+    const result = await getTiposCampeonato(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
+router.post('/addTiposCampeonato',async(req,res)=>{
+    const result = await addTiposCampeonato(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

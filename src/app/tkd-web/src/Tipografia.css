@@ -1,0 +1,90 @@
+@font-face{
+    font-family: montserratr;
+    src:url('./assets/Fonts/Montserrat-Regular.ttf');
+}
+@font-face{
+    font-family: montserratb;
+    src:url('./assets/Fonts/Montserrat-Bold.ttf');
+}
+@font-face{
+    font-family: montserratm;
+    src:url('./assets/Fonts/Montserrat-Medium.ttf');
+}
+@font-face{
+    font-family: montserratsm;
+    src:url('./assets/Fonts/Montserrat-SemiBold.ttf');
+}
+@font-face{
+    font-family: planeto;
+    src:url('./assets/Fonts/Planeto.otf');
+}
+@font-face{
+    font-family: eurocaps;
+    src:url('./assets/Fonts/EUROCAPS.TTF');
+}
+@font-face{
+    font-family: TheCaliforniaDemo;
+    src:url('./assets/Fonts/TheCaliforniaDemo.otf')
+}
+.tituloHeader{
+    font-family: montserratsm;
+    font-size: 16px;
+}
+.userHeader{
+    font-family: montserratr;
+    font-size: 12px;
+}
+.menuTk{
+    font-family: montserratsm;
+    font-size: 13px;
+}
+.tituloMenu{
+    font-family: montserratb;
+    font-size: 16px;
+}
+.tituloInicial{
+    font-family: TheCaliforniaDemo;
+    font-size: 18px;
+}
+.letrasContenido{
+    font-family: montserratr;
+}
+.letraBtn{
+    font-family: montserratr;
+}
+.letraMontserratr{
+    font-family: montserratr;
+}
+.tituloPdf{
+    font-family: montserratsm;
+    font-size: 16px;
+}
+.subtituloPdf{
+    font-family: montserratr;
+    font-size: 14px;
+}
+.nombreJugador{
+    font-family: montserratb;
+    font-size: 23px;
+}
+.numeroPelea{
+    font-family: montserratb;
+    font-size: 65px;
+}
+.ganadorTitulo{
+    font-size: 120px;
+    font-family: montserratb;
+    color: white;
+}
+.ganadorSubtitulo{
+    font-size: 90px;
+    font-family: montserratb;
+    color: white;
+}
+.relojPausa{
+    background-color: rgb(211, 144, 144);
+}
+.letraNumPelea{
+    font-family: montserratb;
+    font-size: 23px;
+}

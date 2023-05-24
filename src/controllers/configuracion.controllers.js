@@ -237,4 +237,38 @@ export const cambiarEstadoCategoria=async(info)=>{
     }finally{
         if(conn){await conn.release();}
     }
+} 
+export const getTiposCampeonato=async(info)=>{
+    var conn;
+    try {
+        console.log(info)
+        conn =await pool.getConnection();
+        const [result] = await conn.query('select * from tiposcampeonato where idcampeonato=? and tipo=? and estado="A";',
+        [info.idcampeonato,info.tipo]);
+        return {"ok":result}
+    } catch (error) {
+        console.log(error);
+        return {"error":error.message}
+    }finally{
+        if(conn){await conn.release();}
+    }
+}
+export const addTiposCampeonato=async(info)=>{
+    var conn;
+    try {
+        console.log(info)
+        conn =await pool.getConnection();
+        for await (var item of info.info){
+            console.log(item)
+            const [result] = await conn.query('INSERT INTO tiposcampeonato (idcampeonato,tipo,descripcion) values (?,?,?);',
+                [item.idcampeonato,item.tipo,item.descripcion]);
+            await conn.commit();
+        }
+        return {"ok":"Guardado !!!"}
+    } catch (error) {
+        console.log(error);
+        return {"error":error.message}
+    }finally{
+        if(conn){await conn.release();}
+    }
 }
