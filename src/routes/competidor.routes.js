@@ -2,7 +2,7 @@ import {Router} from 'express';
 import {addEditCompetidor,getCompetidores,generateLLaves,getCompetidorSinPelea,
     getCompetidoresFestival,deleteCompetidorSP,obtenerDatosPuntuados,
     deleteCompetidor,getCompetidorClasificado,generateLLaveManual,getCompetidorClasificadoLista,
-    obtenerLlaves,cambiarNumPelea,obtenerLlavesManuales} from '../controllers/competidor.controllers.js'
+    obtenerLlaves,cambiarNumPelea,obtenerLlavesManuales,buscarCompetidor} from '../controllers/competidor.controllers.js'
 const router = Router();
 
 router.post('/addEditCompetidor',async(req,res)=>{
@@ -115,6 +115,15 @@ router.post('/cambiarNumPelea',async(req,res)=>{
 router.post('/obtenerDatosPuntuados',async(req,res)=>{
     console.log("resultados")
     const result = await obtenerDatosPuntuados(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
+
+router.post('/buscarCompetidor',async(req,res)=>{
+    const result = await buscarCompetidor(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

@@ -23,8 +23,7 @@ router.post('/createUser',async(req,res)=>{
 });
 
 router.post('/crearCampeonato',async(req,res)=>{
-    const {nombre,descripcion} = req.body;
-    const result = await crearCampeonato({nombre,descripcion})
+    const result = await crearCampeonato(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

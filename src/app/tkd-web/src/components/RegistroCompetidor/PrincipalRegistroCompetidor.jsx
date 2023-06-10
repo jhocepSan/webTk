@@ -8,6 +8,7 @@ import Competidor from './Competidor';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import { useNavigate } from 'react-router-dom';
 import {server} from '../utils/MsgUtils';
+import BuscarCompetidor from './BuscarCompetidor';
 
 function PrincipalRegistroCompetidor() {
   const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo,userLogin } = useContext(ContextAplicacions);
@@ -23,7 +24,9 @@ function PrincipalRegistroCompetidor() {
   const [listaCompetidores, setListaCompetidores] = useState([]);
   const [selectItem, setSelectItem] = useState({});
   const [cargador, setCargador] = useState(false);
+  const [tipoModal,setTipoModal] = useState('');
   const editarUsuario = (dato) => {
+    setTipoModal('N');
     setSelectItem(dato);
     setShowModal(true);
   }
@@ -185,10 +188,17 @@ function PrincipalRegistroCompetidor() {
             </div>
           </div>
           <div className='col text-start' style={{maxWidth:'120px',minWidth:'120px'}}>
-            <button className='btn btn-sm btn-success bg-gradient '
+            <button className='btn btn-sm btn-success bg-gradient w-100'
               disabled={(genero !== '' && tipo !== '') ? false : true}
-              onClick={() => setShowModal(true)}>
-              Agregar <i className="fa-solid fa-user-plus fa-xl"></i>
+              onClick={() => {setTipoModal('N');setShowModal(true);}}>
+              Nuevo <i className="fa-solid fa-user-plus fa-xl"></i>
+            </button>
+          </div>
+          <div className='col text-start' style={{maxWidth:'120px',minWidth:'120px'}}>
+            <button className='btn btn-sm btn-success bg-gradient w-100'
+              disabled={(genero !== '' && tipo !== '') ? false : true}
+              onClick={() =>{setTipoModal('S');setShowModal(true)}}>
+              Buscar <i className="fa-solid fa-magnifying-glass"></i>
             </button>
           </div>
         </div>
@@ -253,8 +263,11 @@ function PrincipalRegistroCompetidor() {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {tipoModal==='N'&&
           <AddEditCompetidor listaClubs={listaClubs} selectItem={selectItem} club={club}
-            tipo={tipo} actualizarDatos={actualizarDatos} generoee={genero} />
+            tipo={tipo} actualizarDatos={actualizarDatos} generoee={genero} />}
+          {tipoModal==='S'&&
+          <BuscarCompetidor tipo={tipo} club={club} setCargador={setCargador} actualizarDatos={actualizarDatos}/>}
         </Modal.Body>
       </Modal>
     </>

@@ -5,48 +5,60 @@ import Header from './Header';
 import Modal from 'react-bootstrap/Modal';
 import MsgUtils from './utils/MsgUtils';
 import UtilsCargador from './utils/UtilsCargador';
-import {server} from './utils/MsgUtils';
+import { server } from './utils/MsgUtils';
 
 function VistaInicio() {
   const navigate = useNavigate();
-  const { setLogin, setUserLogin, login, campeonato, setCampeonato,userLogin,listaCampeonatos,setListaCampeonatos } = useContext(ContextAplicacions);
+  const { setLogin, setUserLogin, login, campeonato, setCampeonato, userLogin, listaCampeonatos, setListaCampeonatos } = useContext(ContextAplicacions);
   const [campeonatos, setCampeonatos] = useState([]);
   const [idCampeonato, setIdCampeonato] = useState();
   const [showModal, setShowModal] = useState(false);
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [actualizar,setActualizar] = useState(false);
-  const [cargador,setCargador] = useState(false);
+  const [actualizar, setActualizar] = useState(false);
+  const [cargador, setCargador] = useState(false);
+  const [importCat, setImportCat] = useState(false);
+  const [importGrad, setImportGrad] = useState(false);
+  const [importId, setImportId] = useState(0);
   const cambiarCampeonato = (dato) => {
     var info = campeonatos.filter((item) => item.idcampeonato == dato);
-    setCampeonatos(dato);
+    setIdCampeonato(dato);
     setCampeonato(info[0]);
     localStorage.setItem("campeonato", JSON.stringify(info[0]));
+  }
+  function crearCampeonato() {
+    fetch(`${server}/login/crearCampeonato`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify({ nombre, descripcion,importCat,importGrad,importId })
+    })
+      .then(res => res.json())
+      .then(data => {
+        setCargador(false);
+        if (data.ok) {
+          setNombre('');
+          setDescripcion('');
+          setActualizar(!actualizar);
+          setShowModal(false);
+        } else {
+          MsgUtils.msgError(data.error);
+        }
+      })
+      .catch(error => MsgUtils.msgError(error));
   }
   function guardarCampeonato() {
     if (nombre !== '') {
       setCargador(true);
-      fetch(`${server}/login/crearCampeonato`, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json;charset=utf-8',
-        },
-        body: JSON.stringify({ nombre, descripcion })
-      })
-        .then(res => res.json())
-        .then(data => { 
-          setCargador(false);
-          if (data.ok) {
-            setNombre('');
-            setDescripcion('');
-            setActualizar(!actualizar); 
-            setShowModal(false);
-          } else {
-            MsgUtils.msgError(data.error);
-          }
-        })
-        .catch(error => MsgUtils.msgError(error));
+      if ((importCat || importGrad) && importId !== 0) {
+        crearCampeonato()
+      } else if(!importCat && !importGrad){
+        crearCampeonato()
+      }else{
+        MsgUtils.msgError("Si quiere importar alguna configuracion, elija el campeonato de la cual se copiara...")
+      }
     } else {
       MsgUtils.msgError("Colocar nombre del campeonato por favor .");
     }
@@ -75,7 +87,7 @@ function VistaInicio() {
         })
         .catch(error => MsgUtils.msgError(error));
     }
-  }, [login,actualizar])
+  }, [login, actualizar])
   useEffect(() => {
     var sessionActiva = JSON.parse(localStorage.getItem('login'))
     if (sessionActiva !== null) {
@@ -113,7 +125,7 @@ function VistaInicio() {
                         </select>
                       </div>
                       <div className='col col-sm-12 col-md-6'>
-                        {userLogin.tipo==='A'&&<button className='btn btn-sm btn-success bg-gradient w-100' onClick={() => setShowModal(true)}>
+                        {userLogin.tipo === 'A' && <button className='btn btn-sm btn-success bg-gradient w-100' onClick={() => setShowModal(true)}>
                           <i className="fa-solid fa-circle-plus"></i> Nuevo
                         </button>}
                       </div>
@@ -158,6 +170,32 @@ function VistaInicio() {
               <label className="form-label text-light fw-bold"><i className="fa-solid fa-file-signature fa-fade"></i> Descripción</label>
               <textarea type="text" className="form-control" placeholder='Escriba el nombre unico del campeonato' value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
             </div>
+            {campeonatos.length != 0 &&
+              <div className='mb-3'>
+                <label className="form-label text-light fw-bold"><i className="fa-solid fa-gear fa-fade"></i> Importar Configuración ?</label>
+                <div className="form-check">
+                  <input className="form-check-input" type="checkbox" value={importCat} onClick={() => setImportCat(!importCat)} />
+                  <label className="form-check-label text-light" >
+                    Categorias
+                  </label>
+                </div>
+                <div className="form-check">
+                  <input className="form-check-input" type="checkbox" value={importGrad} onClick={() => setImportGrad(!importGrad)} />
+                  <label className="form-check-label text-light" >
+                    Grados
+                  </label>
+                </div>
+                <label className="form-label text-light fw-bold">Del Campeonato :</label>
+                <select className="form-select form-select-sm btn-secondary" value={importId} onChange={(e) => setImportId(e.target.value)}>
+                  <option value={0}>NINGUNO</option>
+                  {campeonatos.map((item, index) => {
+                    return (
+                      <option value={item.idcampeonato} key={index}>{item.nombre}</option>
+                    )
+                  })}
+                </select>
+              </div>
+            }
             <button className='btn btn-sm w-100 bg-gradient bg-success mb-3 text-light' onClick={() => guardarCampeonato()}>
               <i className="fa-solid fa-floppy-disk"></i> Guardar
             </button>

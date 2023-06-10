@@ -13,7 +13,7 @@ import {server} from '../utils/MsgUtils';
 
 function PrincipalConfiguracion() {
   const navigate = useNavigate();
-  const { setLogin, setUserLogin, campeonato, setCampeonato } = useContext(ContextAplicacions);
+  const { setLogin, setUserLogin, campeonato, setCampeonato,listaCampeonatos } = useContext(ContextAplicacions);
   const [ventana, setVentana] = useState(0);
   const [categorias, setCategorias] = useState([]);
   const [cargador, setCargador] = useState(false);
@@ -107,6 +107,7 @@ function PrincipalConfiguracion() {
   useEffect(() => {
     var sessionActiva = JSON.parse(localStorage.getItem('login'));
     var cmp = JSON.parse(localStorage.getItem('campeonato'));
+    
     if (sessionActiva !== null) {
       setCampeonato(cmp);
       setLogin(true);
