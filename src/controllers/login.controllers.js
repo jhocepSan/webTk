@@ -1,5 +1,23 @@
 import { pool } from '../utils/connection.js'
+import { networkInterfaces } from 'os'
 import bycript from 'bcrypt';
+
+function getIPAddress() {
+    var interfaces = networkInterfaces();
+    var address = []
+    for (var devName in interfaces) {
+        if(devName=='Wi-Fi' || devName=='eth0'){
+        var iface = interfaces[devName];
+        for (var i = 0; i < iface.length; i++) {
+            var alias = iface[i];
+            if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal)
+                address.push({name:devName,ip:alias.address});
+        }
+        }
+    }
+    return address;
+}
+
 
 export const agregarUsuario = async ({ info }) => {
     console.log(info);
@@ -7,22 +25,31 @@ export const agregarUsuario = async ({ info }) => {
     try {
         var newPassword = bycript.hashSync(info.password, 10);
         conn = await pool.getConnection();
-        const [result] = await conn.query('SELECT idusuario from usuario where correo=?', [info.correo])
-        if (result.length === 0) {
-            const [rows] = await conn.query('INSERT INTO usuario (correo,password,nombres,apellidos,idclub,ci) values (?,?,?,?,?,?)', [
-                info.correo, newPassword, info.nombres, info.apellidos, info.idClub, info.ciUser
-            ]);
-            return {
-                "ok": {
-                    id: rows.insertId,
-                    correo: info.correo,
-                    nombres: info.nombres,
-                    apellido: info.apellidos,
-                    idclub: info.idClub
+        if(parseInt(info.idUsuario)==0){
+            const [result] = await conn.query('SELECT idusuario from usuario where correo=?', [info.correo])
+            if (result.length === 0) {
+                const [rows] = await conn.query('INSERT INTO usuario (correo,password,nombres,apellidos,idclub,ci) values (?,?,?,?,?,?)', [
+                    info.correo, newPassword, info.nombres, info.apellidos, info.idClub, info.ciUser
+                ]);
+                await conn.commit()
+                return {
+                    "ok": {
+                        id: rows.insertId,
+                        correo: info.correo,
+                        nombres: info.nombres,
+                        apellido: info.apellidos,
+                        idclub: info.idClub
+                    }
                 }
+            } else {
+                return { "error": "Correo Existente" }
             }
-        } else {
-            return { "error": "Correo Existente" }
+        }else{
+            const [rows] = await conn.query('update usuario set correo=?,nombres=?,apellidos=?,idclub=?,ci=? where idusuario=?', [
+                info.correo, info.nombres, info.apellidos, info.idClub, info.ciUser,info.idUsuario
+            ]);
+            await conn.commit()
+            return {"ok":"Competidor Actualizado"}
         }
     } catch (error) {
         console.log(error);
@@ -33,6 +60,7 @@ export const agregarUsuario = async ({ info }) => {
 }
 export const iniciarSession = async ({ correo, password }) => {
     var conn;
+    var serverIp=getIPAddress();
     try {
         conn = await pool.getConnection();
         const [result] = await conn.query('select * from usuario where correo=?', [correo.replace(' ', '')])
@@ -46,7 +74,8 @@ export const iniciarSession = async ({ correo, password }) => {
                         nombres: result[0].nombres,
                         apellido: result[0].apellidos,
                         idclub: result[0].idclub,
-                        tipo: result[0].estado
+                        tipo: result[0].estado,
+                        serverIp
                     }
                 }
             }

@@ -137,7 +137,28 @@ function VistaInicio() {
           </div>
         </div>
       </div>
-      <div className='container-fluid py-4'>
+      <div className='container-fluid mb-4'>
+        <div className="card bg-warning bg-gradient">
+          <div className="card-header text-dark text-center tituloInicial">
+            <i className="fa-solid fa-server fa-fade"></i> Direccion Ip del Servidor TKD <i className="fa-solid fa-server fa-fade"></i>
+          </div>
+          <div className='card-body text-center'>
+            {userLogin.serverIp.map((item,index)=>{
+              return(
+                <div key={index}>
+                  <div className='letrasContenido text-dark' style={{fontSize:'19px'}}>
+                    Red {item.name} la direccion Registro es = {item.ip}:4000
+                  </div>
+                  <div className='letrasContenido text-dark' style={{fontSize:'19px'}}>
+                    Red {item.name} la direccion APK es = {item.ip}:4001
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+      <div className='container-fluid '>
         <div className="card bg-dark bg-gradient">
           <div className="card-header text-light text-center tituloInicial">
             Bienvenidos Al Sistema TK

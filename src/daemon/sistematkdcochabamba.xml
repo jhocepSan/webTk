@@ -1,0 +1,32 @@
+<service>
+	<id>sistematkdcochabamba.exe</id>
+	<name>Sistema TKD Cochabamba</name>
+	<description>Sistema de registro y generacion de llavesy mandos de la asosiación de TEKWONDO Cochabamab_Bolivia, jjchsan dev.</description>
+	<executable>C:\Program Files\nodejs\node.exe</executable>
+	<argument>--harmony</argument>
+	<argument>--max_old_space_size=4096</argument>
+	<argument>D:\tekondo\TekwondoWeb\node_modules\node-windows\lib\wrapper.js</argument>
+	<argument>--file</argument>
+	<argument>D:\tekondo\TekwondoWeb\src\index.js</argument>
+	<argument>--scriptoptions=</argument>
+	<argument>--log</argument>
+	<argument>Sistema TKD Cochabamba wrapper</argument>
+	<argument>--grow</argument>
+	<argument>0.25</argument>
+	<argument>--wait</argument>
+	<argument>1</argument>
+	<argument>--maxrestarts</argument>
+	<argument>3</argument>
+	<argument>--abortonerror</argument>
+	<argument>n</argument>
+	<argument>--stopparentfirst</argument>
+	<argument>undefined</argument>
+	<logmode>rotate</logmode>
+	<stoptimeout>30sec</stoptimeout>
+	<serviceaccount>
+		<domain>DESKTOP-MPP8P1T</domain>
+		<user>LocalSystem</user>
+		<password></password>
+	</serviceaccount>
+	<workingdirectory>D:\tekondo\TekwondoWeb\src</workingdirectory>
+</service>

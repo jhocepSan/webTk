@@ -6,8 +6,9 @@ import Competidor from '../RegistroCompetidor/Competidor';
 import MsgUtils from '../utils/MsgUtils';
 import UtilsCargador from '../utils/UtilsCargador';
 import Modal from 'react-bootstrap/Modal';
+import { server } from '../utils/MsgUtils';
+import SingUp from '../loginUser/SingUp';
 
-import {server} from '../utils/MsgUtils';
 function AdminUsuario() {
     const navigate = useNavigate();
     const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
@@ -16,6 +17,7 @@ function AdminUsuario() {
     const [selectItem, setSelectItem] = useState({});
     const [actualizar, setActualizar] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [tipoModal,setTipoModal] = useState('');
     function getEstadoUsuario(dato) {
         var descripcion = ''
         if (dato.estado == 'A') {
@@ -27,14 +29,14 @@ function AdminUsuario() {
         }
         return (<div className='letraMontserratr'>{descripcion}</div>)
     }
-    function cambiarEstadoUser(item,estado) {
-        var usuarioSelec=null
-        if(item==null){
-            usuarioSelec=selectItem;
-        }else{
-            usuarioSelec=item;
+    function cambiarEstadoUser(item, estado) {
+        var usuarioSelec = null
+        if (item == null) {
+            usuarioSelec = selectItem;
+        } else {
+            usuarioSelec = item;
         }
-        usuarioSelec.estado=estado;
+        usuarioSelec.estado = estado;
         fetch(`${server}/usuario/cambiarEstadoUsuario`, {
             method: 'POST',
             headers: {
@@ -54,6 +56,24 @@ function AdminUsuario() {
                 }
             })
             .catch(error => MsgUtils.msgError(error));
+    }
+    function buscarCompetidor() {
+        var input, filter, table, tr, td, i;
+        input = document.getElementById("competidor");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("competidoresLista");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("div")[0];
+            if (td) {
+                var valor = td.getElementsByTagName('div')[1].innerHTML;
+                if (valor.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
     }
     function cambiarEstadoAlbitro(dato) {
         if (dato.albitro == 'A') {
@@ -112,6 +132,30 @@ function AdminUsuario() {
     return (
         <div>
             <Header />
+            <div className='container-fluid colorFiltro bg-gradient py-1'>
+                <div className='row g-2'>
+                    <div className='col' style={{ minWidth: '160px', maxWidth: '160px' }}>
+                        <div className='text-light letraMontserratr'>
+                            Buscar por nombre
+                        </div>
+                    </div>
+                    <div className='col' style={{ minWidth: '170px', maxWidth: '170px' }}>
+                        <div className="input-group input-group-sm">
+                            <input type="text" className="form-control form-control-sm"
+                                placeholder="Buscar Competidor" id='competidor' onChange={() => buscarCompetidor()} />
+                            <button className='btn btn-sm btn-danger m-0 p-0' onClick={() => { document.getElementById('competidor').value = ''; buscarCompetidor(); }}>
+                                <i className="fa-solid fa-delete-left fa-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div className='col' style={{ minWidth: '130px', maxWidth: '130px' }}>
+                        <button className='btn btn-sm btn-success bg-gradient w-100'
+                        onClick={()=>{setSelectItem(null);setTipoModal('N');setShowModal(true)}}>
+                            <i className="fa-solid fa-user-plus"></i> Nuevo                             
+                        </button>
+                    </div>
+                </div>
+            </div>
             {cargador == false &&
                 <div className='table-responsive py-2'>
                     <table className="table table-dark table-hover table-bordered table-striped" id='competidoresLista' >
@@ -129,12 +173,12 @@ function AdminUsuario() {
                                 return (
                                     <tr key={index} >
                                         <td scope="row" className='col-1 col-md-4'>
-                                            <Competidor user={item} /></td>
+                                            <Competidor user={item} tipo={'U'}/></td>
                                         <td className='col-3 col-md-2 '>
                                             <div className='container-fluid p-0 m-0 text-center' style={{ fontSize: '16px' }}>
                                                 {getEstadoUsuario(item)}
                                                 <button className='btn btn-sm letraBtn bg-gradient btn-warning w-100'
-                                                    onClick={() => { setSelectItem(item); setShowModal(true); }}>
+                                                    onClick={() => {setTipoModal('E'); setSelectItem(item); setShowModal(true); }}>
                                                     <i className="fa-solid fa-user-gear"></i> Cambiar Estado
                                                 </button>
                                             </div>
@@ -158,10 +202,10 @@ function AdminUsuario() {
                                         </td>
                                         <td className='my-auto text-center'>
                                             <div className="btn-group" role="group" aria-label="Basic example">
-                                                <button className='btn text-warning' onClick={() => console.log(item)}>
+                                                <button className='btn text-warning' onClick={() =>{setSelectItem(item);setTipoModal('M');setShowModal(true);}}>
                                                     <i className="fa-solid fa-user-pen fa-xl"></i>
                                                 </button>
-                                                <button className='btn text-danger' onClick={() => {cambiarEstadoUser(item,'E');}}>
+                                                <button className='btn text-danger' onClick={() => { cambiarEstadoUser(item, 'E'); }}>
                                                     <i className="fa-solid fa-trash-can fa-xl"></i>
                                                 </button>
                                             </div>
@@ -178,38 +222,46 @@ function AdminUsuario() {
                 contentClassName='bg-dark bg-gradient'>
                 <Modal.Header closeButton closeVariant='white' bsPrefix='modal-header m-0 p-0 px-2 '>
                     <Modal.Title >
-                        <div className='text-light letraMontserratr mx-auto'>
+                        {tipoModal=='E'&&<div className='text-light letraMontserratr mx-auto'>
                             Cambiar tipo de Usuario
-                        </div>
+                        </div>}
+                        {tipoModal=='N'&&<div className='text-light letraMontserratr mx-auto'>
+                            Crear Nuevo Usuario
+                        </div>}
+                        {tipoModal=='M'&&<div className='text-light letraMontserratr mx-auto'>
+                            Editar Usuario
+                        </div>}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsPrefix='modal-header m-0 p-0'>
-                    <div className='container-fluid py-2'>
-                        {selectItem&&
-                        <div className='text-light letraMontserratr text-center'>
-                            {selectItem.nombres+' '+selectItem.apellidos}
-                        </div>}
+                    {tipoModal=='E'&&<div className='container-fluid py-2'>
+                        {selectItem &&
+                            <div className='text-light letraMontserratr text-center'>
+                                {selectItem.nombres + ' ' + selectItem.apellidos}
+                            </div>}
                         <ul className="list-group list-group-sm">
                             <li className="list-group-item m-0 p-0">
                                 <button className={`btn btn-sm w-100 letraBtn bg-gradient ${selectItem.estado == 'A' ? 'btn-success' : ''}`}
-                                    onClick={() => cambiarEstadoUser(null,'A')}>
+                                    onClick={() => cambiarEstadoUser(null, 'A')}>
                                     Activo
                                 </button>
                             </li>
                             <li className="list-group-item m-0 p-0">
                                 <button className={`btn btn-sm w-100 letraBtn ${selectItem.estado == 'P' ? 'btn-success' : ''}`}
-                                    onClick={() => cambiarEstadoUser(null,'P')}>
+                                    onClick={() => cambiarEstadoUser(null, 'P')}>
                                     Inactivo
                                 </button>
                             </li>
                             <li className="list-group-item m-0 p-0">
                                 <button className={`btn btn-sm w-100 letraBtn ${selectItem.estado == 'I' ? 'btn-success' : ''}`}
-                                    onClick={() => cambiarEstadoUser(null,'I')}>
+                                    onClick={() => cambiarEstadoUser(null, 'I')}>
                                     Invitado
                                 </button>
                             </li>
                         </ul>
-                    </div>
+                    </div>}
+                    {tipoModal!='E'&&<SingUp setCargador={setCargador} tipoModal={tipoModal} setActualizar={setActualizar} 
+                        actualizar={actualizar} setShowModal={setShowModal} selectItem={selectItem} setSelectItem={setSelectItem}/>}
                 </Modal.Body>
             </Modal>
         </div>

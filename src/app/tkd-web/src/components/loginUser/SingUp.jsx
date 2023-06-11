@@ -6,7 +6,7 @@ import { ContextAplicacions } from '../Context/ContextAplicacion';
 import {server} from '../utils/MsgUtils';
 
 function SingUp(props) {
-    const { setVentana,setCargador } = props;
+    const { setVentana,setCargador,tipoModal,setActualizar,actualizar,setShowModal,selectItem,setSelectItem } = props;
     const navigate = useNavigate();
     const { setLogin, setUserLogin } = useContext(ContextAplicacions);
     const [nombres, setNombres] = useState('');
@@ -18,16 +18,23 @@ function SingUp(props) {
     const [error, setError] = useState({});
     const [idClub,setIdClub] = useState(0);
     const [listaClub, setListaCLub] = useState([]);
+    const [idUsuario,setIdUsuario] = useState(0);
     function validarInfomacion() {
-        if (nombres === '' || apellidos === '' || ciUser === '' || correo === '' || password === '' || passwordR === ''||idClub===0) {
+        console.log(tipoModal)
+        var validaModal = tipoModal=='M' ? false : (password === '' || passwordR === '');
+        if (nombres === '' || apellidos === '' || ciUser === '' || correo === '' || validaModal ||idClub===0) {
             setError({ "error": "Campo Vacio" })
             return false;
         } else {
-            if (password === passwordR) {
+            if(tipoModal==null){
+                if (password === passwordR) {
+                    return true;
+                } else {
+                    setError({ "passwordE": "No Coinciden las Contraseñas" })
+                    return false;
+                }
+            }else{
                 return true;
-            } else {
-                setError({ "passwordE": "No Coinciden las Contraseñas" })
-                return false;
             }
         }
     }
@@ -35,6 +42,7 @@ function SingUp(props) {
         if (validarInfomacion()) {
             setCargador(true);
             var info = {
+                idUsuario,
                 nombres,
                 apellidos,
                 ciUser,
@@ -56,11 +64,17 @@ function SingUp(props) {
                 .then(data => {
                     setCargador(false);
                     if (data.ok) {
-                        localStorage.setItem("login", JSON.stringify(data.ok));
-                        setLogin(true);
-                        setUserLogin(data.ok);
                         MsgUtils.msgCorrecto('!registrado!!');
-                        navigate("/inicio", { replace: true });
+                        if(tipoModal==null){
+                            localStorage.setItem("login", JSON.stringify(data.ok));
+                            setLogin(true);
+                            setUserLogin(data.ok);
+                            navigate("/inicio", { replace: true });
+                        }else{
+                            setSelectItem({});
+                            setShowModal(false);
+                            setActualizar(!actualizar);
+                        }
                     } else {
                         MsgUtils.msgError(data.error);
                     }
@@ -71,6 +85,15 @@ function SingUp(props) {
         }
     }
     useEffect(() => {
+        console.log(selectItem);
+        if(selectItem){
+            setIdUsuario(selectItem.idusuario);
+            setNombres(selectItem.nombres);
+            setApellidos(selectItem.apellidos);
+            setCorreo(selectItem.correo);
+            setCiUser(selectItem.ci);
+            setIdClub(selectItem.idclub);
+        }
         fetch(`${server}/club/getListaClub`, {
             method: 'GET',
             headers: {
@@ -87,11 +110,12 @@ function SingUp(props) {
                 }
             })
             .catch(error => MsgUtils.msgError(error));
+        
     }, [])
     return (
         <div className='container-fluid py-2'>
-            <div className="card col-sm-12 col-md-4 mx-auto bg-dark bg-gradient" >
-                <div className='card-header m-0 p-0'>
+            <div className={`${tipoModal!=null ? '' :'col-sm-12 col-md-4'} card mx-auto bg-dark bg-gradient `}>
+                {tipoModal==null&&<div className='card-header m-0 p-0'>
                     <div className='row row-cols-2 g-0'>
                         <div className='col col-4 text-center'>
                             <img src={ImgLogin} className="card-img-top fa-bounce" style={{ width: "60px" }} />
@@ -105,7 +129,7 @@ function SingUp(props) {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>}
                 <div className="card-body">
                     <div className="mb-3">
                         <label className="form-label text-light fw-bold"><i className="fa-solid fa-user fa-fade"></i> Nombres</label>
@@ -150,7 +174,7 @@ function SingUp(props) {
                             {error.error}
                         </div>}
                     </div>
-                    <div className="mb-3">
+                    {tipoModal!='M'&&<div className="mb-3">
                         <label className="form-label text-light fw-bold"><i className="fa-solid fa-key fa-fade"></i> Contraseña</label>
                         <input type="password" className="form-control" placeholder='Tu Contraseña' value={password} onChange={(e) => { setPassword(e.target.value); setError({}) }} />
                         {error.error && password === '' && <div className="alert alert-danger m-0 p-0" role="alert">
@@ -159,8 +183,8 @@ function SingUp(props) {
                         {error.passwordE && <div className="alert alert-danger m-0 p-0" role="alert">
                             {error.passwordE}
                         </div>}
-                    </div>
-                    <div className="mb-3">
+                    </div>}
+                    {tipoModal!='M'&&<div className="mb-3">
                         <label className="form-label text-light fw-bold"><i className="fa-solid fa-key fa-fade"></i> Repita Contraseña</label>
                         <input type="password" className="form-control" placeholder='Tu Contraseña' value={passwordR} onChange={(e) => { setPasswordR(e.target.value); setError({}) }} />
                         {error.error && passwordR === '' && <div className="alert alert-danger m-0 p-0" role="alert">
@@ -169,19 +193,19 @@ function SingUp(props) {
                         {error.passwordE && <div className="alert alert-danger m-0 p-0" role="alert">
                             {error.passwordE}
                         </div>}
-                    </div>
+                    </div>}
                     <div className='container-fluid text-center'>
-                        <div className='row row-cols-2 g-0'>
+                        <div className='row g-2'>
                             <div className='col'>
-                                <button className='btn btn-sm btn-success bg-gradient' onClick={guardarInformacion}>
-                                    <i className="fa-solid fa-address-card fa-xl"></i> CREAR
+                                <button className='btn btn-sm btn-success bg-gradient w-100' onClick={guardarInformacion}>
+                                    <i className="fa-solid fa-address-card fa-xl"></i> {selectItem?'Actualizar':'CREAR'}
                                 </button>
                             </div>
-                            <div className='col'>
-                                <button className='btn btn-sm btn-danger bg-gradient' onClick={() => setVentana(0)}>
+                            {tipoModal==null&&<div className='col'>
+                                <button className='btn btn-sm btn-danger bg-gradient w-100' onClick={() => setVentana(0)}>
                                     <i className="fa-solid fa-circle-xmark fa-xl"></i> SALIR
                                 </button>
-                            </div>
+                            </div>}
                         </div>
                     </div>
                 </div>

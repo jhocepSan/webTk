@@ -1,41 +1,42 @@
-import {Router} from 'express';
-import {agregarUsuario,iniciarSession,crearCampeonato,recuperarCuenta} from '../controllers/login.controllers.js'
+import { Router } from 'express';
+import { agregarUsuario, iniciarSession, crearCampeonato, recuperarCuenta } from '../controllers/login.controllers.js'
 const router = Router();
 
-router.post('/iniciarSession',async (req, res) => {
-    const {correo,password} = req.body;
-    const result = await iniciarSession({correo,password})
-    if(result.ok){
+
+router.post('/iniciarSession', async (req, res) => {
+    const { correo, password } = req.body;
+    const result = await iniciarSession({ correo, password })
+    if (result.ok) {
         res.status(200).json(result);
-    }else{
+    } else {
         res.status(404).json(result);
     }
 });
 
-router.post('/createUser',async(req,res)=>{
-    const {info} = req.body;
-    const result = await agregarUsuario({info})
-    if(result.ok){
+router.post('/createUser', async (req, res) => {
+    const { info } = req.body;
+    const result = await agregarUsuario({ info })
+    if (result.ok) {
         res.status(200).json(result);
-    }else{
+    } else {
         res.status(404).json(result);
     }
 });
 
-router.post('/crearCampeonato',async(req,res)=>{
+router.post('/crearCampeonato', async (req, res) => {
     const result = await crearCampeonato(req.body);
-    if(result.ok){
+    if (result.ok) {
         res.status(200).json(result);
-    }else{
+    } else {
         res.status(404).json(result);
     }
 });
-router.post('/recuperarCuenta',async(req,res)=>{
-    const {email,newPassword,ci} = req.body;
-    const result = await recuperarCuenta({email,newPassword,ci})
-    if(result.ok){
+router.post('/recuperarCuenta', async (req, res) => {
+    const { email, newPassword, ci } = req.body;
+    const result = await recuperarCuenta({ email, newPassword, ci })
+    if (result.ok) {
         res.status(200).json(result);
-    }else{
+    } else {
         res.status(404).json(result);
     }
 });

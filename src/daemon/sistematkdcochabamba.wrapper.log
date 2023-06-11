@@ -1,0 +1,32 @@
+2023-06-10 18:02:47 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 D:\tekondo\TekwondoWeb\node_modules\node-windows\lib\wrapper.js --file D:\tekondo\TekwondoWeb\src\index.js --scriptoptions= --log "Sistema TKD Cochabamba wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2023-06-10 18:02:48 - Started 5924
+2023-06-10 20:20:18 - Stopping sistematkdcochabamba.exe
+2023-06-10 20:20:18 - ProcessKill 5924
+2023-06-10 20:20:18 - Found child process: 6152 Name: conhost.exe
+2023-06-10 20:20:18 - Found child process: 1340 Name: node.exe
+2023-06-10 20:20:18 - Stopping process 6152
+2023-06-10 20:20:18 - Send SIGINT 6152
+2023-06-10 20:20:19 - SIGINT to 6152 failed - Killing as fallback
+2023-06-10 20:20:19 - Stopping process 1340
+2023-06-10 20:20:19 - Send SIGINT 1340
+2023-06-10 20:20:19 - SIGINT to 1340 failed - Killing as fallback
+2023-06-10 20:20:19 - Stopping process 5924
+2023-06-10 20:20:19 - Send SIGINT 5924
+2023-06-10 20:20:19 - SIGINT to 5924 failed - Killing as fallback
+2023-06-10 20:20:19 - Finished sistematkdcochabamba.exe
+2023-06-10 20:20:19 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 D:\tekondo\TekwondoWeb\node_modules\node-windows\lib\wrapper.js --file D:\tekondo\TekwondoWeb\src\index.js --scriptoptions= --log "Sistema TKD Cochabamba wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2023-06-10 20:20:19 - Started 8364
+2023-06-10 20:23:20 - Stopping sistematkdcochabamba.exe
+2023-06-10 20:23:20 - ProcessKill 8364
+2023-06-10 20:23:20 - Found child process: 11660 Name: conhost.exe
+2023-06-10 20:23:21 - Found child process: 15340 Name: node.exe
+2023-06-10 20:23:21 - Stopping process 11660
+2023-06-10 20:23:21 - Send SIGINT 11660
+2023-06-10 20:23:21 - SIGINT to 11660 failed - Killing as fallback
+2023-06-10 20:23:21 - Stopping process 15340
+2023-06-10 20:23:21 - Send SIGINT 15340
+2023-06-10 20:23:21 - SIGINT to 15340 failed - Killing as fallback
+2023-06-10 20:23:21 - Stopping process 8364
+2023-06-10 20:23:21 - Send SIGINT 8364
+2023-06-10 20:23:21 - SIGINT to 8364 failed - Killing as fallback
+2023-06-10 20:23:21 - Finished sistematkdcochabamba.exe
