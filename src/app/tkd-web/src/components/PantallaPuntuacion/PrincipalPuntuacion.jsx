@@ -8,7 +8,7 @@ import RelojPelea from './RelojPelea';
 import RelojPausa from './RelojPausa';
 import MsgUtils from '../utils/MsgUtils';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,Link } from 'react-router-dom';
 export const ContextPuntuacion = createContext();
 import {server} from '../utils/MsgUtils';
 
@@ -212,9 +212,11 @@ function PrincipalPuntuacion() {
             <Header puntuacion={true} />
             <div className='bg-transparent menu-flotante'>
                 <div className="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                    <button className='btn btn-sm botonMenu' data-bs-toggle="tooltip" data-bs-placement="bottom" title="Abrir pantalla extendida">
+                    <Link className='btn btn-sm botonMenu' data-bs-toggle="tooltip" 
+                        data-bs-placement="bottom" title="Abrir pantalla extendida"
+                        to={'/scoreDobleK'} target='blanck'>
                         <i className="fa-brands fa-windows fa-2xl"></i>
-                    </button>
+                    </Link>
                     <button type="button" className="btn mx-1 btn-sm botonMenu"
                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Configuraciones de puntuacion"
                         onClick={() => { setTipoModal('C'); setShowModal(true); }}>

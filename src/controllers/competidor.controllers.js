@@ -4,6 +4,7 @@ export const addEditCompetidor = async (info) => {
     var conn;
     try {
         conn = await pool.getConnection();
+        console.log(info);
         var tipoComt = info.listaCTipoC.map((item)=>item.idtipo).join(":");
         if (info.idCompetidor === 0) {
             const [result] = await conn.query('INSERT INTO competidor (nombres,apellidos,fecha,edad,peso,ci,idclub,idcinturon,idcampeonato,tipo,idgrado,genero,altura,idtipocompetencia) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);',

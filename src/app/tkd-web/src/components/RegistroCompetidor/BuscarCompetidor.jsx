@@ -46,7 +46,7 @@ function BuscarCompetidor(props) {
                     'idCompetidor':0, 'nombres':selectItem.nombres, 'apellidos':selectItem.apellidos, 'ciUser':selectItem.ci, 
                     'idClub':selectItem.idclub, 'cinturon':selectItem.idcinturon,
                     'peso':selectItem.peso, 'altura':selectItem.altura, 'tipos':selectItem.tipo, 'idCampeonato':cpt.idcampeonato,
-                    'edad':selectItem.edad, 'fecha':selectItem.fecha, 'idGrado':selectItem.idgrado, 'genero':selectItem.genero, 'listaCTipoC':[]
+                    'edad':selectItem.edad, 'fecha':new Date(selectItem.fecha).toISOString().substring(0, 10), 'idGrado':selectItem.idgrado, 'genero':selectItem.genero, 'listaCTipoC':[]
                 })
             })
                 .then(res => res.json())

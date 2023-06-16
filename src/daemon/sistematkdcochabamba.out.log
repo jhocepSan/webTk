@@ -291,3 +291,99 @@ Error: You have an error in your SQL syntax; check the manual that corresponds t
   sqlMessage: "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(correo,nombres,apellidos,idclub,ci) values ('jjchsan@gmail.com','JUAN JOSE','SA' at line 1"
 }
 [0mPOST /login/createUser [33m404[0m 136.335 ms - 238[0m
+D:\tekondo\TekwondoWeb\src\utils
+SISTEMA TKD V.1 ....
+Iniciando la Conección de la base de datos ONLINE ...
+Iniciando servidor ....
+funcionando servidos en puerto 4000
+[0mGET / [32m200[0m 8.784 ms - 646[0m
+[0mGET /all.min.css [36m304[0m 5.950 ms - -[0m
+[0mGET /bootstrap.min.css [36m304[0m 3.991 ms - -[0m
+[0mGET /assets/index-da649376.js [32m200[0m 10.291 ms - 1036696[0m
+[0mGET /all.min.js [36m304[0m 1.481 ms - -[0m
+[0mGET /bootstrap.bundle.min.js [36m304[0m 3.779 ms - -[0m
+[0mGET /assets/index-7cc11611.css [32m200[0m 6.508 ms - 13261[0m
+[0mGET /bootstrap.min.css.map [33m404[0m 6.431 ms - 160[0m
+[0mGET /bootstrap.bundle.min.js.map [33m404[0m 4.143 ms - 166[0m
+[0mGET /assets/login-6b777b3b.png [32m200[0m 1.385 ms - 41514[0m
+[0mGET /assets/tkd-0e2f556e.png [32m200[0m 3.752 ms - 1017140[0m
+[0mGET /webfonts/fa-solid-900.woff2 [33m404[0m 4.897 ms - 166[0m
+[0mGET /webfonts/fa-solid-900.ttf [33m404[0m 1.270 ms - 164[0m
+[0mGET /inicio [33m404[0m 1.499 ms - 145[0m
+[0mGET / [36m304[0m 0.875 ms - -[0m
+[0mGET /all.min.css [36m304[0m 1.659 ms - -[0m
+[0mGET /bootstrap.min.css [36m304[0m 1.351 ms - -[0m
+[0mGET /assets/index-da649376.js [36m304[0m 2.475 ms - -[0m
+[0mGET /bootstrap.bundle.min.js [36m304[0m 2.287 ms - -[0m
+[0mGET /assets/index-7cc11611.css [36m304[0m 4.049 ms - -[0m
+[0mGET /all.min.js [36m304[0m 0.744 ms - -[0m
+[0mGET /bootstrap.min.css.map [33m404[0m 1.204 ms - 160[0m
+[0mGET /bootstrap.bundle.min.js.map [33m404[0m 1.247 ms - 166[0m
+[0mGET /assets/tkd-0e2f556e.png [36m304[0m 0.745 ms - -[0m
+[0mGET /assets/login-6b777b3b.png [36m304[0m 0.783 ms - -[0m
+[0mGET /webfonts/fa-solid-900.woff2 [33m404[0m 1.806 ms - 166[0m
+[0mGET /webfonts/fa-solid-900.ttf [33m404[0m 1.308 ms - 164[0m
+[0mGET /tkd.png [36m304[0m 0.465 ms - -[0m
+[
+  {
+    idusuario: 1,
+    correo: 'jjchsan@gmail.com',
+    password: '$2b$10$yqzfU4sR92PFJ0rkCYAEnevl1wKu82rxSlBc4hsg2nU8grklDGYxm',
+    nombres: 'JUAN JOSE',
+    apellidos: 'SANCHEZ CHOQUECALLATA',
+    idclub: 4,
+    idcinturon: 0,
+    foto: null,
+    ci: 7933318,
+    estado: 'A',
+    tipo: 'A',
+    albitro: 'A'
+  }
+]
+[0mPOST /login/iniciarSession [32m200[0m 140.287 ms - 172[0m
+[0mGET /config/getCampeonato [36m304[0m 6.101 ms - -[0m
+[0mGET /usuario/getUsuarios [32m200[0m 4.380 ms - 3945[0m
+[0mGET /webfonts/fa-brands-400.woff2 [33m404[0m 1.920 ms - 167[0m
+[0mGET /webfonts/fa-brands-400.ttf [33m404[0m 1.032 ms - 165[0m
+[0mGET /config/getCampeonato [36m304[0m 10.337 ms - -[0m
+[0mGET /assets/tkd-0e2f556e.png [36m304[0m 0.747 ms - -[0m
+[0mGET /inicio [33m404[0m 6.655 ms - 145[0m
+[0mGET / [36m304[0m 0.856 ms - -[0m
+[0mGET /all.min.css [36m304[0m 0.948 ms - -[0m
+[0mGET /bootstrap.min.css [36m304[0m 0.824 ms - -[0m
+[0mGET /assets/index-da649376.js [36m304[0m 0.658 ms - -[0m
+[0mGET /assets/index-7cc11611.css [36m304[0m 0.592 ms - -[0m
+[0mGET /bootstrap.bundle.min.js [36m304[0m 1.053 ms - -[0m
+[0mGET /all.min.js [36m304[0m 1.236 ms - -[0m
+[0mGET /assets/tkd-0e2f556e.png [36m304[0m 0.930 ms - -[0m
+[0mGET /assets/login-6b777b3b.png [36m304[0m 0.985 ms - -[0m
+[0mGET /webfonts/fa-solid-900.woff2 [33m404[0m 2.684 ms - 166[0m
+[0mGET /config/getCampeonato [36m304[0m 5.388 ms - -[0m
+[0mGET /webfonts/fa-solid-900.ttf [33m404[0m 3.789 ms - 164[0m
+[0mGET /tkd.png [36m304[0m 0.702 ms - -[0m
+[0mGET /usuario/getUsuarios [32m200[0m 3.652 ms - 3942[0m
+{ estado: 'A', idusuario: 1 }
+[0mPOST /usuario/cambiarEstadoAlbitro [32m200[0m 77.209 ms - 155[0m
+[0mGET /usuario/getUsuarios [32m200[0m 2.849 ms - 3942[0m
+[0mGET / [36m304[0m 1.601 ms - -[0m
+[0mGET /all.min.css [36m304[0m 1.314 ms - -[0m
+[0mGET /bootstrap.min.css [36m304[0m 1.132 ms - -[0m
+[0mGET /assets/index-da649376.js [36m304[0m 0.541 ms - -[0m
+[0mGET /assets/index-7cc11611.css [36m304[0m 0.469 ms - -[0m
+[0mGET /bootstrap.bundle.min.js [36m304[0m 0.713 ms - -[0m
+[0mGET /all.min.js [36m304[0m 0.460 ms - -[0m
+[0mGET /assets/tkd-0e2f556e.png [36m304[0m 2.940 ms - -[0m
+[0mGET /assets/login-6b777b3b.png [36m304[0m 1.047 ms - -[0m
+[0mGET /webfonts/fa-solid-900.woff2 [33m404[0m 1.235 ms - 166[0m
+[0mGET /config/getCampeonato [36m304[0m 2.470 ms - -[0m
+[0mGET /webfonts/fa-solid-900.ttf [33m404[0m 1.255 ms - 164[0m
+D:\tekondo\TekwondoWeb\src\utils
+SISTEMA TKD V.1 ....
+Iniciando la Conección de la base de datos ONLINE ...
+Iniciando servidor ....
+funcionando servidos en puerto 4000
+D:\tekondo\TekwondoWeb\src\utils
+SISTEMA TKD V.1 ....
+Iniciando la Conección de la base de datos ONLINE ...
+Iniciando servidor ....
+funcionando servidos en puerto 4000
