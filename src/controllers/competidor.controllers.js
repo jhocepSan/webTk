@@ -5,14 +5,20 @@ export const addEditCompetidor = async (info) => {
     try {
         conn = await pool.getConnection();
         console.log(info);
-        var tipoComt = info.listaCTipoC.map((item)=>item.idtipo).join(":");
-        if (info.idCompetidor === 0) {
+        var tipoComt=null;
+        if(info.listaCTipoC.length!==0){
+            tipoComt = info.listaCTipoC.map((item)=>item.idtipo).join(':');
+        }
+        console.log(tipoComt);
+        if (parseInt(info.idCompetidor) === 0) {
             const [result] = await conn.query('INSERT INTO competidor (nombres,apellidos,fecha,edad,peso,ci,idclub,idcinturon,idcampeonato,tipo,idgrado,genero,altura,idtipocompetencia) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);',
                 [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado, info.genero, info.altura,tipoComt])
+            await conn.commit()
             return { "ok": "GUARDADO" }
         } else {
             const [result] = await conn.query('UPDATE competidor SET nombres=?,apellidos=?,fecha=?,edad=?,peso=?,ci=?,idclub=?,idcinturon=?,idcampeonato=?,tipo=?,idgrado=?,genero=?,altura=?,idtipocompetencia=? WHERE idcompetidor=?;',
-                [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado, info.genero, info.altura, info.idCompetidor,tipoComt])
+                [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado, info.genero, info.altura, tipoComt,info.idCompetidor])
+            await conn.commit()
             return { "ok": "ACTUALIZANDO" }
         }
     } catch (error) {

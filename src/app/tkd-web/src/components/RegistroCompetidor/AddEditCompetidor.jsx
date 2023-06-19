@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import MsgUtils from '../utils/MsgUtils';
 import { server } from '../utils/MsgUtils';
 function AddEditCompetidor(props) {
-    const { listaClubs, tipo, actualizarDatos, selectItem, club, generoee } = props;
+    const { listaClubs, tipo, actualizarDatos, selectItem, club, generoee,listaTiposC } = props;
     const [idCompetidor, setIdCompetidor] = useState(0);
     const [nombres, setNombres] = useState('');
     const [apellidos, setApellidos] = useState('');
@@ -19,7 +19,7 @@ function AddEditCompetidor(props) {
     const [edad, setEdad] = useState(0);
     const [idGrado, setIdGrado] = useState(0);
     const [genero, setGenero] = useState(generoee);
-    const [listaTiposC, setListaTiposC] = useState([]);
+    //const [listaTiposC, setListaTiposC] = useState([]);
     const [itemTipoC, setItemTipo] = useState(0);
     const [listaCTipoC, setListaCTipoC] = useState([]);
     function validarDatos() {
@@ -89,6 +89,15 @@ function AddEditCompetidor(props) {
             setEdad(selectItem.edad);
             setGenero(selectItem.genero);
             setIdGrado(selectItem.idgrado);
+            if (selectItem.idtipocompetencia!=null && selectItem.idtipocompetencia!=''&&selectItem.idtipocompetencia!=undefined){
+                var listaP = selectItem.idtipocompetencia.split(':');
+                console.log(listaP);
+                var lista=[]
+                for(var l of listaP){
+                    lista.push(listaTiposC.filter((i)=>i.idtipo==parseInt(l))[0])
+                }
+                setListaCTipoC(lista);
+            }
         }
     }
     function cambiarFecha(date) {
@@ -97,7 +106,7 @@ function AddEditCompetidor(props) {
         setEdad(fechaHoy.getFullYear() - fechaEle.getFullYear());
         setFecha(date);
     }
-    function getListaTipos(idcamp) {
+    /*function getListaTipos(idcamp) {
         if (tipo == 'R') {
             fetch(`${server}/config/getTiposCampeonato`, {
                 method: 'POST',
@@ -120,12 +129,13 @@ function AddEditCompetidor(props) {
                 })
                 .catch(error => MsgUtils.msgError(error));
         }
-    }
+    }*/
     useEffect(() => {
         var idcampeonato = JSON.parse(localStorage.getItem('campeonato')).idcampeonato;
         setIdCampeonato(idcampeonato);
         verificarSeleccion();
-        getListaTipos(idcampeonato);
+        //getListaTipos(idcampeonato);
+        
         fetch(`${server}/config/getGrados`, {
             method: 'POST',
             headers: {

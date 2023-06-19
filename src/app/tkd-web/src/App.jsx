@@ -15,6 +15,8 @@ import PrincipalListaSinPelea from "./components/ListaCompetidores/PrincipalList
 import PrincipalListaFestivales from "./components/ListaCompetidores/PrincipalListaFestivales";
 import PrincipalResultados from "./components/ResultadoCamp/PrincipalResultados";
 import ScoreCombate from "./components/Puntuacion/scoreCombate";
+import PrincipalPuntPoomse from "./components/PantallaPoomse/PrincipalPuntPoomse";
+import PrincipalPuntRompi from "./components/PantallaRompi/PrincipalPuntRompi";
 function App() {
   return (
     <ContextAplicacion>
@@ -33,6 +35,8 @@ function App() {
           <Route path="/listCompeFest" element={<PrincipalListaFestivales />} />
           <Route path="/resultCamp" element={<PrincipalResultados />} />
           <Route path='/scoreDobleK' element={<ScoreCombate/>}/>
+          <Route path='/gamePoomse' element={<PrincipalPuntPoomse/>}/>
+          <Route path='/gameRompim' element={<PrincipalPuntRompi/>}/>
         </Routes>
         <ToastContainer
           position="bottom-right"

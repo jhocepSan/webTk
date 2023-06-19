@@ -7,11 +7,11 @@ import AddEditCompetidor from './AddEditCompetidor';
 import Competidor from './Competidor';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import { useNavigate } from 'react-router-dom';
-import {server} from '../utils/MsgUtils';
+import { server } from '../utils/MsgUtils';
 import BuscarCompetidor from './BuscarCompetidor';
 
 function PrincipalRegistroCompetidor() {
-  const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo,userLogin } = useContext(ContextAplicacions);
+  const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo, userLogin } = useContext(ContextAplicacions);
   const navigate = useNavigate();
   const [cmp, setCmp] = useState('');
   const [listaClubs, setListaClubs] = useState([]);
@@ -24,7 +24,8 @@ function PrincipalRegistroCompetidor() {
   const [listaCompetidores, setListaCompetidores] = useState([]);
   const [selectItem, setSelectItem] = useState({});
   const [cargador, setCargador] = useState(false);
-  const [tipoModal,setTipoModal] = useState('');
+  const [tipoModal, setTipoModal] = useState('');
+  const [listaTiposCam, setListaTiposCam] = useState([]);
   const editarUsuario = (dato) => {
     setTipoModal('N');
     setSelectItem(dato);
@@ -73,9 +74,9 @@ function PrincipalRegistroCompetidor() {
     table = document.getElementById("competidoresLista");
     tr = table.getElementsByTagName("tr");
     for (i = 0; i < tr.length; i++) {
-      td = tr[i].getElementsByTagName("div")[0];      
+      td = tr[i].getElementsByTagName("div")[0];
       if (td) {
-        var valor=td.getElementsByTagName('div')[1].innerHTML;        
+        var valor = td.getElementsByTagName('div')[1].innerHTML;
         if (valor.toUpperCase().indexOf(filter) > -1) {
           tr[i].style.display = "";
         } else {
@@ -84,8 +85,53 @@ function PrincipalRegistroCompetidor() {
       }
     }
   }
+  function obtenerTiposCampeonato() {
+    fetch(`${server}/config/getTiposCampeonato`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify({
+        'idcampeonato': idCampeonato, tipo
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          setListaTiposCam(data.ok);
+        } else {
+          MsgUtils.msgError(data.error);
+        }
+        setCargador(false);
+      })
+      .catch(error => MsgUtils.msgError(error));
+  }
+  function renderTipoCmp(competidorSelect) {
+    if(competidorSelect.idtipocompetencia!=undefined || competidorSelect.idtipocompetencia!=null){
+      var tiposCmp = competidorSelect.idtipocompetencia.split(':');
+      console.log(tiposCmp);
+      return (
+        <td style={{ minWidth: '200px' }}>
+          {tiposCmp.map((item,index) => {
+            var val = listaTiposCam.filter((v)=>v.idtipo==parseInt(item));
+            if(val.length!==0){
+              return (
+                <div className='container-fluid mb-1' key={index}>
+                  <span className="badge rounded-pill bg-primary position-relative">{val[0].descripcion}
+                  </span>
+                </div>
+              )
+            }
+          })}
+        </td>)
+    }
+  }
   useEffect(() => {
     if (tipo !== '' && genero !== '') {
+      if (tipo == 'R') {
+        obtenerTiposCampeonato()
+      }
       setCargador(true);
       fetch(`${server}/competidor/getCompetidores`, {
         method: 'POST',
@@ -120,7 +166,7 @@ function PrincipalRegistroCompetidor() {
       setLogin(true);
       setUserLogin(user);
       navigate("/regCompe", { replace: true });
-  }
+    }
     fetch(`${server}/club/getListaClub`, {
       method: 'GET',
       headers: {
@@ -150,9 +196,9 @@ function PrincipalRegistroCompetidor() {
               Registro Campeonato <u><b>{cmp}</b></u> del Club:
             </div>
           </div>
-          <div className='col' style={{maxWidth:'140px',minWidth:'140px'}}>
+          <div className='col' style={{ maxWidth: '140px', minWidth: '140px' }}>
             <select className="form-select form-select-sm bg-secondary text-light border-secondary"
-              value={club} onChange={(e) => setClub(e.target.value)} disabled={userLogin.tipo=='A'?false:true}>
+              value={club} onChange={(e) => setClub(e.target.value)} disabled={userLogin.tipo == 'A' ? false : true}>
               {listaClubs.map((item, index) => {
                 return (
                   <option value={item.idclub} key={index}>{item.nombre}</option>
@@ -160,7 +206,7 @@ function PrincipalRegistroCompetidor() {
               })}
             </select>
           </div>
-          <div className='col' style={{maxWidth:'130px',minWidth:'130px'}}>
+          <div className='col' style={{ maxWidth: '130px', minWidth: '130px' }}>
             <select className="form-select form-select-sm btn-secondary" value={tipo}
               onChange={(e) => setTipo(e.target.value)}>
               <option value=''>Tipo (Ninguno)</option>
@@ -170,7 +216,7 @@ function PrincipalRegistroCompetidor() {
               <option value="R">Rompimiento</option>
             </select>
           </div>
-          <div className='col' style={{maxWidth:'120px',minWidth:'120px'}}>
+          <div className='col' style={{ maxWidth: '120px', minWidth: '120px' }}>
             <select className="form-select form-select-sm bg-secondary text-light border-secondary"
               value={genero} onChange={(e) => setGenero(e.target.value)}>
               <option value={''}>Genero</option>
@@ -178,26 +224,26 @@ function PrincipalRegistroCompetidor() {
               <option value={'F'}>Femenino</option>
             </select>
           </div>
-          <div className='col' style={{maxWidth:'160px',minWidth:'160px'}}>
+          <div className='col' style={{ maxWidth: '160px', minWidth: '160px' }}>
             <div className="input-group input-group-sm">
               <input type="text" className="form-control form-control-sm"
                 placeholder="Buscar Competidor" id='competidor' onChange={() => buscarCompetidor()} />
-              <button className='btn btn-sm btn-danger m-0 p-0' onClick={() => {document.getElementById('competidor').value = '';buscarCompetidor();}}>
+              <button className='btn btn-sm btn-danger m-0 p-0' onClick={() => { document.getElementById('competidor').value = ''; buscarCompetidor(); }}>
                 <i className="fa-solid fa-delete-left fa-xl"></i>
               </button>
             </div>
           </div>
-          <div className='col text-start' style={{maxWidth:'120px',minWidth:'120px'}}>
+          <div className='col text-start' style={{ maxWidth: '120px', minWidth: '120px' }}>
             <button className='btn btn-sm btn-success bg-gradient w-100'
               disabled={(genero !== '' && tipo !== '') ? false : true}
-              onClick={() => {setTipoModal('N');setShowModal(true);}}>
+              onClick={() => { setTipoModal('N'); setShowModal(true); }}>
               Nuevo <i className="fa-solid fa-user-plus fa-xl"></i>
             </button>
           </div>
-          <div className='col text-start' style={{maxWidth:'120px',minWidth:'120px'}}>
+          <div className='col text-start' style={{ maxWidth: '120px', minWidth: '120px' }}>
             <button className='btn btn-sm btn-success bg-gradient w-100'
               disabled={(genero !== '' && tipo !== '') ? false : true}
-              onClick={() =>{setTipoModal('S');setShowModal(true)}}>
+              onClick={() => { setTipoModal('S'); setShowModal(true) }}>
               Buscar <i className="fa-solid fa-magnifying-glass"></i>
             </button>
           </div>
@@ -209,15 +255,15 @@ function PrincipalRegistroCompetidor() {
             {listaCompetidores.map((item, index) => {
               return (
                 <tr key={index}>
-                  <td scope="row" style={{minWidth:'260px'}}><Competidor user={item} /></td>
-                  <td style={{minWidth:'200px'}}>
+                  <td scope="row" style={{ minWidth: '260px' }}><Competidor user={item} /></td>
+                  <td style={{ minWidth: '200px' }}>
                     <div className='container-fluid p-0 m-0' style={{ fontSize: '16px' }}>
                       <div className='letraMontserratr' id='nombre'>{'Edad: ' + item.edad + ' años'}</div>
                       <div className='letraMontserratr'>{'Peso: ' + item.peso + ' kg'}</div>
                       <div className='letraMontserratr'>{'Altura: ' + item.altura + ' m'}</div>
                     </div>
                   </td>
-                  <td className='my-auto' style={{minWidth:'120px'}}>
+                  <td className='my-auto' style={{ minWidth: '120px' }}>
                     <div className='container-fluid'>
                       {item.genero === 'M' ? 'MASCULINO' : 'FEMENINO'}
                     </div>
@@ -230,10 +276,8 @@ function PrincipalRegistroCompetidor() {
                       </div>
                     </div>
                   </td>
-                  <td style={{minWidth:'200px'}}>
-                    
-                  </td>
-                  <td className='text-end' style={{minWidth:'100px'}}>
+                  {tipo == 'R' && renderTipoCmp(item)}
+                  <td className='text-end' style={{ minWidth: '100px' }}>
                     <div className="btn-group" role="group" aria-label="Basic example">
                       <button type="button" className="btn btn-sm text-danger m-0 p-0"
                         onClick={() => eliminarUsuario(item)}>
@@ -263,11 +307,11 @@ function PrincipalRegistroCompetidor() {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {tipoModal==='N'&&
-          <AddEditCompetidor listaClubs={listaClubs} selectItem={selectItem} club={club}
-            tipo={tipo} actualizarDatos={actualizarDatos} generoee={genero} />}
-          {tipoModal==='S'&&
-          <BuscarCompetidor tipo={tipo} club={club} setCargador={setCargador} actualizarDatos={actualizarDatos}/>}
+          {tipoModal === 'N' &&
+            <AddEditCompetidor listaClubs={listaClubs} selectItem={selectItem} club={club}
+              tipo={tipo} actualizarDatos={actualizarDatos} generoee={genero} listaTiposC={listaTiposCam} />}
+          {tipoModal === 'S' &&
+            <BuscarCompetidor tipo={tipo} club={club} setCargador={setCargador} actualizarDatos={actualizarDatos} />}
         </Modal.Body>
       </Modal>
     </>
