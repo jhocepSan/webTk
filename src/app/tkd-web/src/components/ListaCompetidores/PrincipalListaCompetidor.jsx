@@ -11,7 +11,9 @@ import 'jspdf-autotable';
 import CompetidoresPdf from './CompetidoresPdf';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import { useNavigate } from 'react-router-dom';
-import {server} from '../utils/MsgUtils';
+import { server } from '../utils/MsgUtils';
+import PrincipalLlaveRom from './PrincipalLlaveRom';
+import PrincipalLlavePoomse from './PrincipalLlavePoomse';
 
 function PrincipalListaCompetidor() {
     const navigate = useNavigate();
@@ -33,8 +35,9 @@ function PrincipalListaCompetidor() {
     const [tituloModal, setTituloModal] = useState('');
     const [noValido, setNoValido] = useState(false);
     const [tipoM, setTipoM] = useState('');
-    const [listaClubs,setListaClubs] = useState([]);
-    const [idClub,setIdClub] = useState(0);
+    const [listaClubs, setListaClubs] = useState([]);
+    const [idClub, setIdClub] = useState(0);
+    const [listaTiposCam, setListaTiposCam] = useState([]);
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
 
     function handleDownloadExcel() {
@@ -81,7 +84,7 @@ function PrincipalListaCompetidor() {
             }
         }
     }
-    function buscarClub(){
+    function buscarClub() {
         var input, filter, table, tr, td, i;
         input = document.getElementById("nombreClub");
         filter = input.value.toUpperCase();
@@ -111,7 +114,6 @@ function PrincipalListaCompetidor() {
             .then(res => res.json())
             .then(data => {
                 if (data.ok) {
-                    console.log(data.ok);
                     setCategorias(data.ok);
                 } else {
                     MsgUtils.msgError(data.error);
@@ -172,7 +174,6 @@ function PrincipalListaCompetidor() {
             .then(res => res.json())
             .then(data => {
                 if (data.ok) {
-                    console.log(data.ok);
                     setListaLlaves(data.ok);
                     if (data.ok.length !== 0) {
                         setHayLlaves(true);
@@ -194,7 +195,7 @@ function PrincipalListaCompetidor() {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json;charset=utf-8',
                 },
-                body: JSON.stringify({ idCampeonato, genero, tipo,idClub })
+                body: JSON.stringify({ idCampeonato, genero, tipo, idClub })
             })
                 .then(res => res.json())
                 .then(data => {
@@ -218,24 +219,64 @@ function PrincipalListaCompetidor() {
         if (tipo !== '' && genero !== '') {
             setCargador(true);
             if (listaCompetidores.length !== 0) {
-                fetch(`${server}/competidor/generateLLaves`, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json;charset=utf-8',
-                    },
-                    body: JSON.stringify({ categorias, idCampeonato, genero, tipo })
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.ok) {
-                            buscarCompetidores();
-                            MsgUtils.msgCorrecto(data.ok);
-                        } else {
-                            MsgUtils.msgError(data.error);
-                        }
+                if (tipo == 'C') {
+                    fetch(`${server}/competidor/generateLLaves`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json;charset=utf-8',
+                        },
+                        body: JSON.stringify({ categorias, idCampeonato, genero, tipo })
                     })
-                    .catch(error => MsgUtils.msgError(error));
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.ok) {
+                                buscarCompetidores();
+                                MsgUtils.msgCorrecto(data.ok);
+                            } else {
+                                MsgUtils.msgError(data.error);
+                            }
+                        })
+                        .catch(error => MsgUtils.msgError(error));
+                }else if(tipo=='R'){
+                    fetch(`${server}/competidor/generarLlaveRompimiento`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json;charset=utf-8',
+                        },
+                        body: JSON.stringify({ categorias, idCampeonato, genero, tipo })
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.ok) {
+                                buscarCompetidores();
+                                MsgUtils.msgCorrecto(data.ok);
+                            } else {
+                                MsgUtils.msgError(data.error);
+                            }
+                        })
+                        .catch(error => MsgUtils.msgError(error));
+                }else if(tipo=='P'){
+                    fetch(`${server}/competidor/generarLlavePoomse`, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json;charset=utf-8',
+                        },
+                        body: JSON.stringify({ categorias, idCampeonato, genero, tipo })
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.ok) {
+                                buscarCompetidores();
+                                MsgUtils.msgCorrecto(data.ok);
+                            } else {
+                                MsgUtils.msgError(data.error);
+                            }
+                        })
+                        .catch(error => MsgUtils.msgError(error));
+                }
             } else {
                 MsgUtils.msgError("No hay competidores registrados")
             }
@@ -256,6 +297,47 @@ function PrincipalListaCompetidor() {
         setTituloModal('Clasificación de Competidores');
         setShowModal(true);
     };
+    function renderTipoCmp(competidorSelect) {
+        if (competidorSelect.idtipocompetencia != undefined || competidorSelect.idtipocompetencia != null) {
+            var tiposCmp = competidorSelect.idtipocompetencia.split(':');
+            return (
+                <td style={{ minWidth: '200px' }}>
+                    {tiposCmp.map((item, index) => {
+                        var val = listaTiposCam.filter((v) => v.idtipo == parseInt(item));
+                        if (val.length !== 0) {
+                            return (
+                                <div className='container-fluid mb-1' key={index}>
+                                    <span className="badge rounded-pill bg-primary position-relative">{val[0].descripcion}
+                                    </span>
+                                </div>
+                            )
+                        }
+                    })}
+                </td>)
+        }
+    }
+    function obtenerTiposCampeonato() {
+        fetch(`${server}/config/getTiposCampeonato`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({
+                'idcampeonato': idCampeonato, tipo
+            })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    setListaTiposCam(data.ok);
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
+                setCargador(false);
+            })
+            .catch(error => MsgUtils.msgError(error));
+    }
     useEffect(() => {
         if (genero != '') {
             getInformacionCategoria({ idcampeonato: idCampeonato, genero })
@@ -274,10 +356,10 @@ function PrincipalListaCompetidor() {
             navigate("/listCompe", { replace: true });
         }
     }, [])
-    useEffect(()=>{
+    useEffect(() => {
         if (listaClubs.length == 0) {
             setCargador(true);
-            fetch(`${server}/club/getListaClubPuntuado`, {
+            fetch(`${server}/club/getListaClub`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
@@ -296,7 +378,7 @@ function PrincipalListaCompetidor() {
                 })
                 .catch(error => MsgUtils.msgError(error));
         }
-    },[])
+    }, [])
     return (
         <div>
             <Header />
@@ -308,9 +390,9 @@ function PrincipalListaCompetidor() {
                             Competidores Camp. {tituloo}
                         </div>
                     </div>
-                    <div className='col' style={{ maxWidth: '120px' }}>
+                    <div className='col' style={{ maxWidth: '120px', minWidth: '120px' }}>
                         <select className="form-select form-select-sm btn-secondary letraBtn" value={tipo}
-                            onChange={(e) => { setTipo(e.target.value); setBuscado(false) }}>
+                            onChange={(e) => { setTipo(e.target.value); setBuscado(false); }}>
                             <option value=''>Tipo (Ninguno)</option>
                             <option value="C">Combate</option>
                             <option value="P">Poomse</option>
@@ -318,15 +400,15 @@ function PrincipalListaCompetidor() {
                             <option value="R">Rompimiento</option>
                         </select>
                     </div>
-                    <div className='col' style={{ maxWidth: '120px' }}>
+                    <div className='col' style={{ maxWidth: '100px', minWidth: '100px' }}>
                         <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
-                            value={genero} onChange={(e) => { setGenero(e.target.value); setBuscado(false) }}>
+                            value={genero} onChange={(e) => { setGenero(e.target.value); setBuscado(false); listaTiposCam.length == 0 ? obtenerTiposCampeonato() : '' }}>
                             <option value={''}>Genero</option>
                             <option value={'M'}>Masculino</option>
                             <option value={'F'}>Femenino</option>
                         </select>
                     </div>
-                    <div className='col' style={{ maxWidth: '150px' }}>
+                    <div className='col' style={{ maxWidth: '130px', minWidth: '130px' }}>
                         <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
                             value={idClub} onChange={(e) => { setIdClub(e.target.value) }}>
                             <option value={0}>Club?(Todos)</option>
@@ -337,35 +419,35 @@ function PrincipalListaCompetidor() {
                             })}
                         </select>
                     </div>
-                    <div className='col' style={{ maxWidth: '120px' }}>
+                    <div className='col' style={{ maxWidth: '100px', minWidth: '100px' }}>
                         <button className='btn btn-sm btn-success letraBtn w-100' onClick={() => buscarCompetidores()}>
                             <i className="fa-solid fa-spinner "></i> Buscar
                         </button>
                     </div>
                     {hayLlaves === false && listaCompetidores.length !== 0 &&
-                        <div className='col-4 col-md-1'>
-                            <button className='btn btn-sm btn-warning letraBtn'
+                        <div className='col' style={{ maxWidth: '100px', minWidth: '100px' }}>
+                            <button className='btn btn-sm btn-warning letraBtn w-100'
                                 disabled={noValido}
                                 onClick={() => GenerarLlaves()}>
                                 <i className="fa-solid fa-network-wired"></i> Crear
                             </button>
                         </div>}
-                    {hayLlaves && <div className='col-4 col-md-1'>
-                        <button className='btn btn-sm btn-primary letraBtn' onClick={() => { setTipoM('L'); setTituloModal('Llaves Generadas'); setShowModal(true) }}>
+                    {hayLlaves && <div className='col' style={{ maxWidth: '110px', minWidth: '110px' }}>
+                        <button className='btn btn-sm btn-primary letraBtn w-100' onClick={() => { setTipoM('L'); setTituloModal('Llaves Generadas'); setShowModal(true) }}>
                             <i className="fa-solid fa-network-wired"></i> Llaves
                         </button>
                     </div>}
                 </div>
             </div>
-            {buscado && <>
+            {buscado && listaCompetidores.length !== 0 && <>
                 <div className='container-fluid colorFiltro bg-gradient py-1'>
                     <div className='row g-1'>
-                        <div className='col my-auto' style={{maxWidth:'90px'}}>
+                        <div className='col my-auto' style={{ maxWidth: '90px', minWidth: '90px' }}>
                             <div className='text-light letraMontserratr'>
                                 Filtros
                             </div>
                         </div>
-                        <div className='col' style={{maxWidth:'130px'}}>
+                        <div className='col' style={{ maxWidth: '130px', minWidth: '130px' }}>
                             <select className="form-select form-select-sm btn-dark letraBtn" value={idCategoria}
                                 onChange={(e) => cambiarCategoria(e.target.value)}>
                                 <option value={0}>Categoria ?</option>
@@ -376,7 +458,7 @@ function PrincipalListaCompetidor() {
                                 })}
                             </select>
                         </div>
-                        <div className='col' style={{maxWidth:'130px'}}>
+                        <div className='col' style={{ maxWidth: '130px', minWidth: '130px' }}>
                             <select className="form-select form-select-sm btn-dark letraBtn" value={idSubCategoria}
                                 onChange={(e) => cambiarSubCategoria(e.target.value)}>
                                 <option value={0}>Sub Categoria ?</option>
@@ -387,7 +469,7 @@ function PrincipalListaCompetidor() {
                                 })}
                             </select>
                         </div>
-                        <div className='col' style={{maxWidth:'160px'}}>
+                        <div className='col' style={{ maxWidth: '160px', minWidth: '160px' }}>
                             <div className="input-group input-group-sm">
                                 <input type="text" className="form-control form-control-sm"
                                     placeholder="Buscar Competidor" id='competidor' onChange={() => buscarCompetidor()} />
@@ -396,7 +478,7 @@ function PrincipalListaCompetidor() {
                                 </button>
                             </div>
                         </div>
-                        <div className='col d-none' style={{maxWidth:'160px'}}>
+                        <div className='col d-none' style={{ maxWidth: '160px', minWidth: '160px' }}>
                             <div className="input-group input-group-sm">
                                 <input type="text" className="form-control form-control-sm"
                                     placeholder="Buscar CLUB" id='nombreClub' onChange={() => buscarClub()} />
@@ -405,17 +487,17 @@ function PrincipalListaCompetidor() {
                                 </button>
                             </div>
                         </div>
-                        <div className='col' style={{maxWidth:'140px'}}>
+                        <div className='col' style={{ maxWidth: '140px', minWidth: '140px' }}>
                             <button className='btn btn-sm btn-success w-100' onClick={() => handleDownloadExcel()}>
                                 <i className="fa-solid fa-file-excel"></i> Exportar excel </button>
                         </div>
-                        <div className='col' style={{maxWidth:'140px'}}>
+                        <div className='col' style={{ maxWidth: '140px', minWidth: '140px' }}>
                             <button className='btn btn-sm btn-success w-100' onClick={() => handleDownload()}>
                                 <i className="fa-solid fa-file-pdf"></i> Generar Pdf</button>
                         </div>
                     </div>
                 </div>
-                <div className='container-fluid text-danger '>
+                <div className='container-fluid text-danger w-100 bg-light text-center fw-bold '>
                     Numero Competidores {listaCompetidores.length}
                 </div>
                 <div className='table-responsive py-2'>
@@ -426,6 +508,7 @@ function PrincipalListaCompetidor() {
                                 <th scope="col">Datos</th>
                                 <th scope="col">Genero</th>
                                 <th scope="col">Datos Campeonato</th>
+                                {tipo == 'R' && <th scope="col">Tipos Competencia</th>}
                             </tr>
                         </thead>
                         <tbody>
@@ -455,6 +538,7 @@ function PrincipalListaCompetidor() {
                                                     <div className='badge bg-danger'>Inconcistencia</div>}
                                             </div>
                                         </td>
+                                        {tipo == 'R' && renderTipoCmp(item)}
                                         <td className='d-none'>
                                             {item.idcategoria}
                                         </td>
@@ -479,8 +563,10 @@ function PrincipalListaCompetidor() {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsPrefix='modal-body'>
-                    {tipoM === 'L' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipoL={'E'} callback={obtenerLLaves}/>}
-                    {tipoM === 'P' && <CompetidoresPdf categorias={categorias} listaCompetidores={listaCompetidores} campeonato={tituloo} tipo={tipo} idcampeonato={idCampeonato}/>}
+                    {tipoM === 'L' && tipo=='C' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipoL={'E'} callback={obtenerLLaves} />}
+                    {tipoM === 'P' && <CompetidoresPdf categorias={categorias} listaCompetidores={listaCompetidores} campeonato={tituloo} tipo={tipo} idcampeonato={idCampeonato} />}
+                    {tipoM === 'L' && tipo==='R' && <PrincipalLlaveRom categorias={categorias} idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipo={tipo} tipoL={'E'}/>}
+                    {tipoM === 'L' && tipo==='P' && <PrincipalLlavePoomse categorias={categorias} idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipo={tipo} tipoL={'E'}/>}
                 </Modal.Body>
             </Modal>
         </div>

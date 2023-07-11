@@ -106,31 +106,8 @@ function AddEditCompetidor(props) {
         setEdad(fechaHoy.getFullYear() - fechaEle.getFullYear());
         setFecha(date);
     }
-    /*function getListaTipos(idcamp) {
-        if (tipo == 'R') {
-            fetch(`${server}/config/getTiposCampeonato`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json;charset=utf-8',
-                },
-                body: JSON.stringify({
-                    'idcampeonato': idcamp, tipo
-                })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.ok) {
-                        console.log(data)
-                        setListaTiposC(data.ok);
-                    } else {
-                        MsgUtils.msgError(data.error);
-                    }
-                })
-                .catch(error => MsgUtils.msgError(error));
-        }
-    }*/
     useEffect(() => {
+        console.log("recuperando información");
         var idcampeonato = JSON.parse(localStorage.getItem('campeonato')).idcampeonato;
         setIdCampeonato(idcampeonato);
         verificarSeleccion();

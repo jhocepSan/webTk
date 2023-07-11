@@ -8,6 +8,7 @@ import Modal from 'react-bootstrap/Modal';
 import Header from '../Header';
 import UtilsCargador from '../utils/UtilsCargador';
 import {server} from '../utils/MsgUtils';
+import MsgDialogo from '../utils/MsgDialogo';
 
 function PrincipalRegistroClub() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ function PrincipalRegistroClub() {
   const [titulo, setTitulo] = useState('');
   const [clubSelect, setClubSelect] = useState({});
   const [cargador,setCargador] = useState(false);
+  const [showMessage,setShowMessage] = useState(false);
   const eliminarClub = (clb) => {
     fetch(`${server}/club/deleteClub`, {
       method: 'POST',
@@ -33,10 +35,11 @@ function PrincipalRegistroClub() {
       .then(data => {
         if (data.ok) {
           console.log(data.ok);
-          setActualizar(!actualizar);
         } else {
           MsgUtils.msgError(data.error);
         }
+        setShowMessage(false);
+        setActualizar(!actualizar);
       })
       .catch(error => MsgUtils.msgError(error));
   }
@@ -151,7 +154,7 @@ function PrincipalRegistroClub() {
                         <i className="fa-solid fa-pen-to-square fa-xl"></i>
                       </button>
                       <button type="button" className="btn btn-transparent text-danger"
-                        onClick={() => eliminarClub(item)}>
+                        onClick={() => {setClubSelect(item);setShowMessage(true)}}>
                         <i className="fa-solid fa-trash-can fa-xl"></i>
                       </button>
                     </div>
@@ -180,6 +183,7 @@ function PrincipalRegistroClub() {
         </Modal.Body>
       </Modal>
       <UtilsCargador show={cargador} />
+      <MsgDialogo show={showMessage} msg='Esta seguro de Eliminar EL CLUB' okFunction={()=>eliminarClub(clubSelect)} notFunction={()=>setShowMessage(false)}/>
     </div>
   )
 }

@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import MsgUtils from '../utils/MsgUtils';
 import {server} from '../utils/MsgUtils';
+import MsgDialogo from '../utils/MsgDialogo';
 function CardCinturon(props) {
     const { info,eliminarGrado } = props;
     const [cinturones, setCinturones] = useState([]);
     const [nombre, setNombre] = useState('');
+    const [selectItem ,setSelectItem] = useState({});
+    const [showMessage,setShowMessage] = useState(false);
+    const [tipoG,setTipoG] = useState('');
     const agregarCinturon = () => {
         if (nombre !== '') {
             var cnt = cinturones.filter((item) => item.nombre === nombre);
@@ -73,7 +77,7 @@ function CardCinturon(props) {
         setCinturones(info.cinturon);
     }, [info])
     return (
-        <div className="card bg-dark bg-gradient" >
+        <div className="card bg-dark bg-gradient" style={{height:'300px'}}>
             <div className='card-header m-0 p-0 text-center text-light fw-bold'>
                 {info.nombre}
             </div>
@@ -95,7 +99,7 @@ function CardCinturon(props) {
                                         <th scope="row" className='col-6 text-start'>{item.nombre}</th>
                                         <td className='col-6 text-end'>
                                             <div className='btn-group btn-group-sm'>
-                                                <button className='btn btn-sm text-danger' onClick={()=>eliminarCinturon(item)}>
+                                                <button className='btn btn-sm text-danger' onClick={()=>{setShowMessage(true);setTipoG('C');setSelectItem(item)}}>
                                                     <i className="fa-solid fa-trash fa-xl"></i>
                                                 </button>
                                             </div>
@@ -108,10 +112,12 @@ function CardCinturon(props) {
                 </div>
             </div>
             <div className='card-footer m-0 p-0 text-center'>
-                <button className='btn btn-sm w-100 btn-danger bg-gradient letraBtn' onClick={() => eliminarGrado(info)}>
+                <button className='btn btn-sm w-100 btn-danger bg-gradient letraBtn' onClick={() =>{setShowMessage(true);setTipoG('G'); setSelectItem(info)}}>
                     <i className="fa-solid fa-trash"></i> Eliminar
                 </button>
             </div>
+            <MsgDialogo show={showMessage} msg='Esta seguro de Eliminar esta Grado' 
+                okFunction={()=>{setShowMessage(false);tipoG=='G'?eliminarGrado(selectItem):eliminarCinturon(selectItem)}} notFunction={()=>setShowMessage(false)}/>
         </div>
     )
 }

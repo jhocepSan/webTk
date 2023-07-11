@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, useContext, createContext } from 'react'
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import { useNavigate } from 'react-router-dom';
 import MsgUtils from '../utils/MsgUtils';
@@ -10,6 +10,7 @@ import GradosConfig from './GradosConfig';
 import Header from '../Header';
 
 import {server} from '../utils/MsgUtils';
+import MsgDialogo from '../utils/MsgDialogo';
 
 function PrincipalConfiguracion() {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ function PrincipalConfiguracion() {
   const [actualizar, setActualizar] = useState(false);
   const [selectCategoria, setSelectCategoria] = useState({});
   const [genero, setGenero] = useState('M');
+  const [showMessage,setShowMessage] = useState(false);
   const abrirSubCategoria = (dato) => {
     setSelectCategoria(dato);
     //setActualizar(!actualizar);
@@ -56,7 +58,7 @@ function PrincipalConfiguracion() {
         } else {
           MsgUtils.msgError(data.error);
         }
-
+        setShowMessage(false);
       })
       .catch(error => MsgUtils.msgError(error));
   }
@@ -112,7 +114,7 @@ function PrincipalConfiguracion() {
       setCampeonato(cmp);
       setLogin(true);
       setUserLogin(sessionActiva);
-      navigate("/config", { replace: true });
+      navigate("/configuracion", { replace: true });
     }
   }, [])
   return (
@@ -176,7 +178,7 @@ function PrincipalConfiguracion() {
                           </td>
                           <td className='text-end'>
                             <div className='btn-group btn-group-sm'>
-                              <button className='btn btn-sm text-danger' onClick={() => eliminarCategoria(item)}>
+                              <button className='btn btn-sm text-danger' onClick={() => {setShowMessage(true);selectCategoria(item)}}>
                                 <i className="fa-solid fa-trash fa-xl"></i>
                               </button>
                               <button className='btn btn-sm text-warning' onClick={() => editarCategoria(item)}>
@@ -218,6 +220,7 @@ function PrincipalConfiguracion() {
             setActualizar={setActualizar} setShowModal={setShowModal} genero={genero} categorias={categorias} />
         </Modal.Body>
       </Modal>
+      <MsgDialogo show={showMessage} msg='Esta seguro de Eliminar esta categoria' okFunction={()=>eliminarCategoria(selectCategoria)} notFunction={()=>setShowMessage(false)}/>
     </div>
   )
 }

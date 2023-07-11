@@ -16,7 +16,7 @@ function MenuHerramientas(props) {
         <ul className="nav nav-pills flex-column mb-sm-auto mb-0 align-items-start align-items-sm-start text-start">
             {userLogin.tipo=='A'&&<li className={`bg-gradient border-none text-start w-100 m-0 p-0 ${menuActivo===1?'menuActivo':''}`}>
                 <a className={`btn btn-sm w-100 text-start ${menuActivo===1?'text-dark':'text-light'} fs-6 menuTk`} 
-                    onClick={()=>cambiarVentana(1,"CONFIGURACIONES","config")}>
+                    onClick={()=>cambiarVentana(1,"CONFIGURACIONES","configuracion")}>
                     <i className="fa-solid fa-gear"></i> Configuración
                 </a>
             </li>}
@@ -71,19 +71,19 @@ function MenuHerramientas(props) {
             {userLogin.tipo=='A'&&<li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===7?'menuActivo':''}`}>
                 <button className={`btn btn-sm w-100 ${menuActivo===7?'text-dark':'text-light'} text-start fs-6 menuTk`} 
                     onClick={()=>cambiarVentana(7,"Sistema de Puntuación","gamePunt")}>
-                    <i className="fa-solid fa-network-wired"></i> Puntuación kyrugui
-                </button>
-            </li>}
-            {userLogin.tipo=='A'&&<li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===10?'menuActivo':''}`}>
-                <button className={`btn btn-sm w-100 ${menuActivo===10?'text-dark':'text-light'} text-start fs-6 menuTk`} 
-                    onClick={()=>cambiarVentana(10,"Sistema de Puntuación","gamePoomse")}>
-                    <i className="fa-solid fa-network-wired"></i> Puntuación Poomse
+                    <i className="fa-solid fa-display"></i> Puntuación kyrugui
                 </button>
             </li>}
             {userLogin.tipo=='A'&&<li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===11?'menuActivo':''}`}>
                 <button className={`btn btn-sm w-100 ${menuActivo===11?'text-dark':'text-light'} text-start fs-6 menuTk`} 
-                    onClick={()=>cambiarVentana(11,"Sistema de Puntuación","gameRompim")}>
-                    <i className="fa-solid fa-network-wired"></i> Puntuación Rompimiento
+                    onClick={()=>cambiarVentana(11,"Sistema de Puntuación","gamePoomse")}>
+                    <i className="fa-solid fa-display"></i> Puntuación Poomse
+                </button>
+            </li>}
+            {userLogin.tipo=='A'&&<li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===12?'menuActivo':''}`}>
+                <button className={`btn btn-sm w-100 ${menuActivo===12?'text-dark':'text-light'} text-start fs-6 menuTk`} 
+                    onClick={()=>cambiarVentana(12,"Sistema de Puntuación","gameRompim")}>
+                    <i className="fa-solid fa-display"></i> Puntuación Rompimiento
                 </button>
             </li>}
         </ul>

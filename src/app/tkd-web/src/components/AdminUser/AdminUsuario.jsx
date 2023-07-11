@@ -8,6 +8,7 @@ import UtilsCargador from '../utils/UtilsCargador';
 import Modal from 'react-bootstrap/Modal';
 import { server } from '../utils/MsgUtils';
 import SingUp from '../loginUser/SingUp';
+import MsgDialogo from '../utils/MsgDialogo';
 
 function AdminUsuario() {
     const navigate = useNavigate();
@@ -18,6 +19,7 @@ function AdminUsuario() {
     const [actualizar, setActualizar] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [tipoModal,setTipoModal] = useState('');
+    const [showMessage,setShowMessage] = useState(false);
     function getEstadoUsuario(dato) {
         var descripcion = ''
         if (dato.estado == 'A') {
@@ -54,6 +56,7 @@ function AdminUsuario() {
                 } else {
                     MsgUtils.msgError(data.error);
                 }
+                setShowMessage(false);
             })
             .catch(error => MsgUtils.msgError(error));
     }
@@ -133,8 +136,8 @@ function AdminUsuario() {
         <div>
             <Header />
             <div className='container-fluid colorFiltro bg-gradient py-1'>
-                <div className='row g-2'>
-                    <div className='col' style={{ minWidth: '160px', maxWidth: '160px' }}>
+                <div className='row g-1'>
+                    <div className='col' style={{ minWidth: '170px', maxWidth: '170px' }}>
                         <div className='text-light letraMontserratr'>
                             Buscar por nombre
                         </div>
@@ -205,7 +208,7 @@ function AdminUsuario() {
                                                 <button className='btn text-warning' onClick={() =>{setSelectItem(item);setTipoModal('M');setShowModal(true);}}>
                                                     <i className="fa-solid fa-user-pen fa-xl"></i>
                                                 </button>
-                                                <button className='btn text-danger' onClick={() => { cambiarEstadoUser(item, 'E'); }}>
+                                                <button className='btn text-danger' onClick={() => { setSelectItem(item);setShowMessage(true); }}>
                                                     <i className="fa-solid fa-trash-can fa-xl"></i>
                                                 </button>
                                             </div>
@@ -264,6 +267,7 @@ function AdminUsuario() {
                         actualizar={actualizar} setShowModal={setShowModal} selectItem={selectItem} setSelectItem={setSelectItem}/>}
                 </Modal.Body>
             </Modal>
+            <MsgDialogo show={showMessage} msg='Esta seguro de Eliminar EL CLUB' okFunction={()=>cambiarEstadoUser(selectItem, 'E')} notFunction={()=>setShowMessage(false)}/>
         </div>
     )
 }

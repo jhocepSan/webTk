@@ -137,6 +137,20 @@ export const getSubCategoria = async ({ info }) => {
         if (conn) { await conn.release(); }
     }
 }
+export const getGradoCompleto = async ({ info }) => {
+    var conn;
+    try {
+        conn = await pool.getConnection();
+        const [grados] = await conn.query('SELECT idgrado,nombre,tipo FROM grado where estado="A" and idcampeonato=? and tipo=?;', [info.idcampeonato, info.tipo]);
+        const [result] = await conn.query('select * from tiposcampeonato where idcampeonato=? and tipo=? and estado="A";',[info.idcampeonato, info.tipo]);
+        return { "ok":{'grados':grados,'tipocamp':result} }
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}
 export const addGrado = async ({ info }) => {
     var conn;
     try {

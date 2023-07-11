@@ -45,7 +45,7 @@ function BuscarCompetidor(props) {
                 body: JSON.stringify({
                     'idCompetidor':0, 'nombres':selectItem.nombres, 'apellidos':selectItem.apellidos, 'ciUser':selectItem.ci, 
                     'idClub':selectItem.idclub, 'cinturon':selectItem.idcinturon,
-                    'peso':selectItem.peso, 'altura':selectItem.altura, 'tipos':selectItem.tipo, 'idCampeonato':cpt.idcampeonato,
+                    'peso':selectItem.peso, 'altura':selectItem.altura, 'tipos':tipo, 'idCampeonato':cpt.idcampeonato,
                     'edad':selectItem.edad, 'fecha':new Date(selectItem.fecha).toISOString().substring(0, 10), 'idGrado':selectItem.idgrado, 'genero':selectItem.genero, 'listaCTipoC':[]
                 })
             })
@@ -78,7 +78,7 @@ function BuscarCompetidor(props) {
             </div>
             <div className='card-body'>
                 <div className='table-responsive'>
-                    <table class="table table-dark table-hover table-bordered ">
+                    <table className="table table-dark table-hover table-bordered ">
                         <tbody>
                             {listaCompetidor.map((item, index) => {
                                 return (

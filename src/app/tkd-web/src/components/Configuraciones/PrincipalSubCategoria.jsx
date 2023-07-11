@@ -4,6 +4,7 @@ import Modal from 'react-bootstrap/Modal';
 import MsgUtils from '../utils/MsgUtils';
 import UtilsCargador from '../utils/UtilsCargador';
 import {server} from '../utils/MsgUtils';
+import MsgDialogo from '../utils/MsgDialogo';
 function PrincipalSubCategoria(props) {
     const { selectCategoria } = props;
     const [showModal, setShowModal] = useState(false);
@@ -13,6 +14,7 @@ function PrincipalSubCategoria(props) {
     const [idCategoria,setIdCategoria] =useState(0);
     const [selectSubCategoria,setSelectSubCategoria] = useState({});
     const [actualizar,setActualizar] =useState(false);
+    const [showMessage,setShowMessage] = useState(false);
     const actualizarPagina =()=>{
         setActualizar(!actualizar);
         setShowModal(false);
@@ -38,7 +40,7 @@ function PrincipalSubCategoria(props) {
                 } else {
                     MsgUtils.msgError(data.error);
                 }
-                setCargador(false);
+                setShowMessage(false);
             })
             .catch(error => MsgUtils.msgError(error));
     }
@@ -104,7 +106,7 @@ function PrincipalSubCategoria(props) {
                                         <td>{item.pesofin}</td>
                                         <td className='text-end'>
                                             <div className='btn-group btn-group-sm'>
-                                                <button className='btn btn-sm text-danger' onClick={() => eliminarSubCategoria(item)}>
+                                                <button className='btn btn-sm text-danger' onClick={() => {setShowMessage(true);setSelectSubCategoria(item)}}>
                                                     <i className="fa-solid fa-trash fa-xl"></i>
                                                 </button>
                                                 <button className='btn btn-sm text-warning' onClick={() => editarSubCategoria(item)}>
@@ -133,6 +135,7 @@ function PrincipalSubCategoria(props) {
                      actualizarPagina={actualizarPagina} subCategorias={subCategorias}/>
                 </Modal.Body>
             </Modal>
+            <MsgDialogo show={showMessage} msg='Seguro de Eliminar esta sub Categoria' notFunction={()=>setShowMessage(false)} okFunction={()=>eliminarSubCategoria(selectSubCategoria)}/>
         </div>
     )
 }

@@ -2,7 +2,9 @@ import {Router} from 'express';
 import {addEditCompetidor,getCompetidores,generateLLaves,getCompetidorSinPelea,
     getCompetidoresFestival,deleteCompetidorSP,obtenerDatosPuntuados,
     deleteCompetidor,getCompetidorClasificado,generateLLaveManual,getCompetidorClasificadoLista,
-    obtenerLlaves,cambiarNumPelea,obtenerLlavesManuales,buscarCompetidor} from '../controllers/competidor.controllers.js'
+    obtenerLlaves,cambiarNumPelea,obtenerLlavesManuales,buscarCompetidor,
+    obtenerLlaveRompimineto,getInformacionRompimiento,generarLlavePoomse,
+    generarLlaveRompimiento} from '../controllers/competidor.controllers.js'
 const router = Router();
 
 router.post('/addEditCompetidor',async(req,res)=>{
@@ -87,7 +89,15 @@ router.post('/generateLLaveManual',async(req,res)=>{
 });
 
 router.post('/obtenerLlaves',async(req,res)=>{
-    const result = await obtenerLlaves(req.body);
+    var result 
+    var info= req.body;
+    if(info.tipo=='C'){
+        result = await obtenerLlaves(req.body);
+    }else if(info.tipo=='R' || info.tipo=='P'){
+        result = await obtenerLlaveRompimineto(req.body);
+    }else{
+        result = {"ok":[]}
+    }
     if(result.ok){
         res.status(200).json(result);
     }else{
@@ -130,4 +140,28 @@ router.post('/buscarCompetidor',async(req,res)=>{
         res.status(404).json(result);
     }
 });
+router.post('/generarLlaveRompimiento',async(req,res)=>{
+    const result = await generarLlaveRompimiento(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+}); 
+router.post('/getInformacionRompimiento',async(req,res)=>{
+    const result = await getInformacionRompimiento(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
+router.post('/generarLlavePoomse',async(req,res)=>{
+    const result = await generarLlavePoomse(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
 export default router;

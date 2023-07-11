@@ -9,7 +9,7 @@ function CompetidoresPdf(props) {
     const [grados, setGrados] = useState([]);
     const exportPDF = () => {
         const content = pdfRef.current;
-        const unit = "pt";
+        const unit = "px";
         const size = "A4"; // Use A1, A2, A3 or A4
         const orientation = "portrait"; // portrait or landscape
         const doc = new jsPDF(orientation, unit, size);
@@ -27,7 +27,9 @@ function CompetidoresPdf(props) {
             callback: function (doc) {
                 doc.save('listaCampeonato' + campeonato +subtitulo+'.pdf');
             },
-            html2canvas: { scale: 0.54 },
+            autoPaging: 'text',
+            putOnlyUsedFonts:true,
+            html2canvas: { scale: 0.5 },
             windowWidth: 700
         });
     }
@@ -86,6 +88,7 @@ function CompetidoresPdf(props) {
                 <div className='text-center tituloPdf'>{getTipoLista()}</div>
                 {tipo === 'C' &&
                     categorias.map((item, index) => {
+                        console.log(window)
                         return (
                             <div className='container-fluid' key={index}>
                                 {item.SUBCATEGORIA.map((subcat, idx) => {

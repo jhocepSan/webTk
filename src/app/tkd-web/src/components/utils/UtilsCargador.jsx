@@ -15,7 +15,7 @@ function UtilsCargador(props) {
                 <div className='container text-center'>
                     <DotLoader  className="text-center mx-auto" color='#36d7b7' loading={show} size={200} />
                 </div>
-                <div className='fa-fade letraMontserratr text-light text-center' style={{fontSize:'16px'}}>Espere Por favos ...</div>
+                <div className='fa-fade letraMontserratr text-light text-center' style={{fontSize:'16px'}}>Espere Por favor ...</div>
             </Modal.Body>
         </Modal>
     )

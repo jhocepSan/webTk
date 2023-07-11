@@ -9,6 +9,7 @@ import { ContextAplicacions } from '../Context/ContextAplicacion';
 import { useNavigate } from 'react-router-dom';
 import { server } from '../utils/MsgUtils';
 import BuscarCompetidor from './BuscarCompetidor';
+import MsgDialogo from '../utils/MsgDialogo';
 
 function PrincipalRegistroCompetidor() {
   const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo, userLogin } = useContext(ContextAplicacions);
@@ -26,6 +27,7 @@ function PrincipalRegistroCompetidor() {
   const [cargador, setCargador] = useState(false);
   const [tipoModal, setTipoModal] = useState('');
   const [listaTiposCam, setListaTiposCam] = useState([]);
+  const [showMessage, setShowMessage] = useState(false);
   const editarUsuario = (dato) => {
     setTipoModal('N');
     setSelectItem(dato);
@@ -47,6 +49,7 @@ function PrincipalRegistroCompetidor() {
         } else {
           MsgUtils.msgError(data.error);
         }
+        setShowMessage(false);
       })
       .catch(error => MsgUtils.msgError(error));
   }
@@ -108,14 +111,14 @@ function PrincipalRegistroCompetidor() {
       .catch(error => MsgUtils.msgError(error));
   }
   function renderTipoCmp(competidorSelect) {
-    if(competidorSelect.idtipocompetencia!=undefined || competidorSelect.idtipocompetencia!=null){
+    if (competidorSelect.idtipocompetencia != undefined || competidorSelect.idtipocompetencia != null) {
       var tiposCmp = competidorSelect.idtipocompetencia.split(':');
       console.log(tiposCmp);
       return (
         <td style={{ minWidth: '200px' }}>
-          {tiposCmp.map((item,index) => {
-            var val = listaTiposCam.filter((v)=>v.idtipo==parseInt(item));
-            if(val.length!==0){
+          {tiposCmp.map((item, index) => {
+            var val = listaTiposCam.filter((v) => v.idtipo == parseInt(item));
+            if (val.length !== 0) {
               return (
                 <div className='container-fluid mb-1' key={index}>
                   <span className="badge rounded-pill bg-primary position-relative">{val[0].descripcion}
@@ -249,6 +252,9 @@ function PrincipalRegistroCompetidor() {
           </div>
         </div>
       </div>
+      <div className='container-fluid text-danger w-100 bg-light text-center fw-bold '>
+        Numero Competidores Registrados {listaCompetidores.length}
+      </div>
       <div className='table-responsive'>
         <table className="table table-dark table-striped table-hover" id='competidoresLista'>
           <tbody>
@@ -280,7 +286,7 @@ function PrincipalRegistroCompetidor() {
                   <td className='text-end' style={{ minWidth: '100px' }}>
                     <div className="btn-group" role="group" aria-label="Basic example">
                       <button type="button" className="btn btn-sm text-danger m-0 p-0"
-                        onClick={() => eliminarUsuario(item)}>
+                        onClick={() => { setSelectItem(item); setShowMessage(true) }}>
                         <i className="fa-solid fa-trash-can fa-xl"></i>
                       </button>
                       <button type="button" className="btn btn-sm text-warning m-0 p-0 mx-2"
@@ -314,6 +320,7 @@ function PrincipalRegistroCompetidor() {
             <BuscarCompetidor tipo={tipo} club={club} setCargador={setCargador} actualizarDatos={actualizarDatos} />}
         </Modal.Body>
       </Modal>
+      <MsgDialogo show={showMessage} msg='Esta seguro de Eliminar AL COMPETIDOR' okFunction={() => eliminarUsuario(selectItem)} notFunction={() => setShowMessage(false)} />
     </>
   )
 }
