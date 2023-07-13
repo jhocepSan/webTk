@@ -412,3 +412,28 @@ SISTEMA TKD V.1 ....
 Iniciando la Conección de la base de datos ONLINE ...
 Iniciando servidor ....
 funcionando servidos en puerto 4000
+[0mGET / [32m200[0m 8.054 ms - 646[0m
+[0mGET /all.min.css [32m200[0m 11.119 ms - 101784[0m
+[0mGET /assets/index-a2400e31.css [32m200[0m 7.596 ms - 14735[0m
+[0mGET /bootstrap.bundle.min.js [32m200[0m 9.198 ms - 78743[0m
+[0mGET /bootstrap.min.css [32m200[0m 10.644 ms - 155845[0m
+[0mGET /assets/index-5da5a585.js [32m200[0m 8.692 ms - 1069829[0m
+[0mGET /all.min.js [32m200[0m 7.274 ms - 1528342[0m
+[0mGET /assets/login-6b777b3b.png [32m200[0m 2.200 ms - 41514[0m
+[0mGET /assets/tkd-0e2f556e.png [32m200[0m 2.540 ms - 1017140[0m
+[0mGET /assets/Montserrat-SemiBold-f227901e.ttf [32m200[0m 1.768 ms - 243816[0m
+[0mGET /webfonts/fa-solid-900.woff2 [32m200[0m 5.279 ms - 150472[0m
+[0mGET /config/getCampeonato [32m200[0m 15.582 ms - 1018[0m
+[0mGET /assets/Montserrat-Regular-077cdab1.ttf [32m200[0m 2.258 ms - 245708[0m
+[0mGET /assets/TheCaliforniaDemo-ce4852fc.otf [32m200[0m 2.294 ms - 279500[0m
+[0mGET /tkd.png [32m200[0m 1.117 ms - 1017140[0m
+[0mGET /assets/Montserrat-Bold-c8289a87.ttf [32m200[0m 1.191 ms - 244468[0m
+[0mGET /usuario/getUsuarios [32m200[0m 5.794 ms - 3942[0m
+{ estado: 'A', idusuario: 1 }
+[0mPOST /usuario/cambiarEstadoAlbitro [32m200[0m 100.715 ms - 155[0m
+[0mGET /usuario/getUsuarios [32m200[0m 6.584 ms - 3942[0m
+D:\tekondo\TekwondoWeb\src\utils
+SISTEMA TKD V.1 ....
+Iniciando la Conección de la base de datos ONLINE ...
+Iniciando servidor ....
+funcionando servidos en puerto 4000
