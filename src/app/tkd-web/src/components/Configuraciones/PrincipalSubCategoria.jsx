@@ -6,7 +6,7 @@ import UtilsCargador from '../utils/UtilsCargador';
 import {server} from '../utils/MsgUtils';
 import MsgDialogo from '../utils/MsgDialogo';
 function PrincipalSubCategoria(props) {
-    const { selectCategoria } = props;
+    const { selectCategoria,tipo } = props;
     const [showModal, setShowModal] = useState(false);
     const [titulo, setTitulo] = useState('');
     const [cargador, setCargador] = useState(false);
@@ -84,17 +84,17 @@ function PrincipalSubCategoria(props) {
                                         <div className='row row-cols-2 g-0'>
                                             <div className='col-10'>SubCategoria</div>
                                             <div className='col-2'>
-                                                <button className='btn btn-sm text-success m-0 p-0'
+                                                {tipo=='A'&&<button className='btn btn-sm text-success m-0 p-0'
                                                     onClick={() => {setSelectSubCategoria({}); setShowModal(true); setTitulo("Agregar Nueva SubCategoria") }}>
                                                     <i className="fa-solid fa-circle-plus fa-fade fa-xl"></i>
-                                                </button>
+                                                </button>}
                                             </div>
                                         </div>
                                     </div>
                                 </th>
                                 <th className="col-2">Peso Ini</th>
                                 <th className="col-2">Peso Fin</th>
-                                <th className="col"></th>
+                                {tipo=='A'&&<th className="col"></th>}
                             </tr>
                         </thead>
                         <tbody>
@@ -104,7 +104,7 @@ function PrincipalSubCategoria(props) {
                                         <th>{item.nombre}</th>
                                         <td>{item.pesoini}</td>
                                         <td>{item.pesofin}</td>
-                                        <td className='text-end'>
+                                        {tipo=='A'&&<td className='text-end'>
                                             <div className='btn-group btn-group-sm'>
                                                 <button className='btn btn-sm text-danger' onClick={() => {setShowMessage(true);setSelectSubCategoria(item)}}>
                                                     <i className="fa-solid fa-trash fa-xl"></i>
@@ -113,7 +113,7 @@ function PrincipalSubCategoria(props) {
                                                     <i className="fa-solid fa-file-pen fa-xl"></i>
                                                 </button>
                                             </div>
-                                        </td>
+                                        </td>}
                                     </tr>
                                 )
                             })}

@@ -14,7 +14,7 @@ import MsgDialogo from '../utils/MsgDialogo';
 
 function PrincipalConfiguracion() {
   const navigate = useNavigate();
-  const { setLogin, setUserLogin, campeonato, setCampeonato,listaCampeonatos } = useContext(ContextAplicacions);
+  const { userLogin,setLogin, setUserLogin, campeonato, setCampeonato,listaCampeonatos } = useContext(ContextAplicacions);
   const [ventana, setVentana] = useState(0);
   const [categorias, setCategorias] = useState([]);
   const [cargador, setCargador] = useState(false);
@@ -154,10 +154,10 @@ function PrincipalConfiguracion() {
                       <th className="col-2">Edad Fin</th>
                       <th className="col-2">Estado</th>
                       <th className="col text-end">
-                        <button className='btn btn-sm btn-success bg-gradient'
+                        {userLogin.tipo=='A'&&<button className='btn btn-sm btn-success bg-gradient'
                           onClick={() => { setSelectCategoria({}); setTitulo("Registrar Nueva Categoria"); setShowModal(true) }}>
                           <i className="fa-solid fa-circle-plus fa-fade fa-xl"></i> Agregar
-                        </button>
+                        </button>}
                       </th>
                     </tr>
                   </thead>
@@ -170,20 +170,20 @@ function PrincipalConfiguracion() {
                           <td>{item.edadfin}</td>
                           <td>
                             <div className="form-check form-switch">
-                              <input className="form-check-input" type="checkbox"
+                              {userLogin.tipo=='A'&&<input className="form-check-input" type="checkbox"
                                 checked={item.estado === 'P' ? false : true}
-                                onChange={() => cambiarEstadoCate(item)} />
+                                onChange={() => cambiarEstadoCate(item)} />}
                               <label className="form-check-label" ><span className={item.estado === 'P' ? 'badge bg-warning text-dark' : 'badge bg-success'}>{item.estado === 'P' ? 'No Llave' : 'Si Llave'}</span></label>
                             </div>
                           </td>
                           <td className='text-end'>
                             <div className='btn-group btn-group-sm'>
-                              <button className='btn btn-sm text-danger' onClick={() => {setShowMessage(true);selectCategoria(item)}}>
+                              {userLogin.tipo=='A'&&<button className='btn btn-sm text-danger' onClick={() => {setShowMessage(true);selectCategoria(item)}}>
                                 <i className="fa-solid fa-trash fa-xl"></i>
-                              </button>
-                              <button className='btn btn-sm text-warning' onClick={() => editarCategoria(item)}>
+                              </button>}
+                              {userLogin.tipo=='A'&&<button className='btn btn-sm text-warning' onClick={() => editarCategoria(item)}>
                                 <i className="fa-solid fa-file-pen fa-xl"></i>
-                              </button>
+                              </button>}
                               <button className='btn btn-sm text-success' onClick={() => abrirSubCategoria(item)}>
                                 <i className="fa-solid fa-chart-simple fa-xl"></i>
                               </button>
@@ -198,12 +198,12 @@ function PrincipalConfiguracion() {
             </div>
             {selectCategoria.idcategoria !== undefined &&
               <div className='col'>
-                <PrincipalSubCategoria selectCategoria={selectCategoria} />
+                <PrincipalSubCategoria selectCategoria={selectCategoria} tipo={userLogin.tipo}/>
               </div>}
           </div>
         </div></>}
       {ventana === 1 &&
-        <GradosConfig campeonato={campeonato} setCampeonato={setCampeonato} />
+        <GradosConfig campeonato={campeonato} setCampeonato={setCampeonato} tipou={userLogin.tipo}/>
       }
       <Modal show={showModal} onHide={() => setShowModal(false)}
         aria-labelledby="contained-modal-title-vcenter"

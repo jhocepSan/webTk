@@ -23,12 +23,14 @@ function AdminUsuario() {
     function getEstadoUsuario(dato) {
         var descripcion = ''
         if (dato.estado == 'A') {
-            descripcion = 'Activo en el sistema, Asociado a la asociación';
+            descripcion = 'Administrador en el sistema TKD';
         } else if (dato.estado == 'I') {
-            descripcion = 'Invitado en el sistema, No se toma en cuenta las puntuaciones';
+            descripcion = 'Invitado en el sistema TKD';
         } else if (dato.estado == 'P') {
-            descripcion = 'Inactivo en el sistema, No puede acceder al sistema';
-        }
+            descripcion = 'Inactivo en el sistema TKD';
+        } else if (dato.estado == 'K') {
+            descripcion = 'Kiosanin en el sistema TKD';
+        } 
         return (<div className='letraMontserratr'>{descripcion}</div>)
     }
     function cambiarEstadoUser(item, estado) {
@@ -246,7 +248,13 @@ function AdminUsuario() {
                             <li className="list-group-item m-0 p-0">
                                 <button className={`btn btn-sm w-100 letraBtn bg-gradient ${selectItem.estado == 'A' ? 'btn-success' : ''}`}
                                     onClick={() => cambiarEstadoUser(null, 'A')}>
-                                    Activo
+                                    Administrador
+                                </button>
+                            </li>
+                            <li className="list-group-item m-0 p-0">
+                                <button className={`btn btn-sm w-100 letraBtn bg-gradient ${selectItem.estado == 'K' ? 'btn-success' : ''}`}
+                                    onClick={() => cambiarEstadoUser(null, 'K')}>
+                                    KIOSANIN
                                 </button>
                             </li>
                             <li className="list-group-item m-0 p-0">

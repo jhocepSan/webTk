@@ -437,3 +437,173 @@ SISTEMA TKD V.1 ....
 Iniciando la Conección de la base de datos ONLINE ...
 Iniciando servidor ....
 funcionando servidos en puerto 4000
+[0mGET /config/getCampeonato [32m200[0m 911.520 ms - 1018[0m
+[0mGET /config/getCampeonato [36m304[0m 5.870 ms - -[0m
+[0mGET /usuario/getUsuarios [32m200[0m 105.940 ms - 3942[0m
+[0mGET /usuario/getUsuarios [36m304[0m 2.888 ms - -[0m
+[0mGET /usuario/getUsuarios [36m304[0m 4.641 ms - -[0m
+[0mGET /usuario/getUsuarios [36m304[0m 3.162 ms - -[0m
+{
+  idusuario: 1,
+  correo: 'jjchsan@gmail.com',
+  password: '$2b$10$yqzfU4sR92PFJ0rkCYAEnevl1wKu82rxSlBc4hsg2nU8grklDGYxm',
+  nombres: 'JUAN JOSE',
+  apellidos: 'SANCHEZ',
+  idclub: 4,
+  idcinturon: 0,
+  foto: null,
+  ci: 7933318,
+  estado: 'P',
+  tipo: 'A',
+  albitro: 'A',
+  club: 'HANAUI HIM',
+  cinturon: null
+}
+[0mPOST /usuario/cambiarEstadoUsuario [32m200[0m 189.061 ms - 155[0m
+[0mGET /usuario/getUsuarios [32m200[0m 2.761 ms - 3942[0m
+[
+  {
+    idusuario: 1,
+    correo: 'jjchsan@gmail.com',
+    password: '$2b$10$yqzfU4sR92PFJ0rkCYAEnevl1wKu82rxSlBc4hsg2nU8grklDGYxm',
+    nombres: 'JUAN JOSE',
+    apellidos: 'SANCHEZ',
+    idclub: 4,
+    idcinturon: 0,
+    foto: null,
+    ci: 7933318,
+    estado: 'P',
+    tipo: 'A',
+    albitro: 'A'
+  }
+]
+[0mPOST /login/iniciarSession [32m200[0m 133.612 ms - 158[0m
+[0mGET /config/getCampeonato [36m304[0m 4.289 ms - -[0m
+[0mGET /config/getCampeonato [36m304[0m 3.247 ms - -[0m
+[
+  {
+    idusuario: 1,
+    correo: 'jjchsan@gmail.com',
+    password: '$2b$10$yqzfU4sR92PFJ0rkCYAEnevl1wKu82rxSlBc4hsg2nU8grklDGYxm',
+    nombres: 'JUAN JOSE',
+    apellidos: 'SANCHEZ',
+    idclub: 4,
+    idcinturon: 0,
+    foto: null,
+    ci: 7933318,
+    estado: 'A',
+    tipo: 'A',
+    albitro: 'A'
+  }
+]
+[0mPOST /login/iniciarSession [32m200[0m 108.507 ms - 158[0m
+[0mGET /config/getCampeonato [36m304[0m 2.733 ms - -[0m
+[0mGET /config/getCampeonato [36m304[0m 2.758 ms - -[0m
+[0mGET /usuario/getUsuarios [32m200[0m 3.434 ms - 3942[0m
+[0mGET /usuario/getUsuarios [36m304[0m 4.165 ms - -[0m
+{
+  idusuario: 1,
+  correo: 'jjchsan@gmail.com',
+  password: '$2b$10$yqzfU4sR92PFJ0rkCYAEnevl1wKu82rxSlBc4hsg2nU8grklDGYxm',
+  nombres: 'JUAN JOSE',
+  apellidos: 'SANCHEZ',
+  idclub: 4,
+  idcinturon: 0,
+  foto: null,
+  ci: 7933318,
+  estado: 'K',
+  tipo: 'A',
+  albitro: 'A',
+  club: 'HANAUI HIM',
+  cinturon: null
+}
+[0mPOST /usuario/cambiarEstadoUsuario [32m200[0m 34.330 ms - 155[0m
+[0mGET /usuario/getUsuarios [32m200[0m 4.272 ms - 3942[0m
+[
+  {
+    idusuario: 1,
+    correo: 'jjchsan@gmail.com',
+    password: '$2b$10$yqzfU4sR92PFJ0rkCYAEnevl1wKu82rxSlBc4hsg2nU8grklDGYxm',
+    nombres: 'JUAN JOSE',
+    apellidos: 'SANCHEZ',
+    idclub: 4,
+    idcinturon: 0,
+    foto: null,
+    ci: 7933318,
+    estado: 'K',
+    tipo: 'A',
+    albitro: 'A'
+  }
+]
+[0mPOST /login/iniciarSession [32m200[0m 109.227 ms - 158[0m
+[0mGET /config/getCampeonato [36m304[0m 2.870 ms - -[0m
+[0mGET /config/getCampeonato [36m304[0m 1.591 ms - -[0m
+[0mPOST /config/getCategoria [32m200[0m 3.187 ms - 653[0m
+[0mPOST /config/getCategoria [32m200[0m 2.125 ms - 653[0m
+[0mPOST /config/getGrados [32m200[0m 5.099 ms - 784[0m
+[0mPOST /config/getGrados [32m200[0m 4.592 ms - 200[0m
+{ idcampeonato: 3, tipo: 'R' }
+{ idcampeonato: 3, tipo: 'R' }
+[0mPOST /config/getTiposCampeonato [32m200[0m 5.981 ms - 9[0m
+[0mPOST /config/getTiposCampeonato [32m200[0m 7.895 ms - 9[0m
+[0mPOST /config/getCategoria [32m200[0m 1.952 ms - 653[0m
+[0mPOST /config/getCategoria [32m200[0m 2.268 ms - 653[0m
+[0mPOST /config/getCategoria [32m200[0m 1.720 ms - 653[0m
+[0mGET /club/getListaClub [32m200[0m 5.093 ms - 2545[0m
+[0mGET /club/getListaClub [36m304[0m 2.044 ms - -[0m
+[0mGET /config/getCampeonato [36m304[0m 1.626 ms - -[0m
+[0mGET /config/getCampeonato [36m304[0m 1.672 ms - -[0m
+[0mPOST /config/getCategoria [32m200[0m 2.207 ms - 753[0m
+[0mPOST /config/getCategoria [32m200[0m 2.266 ms - 753[0m
+[0mPOST /config/getCategoria [32m200[0m 2.143 ms - 9[0m
+[0mPOST /config/getCategoria [32m200[0m 1.718 ms - 9[0m
+[0mGET /config/getCampeonato [36m304[0m 2.022 ms - -[0m
+[0mGET /config/getCampeonato [36m304[0m 2.489 ms - -[0m
+[0mPOST /config/getCategoria [32m200[0m 2.356 ms - 753[0m
+[0mPOST /config/getCategoria [32m200[0m 2.774 ms - 753[0m
+[0mPOST /config/getCategoria [32m200[0m 3.187 ms - 753[0m
+[0mPOST /config/getCategoria [32m200[0m 2.145 ms - 753[0m
+[0mPOST /config/getCategoria [32m200[0m 1.841 ms - 753[0m
+[0mPOST /config/getCategoria [32m200[0m 1.692 ms - 753[0m
+[0mPOST /config/getCategoria [32m200[0m 2.765 ms - 753[0m
+[0mPOST /config/getSubCategoria [32m200[0m 2.627 ms - 9[0m
+[0mPOST /config/getSubCategoria [32m200[0m 1.893 ms - 9[0m
+[0mPOST /config/getSubCategoria [32m200[0m 2.875 ms - 1029[0m
+[0mPOST /config/getSubCategoria [32m200[0m 2.185 ms - 9[0m
+[0mPOST /config/getSubCategoria [32m200[0m 1.669 ms - 9[0m
+[0mPOST /config/getSubCategoria [32m200[0m 3.175 ms - 9[0m
+[0mPOST /config/getSubCategoria [32m200[0m 2.433 ms - 1029[0m
+[0mPOST /config/getSubCategoria [32m200[0m 2.078 ms - 1029[0m
+[0mPOST /config/getSubCategoria [32m200[0m 1.853 ms - 846[0m
+[0mPOST /config/getSubCategoria [32m200[0m 1.800 ms - 514[0m
+[0mPOST /config/getSubCategoria [32m200[0m 2.867 ms - 352[0m
+[0mPOST /config/getSubCategoria [32m200[0m 1.888 ms - 352[0m
+[0mPOST /config/getSubCategoria [32m200[0m 2.263 ms - 356[0m
+[0mPOST /config/getCategoria [32m200[0m 3.475 ms - 756[0m
+[0mPOST /config/getSubCategoria [32m200[0m 2.152 ms - 1035[0m
+[0mPOST /config/getSubCategoria [32m200[0m 2.048 ms - 1035[0m
+[0mPOST /config/getGrados [32m200[0m 3.146 ms - 771[0m
+[0mPOST /config/getCategoria [32m200[0m 1.712 ms - 756[0m
+[0mPOST /config/getCategoria [32m200[0m 1.848 ms - 756[0m
+[0mPOST /config/getCategoria [32m200[0m 2.642 ms - 756[0m
+[0mPOST /config/getCategoria [32m200[0m 1.853 ms - 756[0m
+[0mPOST /config/getGrados [32m200[0m 3.610 ms - 771[0m
+[0mPOST /config/getGrados [32m200[0m 4.420 ms - 771[0m
+[0mPOST /config/getGrados [32m200[0m 3.591 ms - 771[0m
+[0mPOST /config/getGrados [32m200[0m 3.349 ms - 771[0m
+[0mPOST /config/getGrados [32m200[0m 6.191 ms - 949[0m
+[0mPOST /config/getGrados [32m200[0m 1.460 ms - 9[0m
+[0mPOST /config/getGrados [32m200[0m 2.776 ms - 301[0m
+[0mPOST /config/getGrados [32m200[0m 2.888 ms - 301[0m
+[0mPOST /config/getGrados [32m200[0m 2.392 ms - 301[0m
+[0mPOST /config/getGrados [32m200[0m 3.917 ms - 771[0m
+[0mPOST /config/getCategoria [32m200[0m 2.405 ms - 756[0m
+[0mGET /club/getListaClub [36m304[0m 2.941 ms - -[0m
+[0mGET /club/getListaClub [36m304[0m 1.708 ms - -[0m
+[0mPOST /competidor/getCompetidores [32m200[0m 9.641 ms - 5353[0m
+[0mPOST /config/getGrados [32m200[0m 7.750 ms - 771[0m
+[0mPOST /config/getGrados [32m200[0m 4.804 ms - 771[0m
+SELECT * FROM (SELECT *,(select nombre from club where idclub=c.idclub) as club, (select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, (SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, (select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as idcategoria, (select cate.nombre from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as nombrecategoria, (select subcate.idsubcategoria from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as idsubcategoria, (select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria, (concat_ws(' ', nombres, apellidos)) as nombrex FROM competidor c WHERE c.estado='A') as res where res.idcategoria in (select idcategoria from categoria where estado='A') and res.nombrex like '%JOSE%'
+[0mPOST /competidor/buscarCompetidor [32m200[0m 142.886 ms - 5732[0m
+SELECT * FROM (SELECT *,(select nombre from club where idclub=c.idclub) as club, (select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, (SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, (select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as idcategoria, (select cate.nombre from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as nombrecategoria, (select subcate.idsubcategoria from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as idsubcategoria, (select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria, (concat_ws(' ', nombres, apellidos)) as nombrex FROM competidor c WHERE c.estado='A') as res where res.idcategoria in (select idcategoria from categoria where estado='A') and res.nombrex like '%JUAN JOSE%'
+[0mPOST /competidor/buscarCompetidor [32m200[0m 77.074 ms - 476[0m

@@ -5,7 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 import { server } from '../utils/MsgUtils';
 import AddEditTipoCompeticion from './AddEditTipoCompeticion';
 function GradosConfig(props) {
-    const { campeonato, setCampeonato } = props;
+    const { campeonato, setCampeonato, tipou } = props;
     const [actualizar, setActualizar] = useState(false);
     const [grados, setGrados] = useState([]);
     const [nombre, setNombre] = useState('');
@@ -127,7 +127,7 @@ function GradosConfig(props) {
                         </select>
                     </div>
                     <div className='col' style={{ maxWidth: '300px', minWidth: '300px' }}>
-                        {tipo !== '' &&
+                        {tipo !== '' &&tipou=='A'&&
                             <div className="input-group input-group-sm ">
                                 <span className="input-group-text bg-transparent border-dark text-light letraMontserratr" >Nombre Grado: </span>
                                 <input type="text" className="form-control letraMontserratr "
@@ -135,12 +135,12 @@ function GradosConfig(props) {
                             </div>}
                     </div>
                     <div className='col' style={{ maxWidth: '120px', minWidth: '120px' }}>
-                        {tipo !== '' &&
+                        {tipo !== '' &&tipou=='A'&&
                             <button className='btn btn-sm btn-success letraBtn w-100' onClick={() => agregarGrado()}>
                                 <i className="fa-solid fa-circle-plus fa-fade fa-xl "></i> Agregar
                             </button>}
                     </div>
-                    {tipo == 'R' && <div className='col' style={{ maxWidth: '220px', minWidth: '220px' }}>
+                    {tipo == 'R' &&tipou=='A'&& <div className='col' style={{ maxWidth: '220px', minWidth: '220px' }}>
                         <button className='btn btn-sm btn-warning letraBtn w-100 bg-gradient' onClick={() => setShowModal(true)}>
                             <i className="fa-solid fa-circle-plus fa-fade fa-xl "></i> Tipos de Rompimiento
                         </button>
@@ -152,7 +152,7 @@ function GradosConfig(props) {
                     {grados.map((item, index) => {
                         return (
                             <div key={index} className='col'>
-                                <CardCinturon info={item} eliminarGrado={eliminarGrado} />
+                                <CardCinturon info={item} eliminarGrado={eliminarGrado} tipou={tipou}/>
                             </div>
                         )
                     })}

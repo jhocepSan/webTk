@@ -14,7 +14,7 @@ function MenuHerramientas(props) {
     }
     return (
         <ul className="nav nav-pills flex-column mb-sm-auto mb-0 align-items-start align-items-sm-start text-start">
-            {userLogin.tipo=='A'&&<li className={`bg-gradient border-none text-start w-100 m-0 p-0 ${menuActivo===1?'menuActivo':''}`}>
+            {(userLogin.tipo=='A'||userLogin.tipo=='K')&&<li className={`bg-gradient border-none text-start w-100 m-0 p-0 ${menuActivo===1?'menuActivo':''}`}>
                 <a className={`btn btn-sm w-100 text-start ${menuActivo===1?'text-dark':'text-light'} fs-6 menuTk`} 
                     onClick={()=>cambiarVentana(1,"CONFIGURACIONES","configuracion")}>
                     <i className="fa-solid fa-gear"></i> Configuración
