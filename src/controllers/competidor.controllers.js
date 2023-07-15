@@ -466,6 +466,7 @@ export const obtenerLlaveRompimineto = async (info) => {
     try {
         conn = await pool.getConnection();
         const [result] = await conn.query(sql, [info.idCampeonato, info.genero, info.tipo]);
+        console.log(result);
         return { "ok": result }
     } catch (error) {
         console.log(error);

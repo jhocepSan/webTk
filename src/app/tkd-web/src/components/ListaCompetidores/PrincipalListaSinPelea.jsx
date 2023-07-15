@@ -6,7 +6,8 @@ import Competidor from '../RegistroCompetidor/Competidor';
 import { downloadExcel } from 'react-export-table-to-excel';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import { useNavigate } from 'react-router-dom';
-import {server} from '../utils/MsgUtils';
+import jsPDF from 'jspdf';
+import { server } from '../utils/MsgUtils';
 
 function PrincipalListaSinPelea() {
     const tableRef = useRef(null);
@@ -27,8 +28,8 @@ function PrincipalListaSinPelea() {
     const [selectItem, setSelectItem] = useState({});
     const [listaManual, setListaManual] = useState([]);
     const [actualizar, setActualizar] = useState(false);
-    const [listaClubs,setListaClubs] = useState([]);
-    const [idClub,setIdClub] = useState(0);
+    const [listaClubs, setListaClubs] = useState([]);
+    const [idClub, setIdClub] = useState(0);
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
 
     function handleDownloadExcel() {
@@ -123,6 +124,77 @@ function PrincipalListaSinPelea() {
             buscarCategoria('', 5);
         }*/
     }
+    function generarPdf() {
+        var subtitulo = '';
+        if (tipo == 'C') {
+            subtitulo = 'COMBATE';
+        } else if (tipo == 'P') {
+            subtitulo = 'POOMSE';
+        } else if (tipo == 'D') {
+            subtitulo = 'DEMOSTRACIONES';
+        } else if (tipo == 'R') {
+            subtitulo = 'ROMPIMIENTO';
+        }
+        var cmpSelect = JSON.parse(localStorage.getItem('campeonato'));
+        var optiones = {
+            orientation: 'p',
+            unit: 'mm',
+            format: 'a4',
+            putOnlyUsedFonts: true,
+            floatPrecision: 16 // or "smart", default is 16
+        }
+        var doc = new jsPDF(optiones);
+        var x = 10;
+        var y = 10;
+        var width = doc.internal.pageSize.getWidth();
+        var height = doc.internal.pageSize.getHeight();
+        doc.setFontSize(13);
+        doc.text(`Lista Sin Pelea ${subtitulo} ${genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`, x + 40, y);
+        for (var cat of categorias) {
+                if (y >= height - 20) {
+                    doc.addPage();
+                    x = 10;
+                    y = 10;
+                }
+                var listaFiltrada = listaCompetidores.filter((dato) => dato.idcategoria == cat.idcategoria);
+                if (listaFiltrada.length !== 0) {
+                    doc.setFontSize(12);
+                    doc.text(`Categoria: ${cat.nombre} -> Edad ${cat.edadini} - ${cat.edadfin} años`, x, y + 10);
+                    doc.setFontSize(11);
+                    doc.line(x, y + 15, width - 10, y + 15, 'S');
+                    doc.text('Nombre Completo', x, y + 19);
+                    doc.text('Edad', x + 80, y + 19);
+                    doc.text('Peso', x + 93, y + 19);
+                    doc.text('Grado', x + 106, y + 19);
+                    doc.text('Cinturon', x + 136, y + 19);
+                    doc.text('Club', x + 156, y + 19);
+                    doc.line(x, y + 21, width - 10, y + 21, 'S');
+                    y = y + 22
+                    if (y >= height - 20) {
+                        doc.addPage();
+                        x = 10;
+                        y = 10;
+                    }
+                    doc.setFontSize(9);
+                    for (var cmp of listaFiltrada) {
+                        doc.text(cmp.nombres + ' ' + cmp.apellidos, x, y + 5);
+                        doc.text(cmp.edad.toString(), x + 80, y + 5);
+                        doc.text(cmp.peso.toString(), x + 93, y + 5);
+                        doc.text(cmp.grado.substring(0, 14), x + 106, y + 5);
+                        doc.text(cmp.cinturon, x + 136, y + 5);
+                        doc.text(cmp.club, x + 156, y + 5);
+                        doc.line(x, y + 6, width - 10, y + 6, 'S');
+                        y = y + 7;
+                        if (y >= height - 20) {
+                            doc.addPage();
+                            x = 10;
+                            y = 10;
+                        }
+                    }
+                }
+        }
+        doc.save(cmpSelect.nombre.replace(' ', '') + `SinPelea${subtitulo}${genero == 'M' ? 'MASCULINO' : 'FEMENINO'}.pdf`);
+    }
     function cambiarSubCategoria(i) {
         setIdSubCategoria(i);
         if (i != 0) {
@@ -139,7 +211,7 @@ function PrincipalListaSinPelea() {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json;charset=utf-8',
                 },
-                body: JSON.stringify({ idCampeonato, genero, tipo,idCategoria,idClub })
+                body: JSON.stringify({ idCampeonato, genero, tipo, idCategoria, idClub })
             })
                 .then(res => res.json())
                 .then(data => {
@@ -248,7 +320,7 @@ function PrincipalListaSinPelea() {
             navigate("/listCompeSN", { replace: true });
         }
     }, [])
-    useEffect(()=>{
+    useEffect(() => {
         if (listaClubs.length == 0) {
             setCargador(true);
             fetch(`${server}/club/getListaClubPuntuado`, {
@@ -270,13 +342,13 @@ function PrincipalListaSinPelea() {
                 })
                 .catch(error => MsgUtils.msgError(error));
         }
-    },[])
+    }, [])
     return (
         <div>
             <Header />
             <UtilsCargador show={cargador} />
             <div className='container-fluid bg-dark bg-gradient py-1'>
-                <div className='row g-2'>
+                <div className='row row-cols g-1'>
                     <div className='col-8 col-md-3 my-auto'>
                         <div className='text-light letraMontserratr'>
                             Competidores Camp. {tituloo}
@@ -322,12 +394,12 @@ function PrincipalListaSinPelea() {
                             })}
                         </select>
                     </div>
-                    <div className='col' style={{ minWidth: '120px', maxWidth: '120px' }}>
+                    <div className='col' style={{ minWidth: '100px', maxWidth: '100px' }}>
                         <button className='btn btn-sm btn-success w-100' onClick={() => buscarCompetidores()}>
                             <i className="fa-solid fa-spinner fa-xl"></i> Buscar
                         </button>
                     </div>
-                    <div className='col' style={{ minWidth: '120px', maxWidth: '120px' }}>
+                    <div className='col' style={{ minWidth: '80px', maxWidth: '80px' }}>
                         <button className={`btn btn-sm bg-gradient  w-100 ${genManual ? 'btn-danger' : 'btn-warning'}`} onClick={() => GenerarLlaves()}>
                             <i className="fa-solid fa-network-wired"></i> {genManual ? 'Desactivar' : 'Crear'}
                         </button>
@@ -336,8 +408,8 @@ function PrincipalListaSinPelea() {
             </div>
             {buscado && <>
                 <div className='container-fluid colorFiltro bg-gradient py-1'>
-                    <div className='row g-1'>
-                        <div className='col' style={{ minWidth: '220px', maxWidth: '220px' }}>
+                    <div className='row row-cols g-1'>
+                        <div className='col' style={{ minWidth: '180px', maxWidth: '180px' }}>
                             <div className='text-light letraMontserratr'>
                                 Buscar por nombre
                             </div>
@@ -351,16 +423,22 @@ function PrincipalListaSinPelea() {
                                 </button>
                             </div>
                         </div>
+                        {listaCompetidores.length !== 0 &&
+                            <div className='col' style={{ minWidth: '80px', maxWidth: '80px' }}>
+                                <button className='btn btn-sm btn-success bg-gradient w-100' onClick={() => generarPdf()}>
+                                    <i className="fa-solid fa-file-pdf"></i> PDF
+                                </button>
+                            </div>}
                         <div className='col' style={{ minWidth: '150px', maxWidth: '150px' }}>
                             <button className='btn btn-sm btn-success' onClick={() => handleDownloadExcel()}>
                                 <i className="fa-solid fa-file-excel"></i> Exportar excel </button>
                         </div>
                     </div>
                 </div>
-                <div className='container-fluid text-danger '>
-                    Numero Estudiantes {listaCompetidores.length}
+                <div className='container-fluid text-danger w-100 bg-light text-center fw-bold '>
+                    Numero Competidores {listaCompetidores.length}
                 </div>
-                <div className={`table-responsive py-2 ${genManual ? 'tableIgual' : ''}`} >
+                <div className={`table-responsive ${genManual ? 'tableIgual' : ''}`} >
                     <table className="table table-dark table-hover table-bordered" id='competidoresLista' ref={tableRef}>
                         <thead>
                             <tr className='text-center'>

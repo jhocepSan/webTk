@@ -77,7 +77,7 @@ function CardCinturon(props) {
         setCinturones(info.cinturon);
     }, [info])
     return (
-        <div className="card bg-dark bg-gradient" style={{height:'300px'}}>
+        <div className="card bg-dark bg-gradient" style={{height:'360px'}}>
             <div className='card-header m-0 p-0 text-center text-light fw-bold'>
                 {info.nombre}
             </div>
@@ -90,7 +90,7 @@ function CardCinturon(props) {
                         Agregar < i className="fa-solid fa-circle-plus fa-xl"></i>
                     </button>
                 </div>}
-                <div className='container table-responsive py-2'>
+                <div className='container-fluid table-responsive py-2 overflow-auto' style={{maxHeight:'260px'}}>
                     <table className="table table-secondary table-sm table-striped">
                         <tbody>
                             {cinturones.map((item, index) => {

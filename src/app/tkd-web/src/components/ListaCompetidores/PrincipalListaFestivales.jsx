@@ -2,11 +2,12 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import { downloadExcel } from 'react-export-table-to-excel';
-import Header from '../Header'
+import Header from '../Header';
+import jsPDF from 'jspdf';
 import Competidor from '../RegistroCompetidor/Competidor';
 import MsgUtils from '../utils/MsgUtils';
 import UtilsCargador from '../utils/UtilsCargador'
-import {server} from '../utils/MsgUtils';
+import { server } from '../utils/MsgUtils';
 
 function PrincipalListaFestivales() {
     const tableRef = useRef(null);
@@ -23,7 +24,61 @@ function PrincipalListaFestivales() {
     const [listaClubs, setListaClubs] = useState([]);
     const [idClub, setIdClub] = useState(0);
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
-
+    function generarPdf() {
+        var cmpSelect = JSON.parse(localStorage.getItem('campeonato'));
+        var optiones = {
+            orientation: 'p',
+            unit: 'mm',
+            format: 'a4',
+            putOnlyUsedFonts: true,
+            floatPrecision: 16 // or "smart", default is 16
+        }
+        var doc = new jsPDF(optiones);
+        var x = 10;
+        var y = 10;
+        var width = doc.internal.pageSize.getWidth();
+        var height = doc.internal.pageSize.getHeight();
+        doc.setFontSize(13);
+        doc.text(`Lista de Estudiantes Festival ${genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`, x + 40, y);
+        y += 7
+        var listaFiltrada = listaCompetidores.sort(function (a, b) { return a.edad - b.edad });
+        if (listaFiltrada.length !== 0) {
+            doc.setFontSize(11);
+            doc.line(x, y - 4, width - 10, y - 4, 'S');
+            doc.text('Nombre Completo', x, y);
+            doc.text('Edad', x + 80, y);
+            doc.text('Grado', x + 93, y);
+            doc.text('Cinturon', x + 136, y);
+            doc.text('Club', x + 156, y);
+            doc.line(x, y + 2, width - 10, y + 2, 'S');
+            y = y + 7
+            doc.setFontSize(9);
+            for (var cmp of listaFiltrada) {
+                doc.text(cmp.nombres + ' ' + cmp.apellidos, x, y);
+                doc.text(cmp.edad.toString(), x + 80, y);
+                doc.text(cmp.grado, x + 93, y);
+                doc.text(cmp.cinturon, x + 136, y);
+                doc.text(cmp.club, x + 156, y);
+                doc.line(x, y + 1, width - 10, y + 1, 'S');
+                y = y + 7;
+                if (y >= height - 20) {
+                    doc.addPage();
+                    x = 10;
+                    y = 10;
+                    doc.setFontSize(11);
+                    doc.line(x, y - 1, width - 10, y - 1, 'S');
+                    doc.text('Nombre Completo', x, y);
+                    doc.text('Edad', x + 80, y);
+                    doc.text('Grado', x + 93, y);
+                    doc.text('Cinturon', x + 136, y);
+                    doc.text('Club', x + 156, y);
+                    doc.line(x, y + 4, width - 10, y + 4, 'S');
+                    y = y + 5
+                }
+            }
+        }
+        doc.save(cmpSelect.nombre.replace(' ', '') + `Festival${genero == 'M' ? 'MASCULINO' : 'FEMENINO'}.pdf`);
+    }
     function getListaFestival() {
         if (tipo !== '' && genero !== '') {
             setCargador(true);
@@ -33,7 +88,7 @@ function PrincipalListaFestivales() {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json;charset=utf-8',
                 },
-                body: JSON.stringify({ "idCampeonato": campeonato.idcampeonato, genero, tipo,idClub })
+                body: JSON.stringify({ "idCampeonato": campeonato.idcampeonato, genero, tipo, idClub })
             })
                 .then(res => res.json())
                 .then(data => {
@@ -73,7 +128,6 @@ function PrincipalListaFestivales() {
             if (listaManual.length !== 0) {
                 setListaCompetidores([...listaCompetidores, ...listaManual]);
                 setListaManual([]);
-
             }
         }
         setSelectItem({});
@@ -175,9 +229,9 @@ function PrincipalListaFestivales() {
             setUserLogin(sessionActiva);
             navigate("/listCompeFest", { replace: true });
         }
-        
+
     }, [])
-    useEffect(()=>{
+    useEffect(() => {
         if (listaClubs.length == 0) {
             setCargador(true);
             fetch(`${server}/club/getListaClubPuntuado`, {
@@ -199,7 +253,7 @@ function PrincipalListaFestivales() {
                 })
                 .catch(error => MsgUtils.msgError(error));
         }
-    },[])
+    }, [])
     useEffect(() => {
         if (listaCompetidores.length !== 0) {
             getListaFestival()
@@ -211,7 +265,7 @@ function PrincipalListaFestivales() {
             <UtilsCargador show={cargador} />
             <div className='container-fluid bg-dark bg-gradient py-1'>
                 <div className='row g-1'>
-                    <div className='col' style={{ maxWidth: '160px' }}>
+                    <div className='col' style={{ minWidth: '160px', maxWidth: '160px' }}>
                         <select className="form-select form-select-sm btn-secondary letraBtn w-100"
                             value={tipo}
                             onChange={(e) => { setTipo(e.target.value); }}>
@@ -222,7 +276,7 @@ function PrincipalListaFestivales() {
                             <option value="R">Rompimiento</option>
                         </select>
                     </div>
-                    <div className='col' style={{ maxWidth: '160px' }}>
+                    <div className='col' style={{ minWidth: '160px', maxWidth: '160px' }}>
                         <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
                             value={genero} onChange={(e) => { setGenero(e.target.value) }}>
                             <option value={''}>Genero</option>
@@ -230,7 +284,7 @@ function PrincipalListaFestivales() {
                             <option value={'F'}>Femenino</option>
                         </select>
                     </div>
-                    <div className='col' style={{ maxWidth: '150px' }}>
+                    <div className='col' style={{ minWidth: '150px', maxWidth: '150px' }}>
                         <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
                             value={idClub} onChange={(e) => { setIdClub(e.target.value) }}>
                             <option value={0}>Club?(Todos)</option>
@@ -241,11 +295,17 @@ function PrincipalListaFestivales() {
                             })}
                         </select>
                     </div>
-                    <div className='col' style={{ maxWidth: '100px' }}>
+                    <div className='col' style={{ minWidth: '100px', maxWidth: '100px' }}>
                         <button className='btn btn-sm btn-success bg-gradient w-100' onClick={() => getListaFestival()}>
                             <i className="fa-solid fa-rotate-right fa-fade fa-xl"></i> Listar
                         </button>
                     </div>
+                    {listaCompetidores.length !== 0 &&
+                        <div className='col' style={{ minWidth: '100px', maxWidth: '100px' }}>
+                            <button className='btn btn-sm btn-success bg-gradient w-100' onClick={() => generarPdf()}>
+                                <i className="fa-solid fa-file-pdf"></i> PDF
+                            </button>
+                        </div>}
                     <div className='col' style={{ minWidth: '150px', maxWidth: '150px' }}>
                         <button className='btn btn-sm btn-success w-100' onClick={() => handleDownloadExcel()}>
                             <i className="fa-solid fa-file-excel"></i> Exportar excel </button>
@@ -260,23 +320,17 @@ function PrincipalListaFestivales() {
                         </div>
                     </div>
                     {listaCompetidores.length !== 0 &&
-                        <div className='col' style={{ maxWidth: '130px' }}>
+                        <div className='col' style={{ minWidth: '130px', maxWidth: '130px' }}>
                             <button className={`btn btn-sm bg-gradient w-100 ${genManual ? 'btn-danger' : 'btn-primary'}`} onClick={() => GenerarLlaves()}>
                                 <i className="fa-solid fa-network-wired"></i> {genManual ? 'Desactivar' : 'LLave Manual'}
                             </button>
                         </div>}
-                    {listaCompetidores.length !== 0 &&
-                        <div className='col' style={{ maxWidth: '130px' }}>
-                            <button className='btn btn-sm btn-primary bg-gradient w-100' onClick={() => getListaFestival()}>
-                                <i className="fa-solid fa-network-wired"></i> Llave Auto...
-                            </button>
-                        </div>}
                 </div>
             </div>
-            <div className='container-fluid text-danger '>
-                Numero Estudiantes {listaCompetidores.length}
+            <div className='container-fluid text-danger w-100 bg-light text-center fw-bold '>
+                Numero Competidores {listaCompetidores.length}
             </div>
-            {<div className='table-responsive py-2'>
+            {<div className='table-responsive'>
                 <table className="table table-dark table-hover table-bordered" id='competidoresLista' ref={tableRef}>
                     <thead>
                         <tr className='text-center'>

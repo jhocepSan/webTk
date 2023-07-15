@@ -118,3 +118,32 @@ Stacktrace:   at System.Management.ManagementScope._Clone(ManagementScope scope,
    at winsw.WrapperService.OnShutdown()
 2023-07-11 08:23:13 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 D:\tekondo\TekwondoWeb\node_modules\node-windows\lib\wrapper.js --file D:\tekondo\TekwondoWeb\src\index.js --scriptoptions= --log "Sistema TKD Cochabamba wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
 2023-07-11 08:23:13 - Started 4676
+2023-07-13 01:10:45 - Stopping sistematkdcochabamba.exe
+2023-07-13 01:10:45 - ProcessKill 4676
+2023-07-13 01:10:52 - Shutdown exception
+Message:El medio está protegido contra escritura. (Excepción de HRESULT: 0x80070013)
+Stacktrace:   at System.Runtime.InteropServices.Marshal.ThrowExceptionForHRInternal(Int32 errorCode, IntPtr errorInfo)
+   at System.Management.ManagementScope.InitializeGuts(Object o)
+   at System.Management.ManagementScope.Initialize()
+   at System.Management.ManagementObjectSearcher.Initialize()
+   at System.Management.ManagementObjectSearcher.Get()
+   at winsw.WrapperService.GetChildPids(Int32 pid)
+   at winsw.WrapperService.StopProcessAndChildren(Int32 pid)
+   at winsw.WrapperService.StopIt()
+   at winsw.WrapperService.OnShutdown()
+2023-07-13 01:12:24 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 D:\tekondo\TekwondoWeb\node_modules\node-windows\lib\wrapper.js --file D:\tekondo\TekwondoWeb\src\index.js --scriptoptions= --log "Sistema TKD Cochabamba wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2023-07-13 01:12:28 - Started 5948
+2023-07-14 20:13:58 - Stopping sistematkdcochabamba.exe
+2023-07-14 20:13:58 - ProcessKill 5948
+2023-07-14 20:13:58 - Found child process: 5976 Name: conhost.exe
+2023-07-14 20:13:58 - Found child process: 3436 Name: node.exe
+2023-07-14 20:13:58 - Stopping process 5976
+2023-07-14 20:13:58 - Send SIGINT 5976
+2023-07-14 20:13:58 - SIGINT to 5976 failed - Killing as fallback
+2023-07-14 20:13:58 - Stopping process 3436
+2023-07-14 20:13:58 - Send SIGINT 3436
+2023-07-14 20:13:58 - SIGINT to 3436 failed - Killing as fallback
+2023-07-14 20:13:58 - Stopping process 5948
+2023-07-14 20:13:58 - Send SIGINT 5948
+2023-07-14 20:13:58 - SIGINT to 5948 failed - Killing as fallback
+2023-07-14 20:13:58 - Finished sistematkdcochabamba.exe
