@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 import { server } from '../utils/MsgUtils';
 import BuscarCompetidor from './BuscarCompetidor';
 import MsgDialogo from '../utils/MsgDialogo';
+import AddEditEquipo from './AddEditEquipo';
+import UtilsBuffer from '../utils/UtilsBuffer';
 
 function PrincipalRegistroCompetidor() {
   const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo, userLogin } = useContext(ContextAplicacions);
@@ -33,6 +35,11 @@ function PrincipalRegistroCompetidor() {
     setSelectItem(dato);
     setShowModal(true);
   }
+  const editarEquipo =(dato)=>{
+    setTipoModal('D');
+    setSelectItem(dato);
+    setShowModal(true);
+  }
   function cambiarEstadoC(dato) {
     fetch(`${server}/competidor/deleteCompetidor`, {
       method: 'POST',
@@ -53,9 +60,33 @@ function PrincipalRegistroCompetidor() {
       })
       .catch(error => MsgUtils.msgError(error));
   }
+  function cambiarEstadoD(dato) {
+    fetch(`${server}/competidor/deleteEquipo`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify(dato)
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          setActualizar(!actualizar);
+        } else {
+          MsgUtils.msgError(data.error);
+        }
+        setShowMessage(false);
+      })
+      .catch(error => MsgUtils.msgError(error));
+  }
   const eliminarUsuario = (dato) => {
     dato.estado = 'E'
-    cambiarEstadoC(dato);
+    if(tipo!=='D'){
+      cambiarEstadoC(dato);
+    }else{
+      cambiarEstadoD(dato);
+    }
   }
   function cambiarEstado(dato) {
     if (dato.estado === 'P') {
@@ -63,7 +94,11 @@ function PrincipalRegistroCompetidor() {
     } else {
       dato.estado = 'P';
     }
-    cambiarEstadoC(dato);
+    if(tipo!=='D'){
+      cambiarEstadoC(dato);
+    }else{
+      cambiarEstadoD(dato);
+    }
   }
   function actualizarDatos() {
     setSelectItem({});
@@ -131,7 +166,7 @@ function PrincipalRegistroCompetidor() {
     }
   }
   useEffect(() => {
-    if (tipo !== '' && genero !== '') {
+    if (tipo !== '') {
       if (tipo == 'R') {
         obtenerTiposCampeonato()
       }
@@ -148,6 +183,7 @@ function PrincipalRegistroCompetidor() {
       })
         .then(res => res.json())
         .then(data => {
+          console.log(data.ok);
           if (data.ok) {
             setListaCompetidores(data.ok);
           } else {
@@ -219,15 +255,15 @@ function PrincipalRegistroCompetidor() {
               <option value="R">Rompimiento</option>
             </select>
           </div>
-          <div className='col' style={{ maxWidth: '120px', minWidth: '120px' }}>
+          {tipo!='D'&&<div className='col' style={{ maxWidth: '120px', minWidth: '120px' }}>
             <select className="form-select form-select-sm bg-secondary text-light border-secondary"
               value={genero} onChange={(e) => setGenero(e.target.value)}>
               <option value={''}>Genero</option>
               <option value={'M'}>Masculino</option>
               <option value={'F'}>Femenino</option>
             </select>
-          </div>
-          <div className='col' style={{ maxWidth: '160px', minWidth: '160px' }}>
+          </div>}
+          {tipo!='D'&&<div className='col' style={{ maxWidth: '160px', minWidth: '160px' }}>
             <div className="input-group input-group-sm">
               <input type="text" className="form-control form-control-sm"
                 placeholder="Buscar Competidor" id='competidor' onChange={() => buscarCompetidor()} />
@@ -235,14 +271,21 @@ function PrincipalRegistroCompetidor() {
                 <i className="fa-solid fa-delete-left fa-xl"></i>
               </button>
             </div>
-          </div>
-          <div className='col text-start' style={{ maxWidth: '120px', minWidth: '120px' }}>
+          </div>}
+          {tipo!='D'&&<div className='col text-start' style={{ maxWidth: '120px', minWidth: '120px' }}>
             <button className='btn btn-sm btn-success bg-gradient w-100'
               disabled={(genero !== '' && tipo !== '') ? false : true}
               onClick={() => { setTipoModal('N'); setShowModal(true); }}>
               Nuevo <i className="fa-solid fa-user-plus fa-xl"></i>
             </button>
-          </div>
+          </div>}
+          {tipo=='D'&&<div className='col text-start' style={{ maxWidth: '120px', minWidth: '120px' }}>
+            <button className='btn btn-sm btn-success bg-gradient w-100'
+              disabled={(tipo !== '') ? false : true}
+              onClick={() => { setTipoModal('D'); setShowModal(true); }}>
+              Nuevo <i className="fa-solid fa-user-plus fa-xl"></i>
+            </button>
+          </div>}
           <div className='col text-start' style={{ maxWidth: '120px', minWidth: '120px' }}>
             <button className='btn btn-sm btn-success bg-gradient w-100'
               disabled={(genero !== '' && tipo !== '') ? false : true}
@@ -253,9 +296,9 @@ function PrincipalRegistroCompetidor() {
         </div>
       </div>
       <div className='container-fluid text-danger w-100 bg-light text-center fw-bold '>
-        Numero Competidores Registrados {listaCompetidores.length}
+        {`Numero ${tipo!='D'?'Competidores':'Equipos'} Registrados ${listaCompetidores.length}`}
       </div>
-      <div className='table-responsive'>
+      {tipo!='D'&&<div className='table-responsive'>
         <table className="table table-dark table-striped table-hover" id='competidoresLista'>
           <tbody>
             {listaCompetidores.map((item, index) => {
@@ -298,26 +341,62 @@ function PrincipalRegistroCompetidor() {
                 </tr>
               )
             })}
-
           </tbody>
         </table>
-      </div>
+      </div>}
+      {tipo=='D'&&<div className='table-responsive'>
+        <table className="table table-dark table-striped table-hover" id='competidoresLista'>
+          <tbody>
+            {listaCompetidores.map((item, index) => {
+              return (
+                <tr key={index}>
+                  <td className='my-auto' style={{ minWidth: '200px' }}>
+                    {item.nombre}
+                  </td>
+                  <td>{UtilsBuffer.getText(item.descripcion).substring(0,40)+'...'}</td>
+                  <td className='my-auto' style={{ minWidth: '120px' }}>
+                    <div className='container-fluid'>
+                      <div className="form-check form-switch">
+                        <input className="form-check-input" type="checkbox"
+                          checked={item.estado === 'P' ? false : true}
+                          onChange={() => cambiarEstado(item)} />
+                        <label className="form-check-label" ><span className={item.estado === 'P' ? 'badge bg-warning' : 'badge bg-success'}>{item.estado === 'P' ? 'COMPETIRA?' : 'COMPETIDOR'}</span></label>
+                      </div>
+                    </div>
+                  </td>
+                  <td className='text-end' style={{ minWidth: '100px' }}>
+                    <div className="btn-group" role="group" aria-label="Basic example">
+                      <button type="button" className="btn btn-sm text-danger m-0 p-0"
+                        onClick={() => { setSelectItem(item); setShowMessage(true) }}>
+                        <i className="fa-solid fa-trash-can fa-xl"></i>
+                      </button>
+                      <button type="button" className="btn btn-sm text-warning m-0 p-0 mx-2"
+                        onClick={() => editarEquipo(item)}>
+                        <i className="fa-solid fa-pen-to-square fa-xl"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>}
       <Modal show={showModal} onHide={() => setShowModal(false)}
         aria-labelledby="contained-modal-title-vcenter"
         contentClassName='bg-dark bg-gradient'>
         <Modal.Header closeButton closeVariant='white' bsPrefix='modal-header m-0 p-0 px-2 '>
           <Modal.Title >
             <div className='text-light letraMontserratr mx-auto'>
-              <i className="fa-solid fa-user-plus fa-xl"></i> Competidor ...
+              <i className="fa-solid fa-user-plus fa-xl"></i> {tipo!='D'?'Competidor ...':'Equipo'}
             </div>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {tipoModal === 'N' &&
-            <AddEditCompetidor listaClubs={listaClubs} selectItem={selectItem} club={club}
+          {tipoModal === 'N' && <AddEditCompetidor listaClubs={listaClubs} selectItem={selectItem} club={club}
               tipo={tipo} actualizarDatos={actualizarDatos} generoee={genero} listaTiposC={listaTiposCam} />}
-          {tipoModal === 'S' &&
-            <BuscarCompetidor tipo={tipo} club={club} setCargador={setCargador} actualizarDatos={actualizarDatos} />}
+          {tipoModal === 'S' && <BuscarCompetidor tipo={tipo} club={club} setCargador={setCargador} actualizarDatos={actualizarDatos} />}
+          {tipoModal === 'D'&& <AddEditEquipo club={club} actualizar={actualizarDatos} selectItem={selectItem}/>}
         </Modal.Body>
       </Modal>
       <MsgDialogo show={showMessage} msg='Esta seguro de Eliminar AL COMPETIDOR' okFunction={() => eliminarUsuario(selectItem)} notFunction={() => setShowMessage(false)} />

@@ -4,7 +4,7 @@ import {addEditCompetidor,getCompetidores,generateLLaves,getCompetidorSinPelea,
     deleteCompetidor,getCompetidorClasificado,generateLLaveManual,getCompetidorClasificadoLista,
     obtenerLlaves,cambiarNumPelea,obtenerLlavesManuales,buscarCompetidor,
     obtenerLlaveRompimineto,getInformacionRompimiento,generarLlavePoomse,
-    generarLlaveRompimiento} from '../controllers/competidor.controllers.js'
+    generarLlaveRompimiento,addEditEquipo,deleteEquipo} from '../controllers/competidor.controllers.js'
 const router = Router();
 
 router.post('/addEditCompetidor',async(req,res)=>{
@@ -17,6 +17,14 @@ router.post('/addEditCompetidor',async(req,res)=>{
 });
 router.post('/getCompetidores',async(req,res)=>{
     const result = await getCompetidores(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
+router.post('/deleteEquipo',async(req,res)=>{
+    const result = await deleteEquipo(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{
@@ -158,6 +166,14 @@ router.post('/getInformacionRompimiento',async(req,res)=>{
 });
 router.post('/generarLlavePoomse',async(req,res)=>{
     const result = await generarLlavePoomse(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
+router.post('/addEditEquipo',async(req,res)=>{
+    const result = await addEditEquipo(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

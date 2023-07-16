@@ -28,12 +28,58 @@ export const addEditCompetidor = async (info) => {
         if (conn) { await conn.release(); }
     }
 }
+export const addEditEquipo = async(info)=>{
+    var conn;
+    try {
+        var desc = Buffer.from(info.descripcion);
+        conn = await pool.getConnection();
+        if (parseInt(info.idequipo) === 0) {
+            const [result] = await conn.query('INSERT INTO equipo (nombre,descripcion,idcampeonato,numparticipantes,idclub) VALUES (?,?,?,?,?);',
+                [info.nombre,desc,info.idcampeonato,info.numPart,info.club])
+            await conn.commit()
+            return { "ok": "GUARDADO" }
+        } else {
+            const [result] = await conn.query('UPDATE equipo SET nombre=?,descripcion=?,idcampeonato=?,numparticipantes=?,idclub=? WHERE idequipo=?;',
+                [info.nombre,desc,info.idcampeonato,info.numPart,info.club,info.idequipo])
+            await conn.commit()
+            return { "ok": "ACTUALIZANDO" }
+        }
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}
 export const getCompetidores = async (info) => {
     var conn;
     try {
+        console.log(info);
         conn = await pool.getConnection();
-        const [result] = await conn.query('SELECT *,(select nombre from club where idclub=c.idclub) as club,(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon FROM competidor c WHERE c.idcampeonato=? and c.idclub=? and c.tipo=? and c.genero=? and c.estado!="E";',
-            [info.idCampeonato, info.club, info.tipo, info.genero])
+        if(info.tipo!='D'){
+            const [result] = await conn.query('SELECT *,(select nombre from club where idclub=c.idclub) as club,(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon FROM competidor c WHERE c.idcampeonato=? and c.idclub=? and c.tipo=? and c.genero=? and c.estado!="E";',
+                [info.idCampeonato, info.club, info.tipo, info.genero])
+            return { "ok": result }
+        }else{
+            const [result] = await conn.query('SELECT * from equipo where idcampeonato=? and idclub=? and estado!="E";',
+                [info.idCampeonato, info.club])
+            console.log(result)
+            return { "ok": result }
+        }
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}
+export const deleteEquipo = async (info) => {
+    var conn;
+    try {
+        console.log(info);
+        conn = await pool.getConnection();
+        const [result] = await conn.query('UPDATE equipo SET estado=? WHERE idequipo=?;',
+            [info.estado, info.idequipo])
         return { "ok": result }
     } catch (error) {
         console.log(error);
@@ -550,12 +596,12 @@ export const buscarCompetidor = async (info) => {
         '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria, ' +
         "(concat_ws(' ', nombres, apellidos)) as nombrex " +
-        "FROM competidor c WHERE c.estado='A') as res where res.idcategoria in (select idcategoria from categoria where estado='A') and res.nombrex like '%" + info.competidor + "%'";
+        "FROM competidor c WHERE c.estado='A') as res where res.idcategoria in (select idcategoria from categoria where estado='A') and res.idclub=? and res.nombrex like '%" + info.competidor + "%'";
     var conn;
     try {
         console.log(sql);
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql, [info.tipo])
+        const [result] = await conn.query(sql, [info.club])
         return { "ok": result }
     } catch (error) {
         console.log(error);

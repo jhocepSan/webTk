@@ -16,7 +16,7 @@ function BuscarCompetidor(props) {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json;charset=utf-8',
                 },
-                body: JSON.stringify({ tipo, competidor })
+                body: JSON.stringify({ tipo, competidor,club })
             })
                 .then(res => res.json())
                 .then(data => {
@@ -77,7 +77,7 @@ function BuscarCompetidor(props) {
                 </div>
             </div>
             <div className='card-body'>
-                <div className='table-responsive'>
+                <div className='table-responsive overflow-auto' style={{maxHeight:'400px'}}>
                     <table className="table table-dark table-hover table-bordered ">
                         <tbody>
                             {listaCompetidor.map((item, index) => {
