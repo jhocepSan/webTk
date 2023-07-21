@@ -28,22 +28,38 @@ export const addEditCompetidor = async (info) => {
         if (conn) { await conn.release(); }
     }
 }
-export const addEditEquipo = async(info)=>{
+export const addEditEquipo = async (info) => {
     var conn;
     try {
         var desc = Buffer.from(info.descripcion);
         conn = await pool.getConnection();
         if (parseInt(info.idequipo) === 0) {
             const [result] = await conn.query('INSERT INTO equipo (nombre,descripcion,idcampeonato,numparticipantes,idclub) VALUES (?,?,?,?,?);',
-                [info.nombre,desc,info.idcampeonato,info.numPart,info.club])
+                [info.nombre, desc, info.idcampeonato, info.numPart, info.club])
             await conn.commit()
             return { "ok": "GUARDADO" }
         } else {
             const [result] = await conn.query('UPDATE equipo SET nombre=?,descripcion=?,idcampeonato=?,numparticipantes=?,idclub=? WHERE idequipo=?;',
-                [info.nombre,desc,info.idcampeonato,info.numPart,info.club,info.idequipo])
+                [info.nombre, desc, info.idcampeonato, info.numPart, info.club, info.idequipo])
             await conn.commit()
             return { "ok": "ACTUALIZANDO" }
         }
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}
+export const getEquipoDemostration = async (info) => {
+    var conn;
+    try {
+        console.log(info);
+        conn = await pool.getConnection();
+        const [result] = await conn.query('SELECT * from equipo where idcampeonato=? and estado!="E";',
+            [info.idCampeonato])
+        console.log(result)
+        return { "ok": result }
     } catch (error) {
         console.log(error);
         return { "error": error.message }
@@ -56,11 +72,11 @@ export const getCompetidores = async (info) => {
     try {
         console.log(info);
         conn = await pool.getConnection();
-        if(info.tipo!='D'){
+        if (info.tipo != 'D') {
             const [result] = await conn.query('SELECT *,(select nombre from club where idclub=c.idclub) as club,(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon FROM competidor c WHERE c.idcampeonato=? and c.idclub=? and c.tipo=? and c.genero=? and c.estado!="E";',
                 [info.idCampeonato, info.club, info.tipo, info.genero])
             return { "ok": result }
-        }else{
+        } else {
             const [result] = await conn.query('SELECT * from equipo where idcampeonato=? and idclub=? and estado!="E";',
                 [info.idCampeonato, info.club])
             console.log(result)
@@ -481,13 +497,13 @@ export const generarLlavePoomse = async (info) => {
                 var [competidores] = await conn.query(sql1, filtros)
                 if (competidores.length !== 0) {
                     //competidores.sort(function (a, b) { return (Math.random() - 0.5) });
-                    for (var cp of competidores){
-                        await conn.query(sql2, [cp.idcompetidor,info.tipo,cp.idgrado,cp.idcategoria,cp.idsubcategoria,cp.idcampeonato,cp.genero,cp.idcinturon])
+                    for (var cp of competidores) {
+                        await conn.query(sql2, [cp.idcompetidor, info.tipo, cp.idgrado, cp.idcategoria, cp.idsubcategoria, cp.idcampeonato, cp.genero, cp.idcinturon])
                     }
                 }
             }
-        } 
-        await conn.commit(); 
+        }
+        await conn.commit();
         return { "ok": "Generado llaves correctamente" }
     } catch (error) {
         console.log(error);
@@ -498,14 +514,14 @@ export const generarLlavePoomse = async (info) => {
 }
 
 export const obtenerLlaveRompimineto = async (info) => {
-    var sql = "select cls.idclasificacion,cls.idcompetidor,cls.tipo,cls.idgrado,cls.idcategoria,cls.idcampeonato,cls.idsubcategoria, "+
-        "cls.estado,cls.genero,cls.idtipocompetencia,cmp.nombres,cmp.apellidos,cmp.edad,cmp.peso,cmp.idclub, "+
-        "(select nombre from club where cmp.idclub=idclub) as club, (select nombre from grado where cls.idgrado=idgrado) as grado, "+
-        "cat.nombre,cat.edadini,cat.edadfin,sbcat.nombre,sbcat.pesoini,sbcat.pesofin,cls.orden, "+
-        "(select descripcion from tiposcampeonato where cls.idtipocompetencia=idtipo)as tiponombre,cls.idcinturon, "+
-        "(select nombre from cinturon where idcinturon=cls.idcinturon) as cinturon,cls.puntuacion "+
-        "from clasificacion cls inner join competidor cmp on cmp.idcompetidor=cls.idcompetidor "+
-        "inner join categoria cat on cls.idcategoria=cat.idcategoria "+
+    var sql = "select cls.idclasificacion,cls.idcompetidor,cls.tipo,cls.idgrado,cls.idcategoria,cls.idcampeonato,cls.idsubcategoria, " +
+        "cls.estado,cls.genero,cls.idtipocompetencia,cmp.nombres,cmp.apellidos,cmp.edad,cmp.peso,cmp.idclub, " +
+        "(select nombre from club where cmp.idclub=idclub) as club, (select nombre from grado where cls.idgrado=idgrado) as grado, " +
+        "cat.nombre,cat.edadini,cat.edadfin,sbcat.nombre,sbcat.pesoini,sbcat.pesofin,cls.orden, " +
+        "(select descripcion from tiposcampeonato where cls.idtipocompetencia=idtipo)as tiponombre,cls.idcinturon, " +
+        "(select nombre from cinturon where idcinturon=cls.idcinturon) as cinturon,cls.puntuacion " +
+        "from clasificacion cls inner join competidor cmp on cmp.idcompetidor=cls.idcompetidor " +
+        "inner join categoria cat on cls.idcategoria=cat.idcategoria " +
         "inner join subcategoria sbcat on sbcat.idsubcategoria=cls.idsubcategoria" +
         " where cls.idcampeonato=? and cls.estado ='A' and cls.genero=? and cls.tipo=? ;";
     var conn;
@@ -652,15 +668,15 @@ export const obtenerDatosPuntuados = async (info) => {
 
 export const getInformacionRompimiento = async (info) => {
     console.log(info);
-    var sql = "select cls.idclasificacion,cls.idcompetidor,cls.tipo,cls.idgrado,cls.idcategoria,cls.idcampeonato,cls.idsubcategoria,"+
-        " cls.estado,cls.genero,cls.idtipocompetencia,cmp.nombres,cmp.apellidos,cmp.edad,cmp.peso,cmp.idclub,"+
-        " (select nombre from club where cmp.idclub=idclub) as club, (select nombre from grado where cls.idgrado=idgrado) as grado,"+
-        " cat.nombre,cat.edadini,cat.edadfin,sbcat.nombre,sbcat.pesoini,sbcat.pesofin,cls.orden,"+
-        " (select descripcion from tiposcampeonato where cls.idtipocompetencia=idtipo)as tiponombre,cls.idcinturon,"+
-        " (select nombre from cinturon where idcinturon=cls.idcinturon) as cinturon,cls.puntuacion"+
-        " from clasificacion cls inner join competidor cmp on cmp.idcompetidor=cls.idcompetidor"+
-        " inner join categoria cat on cls.idcategoria=cat.idcategoria"+
-        " inner join subcategoria sbcat on sbcat.idsubcategoria=cls.idsubcategoria"+
+    var sql = "select cls.idclasificacion,cls.idcompetidor,cls.tipo,cls.idgrado,cls.idcategoria,cls.idcampeonato,cls.idsubcategoria," +
+        " cls.estado,cls.genero,cls.idtipocompetencia,cmp.nombres,cmp.apellidos,cmp.edad,cmp.peso,cmp.idclub," +
+        " (select nombre from club where cmp.idclub=idclub) as club, (select nombre from grado where cls.idgrado=idgrado) as grado," +
+        " cat.nombre,cat.edadini,cat.edadfin,sbcat.nombre,sbcat.pesoini,sbcat.pesofin,cls.orden," +
+        " (select descripcion from tiposcampeonato where cls.idtipocompetencia=idtipo)as tiponombre,cls.idcinturon," +
+        " (select nombre from cinturon where idcinturon=cls.idcinturon) as cinturon,cls.puntuacion" +
+        " from clasificacion cls inner join competidor cmp on cmp.idcompetidor=cls.idcompetidor" +
+        " inner join categoria cat on cls.idcategoria=cat.idcategoria" +
+        " inner join subcategoria sbcat on sbcat.idsubcategoria=cls.idsubcategoria" +
         " where cls.idcampeonato=? and cls.estado ='A' and cls.tipo=? ;";
     var conn;
     try {

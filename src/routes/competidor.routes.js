@@ -4,11 +4,19 @@ import {addEditCompetidor,getCompetidores,generateLLaves,getCompetidorSinPelea,
     deleteCompetidor,getCompetidorClasificado,generateLLaveManual,getCompetidorClasificadoLista,
     obtenerLlaves,cambiarNumPelea,obtenerLlavesManuales,buscarCompetidor,
     obtenerLlaveRompimineto,getInformacionRompimiento,generarLlavePoomse,
-    generarLlaveRompimiento,addEditEquipo,deleteEquipo} from '../controllers/competidor.controllers.js'
+    generarLlaveRompimiento,addEditEquipo,deleteEquipo,getEquipoDemostration} from '../controllers/competidor.controllers.js'
 const router = Router();
 
 router.post('/addEditCompetidor',async(req,res)=>{
     const result = await addEditCompetidor(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
+router.post('/getEquipoDemostration',async(req,res)=>{
+    const result = await getEquipoDemostration(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

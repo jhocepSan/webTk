@@ -14,7 +14,7 @@ import AddEditEquipo from './AddEditEquipo';
 import UtilsBuffer from '../utils/UtilsBuffer';
 
 function PrincipalRegistroCompetidor() {
-  const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo, userLogin } = useContext(ContextAplicacions);
+  const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo, userLogin,inscripcionOpen } = useContext(ContextAplicacions);
   const navigate = useNavigate();
   const [cmp, setCmp] = useState('');
   const [listaClubs, setListaClubs] = useState([]);
@@ -145,6 +145,13 @@ function PrincipalRegistroCompetidor() {
       })
       .catch(error => MsgUtils.msgError(error));
   }
+  function getPermiso(){
+    if(userLogin.tipo=='A'){
+      return true
+    }else{
+      return inscripcionOpen
+    }
+  }
   function renderTipoCmp(competidorSelect) {
     if (competidorSelect.idtipocompetencia != undefined || competidorSelect.idtipocompetencia != null) {
       var tiposCmp = competidorSelect.idtipocompetencia.split(':');
@@ -272,27 +279,27 @@ function PrincipalRegistroCompetidor() {
               </button>
             </div>
           </div>}
-          {tipo!='D'&&<div className='col text-start' style={{ maxWidth: '120px', minWidth: '120px' }}>
+          {tipo!='D'&&getPermiso()&&<div className='col text-start' style={{ maxWidth: '120px', minWidth: '120px' }}>
             <button className='btn btn-sm btn-success bg-gradient w-100'
               disabled={(genero !== '' && tipo !== '') ? false : true}
               onClick={() => { setTipoModal('N'); setShowModal(true); }}>
               Nuevo <i className="fa-solid fa-user-plus fa-xl"></i>
             </button>
           </div>}
-          {tipo=='D'&&<div className='col text-start' style={{ maxWidth: '120px', minWidth: '120px' }}>
+          {tipo=='D'&&getPermiso()&&<div className='col text-start' style={{ maxWidth: '120px', minWidth: '120px' }}>
             <button className='btn btn-sm btn-success bg-gradient w-100'
               disabled={(tipo !== '') ? false : true}
               onClick={() => { setTipoModal('D'); setShowModal(true); }}>
               Nuevo <i className="fa-solid fa-user-plus fa-xl"></i>
             </button>
           </div>}
-          <div className='col text-start' style={{ maxWidth: '120px', minWidth: '120px' }}>
+          {getPermiso()&&<div className='col text-start' style={{ maxWidth: '120px', minWidth: '120px' }}>
             <button className='btn btn-sm btn-success bg-gradient w-100'
               disabled={(genero !== '' && tipo !== '') ? false : true}
               onClick={() => { setTipoModal('S'); setShowModal(true) }}>
               Buscar <i className="fa-solid fa-magnifying-glass"></i>
             </button>
-          </div>
+          </div>}
         </div>
       </div>
       <div className='container-fluid text-danger w-100 bg-light text-center fw-bold '>
@@ -318,15 +325,15 @@ function PrincipalRegistroCompetidor() {
                     </div>
                     <div className='container-fluid'>
                       <div className="form-check form-switch">
-                        <input className="form-check-input" type="checkbox"
+                        {getPermiso()&&<input className="form-check-input" type="checkbox"
                           checked={item.estado === 'P' ? false : true}
-                          onChange={() => cambiarEstado(item)} />
+                          onChange={() => cambiarEstado(item)} />}
                         <label className="form-check-label" ><span className={item.estado === 'P' ? 'badge bg-warning' : 'badge bg-success'}>{item.estado === 'P' ? 'COMPETIRA?' : 'COMPETIDOR'}</span></label>
                       </div>
                     </div>
                   </td>
                   {tipo == 'R' && renderTipoCmp(item)}
-                  <td className='text-end' style={{ minWidth: '100px' }}>
+                  {getPermiso()&&<td className='text-end' style={{ minWidth: '100px' }}>
                     <div className="btn-group" role="group" aria-label="Basic example">
                       <button type="button" className="btn btn-sm text-danger m-0 p-0"
                         onClick={() => { setSelectItem(item); setShowMessage(true) }}>
@@ -337,7 +344,7 @@ function PrincipalRegistroCompetidor() {
                         <i className="fa-solid fa-pen-to-square fa-xl"></i>
                       </button>
                     </div>
-                  </td>
+                  </td>}
                 </tr>
               )
             })}

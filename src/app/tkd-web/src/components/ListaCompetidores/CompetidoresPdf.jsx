@@ -5,7 +5,7 @@ import { server } from '../utils/MsgUtils';
 
 function CompetidoresPdf(props) {
     const pdfRef = useRef(null);
-    const { categorias, listaCompetidores, campeonato, tipo, idcampeonato } = props;
+    const { categorias, listaCompetidores, campeonato, tipo, idcampeonato, listaTiposCam } = props;
     const [grados, setGrados] = useState([]);
     const exportPDF = () => {
         const content = pdfRef.current;
@@ -151,6 +151,54 @@ function CompetidoresPdf(props) {
                     }
                 }
             }
+        } else if (tipo == 'R') {
+            for (var gr of grados) {
+                for (var cat of categorias) {
+                    if (y >= height - 20) {
+                        doc.addPage();
+                        x = 10;
+                        y = 10;
+                    }
+                    for (var rmp of listaTiposCam) {
+                        var listaFiltrada = listaCompetidores.filter((dato) => dato.idcategoria == cat.idcategoria && dato.idgrado == gr.idgrado && esDeTipo(dato,rmp));
+                        if (listaFiltrada.length !== 0) {
+                            doc.setFontSize(12);
+                            doc.text(`Nombre del grado: ${gr.nombre}`, x, y + 10);
+                            doc.text(`Rompimiento: ${rmp.descripcion}`, x+100, y + 10);
+                            doc.text(`Categoria: ${cat.nombre} -> EDAD ${cat.edadini} - ${cat.edadfin} años`, x, y + 15);
+                            doc.setFontSize(11);
+                            doc.line(x, y + 17, width - 10, y + 17, 'S');
+                            doc.text('Nombre Completo', x, y + 22);
+                            doc.text('Edad', x + 80, y + 22);
+                            doc.text('Grado', x + 93, y + 22);
+                            doc.text('Cinturon', x + 136, y + 22);
+                            doc.text('Club', x + 156, y + 22);
+                            doc.line(x, y + 23, width - 10, y + 23, 'S');
+                            y = y + 24
+                            if (y >= height - 20) {
+                                doc.addPage();
+                                x = 10;
+                                y = 10;
+                            }
+                            doc.setFontSize(9);
+                            for (var cmp of listaFiltrada) {
+                                doc.text(cmp.nombres + ' ' + cmp.apellidos, x, y + 5);
+                                doc.text(cmp.edad.toString(), x + 80, y + 5);
+                                doc.text(cmp.grado, x + 93, y + 5);
+                                doc.text(cmp.cinturon, x + 136, y + 5);
+                                doc.text(cmp.club, x + 156, y + 5);
+                                doc.line(x, y + 6, width - 10, y + 6, 'S');
+                                y = y + 7;
+                                if (y >= height - 20) {
+                                    doc.addPage();
+                                    x = 10;
+                                    y = 10;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         doc.save(cmpSelect.nombre.replace(' ', '') + subtitulo + '.pdf');
     }
@@ -173,9 +221,14 @@ function CompetidoresPdf(props) {
             return ''
         }
     }
+    function esDeTipo(dato, tipo) {
+        var tipoc = dato.idtipocompetencia.split(':');
+        var estado = tipoc.indexOf(tipo.idtipo.toString()) >= 0
+        return estado
+    }
     useEffect(() => {
         console.log(listaCompetidores);
-        if (tipo === 'P') {
+        if (tipo === 'P' || tipo == 'R') {
             fetch(`${server}/config/getGrados`, {
                 method: 'POST',
                 headers: {
@@ -295,6 +348,60 @@ function CompetidoresPdf(props) {
                                             </div>
                                         )
                                     }
+                                })}
+                            </div>
+                        )
+                    })}
+                {tipo == 'R' &&
+                    grados.map((item, index) => {
+                        return (
+                            <div className='container-fluid' key={index}>
+                                {categorias.map((cate, idx) => {
+                                    return (
+                                        <>
+                                            {listaTiposCam.map((tipoc, inme) => {
+                                                var listaFiltrada = listaCompetidores.filter((dato) => dato.idcategoria == cate.idcategoria && dato.idgrado == item.idgrado && esDeTipo(dato, tipoc));
+                                                if (listaFiltrada.length !== 0) {
+                                                    return (
+                                                        <div key={inme} className='mb-2'>
+                                                            <div className='subtituloPdf text-dark'>{`Nombre del grado: ${item.nombre} Rompimiento: ${tipoc.descripcion}`} </div>
+                                                            <div className='subtituloPdf text-dark'>{`Categoria: ${cate.nombre} -> EDAD ${cate.edadini} - ${cate.edadfin} años`}</div>
+                                                            <div className='table-responsive'>
+                                                                <table className="table">
+                                                                    <thead className='bg-primary bg-gradient subtituloPdf text-light'>
+                                                                        <tr>
+                                                                            <th >Nombre Completo</th>
+                                                                            <th >Edad</th>
+                                                                            <th >Peso</th>
+                                                                            <th >Grado</th>
+                                                                            <th >Cinturon</th>
+                                                                            <th >Club</th>
+                                                                            <th >Rompimiento</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        {listaFiltrada.map((competidor, cmp) => {
+                                                                            return (
+                                                                                <tr key={cmp}>
+                                                                                    <td >{`${competidor.nombres} ${competidor.apellidos}`}</td>
+                                                                                    <td>{`${competidor.edad}`}</td>
+                                                                                    <td>{`${competidor.peso}`}</td>
+                                                                                    <td>{`${competidor.grado}`}</td>
+                                                                                    <td>{`${competidor.cinturon}`}</td>
+                                                                                    <td>{`${competidor.club}`}</td>
+                                                                                    <td>{`${tipoc.descripcion}`}</td>
+                                                                                </tr>
+                                                                            )
+                                                                        })}
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                }
+                                            })}
+                                        </>
+                                    )
                                 })}
                             </div>
                         )

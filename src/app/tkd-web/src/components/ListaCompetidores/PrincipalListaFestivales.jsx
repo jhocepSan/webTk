@@ -23,7 +23,19 @@ function PrincipalListaFestivales() {
     const [actualizar, setActualizar] = useState(false);
     const [listaClubs, setListaClubs] = useState([]);
     const [idClub, setIdClub] = useState(0);
+    const [listaTiposCam, setListaTiposCam] = useState([]);
+    const [grados,setGrados] = useState([]);
+    const [categorias,setCategorias] = useState([]);
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
+    function esDeTipo(dato, tipo) {
+        if(dato.idtipocompetencia!==null){
+            var tipoc = dato.idtipocompetencia.split(':');
+            var estado = tipoc.indexOf(tipo.idtipo.toString()) >= 0
+            return estado
+        }else{
+            return false
+        }
+    }
     function generarPdf() {
         var cmpSelect = JSON.parse(localStorage.getItem('campeonato'));
         var optiones = {
@@ -41,39 +53,89 @@ function PrincipalListaFestivales() {
         doc.setFontSize(13);
         doc.text(`Lista de Estudiantes Festival ${genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`, x + 40, y);
         y += 7
-        var listaFiltrada = listaCompetidores.sort(function (a, b) { return a.edad - b.edad });
-        if (listaFiltrada.length !== 0) {
-            doc.setFontSize(11);
-            doc.line(x, y - 4, width - 10, y - 4, 'S');
-            doc.text('Nombre Completo', x, y);
-            doc.text('Edad', x + 80, y);
-            doc.text('Grado', x + 93, y);
-            doc.text('Cinturon', x + 136, y);
-            doc.text('Club', x + 156, y);
-            doc.line(x, y + 2, width - 10, y + 2, 'S');
-            y = y + 7
-            doc.setFontSize(9);
-            for (var cmp of listaFiltrada) {
-                doc.text(cmp.nombres + ' ' + cmp.apellidos, x, y);
-                doc.text(cmp.edad.toString(), x + 80, y);
-                doc.text(cmp.grado, x + 93, y);
-                doc.text(cmp.cinturon, x + 136, y);
-                doc.text(cmp.club, x + 156, y);
-                doc.line(x, y + 1, width - 10, y + 1, 'S');
-                y = y + 7;
-                if (y >= height - 20) {
-                    doc.addPage();
-                    x = 10;
-                    y = 10;
-                    doc.setFontSize(11);
-                    doc.line(x, y - 1, width - 10, y - 1, 'S');
-                    doc.text('Nombre Completo', x, y);
-                    doc.text('Edad', x + 80, y);
-                    doc.text('Grado', x + 93, y);
-                    doc.text('Cinturon', x + 136, y);
-                    doc.text('Club', x + 156, y);
-                    doc.line(x, y + 4, width - 10, y + 4, 'S');
-                    y = y + 5
+        if (tipo == 'C' || tipo == 'P') {
+            var listaFiltrada = listaCompetidores.sort(function (a, b) { return a.edad - b.edad });
+            if (listaFiltrada.length !== 0) {
+                doc.setFontSize(11);
+                doc.line(x, y - 4, width - 10, y - 4, 'S');
+                doc.text('Nombre Completo', x, y);
+                doc.text('Edad', x + 80, y);
+                doc.text('Grado', x + 93, y);
+                doc.text('Cinturon', x + 136, y);
+                doc.text('Club', x + 156, y);
+                doc.line(x, y + 2, width - 10, y + 2, 'S');
+                y = y + 7
+                doc.setFontSize(9);
+                for (var cmp of listaFiltrada) {
+                    doc.text(cmp.nombres + ' ' + cmp.apellidos, x, y);
+                    doc.text(cmp.edad.toString(), x + 80, y);
+                    doc.text(cmp.grado, x + 93, y);
+                    doc.text(cmp.cinturon, x + 136, y);
+                    doc.text(cmp.club, x + 156, y);
+                    doc.line(x, y + 1, width - 10, y + 1, 'S');
+                    y = y + 7;
+                    if (y >= height - 20) {
+                        doc.addPage();
+                        x = 10;
+                        y = 10;
+                        doc.setFontSize(11);
+                        doc.line(x, y - 1, width - 10, y - 1, 'S');
+                        doc.text('Nombre Completo', x, y);
+                        doc.text('Edad', x + 80, y);
+                        doc.text('Grado', x + 93, y);
+                        doc.text('Cinturon', x + 136, y);
+                        doc.text('Club', x + 156, y);
+                        doc.line(x, y + 4, width - 10, y + 4, 'S');
+                        y = y + 5
+                    }
+                }
+            }
+        } else if (tipo == 'R') {
+            for (var gr of grados) {
+                for (var cat of categorias) {
+                    if (y >= height - 20) {
+                        doc.addPage();
+                        x = 10;
+                        y = 10;
+                    }
+                    for (var rmp of listaTiposCam) {
+                        var listaFiltrada = listaCompetidores.filter((dato) => dato.idcategoria == cat.idcategoria && dato.idgrado == gr.idgrado && esDeTipo(dato, rmp));
+                        if (listaFiltrada.length !== 0) {
+                            doc.setFontSize(12);
+                            doc.text(`Nombre del grado: ${gr.nombre}`, x, y + 10);
+                            doc.text(`Rompimiento: ${rmp.descripcion}`, x + 100, y + 10);
+                            doc.text(`Categoria: ${cat.nombre} -> EDAD ${cat.edadini} - ${cat.edadfin} años`, x, y + 15);
+                            doc.setFontSize(11);
+                            doc.line(x, y + 17, width - 10, y + 17, 'S');
+                            doc.text('Nombre Completo', x, y + 22);
+                            doc.text('Edad', x + 80, y + 22);
+                            doc.text('Grado', x + 93, y + 22);
+                            doc.text('Cinturon', x + 136, y + 22);
+                            doc.text('Club', x + 156, y + 22);
+                            doc.line(x, y + 23, width - 10, y + 23, 'S');
+                            y = y + 24
+                            if (y >= height - 20) {
+                                doc.addPage();
+                                x = 10;
+                                y = 10;
+                            }
+                            doc.setFontSize(9);
+                            for (var cmp of listaFiltrada) {
+                                doc.text(cmp.nombres + ' ' + cmp.apellidos, x, y + 5);
+                                doc.text(cmp.edad.toString(), x + 80, y + 5);
+                                doc.text(cmp.grado, x + 93, y + 5);
+                                doc.text(cmp.cinturon, x + 136, y + 5);
+                                doc.text(cmp.club, x + 156, y + 5);
+                                doc.line(x, y + 6, width - 10, y + 6, 'S');
+                                y = y + 7;
+                                if (y >= height - 20) {
+                                    doc.addPage();
+                                    x = 10;
+                                    y = 10;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -193,6 +255,82 @@ function PrincipalListaFestivales() {
         dato.estado = 'I'
         cambiarEstadoC(dato);
     }
+    function obtenerTiposCampeonato(val) {
+        var cmpSelect = JSON.parse(localStorage.getItem('campeonato'));
+        fetch(`${server}/config/getTiposCampeonato`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({
+                'idcampeonato': cmpSelect.idcampeonato, 'tipo': val
+            })
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data.ok)
+                if (data.ok) {
+                    setListaTiposCam(data.ok);
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
+                setCargador(false);
+            })
+            .catch(error => MsgUtils.msgError(error));
+    }
+    function cambiarTipoCompetencia(valor) {
+        console.log(valor)
+        if (valor == 'R') {
+            obtenerTiposCampeonato(valor);
+            obtenerGrado(valor)
+        }
+        setTipo(valor);
+    }
+    function obtenerGrado(val) {
+        fetch(`${server}/config/getGrados`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({
+                info: {
+                    'idcampeonato':campeonato.idcampeonato, 'tipo':val
+                }
+            })
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                if (data.ok) {
+                    setGrados(data.ok);
+                    //setActualizar(!actualizar);
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
+            })
+            .catch(error => MsgUtils.msgError(error));
+    }
+    function getInformacionCategoria(genero) {
+        fetch(`${server}/config/getConfiCategoriaFestival`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({ 'idcampeonato': campeonato.idcampeonato, genero })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    setCategorias(data.ok);
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
+            })
+            .catch(error => MsgUtils.msgError(error));
+    }
     function handleDownloadExcel() {
         var body = []
         var listafiltrada = listaCompetidores;
@@ -219,6 +357,25 @@ function PrincipalListaFestivales() {
             },
         });
     }
+    function renderTipoCmp(competidorSelect) {
+        if (competidorSelect.idtipocompetencia != undefined || competidorSelect.idtipocompetencia != null) {
+            var tiposCmp = competidorSelect.idtipocompetencia.split(':');
+            return (
+                <td style={{ minWidth: '200px' }}>
+                    {tiposCmp.map((item, index) => {
+                        var val = listaTiposCam.filter((v) => v.idtipo == parseInt(item));
+                        if (val.length !== 0) {
+                            return (
+                                <div className='container-fluid mb-1' key={index}>
+                                    <span className="badge rounded-pill bg-primary position-relative">{val[0].descripcion}
+                                    </span>
+                                </div>
+                            )
+                        }
+                    })}
+                </td>)
+        }
+    }
     useEffect(() => {
         var sessionActiva = JSON.parse(localStorage.getItem('login'));
         var cmp = JSON.parse(localStorage.getItem('campeonato'));
@@ -229,7 +386,6 @@ function PrincipalListaFestivales() {
             setUserLogin(sessionActiva);
             navigate("/listCompeFest", { replace: true });
         }
-
     }, [])
     useEffect(() => {
         if (listaClubs.length == 0) {
@@ -268,17 +424,16 @@ function PrincipalListaFestivales() {
                     <div className='col' style={{ minWidth: '160px', maxWidth: '160px' }}>
                         <select className="form-select form-select-sm btn-secondary letraBtn w-100"
                             value={tipo}
-                            onChange={(e) => { setTipo(e.target.value); }}>
+                            onChange={(e) => { cambiarTipoCompetencia(e.target.value); }}>
                             <option value=''>Tipo (Ninguno)</option>
                             <option value="C">Combate</option>
                             <option value="P">Poomse</option>
-                            <option value="D">Demostraciones</option>
                             <option value="R">Rompimiento</option>
                         </select>
                     </div>
                     <div className='col' style={{ minWidth: '160px', maxWidth: '160px' }}>
                         <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
-                            value={genero} onChange={(e) => { setGenero(e.target.value) }}>
+                            value={genero} onChange={(e) => { getInformacionCategoria(e.target.value);setGenero(e.target.value) }}>
                             <option value={''}>Genero</option>
                             <option value={'M'}>Masculino</option>
                             <option value={'F'}>Femenino</option>
@@ -367,6 +522,7 @@ function PrincipalListaFestivales() {
                                             <div className='letraMontserratr'>{'SUB-CATEGORIA: ' + item.nombresubcategoria}</div>
                                         </div>
                                     </td>
+                                    {tipo == 'R' && renderTipoCmp(item)}
                                     <td className='my-auto text-center'>
                                         <button className='btn text-danger' onClick={() => sacarDeListas(item)}>
                                             <i className="fa-regular fa-circle-xmark fa-2xl"></i>

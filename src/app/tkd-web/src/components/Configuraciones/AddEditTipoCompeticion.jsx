@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { server } from '../utils/MsgUtils';
 import MsgUtils from '../utils/MsgUtils';
-
+import MsgDialogo from '../utils/MsgDialogo';
 function AddEditTipoCompeticion(props) {
     const {campeonato,tipo}=props;
     const [itemTipo, setItemTipo] = useState('');
     const [listaTipos, setListaTipos] = useState([]);
+    const [showMessage,setShowMessage] = useState(false);
+    const [selectItem ,setSelectItem] = useState({});
     function recuperarTipoCompetencia(valor) {
         fetch(`${server}/config/getTiposCampeonato`, {
             method: 'POST',
@@ -65,6 +67,7 @@ function AddEditTipoCompeticion(props) {
             })
                 .then(res => res.json())
                 .then(data => {
+                    setShowMessage(false);
                     if (data.ok) {
                         MsgUtils.msgCorrecto(data.ok);
                     } else {
@@ -109,7 +112,7 @@ function AddEditTipoCompeticion(props) {
                                             {item.descripcion}
                                         </div>
                                         <div className='col text-end'>
-                                            <button className='btn btn-sm btn-danger' onClick={() => eliminarListaTipo(item)}>X</button>
+                                            <button className='btn btn-sm btn-danger' onClick={() =>{ setSelectItem(item);setShowMessage(true)}}>X</button>
                                         </div>
                                     </div>
                                 </div>
@@ -123,6 +126,7 @@ function AddEditTipoCompeticion(props) {
                     Guardar
                 </button>
             </div>
+            <MsgDialogo show={showMessage} msg='Esta seguro de Eliminar este tipo' okFunction={()=>eliminarListaTipo(selectItem)} notFunction={()=>setShowMessage(false)}/>
         </div>
     )
 }

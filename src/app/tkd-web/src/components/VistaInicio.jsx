@@ -9,7 +9,7 @@ import { server } from './utils/MsgUtils';
 
 function VistaInicio() {
   const navigate = useNavigate();
-  const { setLogin, setUserLogin, login, campeonato, setCampeonato, userLogin, listaCampeonatos, setListaCampeonatos } = useContext(ContextAplicacions);
+  const { setLogin, setUserLogin, login, campeonato, setCampeonato, userLogin, listaCampeonatos, setListaCampeonatos, inscripcionOpen, setInscripcionOpen } = useContext(ContextAplicacions);
   const [campeonatos, setCampeonatos] = useState([]);
   const [idCampeonato, setIdCampeonato] = useState();
   const [showModal, setShowModal] = useState(false);
@@ -33,7 +33,7 @@ function VistaInicio() {
         'Accept': 'application/json',
         'Content-Type': 'application/json;charset=utf-8',
       },
-      body: JSON.stringify({ nombre, descripcion,importCat,importGrad,importId })
+      body: JSON.stringify({ nombre, descripcion, importCat, importGrad, importId })
     })
       .then(res => res.json())
       .then(data => {
@@ -54,9 +54,9 @@ function VistaInicio() {
       setCargador(true);
       if ((importCat || importGrad) && importId !== 0) {
         crearCampeonato()
-      } else if(!importCat && !importGrad){
+      } else if (!importCat && !importGrad) {
         crearCampeonato()
-      }else{
+      } else {
         MsgUtils.msgError("Si quiere importar alguna configuracion, elija el campeonato de la cual se copiara...")
       }
     } else {
@@ -135,6 +135,15 @@ function VistaInicio() {
               </div>
             </div>
           </div>
+          {userLogin.tipo === 'A' &&
+            <div className='card-footer'>
+              <div className="form-check form-switch">
+                <input className="form-check-input" type="checkbox"
+                  checked={inscripcionOpen}
+                  onChange={() => setInscripcionOpen(!inscripcionOpen)} />
+                <label className="form-check-label" ><span className={inscripcionOpen==false ? 'badge bg-danger' : 'badge bg-success'}>{inscripcionOpen==true ? 'Inscripciones Abiertas' : 'Inscripciones Cerradas'}</span></label>
+              </div>
+            </div>}
         </div>
       </div>
       <div className='container-fluid mb-4'>
@@ -143,13 +152,13 @@ function VistaInicio() {
             <i className="fa-solid fa-server fa-fade"></i> Direccion Ip del Servidor TKD <i className="fa-solid fa-server fa-fade"></i>
           </div>
           <div className='card-body text-center'>
-            {userLogin.serverIp.map((item,index)=>{
-              return(
+            {userLogin.serverIp.map((item, index) => {
+              return (
                 <div key={index}>
-                  <div className='letrasContenido text-dark' style={{fontSize:'19px'}}>
+                  <div className='letrasContenido text-dark' style={{ fontSize: '19px' }}>
                     Red {item.name} la direccion Registro es = {item.ip}:4000
                   </div>
-                  <div className='letrasContenido text-dark' style={{fontSize:'19px'}}>
+                  <div className='letrasContenido text-dark' style={{ fontSize: '19px' }}>
                     Red {item.name} la direccion APK es = {item.ip}:4001
                   </div>
                 </div>

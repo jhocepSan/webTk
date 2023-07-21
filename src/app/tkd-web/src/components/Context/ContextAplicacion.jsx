@@ -8,10 +8,11 @@ function ContextAplicacion({children}) {
     const [titulo,setTitulo] = useState('');
     const [campeonato,setCampeonato] = useState({});
     const [listaCampeonatos,setListaCampeonatos] = useState([]);
+    const [inscripcionOpen,setInscripcionOpen] = useState(false);
   return (
     <ContextAplicacions.Provider value={{
         login,setLogin,userLogin,setUserLogin,menuActivo,setMenuActivo,titulo,setTitulo,
-        campeonato,setCampeonato,listaCampeonatos,setListaCampeonatos
+        campeonato,setCampeonato,listaCampeonatos,setListaCampeonatos,inscripcionOpen,setInscripcionOpen
     }}>
         {children}
     </ContextAplicacions.Provider>

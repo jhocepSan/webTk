@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { server } from '../utils/MsgUtils';
 import PrincipalLlaveRom from './PrincipalLlaveRom';
 import PrincipalLlavePoomse from './PrincipalLlavePoomse';
+import UtilsBuffer from '../utils/UtilsBuffer';
 
 function PrincipalListaCompetidor() {
     const navigate = useNavigate();
@@ -187,7 +188,7 @@ function PrincipalListaCompetidor() {
             .catch(error => MsgUtils.msgError(error));
     }
     function buscarCompetidores() {
-        if (genero !== '' && tipo !== '') {
+        if (genero !== '' && tipo !== '' && tipo !== 'D') {
             setCargador(true);
             fetch(`${server}/competidor/getCompetidorClasificadoLista`, {
                 method: 'POST',
@@ -203,6 +204,28 @@ function PrincipalListaCompetidor() {
                     if (data.ok) {
                         obtenerLLaves();
                         comprobarEstado(data.ok);
+                        setListaCompetidores(data.ok);
+                        setBuscado(true);
+                    } else {
+                        MsgUtils.msgError(data.error);
+                    }
+                })
+                .catch(error => MsgUtils.msgError(error));
+        } else if (tipo !== '' && tipo == 'D') {
+            console.log(tipo)
+            setCargador(true);
+            fetch(`${server}/competidor/getEquipoDemostration`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json;charset=utf-8',
+                },
+                body: JSON.stringify({ idCampeonato })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    setCargador(false);
+                    if (data.ok) {
                         setListaCompetidores(data.ok);
                         setBuscado(true);
                     } else {
@@ -238,7 +261,7 @@ function PrincipalListaCompetidor() {
                             }
                         })
                         .catch(error => MsgUtils.msgError(error));
-                }else if(tipo=='R'){
+                } else if (tipo == 'R') {
                     fetch(`${server}/competidor/generarLlaveRompimiento`, {
                         method: 'POST',
                         headers: {
@@ -257,7 +280,7 @@ function PrincipalListaCompetidor() {
                             }
                         })
                         .catch(error => MsgUtils.msgError(error));
-                }else if(tipo=='P'){
+                } else if (tipo == 'P') {
                     fetch(`${server}/competidor/generarLlavePoomse`, {
                         method: 'POST',
                         headers: {
@@ -293,9 +316,13 @@ function PrincipalListaCompetidor() {
         }
     }
     const handleDownload = () => {
-        setTipoM('P');
-        setTituloModal('Clasificación de Competidores');
-        setShowModal(true);
+        if(tipo!=='D'){
+            setTipoM('P');
+            setTituloModal('Clasificación de Competidores');
+            setShowModal(true);
+        }else{
+            console.log("generar pdf ")
+        }
     };
     function renderTipoCmp(competidorSelect) {
         if (competidorSelect.idtipocompetencia != undefined || competidorSelect.idtipocompetencia != null) {
@@ -400,15 +427,15 @@ function PrincipalListaCompetidor() {
                             <option value="R">Rompimiento</option>
                         </select>
                     </div>
-                    <div className='col' style={{ maxWidth: '100px', minWidth: '100px' }}>
+                    {tipo != 'D' && <div className='col' style={{ maxWidth: '100px', minWidth: '100px' }}>
                         <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
                             value={genero} onChange={(e) => { setGenero(e.target.value); setBuscado(false); listaTiposCam.length == 0 ? obtenerTiposCampeonato() : '' }}>
                             <option value={''}>Genero</option>
                             <option value={'M'}>Masculino</option>
                             <option value={'F'}>Femenino</option>
                         </select>
-                    </div>
-                    <div className='col' style={{ maxWidth: '130px', minWidth: '130px' }}>
+                    </div>}
+                    {tipo != 'D' && <div className='col' style={{ maxWidth: '130px', minWidth: '130px' }}>
                         <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
                             value={idClub} onChange={(e) => { setIdClub(e.target.value) }}>
                             <option value={0}>Club?(Todos)</option>
@@ -418,13 +445,13 @@ function PrincipalListaCompetidor() {
                                 )
                             })}
                         </select>
-                    </div>
+                    </div>}
                     <div className='col' style={{ maxWidth: '100px', minWidth: '100px' }}>
                         <button className='btn btn-sm btn-success letraBtn w-100' onClick={() => buscarCompetidores()}>
                             <i className="fa-solid fa-spinner "></i> Buscar
                         </button>
                     </div>
-                    {hayLlaves === false && listaCompetidores.length !== 0 &&
+                    {hayLlaves === false && listaCompetidores.length !== 0 && tipo !== 'D' &&
                         <div className='col' style={{ maxWidth: '100px', minWidth: '100px' }}>
                             <button className='btn btn-sm btn-warning letraBtn w-100'
                                 disabled={noValido}
@@ -432,14 +459,14 @@ function PrincipalListaCompetidor() {
                                 <i className="fa-solid fa-network-wired"></i> Crear
                             </button>
                         </div>}
-                    {hayLlaves && <div className='col' style={{ maxWidth: '110px', minWidth: '110px' }}>
+                    {hayLlaves && tipo !== 'D' && <div className='col' style={{ maxWidth: '110px', minWidth: '110px' }}>
                         <button className='btn btn-sm btn-primary letraBtn w-100' onClick={() => { setTipoM('L'); setTituloModal('Llaves Generadas'); setShowModal(true) }}>
                             <i className="fa-solid fa-network-wired"></i> Llaves
                         </button>
                     </div>}
                 </div>
             </div>
-            {buscado && listaCompetidores.length !== 0 && <>
+            {buscado && listaCompetidores.length !== 0 && tipo != 'D' && <>
                 <div className='container-fluid colorFiltro bg-gradient py-1'>
                     <div className='row g-1'>
                         <div className='col my-auto' style={{ maxWidth: '90px', minWidth: '90px' }}>
@@ -551,6 +578,31 @@ function PrincipalListaCompetidor() {
                         </tbody>
                     </table>
                 </div></>}
+            {buscado && listaCompetidores.length !== 0 && tipo == 'D' &&
+                <>
+                    <div className='container-fluid text-danger w-100 bg-light text-center fw-bold '>
+                        Numero Equipos {listaCompetidores.length}
+                    </div>
+                    <div className='table-responsive'>
+                        <table className="table table-dark table-striped table-hover" id='competidoresLista'>
+                            <tbody>
+                                {listaCompetidores.map((item, index) => {
+                                    return (
+                                        <tr key={index}>
+                                            <td className='my-auto' style={{ width: '150px' }}>
+                                                {item.nombre}
+                                            </td>
+                                            <td>
+                                                <textarea className="form-control" style={{ height: '150px' }}
+                                                    disabled={true} value={UtilsBuffer.getText(item.descripcion)}></textarea>
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </>}
             <Modal show={showModal} onHide={() => setShowModal(false)}
                 size={'xl'}
                 aria-labelledby="contained-modal-title-vcenter"
@@ -563,10 +615,10 @@ function PrincipalListaCompetidor() {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsPrefix='modal-body'>
-                    {tipoM === 'L' && tipo=='C' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipoL={'E'} callback={obtenerLLaves} />}
-                    {tipoM === 'P' && <CompetidoresPdf categorias={categorias} listaCompetidores={listaCompetidores} campeonato={tituloo} tipo={tipo} idcampeonato={idCampeonato} />}
-                    {tipoM === 'L' && tipo==='R' && <PrincipalLlaveRom categorias={categorias} idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipo={tipo} tipoL={'E'}/>}
-                    {tipoM === 'L' && tipo==='P' && <PrincipalLlavePoomse categorias={categorias} idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipo={tipo} tipoL={'E'}/>}
+                    {tipoM === 'L' && tipo == 'C' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipoL={'E'} callback={obtenerLLaves} />}
+                    {tipoM === 'P' && <CompetidoresPdf categorias={categorias} listaCompetidores={listaCompetidores} campeonato={tituloo} tipo={tipo} idcampeonato={idCampeonato} listaTiposCam={listaTiposCam} />}
+                    {tipoM === 'L' && tipo === 'R' && <PrincipalLlaveRom categorias={categorias} idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipo={tipo} tipoL={'E'} />}
+                    {tipoM === 'L' && tipo === 'P' && <PrincipalLlavePoomse categorias={categorias} idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipo={tipo} tipoL={'E'} />}
                 </Modal.Body>
             </Modal>
         </div>
