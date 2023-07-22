@@ -24,15 +24,16 @@ function PrincipalListaFestivales() {
     const [listaClubs, setListaClubs] = useState([]);
     const [idClub, setIdClub] = useState(0);
     const [listaTiposCam, setListaTiposCam] = useState([]);
-    const [grados,setGrados] = useState([]);
-    const [categorias,setCategorias] = useState([]);
+    const [grados, setGrados] = useState([]);
+    const [categorias, setCategorias] = useState([]);
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
+    const [generado,setGenerado] = useState(false);
     function esDeTipo(dato, tipo) {
-        if(dato.idtipocompetencia!==null){
+        if (dato.idtipocompetencia !== null) {
             var tipoc = dato.idtipocompetencia.split(':');
             var estado = tipoc.indexOf(tipo.idtipo.toString()) >= 0
             return estado
-        }else{
+        } else {
             return false
         }
     }
@@ -186,14 +187,35 @@ function PrincipalListaFestivales() {
         }
     }
     function GenerarLlaves() {
-        if (genManual) {
-            if (listaManual.length !== 0) {
-                setListaCompetidores([...listaCompetidores, ...listaManual]);
-                setListaManual([]);
+        if(tipo!=='R'){
+            if (genManual) {
+                if (listaManual.length !== 0) {
+                    setListaCompetidores([...listaCompetidores, ...listaManual]);
+                    setListaManual([]);
+                }
             }
+            setSelectItem({});
+            setGenManual(!genManual);
+        }else{
+            fetch(`${server}/competidor/generarLlaveRompimientoFestival`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json;charset=utf-8',
+                },
+                body: JSON.stringify({ categorias, 'idCampeonato':campeonato.idcampeonato, genero, tipo })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok) {
+                        setGenerado(true);
+                        MsgUtils.msgCorrecto(data.ok);
+                    } else {
+                        MsgUtils.msgError(data.error);
+                    }
+                })
+                .catch(error => MsgUtils.msgError(error));
         }
-        setSelectItem({});
-        setGenManual(!genManual);
     }
     function crearLlaveManual() {
         fetch(`${server}/competidor/generateLLaveManual`, {
@@ -296,7 +318,7 @@ function PrincipalListaFestivales() {
             },
             body: JSON.stringify({
                 info: {
-                    'idcampeonato':campeonato.idcampeonato, 'tipo':val
+                    'idcampeonato': campeonato.idcampeonato, 'tipo': val
                 }
             })
         })
@@ -433,7 +455,7 @@ function PrincipalListaFestivales() {
                     </div>
                     <div className='col' style={{ minWidth: '160px', maxWidth: '160px' }}>
                         <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
-                            value={genero} onChange={(e) => { getInformacionCategoria(e.target.value);setGenero(e.target.value) }}>
+                            value={genero} onChange={(e) => { getInformacionCategoria(e.target.value); setGenero(e.target.value) }}>
                             <option value={''}>Genero</option>
                             <option value={'M'}>Masculino</option>
                             <option value={'F'}>Femenino</option>
@@ -474,10 +496,18 @@ function PrincipalListaFestivales() {
                             </button>
                         </div>
                     </div>
-                    {listaCompetidores.length !== 0 &&
+                    {listaCompetidores.length !== 0 && tipo !== 'R' &&
                         <div className='col' style={{ minWidth: '130px', maxWidth: '130px' }}>
                             <button className={`btn btn-sm bg-gradient w-100 ${genManual ? 'btn-danger' : 'btn-primary'}`} onClick={() => GenerarLlaves()}>
                                 <i className="fa-solid fa-network-wired"></i> {genManual ? 'Desactivar' : 'LLave Manual'}
+                            </button>
+                        </div>}
+                    {listaCompetidores.length !== 0 && tipo === 'R' &&
+                        <div className='col' style={{ minWidth: '90px', maxWidth: '90px' }}>
+                            <button className={`btn btn-sm bg-gradient w-100 ${genManual ? 'btn-danger' : 'btn-primary'}`}
+                                disabled={generado}
+                                onClick={() => GenerarLlaves()}>
+                                <i className="fa-solid fa-network-wired"></i>Llaves
                             </button>
                         </div>}
                 </div>

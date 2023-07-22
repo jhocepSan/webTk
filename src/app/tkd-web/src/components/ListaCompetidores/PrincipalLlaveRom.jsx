@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import MsgUtils, { server } from '../utils/MsgUtils';
 
 function PrincipalLlaveRom(props) {
-    const { categorias, idcampeonato, genero, llaves, tipo, tipoL, collback } = props;
+    const { categorias, idcampeonato, genero, llaves, tipo, tipoL, collback,actualizarInfo } = props;
     const [selectItem, setSelectItem] = useState({});
     const [listaFiltrada, setListaFiltrada] = useState([]);
     const [grados, setGrados] = useState([]);
@@ -54,6 +54,7 @@ function PrincipalLlaveRom(props) {
         <div>
             <div className='overflow-auto mb-2'>
                 <div className='btn-group btn-group-sm mb-2'>
+                    {tipoL == 'A' && <button className='btn btn-success' onClick={()=>{setListaFiltrada([]);setSelectItem({});actualizarInfo()}}><i className="fa-solid fa-rotate"></i>Actualizar</button>}
                     {categorias.map((item, index) => {
                         return (
                             <button className={`btn btn-sm letraBtn ${selectItem.idcategoria === item.idcategoria ? 'botonLlave' : 'btn-light'}`} onClick={() => verLlavesCategoriaOficial(item)}

@@ -70,7 +70,7 @@ export const getConfiCategoriaUnido = async (info) => {
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query('SELECT * FROM categoria where estado="A" and idcampeonato=? order by edadini;',
+        const [result] = await conn.query('SELECT * FROM categoria where estado!="E" and idcampeonato=? order by edadini;',
             [info.idcampeonato]);
         var information = []
         for (var categoria of result) {

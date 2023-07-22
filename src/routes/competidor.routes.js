@@ -4,7 +4,8 @@ import {addEditCompetidor,getCompetidores,generateLLaves,getCompetidorSinPelea,
     deleteCompetidor,getCompetidorClasificado,generateLLaveManual,getCompetidorClasificadoLista,
     obtenerLlaves,cambiarNumPelea,obtenerLlavesManuales,buscarCompetidor,
     obtenerLlaveRompimineto,getInformacionRompimiento,generarLlavePoomse,
-    generarLlaveRompimiento,addEditEquipo,deleteEquipo,getEquipoDemostration} from '../controllers/competidor.controllers.js'
+    generarLlaveRompimiento,addEditEquipo,deleteEquipo,getEquipoDemostration,
+    guardarRompimientoPuntos,generarLlaveRompimientoFestival} from '../controllers/competidor.controllers.js'
 const router = Router();
 
 router.post('/addEditCompetidor',async(req,res)=>{
@@ -164,6 +165,14 @@ router.post('/generarLlaveRompimiento',async(req,res)=>{
         res.status(404).json(result);
     }
 }); 
+router.post('/generarLlaveRompimientoFestival',async(req,res)=>{
+    const result = await generarLlaveRompimientoFestival(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
 router.post('/getInformacionRompimiento',async(req,res)=>{
     const result = await getInformacionRompimiento(req.body);
     if(result.ok){
@@ -188,4 +197,13 @@ router.post('/addEditEquipo',async(req,res)=>{
         res.status(404).json(result);
     }
 })
+router.post('/guardarRompimientoPuntos',async(req,res)=>{
+    const result = await guardarRompimientoPuntos(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
+
 export default router;
