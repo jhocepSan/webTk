@@ -27,7 +27,7 @@ function PrincipalListaFestivales() {
     const [grados, setGrados] = useState([]);
     const [categorias, setCategorias] = useState([]);
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
-    const [generado,setGenerado] = useState(false);
+    const [generado, setGenerado] = useState(false);
     function esDeTipo(dato, tipo) {
         if (dato.idtipocompetencia !== null) {
             var tipoc = dato.idtipocompetencia.split(':');
@@ -92,19 +92,24 @@ function PrincipalListaFestivales() {
                 }
             }
         } else if (tipo == 'R') {
-            for (var gr of grados) {
-                for (var cat of categorias) {
+            for (var cat of categorias) {
+                for (var gr of grados) {
                     if (y >= height - 20) {
                         doc.addPage();
                         x = 10;
                         y = 10;
                     }
                     for (var rmp of listaTiposCam) {
+                        if (y >= height - 30) {
+                            doc.addPage();
+                            x = 10;
+                            y = 10;
+                        }
                         var listaFiltrada = listaCompetidores.filter((dato) => dato.idcategoria == cat.idcategoria && dato.idgrado == gr.idgrado && esDeTipo(dato, rmp));
                         if (listaFiltrada.length !== 0) {
                             doc.setFontSize(12);
                             doc.text(`Nombre del grado: ${gr.nombre}`, x, y + 10);
-                            doc.text(`Rompimiento: ${rmp.descripcion}`, x + 100, y + 10);
+                            doc.text(`Rompimiento: ${rmp.descripcion}`, x + 80, y + 10);
                             doc.text(`Categoria: ${cat.nombre} -> EDAD ${cat.edadini} - ${cat.edadfin} años`, x, y + 15);
                             doc.setFontSize(11);
                             doc.line(x, y + 17, width - 10, y + 17, 'S');
@@ -187,7 +192,7 @@ function PrincipalListaFestivales() {
         }
     }
     function GenerarLlaves() {
-        if(tipo!=='R'){
+        if (tipo !== 'R') {
             if (genManual) {
                 if (listaManual.length !== 0) {
                     setListaCompetidores([...listaCompetidores, ...listaManual]);
@@ -196,14 +201,14 @@ function PrincipalListaFestivales() {
             }
             setSelectItem({});
             setGenManual(!genManual);
-        }else{
+        } else {
             fetch(`${server}/competidor/generarLlaveRompimientoFestival`, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json;charset=utf-8',
                 },
-                body: JSON.stringify({ categorias, 'idCampeonato':campeonato.idcampeonato, genero, tipo })
+                body: JSON.stringify({ categorias, 'idCampeonato': campeonato.idcampeonato, genero, tipo })
             })
                 .then(res => res.json())
                 .then(data => {

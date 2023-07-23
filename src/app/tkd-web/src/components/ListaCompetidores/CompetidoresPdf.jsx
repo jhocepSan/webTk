@@ -103,6 +103,9 @@ function CompetidoresPdf(props) {
                                 y = 10;
                             }
                         }
+                        doc.addPage();
+                        x = 10;
+                        y = 10;
                     }
                 }
             }
@@ -152,19 +155,24 @@ function CompetidoresPdf(props) {
                 }
             }
         } else if (tipo == 'R') {
-            for (var gr of grados) {
+            for (var rmp of listaTiposCam) {
                 for (var cat of categorias) {
                     if (y >= height - 20) {
                         doc.addPage();
                         x = 10;
                         y = 10;
                     }
-                    for (var rmp of listaTiposCam) {
-                        var listaFiltrada = listaCompetidores.filter((dato) => dato.idcategoria == cat.idcategoria && dato.idgrado == gr.idgrado && esDeTipo(dato,rmp));
+                    for (var gr of grados) {
+                        if (y >= height - 40) {
+                            doc.addPage();
+                            x = 10;
+                            y = 10;
+                        }
+                        var listaFiltrada = listaCompetidores.filter((dato) => dato.idcategoria == cat.idcategoria && dato.idgrado == gr.idgrado && esDeTipo(dato, rmp));
                         if (listaFiltrada.length !== 0) {
                             doc.setFontSize(12);
                             doc.text(`Nombre del grado: ${gr.nombre}`, x, y + 10);
-                            doc.text(`Rompimiento: ${rmp.descripcion}`, x+100, y + 10);
+                            doc.text(`Rompimiento: ${rmp.descripcion}`, x + 80, y + 10);
                             doc.text(`Categoria: ${cat.nombre} -> EDAD ${cat.edadini} - ${cat.edadfin} años`, x, y + 15);
                             doc.setFontSize(11);
                             doc.line(x, y + 17, width - 10, y + 17, 'S');
@@ -189,7 +197,7 @@ function CompetidoresPdf(props) {
                                 doc.text(cmp.club, x + 156, y + 5);
                                 doc.line(x, y + 6, width - 10, y + 6, 'S');
                                 y = y + 7;
-                                if (y >= height - 20) {
+                                if (y >= height - 6) {
                                     doc.addPage();
                                     x = 10;
                                     y = 10;
