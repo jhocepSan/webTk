@@ -1,5 +1,5 @@
 import {toast} from 'react-toastify'
-export const server= "http://127.0.0.1:4005"
+export const server= ""
 function msgError(mensaje){
     toast.error(mensaje, {
         position: "bottom-right",

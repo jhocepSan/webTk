@@ -50,18 +50,24 @@ function MenuHerramientas(props) {
                     <i className="fa-solid fa-house-fire"></i> Registrar Club
                 </button>
             </li>}
-            {userLogin.tipo=='A'&&<li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===10?'menuActivo':''}`}>
+            <li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===10?'menuActivo':''}`}>
                 <button className={`btn btn-sm w-100 ${menuActivo===10?'text-dark':'text-light'} text-start fs-6 menuTk`} 
                     onClick={()=>cambiarVentana(10,"RESULTADOS","resultCamp")}>
                     <i className="fa-solid fa-chart-pie"></i> Resultados Campeonato
                 </button>
-            </li>}
+            </li>
             {userLogin.tipo=='A'&&<li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===4?'menuActivo':''}`}>
                 <button className={`btn btn-sm w-100 ${menuActivo===4?'text-dark':'text-light'} text-start fs-6 menuTk`} 
                     onClick={()=>cambiarVentana(4,"ADMINISTRAR USUARIOS DEL SISTEMA","adminUser")}>
                     <i className="fa-solid fa-users-gear"></i> Administrar Usuarios
                 </button>
             </li>}
+            <li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===13?'menuActivo':''}`}>
+                <button className={`btn btn-sm w-100 ${menuActivo===13?'text-dark':'text-light'} text-start fs-6 menuTk`} 
+                    onClick={()=>cambiarVentana(13,"Puntuación Calificada","pointPreviaC")}>
+                    <i className="fa-solid fa-square-poll-horizontal"></i> Puntuación Calificada
+                </button>
+            </li>
             {userLogin.tipo=='A'&&<li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===5?'menuActivo':''}`}>
                 <button className={`btn btn-sm w-100 ${menuActivo===5?'text-dark':'text-light'} text-start fs-6 menuTk`} 
                     onClick={()=>cambiarVentana(5,"PRUEBA DE MANDOS INALAMBRICOS","gamePad")}>

@@ -53,7 +53,7 @@ function PrincipalPuntRompi() {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json;charset=utf-8',
             },
-            body: JSON.stringify({ 'idCampeonato': campeonato.idcampeonato, 'tipo': 'R' })
+            body: JSON.stringify({ 'idCampeonato': campeonato.idcampeonato, 'tipo': 'R','estado':'A' })
         })
             .then(res => res.json())
             .then(data => {

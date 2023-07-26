@@ -741,24 +741,55 @@ export const obtenerDatosPuntuados = async (info) => {
         if (conn) { await conn.release(); }
     }
 }
-
+export const obtenerDatosPuntuadosR = async (info)=>{
+    var sql = "select res.*,(select nombre from club where idclub=res.idclub) as nombre from( "+
+        "select cl.posicion,sum(posicion) as total , cm.idclub "+
+        "from clasificacion cl inner join competidor cm on cm.idcompetidor=cl.idcompetidor where cl.estado='C' and cl.idcampeonato=? and cl.tipo=? "+
+        "group by cm.idclub,cl.posicion order by cl.posicion asc)res;"
+    var conn;
+    try {
+        conn = await pool.getConnection();
+        const [resultP] = await conn.query(sql, [info.idCampeonato, info.tipo])
+        return { "ok": resultP }
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}
 export const getInformacionRompimiento = async (info) => {
     console.log(info);
     var sql = "select cls.idclasificacion,cls.idcompetidor,cls.tipo,cls.idgrado,cls.idcategoria,cls.idcampeonato,cls.idsubcategoria," +
         " cls.estado,cls.genero,cls.idtipocompetencia,cmp.nombres,cmp.apellidos,cmp.edad,cmp.peso,cmp.idclub," +
         " (select nombre from club where cmp.idclub=idclub) as club, (select nombre from grado where cls.idgrado=idgrado) as grado," +
         " cat.nombre,cat.edadini,cat.edadfin,sbcat.nombre,sbcat.pesoini,sbcat.pesofin,cls.orden," +
-        " (select descripcion from tiposcampeonato where cls.idtipocompetencia=idtipo)as tiponombre,cls.idcinturon," +
-        " (select nombre from cinturon where idcinturon=cls.idcinturon) as cinturon,cls.puntuacion" +
+        " (select descripcion from tiposcampeonato where cls.idtipocompetencia=idtipo and estado='A')as tiponombre,cls.idcinturon," +
+        " (select nombre from cinturon where idcinturon=cls.idcinturon) as cinturon,cls.puntuacion,cls.rompio,cls.norompio,cls.posicion" +
         " from clasificacion cls inner join competidor cmp on cmp.idcompetidor=cls.idcompetidor" +
         " inner join categoria cat on cls.idcategoria=cat.idcategoria" +
         " inner join ((select * from subcategoria) union (select 0,0,'',0,0 )) sbcat on sbcat.idsubcategoria=cls.idsubcategoria" +
-        " where cls.idcampeonato=? and cls.estado ='A' and cls.tipo=? ;";
+        " where cls.idcampeonato=? and cls.estado =? and cls.tipo=? order by cls.puntuacion desc;";
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql, [info.idCampeonato, info.tipo]);
+        const [result] = await conn.query(sql, [info.idCampeonato,info.estado,info.tipo]);
         return { "ok": result }
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release() }
+    }
+}
+export const setPosition = async (info)=>{
+    console.log(info);
+    var sql = "update clasificacion set posicion=? where estado='C' and idclasificacion=?;";
+    var conn;
+    try {
+        conn = await pool.getConnection();
+        const [result] = await conn.query(sql, [info.valor,info.idclasificacion]);
+        return { "ok": "Guardado" }
     } catch (error) {
         console.log(error);
         return { "error": error.message }
