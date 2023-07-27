@@ -745,6 +745,7 @@ export const obtenerDatosPuntuadosR = async (info)=>{
     var sql = "select res.*,(select nombre from club where idclub=res.idclub) as nombre from( "+
         "select cl.posicion,sum(posicion) as total , cm.idclub "+
         "from clasificacion cl inner join competidor cm on cm.idcompetidor=cl.idcompetidor where cl.estado='C' and cl.idcampeonato=? and cl.tipo=? "+
+        "and cl.idtipocompetencia in (select idtipo from tiposcampeonato where estado='A' and tipo='R' and idcampeonato=cl.idcampeonato ) "+
         "group by cm.idclub,cl.posicion order by cl.posicion asc)res;"
     var conn;
     try {
@@ -790,6 +791,21 @@ export const setPosition = async (info)=>{
         conn = await pool.getConnection();
         const [result] = await conn.query(sql, [info.valor,info.idclasificacion]);
         return { "ok": "Guardado" }
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release() }
+    }
+}
+export const eliminarPuntuacion = async (info)=>{
+    console.log(info);
+    var sql = "update clasificacion set estado=? where idclasificacion=?;";
+    var conn;
+    try {
+        conn = await pool.getConnection();
+        const [result] = await conn.query(sql, [info.estado,info.selectCompetidor.idclasificacion]);
+        return { "ok": "Eliminado" }
     } catch (error) {
         console.log(error);
         return { "error": error.message }

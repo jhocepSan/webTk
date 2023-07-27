@@ -92,6 +92,12 @@ function MenuHerramientas(props) {
                     <i className="fa-solid fa-display"></i> Puntuación Rompimiento
                 </button>
             </li>}
+            {userLogin.tipo=='A'&&<li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===14?'menuActivo':''}`}>
+                <button className={`btn btn-sm w-100 ${menuActivo===14?'text-dark':'text-light'} text-start fs-6 menuTk`} 
+                    onClick={()=>cambiarVentana(14,"Sistema de Puntuación","gameDemost")}>
+                    <i className="fa-solid fa-display"></i> Puntuación Demostración
+                </button>
+            </li>}
         </ul>
     )
 }

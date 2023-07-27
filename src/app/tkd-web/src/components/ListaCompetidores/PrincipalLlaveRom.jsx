@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import MsgUtils, { server } from '../utils/MsgUtils';
+import MsgDialogo from '../utils/MsgDialogo';
 
 function PrincipalLlaveRom(props) {
-    const { categorias, idcampeonato, genero, llaves, tipo, tipoL, collback, actualizarInfo } = props;
+    const { categorias, idcampeonato, genero, llaves, tipo, tipoL, collback, actualizarInfo,userLogin } = props;
     const [selectItem, setSelectItem] = useState({});
     const [listaFiltrada, setListaFiltrada] = useState([]);
     const [grados, setGrados] = useState([]);
     const [tipoCamp, setTipoCamp] = useState([]);
+    const [selectCompetidor,setSelectCompetidor] = useState({});
+    const [showMsg,setShowMsg] = useState(false);
     function verLlavesCategoriaOficial(dato) {
         setSelectItem(dato);
         var filtro = llaves.filter((item) => item.idcategoria == dato.idcategoria);
@@ -24,6 +27,29 @@ function PrincipalLlaveRom(props) {
             seleccionado.push({ ...subcat, 'COMPETIDORES': listaAux })
         }*/
         setListaFiltrada(seleccionado);
+    }
+    function eliminarPuntuacion(){
+        fetch(`${server}/competidor/eliminarPuntuacion`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({
+                selectCompetidor,'estado':'E' 
+            })
+        })
+            .then(res => res.json())
+            .then(data => {
+                setShowMsg(false);
+                if (data.ok) {
+                    actualizarInfo()
+                    MsgUtils.msgCorrecto(data.ok);
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
+            })
+            .catch(error => MsgUtils.msgError(error)); 
     }
     function guardarCambio(valor,comp){
         fetch(`${server}/competidor/setPosition`, {
@@ -175,6 +201,9 @@ function PrincipalLlaveRom(props) {
                                                             <hr className='m-0 p-0 mb-1 text-dark' style={{ background: '#000000' }}></hr>
                                                             <div>{comp.puntuacion}</div>
                                                         </th>}
+                                                        {tipoL=='R'&&userLogin.tipo=='A'&&<th>
+                                                            <button className='btn btn-danger text-light btn-sm' onClick={()=>{setSelectCompetidor(comp);setShowMsg(true);}}><i className="fa-solid fa-trash fa-xl"></i></button>
+                                                        </th>}
                                                     </tr>
                                                 )
                                             })}
@@ -184,6 +213,7 @@ function PrincipalLlaveRom(props) {
                             </div>)
                     })}
                 </div>}
+            <MsgDialogo show={showMsg} msg={'Esta seguro de eliminar la Puntuación'} okFunction={()=>eliminarPuntuacion()} notFunction={()=>setShowMsg(false)}/>
         </div>
     )
 }

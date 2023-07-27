@@ -20,6 +20,7 @@ import PrincipalPuntRompi from "./components/PantallaRompi/PrincipalPuntRompi";
 import ScoreRompimiento from "./components/Puntuacion/ScoreRompimiento";
 import ScorePoomse from "./components/Puntuacion/ScorePoomse";
 import PrincipalPuntuacionPrevia from "./components/PuntuacionPrevias/PrincipalPuntuacionPrevia";
+import PrincipalPantallaDemo from "./components/PantallaDemostracion/PrincipalPantallaDemo";
 function App() {
   return (
     <ContextAplicacion>
@@ -41,6 +42,7 @@ function App() {
           <Route path='/scoreDobleR' element={<ScoreRompimiento/>}/>
           <Route path='/scoreDobleP' element={<ScorePoomse/>}/>
           <Route path='/pointPreviaC' element={<PrincipalPuntuacionPrevia/>}/>
+          <Route path='/gameDemost' element={<PrincipalPantallaDemo/>}/>
           <Route path='/gamePoomse' element={<PrincipalPuntPoomse/>}/>
           <Route path='/gameRompim' element={<PrincipalPuntRompi/>}/>
         </Routes>

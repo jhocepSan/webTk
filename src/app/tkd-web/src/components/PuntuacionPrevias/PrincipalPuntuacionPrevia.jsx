@@ -13,7 +13,7 @@ function PrincipalPuntuacionPrevia() {
   const [categorias, setCategorias] = useState([]);
   const [loading,setLoading] = useState(false);
   const [competidores,setCompetidores] = useState([]);
-  
+  const [cargadoInfo,setCargadoInfo] = useState(false);
   function getInformacionCategoria() {
     fetch(`${server}/config/getConfiCategoriaUnido`, {
       method: 'POST',
@@ -47,8 +47,8 @@ function PrincipalPuntuacionPrevia() {
       .then(data => {
         setLoading(false);
         if (data.ok) {
-          console.log(data.ok);
           setCompetidores(data.ok);
+          setCargadoInfo(true);
         } else {
           MsgUtils.msgError(data.error);
         }
@@ -56,6 +56,7 @@ function PrincipalPuntuacionPrevia() {
       .catch(error => MsgUtils.msgError(error));
   }
   function obtenerResultados(){
+    setCargadoInfo(false);
     if(tipo=='R'){
       getInformacionRompimiento();
     }
@@ -89,7 +90,7 @@ function PrincipalPuntuacionPrevia() {
           </div>
         </div>
       </div>
-      <PrincipalLlaveRom categorias={categorias} idcampeonato={campeonato.idcampeonato} llaves={competidores} tipo={tipo} tipoL='R'/>
+      {cargadoInfo&& tipo!=='D'&&<PrincipalLlaveRom categorias={categorias} idcampeonato={campeonato.idcampeonato} llaves={competidores} tipo={tipo} tipoL='R' actualizarInfo={()=>obtenerResultados()} userLogin={userLogin}/>}
       <UtilsCargador show={loading} />
     </>
   )
