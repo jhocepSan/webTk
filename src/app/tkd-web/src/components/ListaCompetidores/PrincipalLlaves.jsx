@@ -19,7 +19,11 @@ function PrincipalLlaves(props) {
         setLista(llaves.filter((item) => item.idcategoria === dato));
         setNumLlave(0);
     }
-    function verLlavesCategoria(dato) {
+    function verLlavesCategoria(dato){
+        setSelectItem(dato);
+        setNumLlave(0);
+    }
+    function getLlavesCategoria() {
         var dtAux = llaves[0];
         fetch(`${server}/competidor/obtenerLlavesManuales`, {
             method: 'POST',
@@ -27,16 +31,14 @@ function PrincipalLlaves(props) {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json;charset=utf-8',
             },
-            body: JSON.stringify({ 'tipo': dtAux.tipo, 'idCampeonato': idcampeonato, 'genero': dtAux.genero, 'idCategoria': dato })
+            body: JSON.stringify({ 'tipo': dtAux.tipo, 'idCampeonato': idcampeonato, 'genero': dtAux.genero, 'idCategoria': -1 })
         })
             .then(res => res.json())
             .then(data => {
                 if (data.ok) {
-                    setSelectItem(dato);
                     //setLista(llaves.filter((item) => item.idcategoria === dato));
-                    setNumLlave(0);
                     setListaManual(data.ok)
-                    MsgUtils.msgCorrecto(data.ok);
+                    //MsgUtils.msgCorrecto(data.ok);
                 } else {
                     MsgUtils.msgError(data.error);
                 }
@@ -56,9 +58,42 @@ function PrincipalLlaves(props) {
         }
     }
     const exportPDF = () => {
-        const content = pdfRef.current;
+        var optiones = {
+            orientation: 'p',
+            unit: 'mm',
+            format: 'letter',
+            putOnlyUsedFonts: true,
+            floatPrecision: 16 // or "smart", default is 16
+        }
+        var doc = new jsPDF(optiones);
+        var x = 10;
+        var y = 5;
+        var width = doc.internal.pageSize.getWidth();
+        var height = doc.internal.pageSize.getHeight();
+        var numPag=1;
+        for (var cat of categorias){
+            for(var subcat of cat.SUBCATEGORIA){
+                var compe = llaves.filter((item)=>item.idcategoria==cat.idcategoria && item.idsubcategoria==subcat.idsubcategoria);
+                var tipol = compe.length
+                if(tipol!=0){
+                    doc.setFontSize(12);
+                    doc.text(`Pagina: ${numPag}`, (width/2)-20, y + 5);
+                    doc.text(`Categoria: ${cat.nombre} -> Edad ${cat.edadini} - ${cat.edadfin} años`, x, y + 10);
+                    doc.text(`Sub Categoria: ${subcat.nombre} -> Peso ${subcat.pesoini} - ${subcat.pesofin} kg`, x, y + 15);
+                    doc.text(`Genero: ${cat.genero=='M'?'MASCULINO':'FEMENINO'}`,x,y+20)
+                    doc.setFontSize(11);
+                    y = y + 22
+                    doc.addPage();
+                    x=10;
+                    y=5;
+                    doc.line(x, y + 17, width - 10, y + 17, 'S');
+                }
+            }
+        }
+        doc.save(`llavesGeneradas.pdf`);
+        /*const content = pdfRef.current;
         const unit = "pt";
-        const size = "A4"; // Use A1, A2, A3 or A4
+        const size = "letter"; // Use A1, A2, A3 or A4
         const orientation = "portrait"; // portrait or landscape
         const doc = new jsPDF(orientation, unit, size);
         doc.html(content, {
@@ -67,7 +102,7 @@ function PrincipalLlaves(props) {
             },
             html2canvas: { scale: 0.54 },
             windowWidth: 700
-        });
+        });*/
     }
     function cambiarValor(dato, valor) {
         console.log(dato,valor);
@@ -114,6 +149,7 @@ function PrincipalLlaves(props) {
                 if (data.ok) {
                     console.log(data.ok);
                     setCategorias(data.ok);
+                    getLlavesCategoria();
                 } else {
                     MsgUtils.msgError(data.error);
                 }
@@ -129,7 +165,7 @@ function PrincipalLlaves(props) {
             <div className='btn-group btn-group-sm mb-2'>
                 {categorias.map((item, index) => {
                     return (
-                        <button className={`btn btn-sm letraBtn ${selectItem === item.idcategoria ? 'botonLlave' : 'btn-light'}`} onClick={() => verLlavesCategoriaOficial(item.idcategoria)}
+                        <button className={`btn btn-sm letraBtn ${selectItem === item.idcategoria ? 'botonLlave' : item.genero=='M'?'botonMasc':'botonFeme'}`} onClick={() => verLlavesCategoriaOficial(item.idcategoria)}
                             key={index} style={{ marginRight: '2px' }}>
                             {item.nombre}
                         </button>
@@ -153,7 +189,7 @@ function PrincipalLlaves(props) {
                                     <div className='row row-cols-2 g-0'>
                                         <div className='col'>
                                             <div className='tituloHeader' style={{ fontSize: '20px' }}>
-                                                {`${item.nombregrado} ${genero=='M'?'MASCULINO':'FEMENINO'}`}
+                                                {`${item.nombregrado} ${item.genero=='M'?'MASCULINO':'FEMENINO'}`}
                                             </div>
                                             <div className='tituloHeader' style={{ fontSize: '20px' }}>
                                                 {item.nombrecategoria + ' => ' + item.edadini + ' - ' + item.edadfin + ' Años'}
@@ -170,7 +206,7 @@ function PrincipalLlaves(props) {
                                     </div>
                                 </div>
                                 <div className='card-body' >
-                                    <div className='table table-responsibe'>
+                                    <div className='table table-responsive'>
                                         <table className="table">
                                             <tbody>
                                                 {item.PELEAS.map((itemm, indexx) => {

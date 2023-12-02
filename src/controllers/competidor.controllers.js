@@ -288,22 +288,36 @@ const getCompetidorClasificados = async (info) => {
         if (conn) { await conn.release(); }
     }
 }
+function getNumLL(numC){
+    if(numC<=4){
+        return 4
+    }else if (numC>4&&numC<=8){
+        return 8
+    }else if(numC>8&&numC<=16){
+        return 16
+    }else{
+        return 32
+    }
+}
 const generarPelea = async (info) => {
     var sql = 'INSERT INTO pelea (idllave,idcompetidor1,idcompetidor2,nropelea) VALUES (?,?,?,?);'
     var conn;
     try {
         var competidores = info.COMPETIDORES.sort(function (a, b) { return (Math.random() - 0.5) })
-        var numPelea = 1;
+        var numCmp = competidores.length;
+        var listaId = competidores.map((item)=>item.idcompetidor);
         conn = await pool.getConnection();
-        for (let i = 0; i < competidores.length; i += 2) {
-            if (i + 1 <= competidores.length - 1) {
-                const [result] = await conn.query(sql, [info.idllave, competidores[i].idcompetidor, competidores[i + 1].idcompetidor, numPelea]);
-                await conn.commit();
-                numPelea += 1;
-            } else {
-                const [result] = await conn.query(sql, [info.idllave, competidores[i].idcompetidor, 0, numPelea]);
-                await conn.commit();
-            }
+        var nBy = getNumLL(numCmp)-numCmp;
+        for (let i=0 ;i <nBy;i++){
+            if(i%2==0){
+                listaId=[0].concat(listaId);
+            }else{
+                listaId.push(0);
+            }   
+        }
+        for (let i = 0; i < listaId.length; i += 2) {
+            const [result] = await conn.query(sql, [info.idllave, listaId[i], listaId[i + 1], 0]);
+            await conn.commit();
         }
         return { "ok": "generado" }
     } catch (error) {
@@ -622,18 +636,20 @@ export const obtenerLlaves = async (info) => {
         'INNER JOIN subcategoria scat on scat.idsubcategoria=lv.idsubcategoria ' +
         'WHERE lv.tipo=? and lv.idcampeonato=? and lv.estado="A" ' +
         'UNION SELECT idllave,fecha,tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato,estado,"EXHIBICIÓN","EXHIBICIÓN","EXHIBICIÓN",1,1,1,1 FROM llave where idgrado=-1 and tipo=? and idcampeonato=? and estado="A" )res order by res.genero ;';
-    var sql2 = 'SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,res.nropelea,res.idganador,res.idperdedor,res.nombres,res.apellidos,res.clubuno, ' +
+    var sql2 = 'SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,res.nropelea,'+
+        'res.idganador,res.idperdedor,res.nombres,res.apellidos,res.clubuno, ' +
         'res.idcinturon,res.cinturonuno,cm.idcinturon as idcinturondos,(select cin.nombre from cinturon cin where cin.idcinturon=cm.idcinturon)as cinturondos, ' +
         'cm.nombres as nombres2,cm.apellidos as apellidos2,(select cl.nombre from club cl where cl.idclub=cm.idclub) as clubdos FROM ' +
         '(SELECT p.idpelea,p.idpeleapadre,p.idllave,p.idcompetidor1,p.idcompetidor2,p.nropelea,p.idganador,p.idperdedor,c.nombres,c.apellidos,c.idcinturon, ' +
         '(select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturonuno, ' +
         '(select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno ' +
-        'FROM pelea p inner join competidor c on c.idcompetidor=p.idcompetidor1) res ' +
-        'INNER JOIN (select * from competidor union select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null,null) cm on cm.idcompetidor=res.idcompetidor2 where res.idllave=? order by res.nropelea ASC';
+        'FROM pelea p inner join (select * from competidor union select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null,null) c on c.idcompetidor=p.idcompetidor1) res ' +
+        'INNER JOIN (select * from competidor union select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null,null) cm on cm.idcompetidor=res.idcompetidor2 where res.idllave=? order by res.idllave';
     var conn;
     try {
         conn = await pool.getConnection();
         const [result] = await conn.query(sql, [info.tipo, info.idCampeonato, info.tipo, info.idCampeonato]);
+        console.log(result,info)
         var resultado = []
         for (var llaves of result) {
             const [result] = await conn.query(sql2, [llaves.idllave])

@@ -30,12 +30,12 @@ app.use('/usuario',userRoutes);
 app.use('/competidor',competidorRoutes);
 app.use('/mandojuec',mandoRoutes);
 
-app.get("/", (req, res) => {
+app.get("*", (req, res) => {
     /*res.sendFile(
       dirname(join(__dirname,"../app/tk-web/build/index.html"))
     );*/
     res.sendFile(
-      dirname(join(__dirname,"../app/tkd-web/dist/index.html"))
+      join(__dirname,"../app/tkd-web/dist/index.html")
     );
   });
 

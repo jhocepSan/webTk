@@ -176,7 +176,8 @@ function PrincipalListaCompetidor() {
             .then(data => {
                 if (data.ok) {
                     setListaLlaves(data.ok);
-                    if (data.ok.length !== 0) {
+                    var filtroGenero = data.ok.filter((item)=>item.genero==genero)
+                    if (filtroGenero.length !== 0) {
                         setHayLlaves(true);
                     } else {
                         setHayLlaves(false);

@@ -128,6 +128,23 @@ body{
 	background-color: rgba(160, 74, 241, 0.562);
 	color: #ffffff;
 }
+.botonFeme{
+	background-color: rgb(255, 175, 222);
+	color: #000000;
+}
+.botonMasc{
+	background-color: rgb(175, 236, 255);
+	color: #000000;
+}
 .colorFiltro{
 	background-color: rgb(118, 118, 189);
+}
+input[type="file"] {
+    display: none;
+}
+.custom-file-upload {
+    border: none;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
 }

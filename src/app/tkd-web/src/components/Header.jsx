@@ -29,7 +29,7 @@ function Header(props) {
             {puntuacion == undefined && <nav className="navbar navbar-dark bg-dark bg-gradient m-0 p-0">
                 <div className="container-fluid">
                     <div className="navbar-brand card flex-row bg-transparent m-0 p-0" >
-                        <img src={ImgHeader} alt="" width="38" height="38" className="d-inline-block align-text-top fa-flip my-auto" />
+                        <img src={ImgHeader} alt="" width="50px" className="d-inline-block align-text-top fa-fade my-auto" />
                         <div className='ps-2 my-auto d-none d-sm-inline'>
                             <div className="tituloHeader">SISTEMA TKD</div>
                             <div className='tituloHeader'>CBBA</div>

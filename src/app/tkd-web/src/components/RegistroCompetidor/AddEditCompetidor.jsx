@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import MsgUtils from '../utils/MsgUtils';
 import { server } from '../utils/MsgUtils';
 function AddEditCompetidor(props) {
-    const { listaClubs, tipo, actualizarDatos, selectItem, club, generoee,listaTiposC } = props;
+    const { listaClubs, tipo, actualizarDatos, selectItem, club, generoee, listaTiposC } = props;
     const [idCompetidor, setIdCompetidor] = useState(0);
     const [nombres, setNombres] = useState('');
     const [apellidos, setApellidos] = useState('');
@@ -40,7 +40,7 @@ function AddEditCompetidor(props) {
                 },
                 body: JSON.stringify({
                     idCompetidor, nombres, apellidos, ciUser, idClub, cinturon,
-                    peso, altura, tipos, idCampeonato, edad, fecha, idGrado, genero,listaCTipoC
+                    peso, altura, tipos, idCampeonato, edad, fecha, idGrado, genero, listaCTipoC
                 })
             })
                 .then(res => res.json())
@@ -89,12 +89,12 @@ function AddEditCompetidor(props) {
             setEdad(selectItem.edad);
             setGenero(selectItem.genero);
             setIdGrado(selectItem.idgrado);
-            if (selectItem.idtipocompetencia!=null && selectItem.idtipocompetencia!=''&&selectItem.idtipocompetencia!=undefined){
+            if (selectItem.idtipocompetencia != null && selectItem.idtipocompetencia != '' && selectItem.idtipocompetencia != undefined) {
                 var listaP = selectItem.idtipocompetencia.split(':');
                 console.log(listaP);
-                var lista=[]
-                for(var l of listaP){
-                    lista.push(listaTiposC.filter((i)=>i.idtipo==parseInt(l))[0])
+                var lista = []
+                for (var l of listaP) {
+                    lista.push(listaTiposC.filter((i) => i.idtipo == parseInt(l))[0])
                 }
                 setListaCTipoC(lista);
             }
@@ -112,7 +112,7 @@ function AddEditCompetidor(props) {
         setIdCampeonato(idcampeonato);
         verificarSeleccion();
         //getListaTipos(idcampeonato);
-        
+
         fetch(`${server}/config/getGrados`, {
             method: 'POST',
             headers: {
@@ -137,21 +137,33 @@ function AddEditCompetidor(props) {
     }, [])
     return (
         <div className='container-fluid'>
-            <div className="mb-3">
-                <label className="form-label text-light fw-bold"><i className="fa-solid fa-user fa-fade"></i> Nombres</label>
-                <input type="text" className="form-control form-control-sm" placeholder='Escriba su nombre'
-                    value={nombres} onChange={(e) => { setNombres(e.target.value.toUpperCase()); setError({}) }} />
-                {error.error && nombres === '' && <div className="alert alert-danger m-0 p-0" role="alert">
-                    {error.error}
-                </div>}
-            </div>
-            <div className="mb-3">
-                <label className="form-label text-light fw-bold"><i className="fa-solid fa-user fa-fade"></i> Apellidos</label>
-                <input type="text" className="form-control form-control-sm" placeholder='Ingresa tus Apellidos'
-                    value={apellidos} onChange={(e) => { setApellidos(e.target.value.toUpperCase()); setError({}) }} />
-                {error.error && apellidos === '' && <div className="alert alert-danger m-0 p-0" role="alert">
-                    {error.error}
-                </div>}
+            <div className='row row-cols-2 g-1'>
+                <div className='col col-10'>
+                    <div className="mb-3">
+                        <label className="form-label text-light fw-bold"><i className="fa-solid fa-user fa-fade"></i> Nombres</label>
+                        <input type="text" className="form-control form-control-sm" placeholder='Escriba su nombre'
+                            value={nombres} onChange={(e) => { setNombres(e.target.value.toUpperCase()); setError({}) }} />
+                        {error.error && nombres === '' && <div className="alert alert-danger m-0 p-0" role="alert">
+                            {error.error}
+                        </div>}
+                    </div>
+                    <div className="mb-3">
+                        <label className="form-label text-light fw-bold"><i className="fa-solid fa-user fa-fade"></i> Apellidos</label>
+                        <input type="text" className="form-control form-control-sm" placeholder='Ingresa tus Apellidos'
+                            value={apellidos} onChange={(e) => { setApellidos(e.target.value.toUpperCase()); setError({}) }} />
+                        {error.error && apellidos === '' && <div className="alert alert-danger m-0 p-0" role="alert">
+                            {error.error}
+                        </div>}
+                    </div>
+                </div>
+                <div className='col col-2 my-auto'>
+                    <div>
+                        <label for="file-upload" className="custom-file-upload text-light">
+                            <i className="fa fa-cloud-upload"></i> Foto
+                        </label>
+                        <input id="file-upload" type="file" />
+                    </div>
+                </div>
             </div>
             <div className="mb-3">
                 <div className='row row-cols-2 g-1'>

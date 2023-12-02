@@ -48,7 +48,7 @@ function CompetidoresPdf(props) {
         var optiones = {
             orientation: 'p',
             unit: 'mm',
-            format: 'a4',
+            format: 'letter',
             putOnlyUsedFonts: true,
             floatPrecision: 16 // or "smart", default is 16
         }
@@ -60,9 +60,10 @@ function CompetidoresPdf(props) {
         doc.setFontSize(13);
         doc.text('Lista de Estudiantes ' + getTipoLista(), x + 40, y);
         if (tipo == 'C') {
+            console.log("combate",width,height)
             for (var cat of categorias) {
                 for (var subcat of cat.SUBCATEGORIA) {
-                    if (y >= height - 20) {
+                    if (y >= height - 40) {
                         doc.addPage();
                         x = 10;
                         y = 10;
@@ -81,12 +82,7 @@ function CompetidoresPdf(props) {
                         doc.text('Cinturon', x + 136, y + 22);
                         doc.text('Club', x + 156, y + 22);
                         doc.line(x, y + 23, width - 10, y + 23, 'S');
-                        y = y + 24
-                        if (y >= height - 20) {
-                            doc.addPage();
-                            x = 10;
-                            y = 10;
-                        }
+                        y = y + 22
                         doc.setFontSize(9);
                         for (var cmp of listaFiltrada) {
                             doc.text(cmp.nombres + ' ' + cmp.apellidos, x, y + 5);
@@ -97,15 +93,17 @@ function CompetidoresPdf(props) {
                             doc.text(cmp.club, x + 156, y + 5);
                             doc.line(x, y + 6, width - 10, y + 6, 'S');
                             y = y + 7;
-                            if (y >= height - 20) {
+                            if (y >= height - 10) {
                                 doc.addPage();
                                 x = 10;
                                 y = 10;
                             }
                         }
-                        doc.addPage();
-                        x = 10;
-                        y = 10;
+                        if (y >= height - 40) {
+                            doc.addPage();
+                            x = 10;
+                            y = 10;
+                        }
                     }
                 }
             }

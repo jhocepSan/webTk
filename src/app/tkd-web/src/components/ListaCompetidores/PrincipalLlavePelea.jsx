@@ -53,7 +53,7 @@ function PrincipalLlavesPelea(props) {
     const exportPDF = () => {
         const content = pdfRef.current;
         const unit = "pt";
-        const size = "A4"; // Use A1, A2, A3 or A4
+        const size = "letter"; // Use A1, A2, A3 or A4
         const orientation = "portrait"; // portrait or landscape
         const doc = new jsPDF(orientation, unit, size);
         doc.html(content, {
@@ -135,7 +135,7 @@ function PrincipalLlavesPelea(props) {
                                     <div className='row row-cols-2 g-0'>
                                         <div className='col'>
                                             <div className='tituloHeader' style={{ fontSize: '20px' }}>
-                                                {`${item.nombregrado} ${genero=='M'?'MASCULINO':'FEMENINO'}`}
+                                                {`${item.nombregrado} ${item.genero=='M'?'MASCULINO':'FEMENINO'}`}
                                             </div>
                                             <div className='tituloHeader' style={{ fontSize: '20px' }}>
                                                 {item.nombrecategoria + ' => ' + item.edadini + ' - ' + item.edadfin + ' Años'}

@@ -139,7 +139,7 @@ function PrincipalListaSinPelea() {
         var optiones = {
             orientation: 'p',
             unit: 'mm',
-            format: 'a4',
+            format: 'letter',
             putOnlyUsedFonts: true,
             floatPrecision: 16 // or "smart", default is 16
         }
@@ -151,7 +151,7 @@ function PrincipalListaSinPelea() {
         doc.setFontSize(13);
         doc.text(`Lista Sin Pelea ${subtitulo} ${genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`, x + 40, y);
         for (var cat of categorias) {
-                if (y >= height - 20) {
+                if (y >= height - 40) {
                     doc.addPage();
                     x = 10;
                     y = 10;
@@ -185,7 +185,7 @@ function PrincipalListaSinPelea() {
                         doc.text(cmp.club, x + 156, y + 5);
                         doc.line(x, y + 6, width - 10, y + 6, 'S');
                         y = y + 7;
-                        if (y >= height - 20) {
+                        if (y >= height - 40) {
                             doc.addPage();
                             x = 10;
                             y = 10;

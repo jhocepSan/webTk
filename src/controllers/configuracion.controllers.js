@@ -14,6 +14,19 @@ export const getCampeonato = async () => {
     }
 }
 
+export const cambiarInscripcion = async(info)=>{
+    var conn;
+    try {
+        conn = await pool.getConnection();
+        const [result] = await conn.query('UPDATE campeonato SET inscripcion=? WHERE idcampeonato=?;',[info.estado,info.idCampeonato])
+        return { "ok": "INSCRIPCIONES CAMBIADAS" }
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}
 export const getCategoria = async (info) => {
     var conn;
     try {
@@ -70,7 +83,7 @@ export const getConfiCategoriaUnido = async (info) => {
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query('SELECT * FROM categoria where estado!="E" and idcampeonato=? order by edadini;',
+        const [result] = await conn.query('SELECT * FROM categoria where estado="A" and idcampeonato=? order by genero,edadIni ;',
             [info.idcampeonato]);
         var information = []
         for (var categoria of result) {

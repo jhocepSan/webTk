@@ -74,10 +74,10 @@ function LoginUser() {
                     <div className="card col-sm-12 col-md-4 mx-auto bg-dark bg-gradient" >
                         <div className='card-header m-0 p-0'>
                             <div className='row row-cols-2 g-0'>
-                                <div className='col col-4 text-center'>
-                                    <img src={ImgLogin} className="card-img-top fa-bounce" style={{ width: "100px" }} />
+                                <div className='col col-2 text-center'>
+                                    <img src={ImgLogin} className="card-img-top fa-bounce" width={50} />
                                 </div>
-                                <div className='col col-6 text-start my-auto'>
+                                <div className='col col-8 text-center my-auto'>
                                     <span className='text-light fw-bold'>INGRESAR AL SISTEMA</span>
                                 </div>
                             </div>
@@ -102,7 +102,7 @@ function LoginUser() {
                                     <a className='text-light fw-bold btn btn-transparent' onClick={()=>setVentana(2)}
                                     >Olvidaste tu Contraseña ?</a>
                                 </div>
-                                <div>
+                                <div className='d-none'>
                                     <a className='text-light fw-bold btn btn-transparent' onClick={() => setVentana(1)}>Crear una Cuenta</a>
                                 </div>
                                 <div>

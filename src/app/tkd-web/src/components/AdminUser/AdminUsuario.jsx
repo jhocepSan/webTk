@@ -18,8 +18,8 @@ function AdminUsuario() {
     const [selectItem, setSelectItem] = useState({});
     const [actualizar, setActualizar] = useState(false);
     const [showModal, setShowModal] = useState(false);
-    const [tipoModal,setTipoModal] = useState('');
-    const [showMessage,setShowMessage] = useState(false);
+    const [tipoModal, setTipoModal] = useState('');
+    const [showMessage, setShowMessage] = useState(false);
     function getEstadoUsuario(dato) {
         var descripcion = ''
         if (dato.estado == 'A') {
@@ -30,7 +30,7 @@ function AdminUsuario() {
             descripcion = 'Inactivo en el sistema TKD';
         } else if (dato.estado == 'K') {
             descripcion = 'Kiosanin en el sistema TKD';
-        } 
+        }
         return (<div className='letraMontserratr'>{descripcion}</div>)
     }
     function cambiarEstadoUser(item, estado) {
@@ -155,21 +155,24 @@ function AdminUsuario() {
                     </div>
                     <div className='col' style={{ minWidth: '130px', maxWidth: '130px' }}>
                         <button className='btn btn-sm btn-success bg-gradient w-100'
-                        onClick={()=>{setSelectItem(null);setTipoModal('N');setShowModal(true)}}>
-                            <i className="fa-solid fa-user-plus"></i> Nuevo                             
+                            onClick={() => { setSelectItem(null); setTipoModal('N'); setShowModal(true) }}>
+                            <i className="fa-solid fa-user-plus"></i> Nuevo
                         </button>
                     </div>
                 </div>
             </div>
+            <div className='container-fluid text-center bg-light bg-gradient text-danger fw-bold'>
+                {`Numero de Usuarios del sistema: ${usuarios.length}`}
+            </div>
             {cargador == false &&
-                <div className='table-responsive py-2'>
+                <div className='table-responsive'>
                     <table className="table table-dark table-hover table-bordered table-striped" id='competidoresLista' >
                         <thead>
                             <tr className='text-center'>
                                 <th className="col-3">Usuario Sistema</th>
                                 <th className="col-2">Tipo Usuario</th>
                                 <th className="col-2">Es Álbitro</th>
-                                <th className="col">Permisos</th>
+                                <th className='col-2'></th>
                                 <th className='col'></th>
                             </tr>
                         </thead>
@@ -178,15 +181,17 @@ function AdminUsuario() {
                                 return (
                                     <tr key={index} >
                                         <td scope="row" className='col-1 col-md-4'>
-                                            <Competidor user={item} tipo={'U'}/></td>
+                                            <Competidor user={item} tipo={'U'} /></td>
                                         <td className='col-3 col-md-2 '>
                                             <div className='container-fluid p-0 m-0 text-center' style={{ fontSize: '16px' }}>
                                                 {getEstadoUsuario(item)}
-                                                <button className='btn btn-sm letraBtn bg-gradient btn-warning w-100'
-                                                    onClick={() => {setTipoModal('E'); setSelectItem(item); setShowModal(true); }}>
-                                                    <i className="fa-solid fa-user-gear"></i> Cambiar Estado
-                                                </button>
                                             </div>
+                                        </td>
+                                        <td>
+                                            <button className='btn btn-sm letraBtn bg-gradient btn-warning w-100'
+                                                onClick={() => { setTipoModal('E'); setSelectItem(item); setShowModal(true); }}>
+                                                <i className="fa-solid fa-user-gear"></i> Cambiar Estado
+                                            </button>
                                         </td>
                                         <td className='my-auto col-2 col-md-1 '>
                                             <div className="form-check form-switch text-center">
@@ -200,17 +205,12 @@ function AdminUsuario() {
                                                 </label>
                                             </div>
                                         </td>
-                                        <td>
-                                            <div className='container-fluid p-0 m-0' style={{ fontSize: '16px' }}>
-                                                <div className='letraMontserratr' >{'permisos: ' + item.permisos}</div>
-                                            </div>
-                                        </td>
-                                        <td className='my-auto text-center'>
+                                        <td className='my-auto text-end'>
                                             <div className="btn-group" role="group" aria-label="Basic example">
-                                                <button className='btn text-warning' onClick={() =>{setSelectItem(item);setTipoModal('M');setShowModal(true);}}>
+                                                <button className='btn text-warning' onClick={() => { setSelectItem(item); setTipoModal('M'); setShowModal(true); }}>
                                                     <i className="fa-solid fa-user-pen fa-xl"></i>
                                                 </button>
-                                                <button className='btn text-danger' onClick={() => { setSelectItem(item);setShowMessage(true); }}>
+                                                <button className='btn text-danger' onClick={() => { setSelectItem(item); setShowMessage(true); }}>
                                                     <i className="fa-solid fa-trash-can fa-xl"></i>
                                                 </button>
                                             </div>
@@ -227,19 +227,19 @@ function AdminUsuario() {
                 contentClassName='bg-dark bg-gradient'>
                 <Modal.Header closeButton closeVariant='white' bsPrefix='modal-header m-0 p-0 px-2 '>
                     <Modal.Title >
-                        {tipoModal=='E'&&<div className='text-light letraMontserratr mx-auto'>
+                        {tipoModal == 'E' && <div className='text-light letraMontserratr mx-auto'>
                             Cambiar tipo de Usuario
                         </div>}
-                        {tipoModal=='N'&&<div className='text-light letraMontserratr mx-auto'>
+                        {tipoModal == 'N' && <div className='text-light letraMontserratr mx-auto'>
                             Crear Nuevo Usuario
                         </div>}
-                        {tipoModal=='M'&&<div className='text-light letraMontserratr mx-auto'>
+                        {tipoModal == 'M' && <div className='text-light letraMontserratr mx-auto'>
                             Editar Usuario
                         </div>}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsPrefix='modal-header m-0 p-0'>
-                    {tipoModal=='E'&&<div className='container-fluid py-2'>
+                    {tipoModal == 'E' && <div className='container-fluid py-2'>
                         {selectItem &&
                             <div className='text-light letraMontserratr text-center'>
                                 {selectItem.nombres + ' ' + selectItem.apellidos}
@@ -271,11 +271,11 @@ function AdminUsuario() {
                             </li>
                         </ul>
                     </div>}
-                    {tipoModal!='E'&&<SingUp setCargador={setCargador} tipoModal={tipoModal} setActualizar={setActualizar} 
-                        actualizar={actualizar} setShowModal={setShowModal} selectItem={selectItem} setSelectItem={setSelectItem}/>}
+                    {tipoModal != 'E' && <SingUp setCargador={setCargador} tipoModal={tipoModal} setActualizar={setActualizar}
+                        actualizar={actualizar} setShowModal={setShowModal} selectItem={selectItem} setSelectItem={setSelectItem} />}
                 </Modal.Body>
             </Modal>
-            <MsgDialogo show={showMessage} msg='Esta seguro de Eliminar EL CLUB' okFunction={()=>cambiarEstadoUser(selectItem, 'E')} notFunction={()=>setShowMessage(false)}/>
+            <MsgDialogo show={showMessage} msg='Esta seguro de Eliminar EL CLUB' okFunction={() => cambiarEstadoUser(selectItem, 'E')} notFunction={() => setShowMessage(false)} />
         </div>
     )
 }

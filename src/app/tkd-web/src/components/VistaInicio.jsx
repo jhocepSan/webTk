@@ -24,7 +24,30 @@ function VistaInicio() {
     var info = campeonatos.filter((item) => item.idcampeonato == dato);
     setIdCampeonato(dato);
     setCampeonato(info[0]);
+    setInscripcionOpen(info[0].inscripcion=='N'?false:true);
     localStorage.setItem("campeonato", JSON.stringify(info[0]));
+  }
+  function cambiarEstadoInscripcion(dato){
+    var estado=dato?'S':'N';
+    fetch(`${server}/config/cambiarInscripcion`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify({ estado,idCampeonato })
+    })
+      .then(res => res.json())
+      .then(data => {
+        setCargador(false);
+        if (data.ok) {
+          setInscripcionOpen(dato);
+          MsgUtils.msgCorrecto(data.ok);
+        } else {
+          MsgUtils.msgError(data.error);
+        }
+      })
+      .catch(error => MsgUtils.msgError(error));
   }
   function crearCampeonato() {
     fetch(`${server}/login/crearCampeonato`, {
@@ -80,6 +103,11 @@ function VistaInicio() {
             setCampeonatos(data.ok);
             setIdCampeonato(data.ok[0].idcampeonato);
             setCampeonato(data.ok[0]);
+            if(data.ok[0].inscripcion=='N'){
+              setInscripcionOpen(false);
+            }else{
+              setInscripcionOpen(true);
+            }
             localStorage.setItem("campeonato", JSON.stringify(data.ok[0]));
           } else {
             MsgUtils.msgError(data.error);
@@ -140,7 +168,7 @@ function VistaInicio() {
               <div className="form-check form-switch">
                 <input className="form-check-input" type="checkbox"
                   checked={inscripcionOpen}
-                  onChange={() => setInscripcionOpen(!inscripcionOpen)} />
+                  onChange={() => cambiarEstadoInscripcion(!inscripcionOpen)} />
                 <label className="form-check-label" ><span className={inscripcionOpen==false ? 'badge bg-danger' : 'badge bg-success'}>{inscripcionOpen==true ? 'Inscripciones Abiertas' : 'Inscripciones Cerradas'}</span></label>
               </div>
             </div>}
