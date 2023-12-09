@@ -160,31 +160,33 @@ function PrincipalListaSinPelea() {
                 if (listaFiltrada.length !== 0) {
                     doc.setFontSize(12);
                     doc.text(`Categoria: ${cat.nombre} -> Edad ${cat.edadini} - ${cat.edadfin} años`, x, y + 10);
-                    doc.setFontSize(11);
+                    doc.setFontSize(10);
                     doc.line(x, y + 15, width - 10, y + 15, 'S');
                     doc.text('Nombre Completo', x, y + 19);
-                    doc.text('Edad', x + 80, y + 19);
+                    doc.text('Edad', x + 67, y + 19);
+                    doc.text('Altura', x + 80, y + 19);
                     doc.text('Peso', x + 93, y + 19);
                     doc.text('Grado', x + 106, y + 19);
                     doc.text('Cinturon', x + 136, y + 19);
                     doc.text('Club', x + 156, y + 19);
                     doc.line(x, y + 21, width - 10, y + 21, 'S');
-                    y = y + 22
+                    y = y + 20
                     if (y >= height - 20) {
                         doc.addPage();
                         x = 10;
                         y = 10;
                     }
-                    doc.setFontSize(9);
+                    doc.setFontSize(8);
                     for (var cmp of listaFiltrada) {
                         doc.text(cmp.nombres + ' ' + cmp.apellidos, x, y + 5);
-                        doc.text(cmp.edad.toString(), x + 80, y + 5);
+                        doc.text(cmp.edad.toString(), x + 67, y + 5);
+                        doc.text(cmp.altura.toString(), x + 80, y + 5);
                         doc.text(cmp.peso.toString(), x + 93, y + 5);
                         doc.text(cmp.grado.substring(0, 14), x + 106, y + 5);
                         doc.text(cmp.cinturon, x + 136, y + 5);
                         doc.text(cmp.club, x + 156, y + 5);
                         doc.line(x, y + 6, width - 10, y + 6, 'S');
-                        y = y + 7;
+                        y = y + 6;
                         if (y >= height - 40) {
                             doc.addPage();
                             x = 10;

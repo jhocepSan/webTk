@@ -49,7 +49,7 @@ function PrincipalPuntPoomse() {
         'Accept': 'application/json',
         'Content-Type': 'application/json;charset=utf-8',
       },
-      body: JSON.stringify({ 'idCampeonato': campeonato.idcampeonato, 'tipo': 'P' })
+      body: JSON.stringify({ 'idCampeonato': campeonato.idcampeonato, 'estado':'A','tipo': 'P' })
     })
       .then(res => res.json())
       .then(data => {

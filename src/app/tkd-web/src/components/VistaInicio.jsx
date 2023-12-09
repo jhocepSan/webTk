@@ -97,7 +97,6 @@ function VistaInicio() {
       })
         .then(res => res.json())
         .then(data => {
-          console.log(data.ok);
           if (data.ok) {
             setListaCampeonatos(data.ok);
             setCampeonatos(data.ok);
@@ -172,6 +171,12 @@ function VistaInicio() {
                 <label className="form-check-label" ><span className={inscripcionOpen==false ? 'badge bg-danger' : 'badge bg-success'}>{inscripcionOpen==true ? 'Inscripciones Abiertas' : 'Inscripciones Cerradas'}</span></label>
               </div>
             </div>}
+          {campeonato.nombre!==undefined&&<div className='container-fluid'>
+            <div className='tituloInicial text-center text-light'>Pequeño resumen del Campeonato</div>
+            <div className='text-light letrasContenido'>{`Numero de alumnos sin Pelea: ${campeonato.SINPELEAS}`}</div>
+            <div className='text-light letrasContenido'>{`Inscritos en POOMSE: ${campeonato.NPP}`}</div>
+            <div className='text-light letrasContenido'>{`Inscritos en KIRUGUI: ${campeonato.NPK}`}</div>
+          </div>}
         </div>
       </div>
       <div className='container-fluid mb-4'>
@@ -179,7 +184,7 @@ function VistaInicio() {
           <div className="card-header text-dark text-center tituloInicial">
             <i className="fa-solid fa-server fa-fade"></i> Direccion Ip del Servidor TKD <i className="fa-solid fa-server fa-fade"></i>
           </div>
-          <div className='card-body text-center'>
+          {userLogin.serverIp!==undefined &&<div className='card-body text-center'>
             {userLogin.serverIp.map((item, index) => {
               return (
                 <div key={index}>
@@ -192,7 +197,7 @@ function VistaInicio() {
                 </div>
               )
             })}
-          </div>
+          </div>}
         </div>
       </div>
       <div className='container-fluid '>

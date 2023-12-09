@@ -3,7 +3,7 @@ import MsgUtils from '../utils/MsgUtils';
 import UtilsDate from '../utils/UtilsDate';
 import jsPDF from 'jspdf';
 import ImgUser from '../../assets/user.png'
-import {server} from '../utils/MsgUtils';
+import { server } from '../utils/MsgUtils';
 
 function PrincipalLlaves(props) {
     const { idcampeonato, genero, llaves, callback, tipoL } = props;
@@ -14,12 +14,12 @@ function PrincipalLlaves(props) {
     const [numLlave, setNumLlave] = useState(0);
     const [actualizar, setActualizar] = useState(0);
     const [listaManual, setListaManual] = useState([]);
-    function verLlavesCategoriaOficial(dato){
+    function verLlavesCategoriaOficial(dato) {
         setSelectItem(dato);
         setLista(llaves.filter((item) => item.idcategoria === dato));
         setNumLlave(0);
     }
-    function verLlavesCategoria(dato){
+    function verLlavesCategoria(dato) {
         setSelectItem(dato);
         setNumLlave(0);
     }
@@ -70,25 +70,106 @@ function PrincipalLlaves(props) {
         var y = 5;
         var width = doc.internal.pageSize.getWidth();
         var height = doc.internal.pageSize.getHeight();
-        var numPag=1;
-        for (var cat of categorias){
-            for(var subcat of cat.SUBCATEGORIA){
-                var compe = llaves.filter((item)=>item.idcategoria==cat.idcategoria && item.idsubcategoria==subcat.idsubcategoria);
+        var numPag = 1;
+        for (var cat of categorias) {
+            for (var subcat of cat.SUBCATEGORIA) {
+                var compe = llaves.filter((item) => item.idcategoria == cat.idcategoria && item.idsubcategoria == subcat.idsubcategoria);
                 var tipol = compe.length
-                if(tipol!=0){
-                    doc.setFontSize(12);
-                    doc.text(`Pagina: ${numPag}`, (width/2)-20, y + 5);
-                    doc.text(`Categoria: ${cat.nombre} -> Edad ${cat.edadini} - ${cat.edadfin} años`, x, y + 10);
-                    doc.text(`Sub Categoria: ${subcat.nombre} -> Peso ${subcat.pesoini} - ${subcat.pesofin} kg`, x, y + 15);
-                    doc.text(`Genero: ${cat.genero=='M'?'MASCULINO':'FEMENINO'}`,x,y+20)
-                    doc.setFontSize(11);
-                    y = y + 22
-                    doc.addPage();
-                    x=10;
-                    y=5;
-                    doc.line(x, y + 17, width - 10, y + 17, 'S');
+                if (tipol != 0) {
+                    console.log(compe[0].PELEAS)
+                    var lsPele = compe[0].PELEAS;
+                    if (lsPele.length !== 0) {
+                        doc.setFontSize(12);
+                        doc.text(`Pagina: ${numPag}`, (width / 2) - 20, y + 5);
+                        doc.text(`Categoria: ${cat.nombre} -> Edad ${cat.edadini} - ${cat.edadfin} años`, x, y + 10);
+                        doc.text(`Sub Categoria: ${subcat.nombre} -> Peso ${subcat.pesoini} - ${subcat.pesofin} kg`, x, y + 15);
+                        doc.text(`Genero: ${cat.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`, x, y + 20)
+                        doc.setFontSize(9);
+                        y = y + 25
+                        if (lsPele.length == 2) {
+                            for (var cmp of lsPele) {
+                                doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
+                                doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+                                doc.text(`${cmp.apellidos !== null ? cmp.apellidos : ''}`, x, y + 10)
+                                doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
+                                y = y + 20
+                                doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
+                                doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
+                                doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+                                doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 : ''}`, x, y + 10)
+                                y = y + 50
+                            }
+                            doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
+                            doc.line(x + 105, y - 85, x + 135, y - 85, 'S');
+                        }
+                        doc.addPage();
+                        x = 10;
+                        y = 5;
+                        numPag+=1;
+                    }
                 }
             }
+        }
+        var nbp=0;
+        for (var cmpe of listaManual) {
+            var lsPele = cmpe.PELEAS
+            if (lsPele.length == 2) {
+                x = 10;
+                y = 5;
+                doc.setFontSize(12);
+                doc.text(`Pagina: ${numPag}`, (width / 2) - 20, y + 5);
+                doc.text(`Peleas de Exhibición`, x, y + 10);
+                doc.text(`Genero: ${cmpe.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`, x, y + 15)
+                doc.setFontSize(9);
+                y = y + 25
+                for (var cmp of lsPele) {
+                    doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
+                    doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+                    doc.text(`${cmp.apellidos !== null ? cmp.apellidos : ''}`, x, y + 10)
+                    doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
+                    y = y + 20
+                    doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
+                    doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
+                    doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+                    doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 : ''}`, x, y + 10)
+                    y = y + 50
+                }
+                doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
+                doc.line(x + 105, y - 85, x + 135, y - 85, 'S');
+                doc.addPage();
+                x = 10;
+                y = 5;
+                numPag+=1;
+            }else if(lsPele.length == 1){
+                var comp = cmpe.PELEAS[0]
+                doc.setFontSize(12);
+                if (nbp==0){
+                    x = 10;
+                    y = 5;
+                    doc.text(`Pagina: ${numPag}`, (width / 2) - 20, y + 5);
+                }
+                doc.text(`Peleas de Exhibición`, x, y + 10);
+                doc.text(`Genero: ${cmpe.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`, x, y + 15)
+                doc.setFontSize(9);
+                y = y + 25
+                doc.text(`${comp.nombres} (${comp.clubuno !== null ? comp.clubuno : '-'})`, x, y + 5)
+                doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+                doc.text(`${comp.apellidos !== null ? comp.apellidos : ''}`, x, y + 10)
+                doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
+                y = y + 20;
+                doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
+                doc.text(`${comp.nombres2} (${comp.clubdos !== null ? comp.clubdos : '-'})`, x, y + 5)
+                doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+                doc.text(`${comp.apellidos2 !== null ? comp.apellidos2 : ''}`, x, y + 10)
+                y = y + 50
+                nbp+=1;
+                if(nbp==2){
+                    nbp=0;
+                    doc.addPage();
+                    numPag+=1;
+                }
+            }
+            
         }
         doc.save(`llavesGeneradas.pdf`);
         /*const content = pdfRef.current;
@@ -105,7 +186,7 @@ function PrincipalLlaves(props) {
         });*/
     }
     function cambiarValor(dato, valor) {
-        console.log(dato,valor);
+        console.log(dato, valor);
         fetch(`${server}/competidor/cambiarNumPelea`, {
             method: 'POST',
             headers: {
@@ -125,12 +206,12 @@ function PrincipalLlaves(props) {
             })
             .catch(error => MsgUtils.msgError(error));
     }
-    const getMargin=(valor)=>{
-        if(valor<6){
+    const getMargin = (valor) => {
+        if (valor < 6) {
             return '100px';
-        }else if(valor>8){
+        } else if (valor > 8) {
             return '60px'
-        }else {
+        } else {
             return '20px'
         }
     }
@@ -158,30 +239,30 @@ function PrincipalLlaves(props) {
     }, [])
     useEffect(() => {
 
-    }, [llaves,selectItem])
+    }, [llaves, selectItem])
     return (
         <div className='container-fluid py-2'>
             <div className='overflow-auto'>
-            <div className='btn-group btn-group-sm mb-2'>
-                {categorias.map((item, index) => {
-                    return (
-                        <button className={`btn btn-sm letraBtn ${selectItem === item.idcategoria ? 'botonLlave' : item.genero=='M'?'botonMasc':'botonFeme'}`} onClick={() => verLlavesCategoriaOficial(item.idcategoria)}
-                            key={index} style={{ marginRight: '2px' }}>
-                            {item.nombre}
-                        </button>
-                    )
-                })}
-                <button className={`btn btn-sm letraBtn ${selectItem === -1 ? 'botonLlave' : 'btn-light'}`} onClick={() => verLlavesCategoria(-1)}
-                    style={{ marginRight: '2px' }}>
-                    EXHIBICIONES
-                </button>
-                {tipoL == 'E' && <button className='btn btn-sm letraBtn btn-success' onClick={exportPDF}>
-                    <i className="fa-solid fa-file-pdf"></i> PDF
-                </button>}
-            </div>
+                <div className='btn-group btn-group-sm mb-2'>
+                    {categorias.map((item, index) => {
+                        return (
+                            <button className={`btn btn-sm letraBtn ${selectItem === item.idcategoria ? 'botonLlave' : item.genero == 'M' ? 'botonMasc' : 'botonFeme'}`} onClick={() => verLlavesCategoriaOficial(item.idcategoria)}
+                                key={index} style={{ marginRight: '2px' }}>
+                                {item.nombre}
+                            </button>
+                        )
+                    })}
+                    <button className={`btn btn-sm letraBtn ${selectItem === -1 ? 'botonLlave' : 'btn-light'}`} onClick={() => verLlavesCategoria(-1)}
+                        style={{ marginRight: '2px' }}>
+                        EXHIBICIONES
+                    </button>
+                    {tipoL == 'E' && <button className='btn btn-sm letraBtn btn-success' onClick={exportPDF}>
+                        <i className="fa-solid fa-file-pdf"></i> PDF
+                    </button>}
+                </div>
             </div>
             <div className='container-fluid' ref={pdfRef}>
-            {lista.length !== 0 && selectItem !== 0 && selectItem !== -1 &&
+                {lista.length !== 0 && selectItem !== 0 && selectItem !== -1 &&
                     lista.map((item, index) => {
                         return (
                             <div className='card' key={index} style={{ marginBottom: '70px' }}>
@@ -189,7 +270,7 @@ function PrincipalLlaves(props) {
                                     <div className='row row-cols-2 g-0'>
                                         <div className='col'>
                                             <div className='tituloHeader' style={{ fontSize: '20px' }}>
-                                                {`${item.nombregrado} ${item.genero=='M'?'MASCULINO':'FEMENINO'}`}
+                                                {`${item.nombregrado} ${item.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`}
                                             </div>
                                             <div className='tituloHeader' style={{ fontSize: '20px' }}>
                                                 {item.nombrecategoria + ' => ' + item.edadini + ' - ' + item.edadfin + ' Años'}
@@ -303,13 +384,13 @@ function PrincipalLlaves(props) {
                                                                                 {itemm.nropelea}
                                                                             </button>}
                                                                             {tipoL == 'E' &&
-                                                                            <div className='btn-group'>
-                                                                                <input className="form-control form-control-lg text-light bg-secondary"
-                                                                                    type="number"
-                                                                                    defaultValue={itemm.nropelea} onChange={(e) => cambiarValor(itemm, e.target.value)}>
-                                                                                </input>
-                                                                                <h1 className='tituloHeader'>{itemm.nropelea}</h1>
-                                                                            </div>}
+                                                                                <div className='btn-group'>
+                                                                                    <input className="form-control form-control-lg text-light bg-secondary"
+                                                                                        type="number"
+                                                                                        defaultValue={itemm.nropelea} onChange={(e) => cambiarValor(itemm, e.target.value)}>
+                                                                                    </input>
+                                                                                    <h1 className='tituloHeader'>{itemm.nropelea}</h1>
+                                                                                </div>}
                                                                         </div>
                                                                         <div className='col-8 my-auto'>
                                                                             #PELEA<hr style={{ border: "15px", background: "#f6f6f" }}></hr>

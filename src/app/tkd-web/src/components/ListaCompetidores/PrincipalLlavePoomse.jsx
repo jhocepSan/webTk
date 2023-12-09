@@ -51,7 +51,7 @@ function PrincipalLlavePoomse(props) {
                 <div className='btn-group btn-group-sm mb-2'>
                     {categorias.map((item, index) => {
                         return (
-                            <button className={`btn btn-sm letraBtn ${selectItem.idcategoria === item.idcategoria ? 'botonLlave' : 'btn-light'}`}
+                            <button className={`btn btn-sm letraBtn ${selectItem.idcategoria === item.idcategoria ? 'botonLlave' : item.genero == 'M' ? 'botonMasc' : 'botonFeme'}`}
                                 onClick={() => verLlavesCategoriaOficial(item)}
                                 key={index} style={{ marginRight: '2px' }}>
                                 {item.nombre} {tipoL == 'A' && <span>{item.genero == 'M' ? 'Masculino' : 'Femenino'}</span>}
