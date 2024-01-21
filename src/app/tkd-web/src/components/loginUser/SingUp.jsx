@@ -85,8 +85,7 @@ function SingUp(props) {
         }
     }
     useEffect(() => {
-        console.log(selectItem);
-        if(selectItem){
+        if(selectItem.nombres!=undefined){
             setIdUsuario(selectItem.idusuario);
             setNombres(selectItem.nombres);
             setApellidos(selectItem.apellidos);
@@ -198,7 +197,7 @@ function SingUp(props) {
                         <div className='row g-2'>
                             <div className='col'>
                                 <button className='btn btn-sm btn-success bg-gradient w-100' onClick={guardarInformacion}>
-                                    <i className="fa-solid fa-address-card fa-xl"></i> {selectItem?'Actualizar':'CREAR'}
+                                    <i className="fa-solid fa-address-card fa-xl"></i> {selectItem.nombre!==undefined?'Actualizar':'CREAR'}
                                 </button>
                             </div>
                             {tipoModal==null&&<div className='col'>

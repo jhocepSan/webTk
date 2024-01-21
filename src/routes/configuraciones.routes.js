@@ -1,8 +1,8 @@
 import {Router} from 'express';
 import {getGrados,getCategoria,addCategoria,deleteCategoria,addCinturon,deleteGrado,deleteCinturon,cambiarEstadoCategoria,
     addSubCategoria,getSubCategoria,addGrado,getCampeonato,deleteSubcategoria,getConfiCategoria,getConfiCategoriaUnido,
-    getTiposCampeonato,addTiposCampeonato,deleteTiposCampeonato,getGradoCompleto,cambiarInscripcion,
-    getConfiCategoriaFestival} from '../controllers/configuracion.controllers.js'
+    getTiposCampeonato,addTiposCampeonato,deleteTiposCampeonato,getGradoCompleto,cambiarInscripcion,confiAreasKirugui,
+    getConfiCategoriaFestival,getConfiAreas} from '../controllers/configuracion.controllers.js'
 const router = Router();
 
 router.post('/getGradoCompleto',async(req,res)=>{
@@ -177,6 +177,22 @@ router.post('/deleteTiposCampeonato',async(req,res)=>{
 })
 router.post('/cambiarInscripcion',async(req,res)=>{
     const result = await cambiarInscripcion(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
+router.post('/confiAreasKirugui',async(req,res)=>{
+    const result = await confiAreasKirugui(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
+router.post('/getConfiAreas',async(req,res)=>{
+    const result = await getConfiAreas(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

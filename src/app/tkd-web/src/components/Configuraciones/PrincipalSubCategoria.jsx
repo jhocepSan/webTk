@@ -79,7 +79,7 @@ function PrincipalSubCategoria(props) {
                     <table className="table table-hover table-dark table-sm">
                         <thead className='text-center bg-gradient'>
                             <tr>
-                                <th className="col-3">
+                                <th className="col-4">
                                     <div className='container-fluid'>
                                         <div className='row row-cols-2 g-0'>
                                             <div className='col-10'>SubCategoria</div>

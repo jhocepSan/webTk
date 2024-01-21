@@ -95,12 +95,14 @@ export const getCompetidores = async (info) => {
         console.log(info);
         conn = await pool.getConnection();
         if (info.tipo != 'D') {
-            const [result] = await conn.query('SELECT *,(select nombre from club where idclub=c.idclub) as club,(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon FROM competidor c WHERE c.idcampeonato=? and c.idclub=? and c.tipo=? and c.genero=? and c.estado!="E";',
-                [info.idCampeonato, info.club, info.tipo, info.genero])
+            var sql = 'SELECT *,(select nombre from club where idclub=c.idclub) as club,(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon '+
+                'FROM competidor c WHERE c.idcampeonato=? and (0=? or c.idclub=?) and c.tipo=? and c.genero=? and c.estado!="E";'
+            const [result] = await conn.query(sql,
+                [info.idCampeonato, info.club, info.club,info.tipo, info.genero])
             return { "ok": result }
         } else {
-            const [result] = await conn.query('SELECT * from equipo where idcampeonato=? and idclub=? and estado!="E";',
-                [info.idCampeonato, info.club])
+            const [result] = await conn.query('SELECT * from equipo where idcampeonato=? and (0=? or c.idclub=?) and estado!="E";',
+                [info.idCampeonato, info.club,info.club])
             console.log(result)
             return { "ok": result }
         }
@@ -704,12 +706,12 @@ export const buscarCompetidor = async (info) => {
         '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria, ' +
         "(concat_ws(' ', nombres, apellidos)) as nombrex " +
-        "FROM competidor c WHERE c.estado='A') as res where res.idcategoria in (select idcategoria from categoria where estado='A') and res.idclub=? and res.nombrex like '%" + info.competidor + "%'";
+        "FROM competidor c WHERE c.estado='A') as res where res.idcategoria in (select idcategoria from categoria where estado='A') and (0=? or res.idclub=?) and res.nombrex like '%" + info.competidor + "%'";
     var conn;
     try {
         console.log(sql);
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql, [info.club])
+        const [result] = await conn.query(sql, [info.club,info.club])
         return { "ok": result }
     } catch (error) {
         console.log(error);

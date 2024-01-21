@@ -29,7 +29,7 @@ function AdminUsuario() {
         } else if (dato.estado == 'P') {
             descripcion = 'Inactivo en el sistema TKD';
         } else if (dato.estado == 'K') {
-            descripcion = 'Kiosanin en el sistema TKD';
+            descripcion = 'Instructor Asociado en el sistema TKD';
         }
         return (<div className='letraMontserratr'>{descripcion}</div>)
     }
@@ -155,7 +155,7 @@ function AdminUsuario() {
                     </div>
                     <div className='col' style={{ minWidth: '130px', maxWidth: '130px' }}>
                         <button className='btn btn-sm btn-success bg-gradient w-100'
-                            onClick={() => { setSelectItem(null); setTipoModal('N'); setShowModal(true) }}>
+                            onClick={() => { setSelectItem({}); setTipoModal('N'); setShowModal(true) }}>
                             <i className="fa-solid fa-user-plus"></i> Nuevo
                         </button>
                     </div>
@@ -165,7 +165,7 @@ function AdminUsuario() {
                 {`Numero de Usuarios del sistema: ${usuarios.length}`}
             </div>
             {cargador == false &&
-                <div className='table-responsive'>
+                <div className='table-responsive' style={{height:'87vh'}}>
                     <table className="table table-dark table-hover table-bordered table-striped" id='competidoresLista' >
                         <thead>
                             <tr className='text-center'>
@@ -254,7 +254,7 @@ function AdminUsuario() {
                             <li className="list-group-item m-0 p-0">
                                 <button className={`btn btn-sm w-100 letraBtn bg-gradient ${selectItem.estado == 'K' ? 'btn-success' : ''}`}
                                     onClick={() => cambiarEstadoUser(null, 'K')}>
-                                    KIOSANIN
+                                    Instructor Asociado
                                 </button>
                             </li>
                             <li className="list-group-item m-0 p-0">
@@ -275,7 +275,9 @@ function AdminUsuario() {
                         actualizar={actualizar} setShowModal={setShowModal} selectItem={selectItem} setSelectItem={setSelectItem} />}
                 </Modal.Body>
             </Modal>
-            <MsgDialogo show={showMessage} msg='Esta seguro de Eliminar EL CLUB' okFunction={() => cambiarEstadoUser(selectItem, 'E')} notFunction={() => setShowMessage(false)} />
+            <MsgDialogo show={showMessage} 
+                msg={selectItem.nombres!==null?`Esta seguro de Eliminar EL USUARIO ${selectItem.nombres} ${selectItem.apellidos}`:''} 
+                okFunction={() => cambiarEstadoUser(selectItem, 'E')} notFunction={() => setShowMessage(false)} />
         </div>
     )
 }

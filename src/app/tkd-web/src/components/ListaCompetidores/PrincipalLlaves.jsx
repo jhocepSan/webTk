@@ -12,13 +12,14 @@ function PrincipalLlaves(props) {
     const [selectItem, setSelectItem] = useState(0);
     const [lista, setLista] = useState([]);
     const [numLlave, setNumLlave] = useState(0);
-    const [actualizar, setActualizar] = useState(0);
+    const [listaLLaves, setListaLLaves] = useState(llaves);
     const [listaManual, setListaManual] = useState([]);
     function verLlavesCategoriaOficial(dato) {
         setSelectItem(dato);
-        setLista(llaves.filter((item) => item.idcategoria === dato));
+        setLista(listaLLaves.filter((item) => item.idcategoria === dato));
         setNumLlave(0);
     }
+    
     function verLlavesCategoria(dato) {
         setSelectItem(dato);
         setNumLlave(0);
@@ -46,9 +47,9 @@ function PrincipalLlaves(props) {
             .catch(error => MsgUtils.msgError(error));
 
     }
-    function cambiarLlave(tipo) {
+    function cambiarLlave(tipo,tamanio) {
         if (tipo === 'N') {
-            if (numLlave < lista.length - 1) {
+            if (numLlave < tamanio - 1) {
                 setNumLlave(numLlave + 1);
             }
         } else if (tipo === 'B') {
@@ -105,12 +106,12 @@ function PrincipalLlaves(props) {
                         doc.addPage();
                         x = 10;
                         y = 5;
-                        numPag+=1;
+                        numPag += 1;
                     }
                 }
             }
         }
-        var nbp=0;
+        var nbp = 0;
         for (var cmpe of listaManual) {
             var lsPele = cmpe.PELEAS
             if (lsPele.length == 2) {
@@ -139,11 +140,11 @@ function PrincipalLlaves(props) {
                 doc.addPage();
                 x = 10;
                 y = 5;
-                numPag+=1;
-            }else if(lsPele.length == 1){
+                numPag += 1;
+            } else if (lsPele.length == 1) {
                 var comp = cmpe.PELEAS[0]
                 doc.setFontSize(12);
-                if (nbp==0){
+                if (nbp == 0) {
                     x = 10;
                     y = 5;
                     doc.text(`Pagina: ${numPag}`, (width / 2) - 20, y + 5);
@@ -162,14 +163,14 @@ function PrincipalLlaves(props) {
                 doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                 doc.text(`${comp.apellidos2 !== null ? comp.apellidos2 : ''}`, x, y + 10)
                 y = y + 50
-                nbp+=1;
-                if(nbp==2){
-                    nbp=0;
+                nbp += 1;
+                if (nbp == 2) {
+                    nbp = 0;
                     doc.addPage();
-                    numPag+=1;
+                    numPag += 1;
                 }
             }
-            
+
         }
         doc.save(`llavesGeneradas.pdf`);
         /*const content = pdfRef.current;
@@ -185,8 +186,8 @@ function PrincipalLlaves(props) {
             windowWidth: 700
         });*/
     }
-    function cambiarValor(dato, valor) {
-        console.log(dato, valor);
+    function cambiarValor(dato, valor,i,j) {
+        console.log(dato, valor,j);
         fetch(`${server}/competidor/cambiarNumPelea`, {
             method: 'POST',
             headers: {
@@ -198,7 +199,9 @@ function PrincipalLlaves(props) {
             .then(res => res.json())
             .then(data => {
                 if (data.ok) {
-                    //callback();
+                    var aux = listaLLaves;
+                    aux[i].PELEAS[j].nropelea=parseInt(valor)
+                    setListaLLaves([...aux]);
                     MsgUtils.msgCorrecto(data.ok);
                 } else {
                     MsgUtils.msgError(data.error);
@@ -217,217 +220,231 @@ function PrincipalLlaves(props) {
     }
 
     useEffect(() => {
-        fetch(`${server}/config/getConfiCategoriaUnido`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json;charset=utf-8',
-            },
-            body: JSON.stringify({ idcampeonato })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok) {
-                    console.log(data.ok);
-                    setCategorias(data.ok);
-                    getLlavesCategoria();
-                } else {
-                    MsgUtils.msgError(data.error);
-                }
+        if (categorias.length == 0) {
+            fetch(`${server}/config/getConfiCategoriaUnido`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json;charset=utf-8',
+                },
+                body: JSON.stringify({ idcampeonato })
             })
-            .catch(error => MsgUtils.msgError(error));
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok) {
+                        setCategorias(data.ok);
+                        getLlavesCategoria();
+                    } else {
+                        MsgUtils.msgError(data.error);
+                    }
+                })
+                .catch(error => MsgUtils.msgError(error));
+        }
     }, [])
     useEffect(() => {
-
-    }, [llaves, selectItem])
+        if(selectItem!==0){
+            verLlavesCategoriaOficial(selectItem);
+        }
+    }, [listaLLaves, selectItem])
     return (
-        <div className='container-fluid py-2'>
+        <div className='container-fluid'>
+            {tipoL == 'E' && <div className='btn-group btn-group-sm mb-1'>
+                <button className='btn btn-sm letraBtn btn-success' onClick={exportPDF}>
+                    <i className="fa-solid fa-file-pdf"></i> PDF
+                </button>
+                <button className='btn btn-sm btn-info mx-1'>
+                    <i className="fa-solid fa-arrow-up-9-1"></i> Numerar LLaves
+                </button>
+                <button className='btn btn-sm btn-danger '>
+                    <i className="fa-solid fa-trash"></i> Eliminar LLaves
+                </button>
+            </div>}
             <div className='overflow-auto'>
-                <div className='btn-group btn-group-sm mb-2'>
+                <div className='btn-group btn-group-sm mb-1'>
                     {categorias.map((item, index) => {
                         return (
-                            <button className={`btn btn-sm letraBtn ${selectItem === item.idcategoria ? 'botonLlave' : item.genero == 'M' ? 'botonMasc' : 'botonFeme'}`} onClick={() => verLlavesCategoriaOficial(item.idcategoria)}
+                            <button className={`btn btn-sm lh-1 letraBtn ${selectItem === item.idcategoria ? 'botonLlave' : item.genero == 'M' ? 'botonMasc' : 'botonFeme'}`} onClick={() => verLlavesCategoriaOficial(item.idcategoria)}
                                 key={index} style={{ marginRight: '2px' }}>
                                 {item.nombre}
                             </button>
                         )
                     })}
-                    <button className={`btn btn-sm letraBtn ${selectItem === -1 ? 'botonLlave' : 'btn-light'}`} onClick={() => verLlavesCategoria(-1)}
+                    <button className={`btn btn-sm  lh-1 letraBtn ${selectItem === -1 ? 'botonLlave' : 'btn-light'}`} onClick={() => verLlavesCategoria(-1)}
                         style={{ marginRight: '2px' }}>
                         EXHIBICIONES
                     </button>
-                    {tipoL == 'E' && <button className='btn btn-sm letraBtn btn-success' onClick={exportPDF}>
-                        <i className="fa-solid fa-file-pdf"></i> PDF
-                    </button>}
                 </div>
             </div>
             <div className='container-fluid' ref={pdfRef}>
                 {lista.length !== 0 && selectItem !== 0 && selectItem !== -1 &&
                     lista.map((item, index) => {
-                        return (
-                            <div className='card' key={index} style={{ marginBottom: '70px' }}>
-                                <div className='card-header bg-transparent'>
-                                    <div className='row row-cols-2 g-0'>
-                                        <div className='col'>
-                                            <div className='tituloHeader' style={{ fontSize: '20px' }}>
-                                                {`${item.nombregrado} ${item.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`}
+                        if (numLlave == index) {
+                            return (
+                                <div className='card' key={index} >
+                                    <div className='card-header bg-transparent'>
+                                        <div className='row row-cols-2 g-0'>
+                                            <div className='col'>
+                                                <div className='tituloHeader' style={{ fontSize: '20px' }}>
+                                                    {`${item.nombregrado} ${item.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`}
+                                                </div>
+                                                <div className='tituloHeader' style={{ fontSize: '20px' }}>
+                                                    {item.nombrecategoria + ' => ' + item.edadini + ' - ' + item.edadfin + ' Años'}
+                                                </div>
                                             </div>
-                                            <div className='tituloHeader' style={{ fontSize: '20px' }}>
-                                                {item.nombrecategoria + ' => ' + item.edadini + ' - ' + item.edadfin + ' Años'}
-                                            </div>
-                                        </div>
-                                        <div className='col'>
-                                            <div className='tituloHeader' style={{ fontSize: '20px' }}>
-                                                {UtilsDate.getDateFormato(item.fecha)}
-                                            </div>
-                                            <div className='tituloHeader' style={{ fontSize: '20px' }}>
-                                                {item.nombresubcategoria + ' => ' + item.pesoini + ' - ' + item.pesofin + ' Kg'}
+                                            <div className='col'>
+                                                <div className='tituloHeader' style={{ fontSize: '20px' }}>
+                                                    {UtilsDate.getDateFormato(item.fecha)}
+                                                </div>
+                                                <div className='tituloHeader' style={{ fontSize: '20px' }}>
+                                                    {item.nombresubcategoria + ' => ' + item.pesoini + ' - ' + item.pesofin + ' Kg'}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className='card-body' >
-                                    <div className='table table-responsive'>
-                                        <table className="table">
-                                            <tbody>
-                                                {item.PELEAS.map((itemm, indexx) => {
-                                                    return (
-                                                        <tr key={indexx} >
-                                                            <th className='col-4'>
-                                                                <div className='container-fluid'>
-                                                                    <div className="navbar-brand card flex-row bg-primary m-0 p-0 " >
-                                                                        <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
-                                                                        <div className='ps-2 my-auto d-none d-sm-inline'>
-                                                                            <div className="userHeader text-light" style={{ fontSize: '20px' }}>{itemm.nombres}</div>
-                                                                            <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.apellidos}</div>
-                                                                            <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.clubuno}</div>
+                                    <div className='card-body' >
+                                        <div className='table table-responsive'>
+                                            <table className="table">
+                                                <tbody>
+                                                    {item.PELEAS.map((itemm, indexx) => {
+                                                        return (
+                                                            <tr key={indexx} >
+                                                                <th className='col-4'>
+                                                                    <div className='container-fluid'>
+                                                                        <div className="navbar-brand card flex-row bg-primary m-0 p-0 " >
+                                                                            <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
+                                                                            <div className='ps-2 my-auto d-none d-sm-inline'>
+                                                                                <div className="userHeader text-light lh-sm" style={{ fontSize: '20px' }}>{itemm.nombres}</div>
+                                                                                <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos}</div>
+                                                                                <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubuno}</div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className='row row-cols-2 g-0'>
+                                                                            <div className='col-4 my-auto'>
+                                                                                {tipoL == 'O' && <button className='btn btn-sm btn-dark letraNumPelea w-100' onClick={() => callback(itemm)}>
+                                                                                    {itemm.nropelea}
+                                                                                </button>}
+                                                                                {tipoL == 'E' &&
+                                                                                    <input className="form-control form-control-lg text-light bg-secondary"
+                                                                                        type="number" placeholder="#"
+                                                                                        value={itemm.nropelea} onChange={(e) => cambiarValor(itemm, e.target.value,index,indexx)}>
+                                                                                    </input>}
+                                                                            </div>
+                                                                            <div className='col-8 my-auto'>
+                                                                                #PELEA<hr style={{ border: "15px", background: "#f6f6f" }}></hr>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="navbar-brand card flex-row bg-danger m-0 p-0 " >
+                                                                            <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
+                                                                            <div className='ps-2 my-auto d-none d-sm-inline'>
+                                                                                <div className="userHeader text-light lh-sm" style={{ fontSize: '20px' }}>{itemm.nombres2}</div>
+                                                                                <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos2}</div>
+                                                                                <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubdos}</div>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div className='row row-cols-2 g-0'>
-                                                                        <div className='col-4 my-auto'>
-                                                                            {tipoL == 'O' && <button className='btn btn-sm btn-dark letraNumPelea w-100' onClick={() => callback(itemm)}>
-                                                                                {itemm.nropelea}
-                                                                            </button>}
-                                                                            {tipoL == 'E' &&
-                                                                                <input className="form-control form-control-lg text-light bg-secondary"
-                                                                                    type="number" placeholder="#"
-                                                                                    value={itemm.nropelea} onChange={(e) => cambiarValor(itemm, e.target.value)}>
-                                                                                </input>}
-                                                                        </div>
-                                                                        <div className='col-8 my-auto'>
-                                                                            #PELEA<hr style={{ border: "15px", background: "#f6f6f" }}></hr>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div className="navbar-brand card flex-row bg-danger m-0 p-0 " >
-                                                                        <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
-                                                                        <div className='ps-2 my-auto d-none d-sm-inline'>
-                                                                            <div className="userHeader text-light" style={{ fontSize: '20px' }}>{itemm.nombres2}</div>
-                                                                            <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.apellidos2}</div>
-                                                                            <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.clubdos}</div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </th>
-                                                            <td></td>
-                                                            <td></td>
-                                                            <td></td>
-                                                        </tr>
-                                                    )
-                                                })}
-                                            </tbody>
-                                        </table>
+                                                                </th>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td></td>
+                                                            </tr>
+                                                        )
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )
+                            )
+                        }
                     })
                 }
                 {listaManual.length != 0 && selectItem == -1 &&
                     listaManual.map((item, index) => {
-                        return (
-                            <div className='card' key={index} style={{ marginBottom: `${getMargin(index)}` }}>
-                                <div className='card-header bg-transparent'>
-                                    <div className='row row-cols-2 g-0'>
-                                        <div className='col'>
-                                            <div className='tituloHeader' style={{ fontSize: '20px' }}>
-                                                EXHIBICIONES {item.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}
+                        if (numLlave == index) {
+                            return (
+                                <div className='card' key={index} >
+                                    <div className='card-header bg-transparent'>
+                                        <div className='row row-cols-2 g-0'>
+                                            <div className='col'>
+                                                <div className='tituloHeader' style={{ fontSize: '20px' }}>
+                                                    EXHIBICIONES {item.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className='col'>
-                                            <div className='tituloHeader' style={{ fontSize: '20px' }}>
-                                                {UtilsDate.getDateFormato(item.fecha)}
+                                            <div className='col'>
+                                                <div className='tituloHeader' style={{ fontSize: '20px' }}>
+                                                    {UtilsDate.getDateFormato(item.fecha)}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className='card-body' >
-                                    <div className='table table-responsibe'>
-                                        <table className="table">
-                                            <tbody>
-                                                {item.PELEAS.map((itemm, indexx) => {
-                                                    return (
-                                                        <tr key={indexx} >
-                                                            <th className='col-4'>
-                                                                <div className='container-fluid'>
-                                                                    <div className="navbar-brand card flex-row bg-primary m-0 p-0 " >
-                                                                        <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
-                                                                        <div className='ps-2 my-auto d-none d-sm-inline'>
-                                                                            <div className="userHeader text-light" style={{ fontSize: '20px' }}>{itemm.nombres}</div>
-                                                                            <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.apellidos}</div>
-                                                                            <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.clubuno}</div>
-                                                                            <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.edad} años</div>
+                                    <div className='card-body' >
+                                        <div className='table table-responsibe'>
+                                            <table className="table">
+                                                <tbody>
+                                                    {item.PELEAS.map((itemm, indexx) => {
+                                                        return (
+                                                            <tr key={indexx} >
+                                                                <th className='col-4'>
+                                                                    <div className='container-fluid'>
+                                                                        <div className="navbar-brand card flex-row bg-primary m-0 p-0 " >
+                                                                            <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
+                                                                            <div className='ps-2 my-auto d-none d-sm-inline'>
+                                                                                <div className="userHeader text-light lh-sm" style={{ fontSize: '20px' }}>{itemm.nombres}</div>
+                                                                                <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos}</div>
+                                                                                <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubuno}</div>
+                                                                                <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.edad} años</div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className='row row-cols-2 g-0'>
+                                                                            <div className='col-4 my-auto'>
+                                                                                {tipoL == 'O' && <button className='btn btn-sm btn-dark letraNumPelea w-100' onClick={() => callback(itemm)}>
+                                                                                    {itemm.nropelea}
+                                                                                </button>}
+                                                                                {tipoL == 'E' &&
+                                                                                    <div className='btn-group'>
+                                                                                        <input className="form-control form-control-lg text-light bg-secondary"
+                                                                                            type="number"
+                                                                                            defaultValue={itemm.nropelea} onChange={(e) => cambiarValor(itemm, e.target.value)}>
+                                                                                        </input>
+                                                                                        <h1 className='tituloHeader'>{itemm.nropelea}</h1>
+                                                                                    </div>}
+                                                                            </div>
+                                                                            <div className='col-8 my-auto'>
+                                                                                #PELEA<hr style={{ border: "15px", background: "#f6f6f" }}></hr>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="navbar-brand card flex-row bg-danger m-0 p-0 " >
+                                                                            <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
+                                                                            <div className='ps-2 my-auto d-none d-sm-inline'>
+                                                                                <div className="userHeader text-light lh-sm" style={{ fontSize: '20px' }}>{itemm.nombres2}</div>
+                                                                                <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos2}</div>
+                                                                                <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubdos}</div>
+                                                                                <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.edad2} años</div>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div className='row row-cols-2 g-0'>
-                                                                        <div className='col-4 my-auto'>
-                                                                            {tipoL == 'O' && <button className='btn btn-sm btn-dark letraNumPelea w-100' onClick={() => callback(itemm)}>
-                                                                                {itemm.nropelea}
-                                                                            </button>}
-                                                                            {tipoL == 'E' &&
-                                                                                <div className='btn-group'>
-                                                                                    <input className="form-control form-control-lg text-light bg-secondary"
-                                                                                        type="number"
-                                                                                        defaultValue={itemm.nropelea} onChange={(e) => cambiarValor(itemm, e.target.value)}>
-                                                                                    </input>
-                                                                                    <h1 className='tituloHeader'>{itemm.nropelea}</h1>
-                                                                                </div>}
-                                                                        </div>
-                                                                        <div className='col-8 my-auto'>
-                                                                            #PELEA<hr style={{ border: "15px", background: "#f6f6f" }}></hr>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div className="navbar-brand card flex-row bg-danger m-0 p-0 " >
-                                                                        <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
-                                                                        <div className='ps-2 my-auto d-none d-sm-inline'>
-                                                                            <div className="userHeader text-light" style={{ fontSize: '20px' }}>{itemm.nombres2}</div>
-                                                                            <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.apellidos2}</div>
-                                                                            <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.clubdos}</div>
-                                                                            <div className='userHeader text-light' style={{ fontSize: '20px' }}>{itemm.edad2} años</div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </th>
-                                                            <td></td>
-                                                            <td></td>
-                                                            <td></td>
-                                                        </tr>
-                                                    )
-                                                })}
-                                            </tbody>
-                                        </table>
+                                                                </th>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td></td>
+                                                            </tr>
+                                                        )
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )
+                            )
+                        }
                     })
                 }
             </div>
-            {
-                lista.length !== 0 &&
+            {lista.length !== 0 && selectItem !== -1 &&
                 <div className='py-1'>
                     <div className='row row-cols-3 g-0'>
                         <div className='col-5 text-start my-auto'>
-                            <button className='btn btn-sm text-light' onClick={() => cambiarLlave('B')}>
+                            <button className='btn btn-sm text-light' onClick={() => cambiarLlave('B',lista.length)}>
                                 <i className="fa-solid fa-square-caret-left fa-2xl"></i>
                             </button>
                         </div>
@@ -435,7 +452,26 @@ function PrincipalLlaves(props) {
                             <div className='text-dark letraMontserratr'>{(numLlave + 1) + '/' + lista.length}</div>
                         </div>
                         <div className='col-5 text-end my-auto'>
-                            <button className='btn btn-sm text-light' onClick={() => cambiarLlave('N')}>
+                            <button className='btn btn-sm text-light' onClick={() => cambiarLlave('N',lista.length)}>
+                                <i className="fa-solid fa-square-caret-right fa-2xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+            {listaManual.length !== 0 && selectItem == -1 &&
+                <div className='py-1'>
+                    <div className='row row-cols-3 g-0'>
+                        <div className='col-5 text-start my-auto'>
+                            <button className='btn btn-sm text-light' onClick={() => cambiarLlave('B',listaManual.length)}>
+                                <i className="fa-solid fa-square-caret-left fa-2xl"></i>
+                            </button>
+                        </div>
+                        <div className='col-2 text-center my-auto bg-light'>
+                            <div className='text-dark letraMontserratr'>{(numLlave + 1) + '/' + listaManual.length}</div>
+                        </div>
+                        <div className='col-5 text-end my-auto'>
+                            <button className='btn btn-sm text-light' onClick={() => cambiarLlave('N',listaManual.length)}>
                                 <i className="fa-solid fa-square-caret-right fa-2xl"></i>
                             </button>
                         </div>

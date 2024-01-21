@@ -81,7 +81,10 @@ body{
 	color: #ffffff;
 }
 .reloj-digital{
-	background-color: rgba(236, 236, 236, 0.733);
+	background-color: rgb(1, 150, 14);
+}
+.reloj-digitaP{
+	background-color: rgb(206, 98, 10);
 }
 .botonMenu{
     background-color: rgba(48, 45, 45, 0.075);
@@ -108,6 +111,9 @@ body{
 }
 .fondoPuntuacion{
     background-color: rgba(49, 48, 48, 0.075);
+}
+.fondoControles{
+	background-color: rgba(116, 114, 114, 0.808);
 }
 .fondoNombre{
     background-color: rgba(255, 255, 255, 0.112);

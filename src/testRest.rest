@@ -16,3 +16,7 @@ content-type: application/json
     "correo":"jjchsan@gmail.com",
     "password":"6001Sajhy"
 }
+
+###obtener informacion mandos
+
+get http://localhost:4005/mandojuec/getPuntosMando/0 HTTP/1.1

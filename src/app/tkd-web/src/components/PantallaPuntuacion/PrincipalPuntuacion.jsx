@@ -39,6 +39,7 @@ function PrincipalPuntuacion() {
     const [roundWinRojo, setRoundWinRojo] = useState(0);
     const [endTiempo, setEndTiempo] = useState(false);
     const [mapPuntos,setMapPuntos] = useState({});
+    const [listaLlaves, setListaLlaves] = useState([]);
     function recetearValores() {
         setListaNumRound([]);
         setRoundWinAzul(0);
@@ -207,7 +208,7 @@ function PrincipalPuntuacion() {
             jugadorAzul, setJugadorAzul, jugadorRojo, setJugadorRojo, runPelea, setRunPelea, tipo, setTipo, genero, setGenero,
             nameConfig, setNameConfig, config, setConfig, faltasAzul, setFaltasAzul, faltasRojo, setFaltasRojo, setTipoModal,
             playGanador, setPlayGanador, numPelea, setNumPelea, resetJuego, numeroRound, setNumeRound, endTiempo, setEndTiempo,
-            roundWinAzul, setRoundWinAzul, roundWinRojo, setRoundWinRojo, getPuntosMando,mapPuntos,setMapPuntos
+            roundWinAzul, setRoundWinAzul, roundWinRojo, setRoundWinRojo, getPuntosMando,mapPuntos,setMapPuntos,listaLlaves, setListaLlaves
         }}>
             <Header puntuacion={true} />
             <div className='bg-transparent menu-flotante'>

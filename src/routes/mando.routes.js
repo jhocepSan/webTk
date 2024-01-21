@@ -1,5 +1,5 @@
 import {Router} from 'express';
-import { getPuntosMando } from '../controllers/mando.controllers.js';
+import { getPuntosMando,limpiarLecturas } from '../controllers/mando.controllers.js';
 
 const router = Router();
 
@@ -32,4 +32,20 @@ router.post('/getPuntosMando',async(req,res)=>{
         res.status(404).json(result);
     }
 });
+router.get('/getPuntosMando/:sector',async(req,res)=>{
+    const result =await getPuntosMando({sector:req.params.sector});
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
+router.get('/limpiarLecturas/:sector',async(req,res)=>{
+    const result =await limpiarLecturas({sector:req.params.sector});
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
 export default router;

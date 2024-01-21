@@ -3,11 +3,12 @@ import MsgUtils from '../utils/MsgUtils';
 import { ContextPuntuacion } from './PrincipalPuntuacion';
 
 function Configuraciones(props) {
-    const { setShowModal, setConfig, config, nameConfig, setNameConfig, setConfigJuego,setMapPuntos } = useContext(ContextPuntuacion);
+    const { setShowModal, setConfig, config, nameConfig, setNameConfig, setConfigJuego, setMapPuntos } = useContext(ContextPuntuacion);
+    const [cantAreas,setCantAreas] = useState(0);
     const [enableDif, setEnableDif] = useState(false);
-    const [enableMaxRound,setEnableMaxRound] = useState(false);
-    const [enableMaxPoint,setEnableMaxPoint] = useState(false);
-    const [puntosOro,setPuntosOro] = useState(0);
+    const [enableMaxRound, setEnableMaxRound] = useState(false);
+    const [enableMaxPoint, setEnableMaxPoint] = useState(false);
+    const [puntosOro, setPuntosOro] = useState(0);
     const [nameSeccion, setNameSeccion] = useState('');
     const [numRound, setNumRound] = useState(0);
     const [timeRound, setTimeRound] = useState('');
@@ -21,11 +22,13 @@ function Configuraciones(props) {
     const [puntosPunio, setPuntosPunio] = useState(0);
     const [puntosPeto, setPuntosPeto] = useState(0);
     const [puntosPetoGiro, setPuntosPetoGiro] = useState(0);
-    const [maxJueces,setMaxJueces] = useState(0);
+    const [maxJueces, setMaxJueces] = useState(0);
+    const [frecLectura, setFrecLectura] = useState(1000);
+    const [esperaTime, setEsperaTime] = useState(2);
     function validarCampos() {
         if (nameSeccion !== '' && numRound !== 0 && timeRound !== '' && falta !== 0 && maxFaltas !== 0 &&
             timeDescanso !== '' && numMandos !== 0 && puntosCabeza !== 0 && puntosCabezaGiro !== 0
-            && puntosPunio !== 0 && puntosPeto !== 0 && puntosPetoGiro !== 0) {
+            && puntosPunio !== 0 && puntosPeto !== 0 && puntosPetoGiro !== 0 && frecLectura !== 0 && esperaTime !== 0) {
             if (enableDif && diffPuntos !== 0) {
                 return true
             } else if (enableDif === false) {
@@ -41,14 +44,16 @@ function Configuraciones(props) {
         if (validarCampos()) {
             var datos = {
                 nameSeccion, numRound, timeRound, falta, maxFaltas, timeDescanso, numMandos, puntosCabeza,
-                puntosCabezaGiro, puntosPunio, puntosPeto, puntosPetoGiro, enableDif, diffPuntos,puntosOro,
-                enableMaxPoint,enableMaxRound,maxJueces
+                puntosCabezaGiro, puntosPunio, puntosPeto, puntosPetoGiro, enableDif, diffPuntos, puntosOro,
+                enableMaxPoint, enableMaxRound, maxJueces,frecLectura,esperaTime,cantAreas
             }
-            setMapPuntos({'d':puntosCabeza,'D':puntosCabezaGiro,'P':puntosPunio,'c':puntosPeto,'C':puntosPetoGiro,
-            'b':puntosCabeza,'B':puntosCabezaGiro,'E':puntosPunio,'a':puntosPeto,'A':puntosPetoGiro})
+            setMapPuntos({
+                'd': puntosCabeza, 'D': puntosCabezaGiro, 'P': puntosPunio, 'c': puntosPeto, 'C': puntosPetoGiro,
+                'b': puntosCabeza, 'B': puntosCabezaGiro, 'E': puntosPunio, 'a': puntosPeto, 'A': puntosPetoGiro
+            })
             setConfigJuego(datos);
             setNameConfig(nameSeccion);
-            localStorage.setItem(nameSeccion, JSON.stringify(datos));
+            localStorage.setItem('kirugui', JSON.stringify(datos));
             MsgUtils.msgCorrecto("Configuracion correcta del Area: " + nameSeccion)
             setShowModal(false);
             setConfig(true);
@@ -57,13 +62,15 @@ function Configuraciones(props) {
         }
     }
     function eliminarConfiguracion() {
-        localStorage.removeItem(nameConfig);
+        localStorage.removeItem('kirugui');
         setNameConfig('');
         setConfig(false);
     }
     useEffect(() => {
-        if (config) {
-            var datos = JSON.parse(localStorage.getItem(nameConfig))
+        var datos = JSON.parse(localStorage.getItem('kirugui'))
+        if (datos!==undefined && datos!==null) {
+            setConfig(true);
+            setCantAreas(datos.cantAreas);
             setNameSeccion(datos.nameSeccion);
             setNumRound(datos.numRound);
             setTimeRound(datos.timeRound);
@@ -82,6 +89,8 @@ function Configuraciones(props) {
             setEnableMaxPoint(datos.enableMaxPoint);
             setEnableMaxRound(datos.enableMaxRound);
             setMaxJueces(datos.maxJueces);
+            setFrecLectura(datos.frecLectura);
+            setEsperaTime(datos.esperaTime);
         }
     }, [])
     return (
@@ -94,17 +103,12 @@ function Configuraciones(props) {
                         <span className="input-group-text" >Numero de Area</span>
                         <select className="form-select form-select-sm text-center"
                             value={nameSeccion} onChange={(e) => setNameSeccion(e.target.value.toUpperCase())}>
-                            <option value={""}></option>
-                            <option value={"1"}>Area 1</option>
-                            <option value={"2"}>Area 2</option>
-                            <option value={"3"}>Area 3</option>
-                            <option value={"4"}>Area 4</option>
-                            <option value={"5"}>Area 5</option>
-                            <option value={"6"}>Area 6</option>
-                            <option value={"7"}>Area 7</option>
-                            <option value={"8"}>Area 8</option>
-                            <option value={"9"}>Area 9</option>
-                            <option value={"10"}>Area 10</option>
+                            <option value={""}>NINGUNO</option>
+                            {[1,2,3,4,5,6,7,8,9,10].map((item,index)=>{
+                                if(index<cantAreas){
+                                    return <option value={item}>{'Area '+ item}</option>
+                                }
+                            })}
                         </select>
                     </div>
                     <div className='text-center text-light letraMontserratr'>Preferencias del ROUND</div>
@@ -128,10 +132,10 @@ function Configuraciones(props) {
                         </div>
                         <div className="input-group input-group-sm mb-3">
                             <span className="input-group-text" >Duración del ROUND</span>
-                            <input type="time" className="form-control text-center"
-                                value={timeRound} onChange={(e) => setTimeRound(e.target.value)}
-                                minLength="00:00:00" maxLength="01:00:00" step="1"
-                                placeholder="0.9 min" />
+                            <input type="number" className="form-control text-center"
+                                value={timeRound} onChange={(e) => setTimeRound(parseInt(e.target.value))}
+                                minLength="0" maxLength="500" step="1"
+                                placeholder="60 Segundos" />
                         </div>
                     </div>
                     <div className='text-center text-light letraMontserratr'>Configuración GAM-JEON</div>
@@ -157,9 +161,42 @@ function Configuraciones(props) {
                     <div className='container-fluid'>
                         <div className="input-group input-group-sm mb-3">
                             <span className="input-group-text" >Tiempo de Descanso</span>
-                            <input type="time" className="form-control text-center"
-                                value={timeDescanso} onChange={(e) => setTimeDescanso(e.target.value)}
-                                minLength="00:00:00" maxLength="01:00:00" step="1" />
+                            <input type="number" className="form-control text-center"
+                                value={timeDescanso} onChange={(e) => setTimeDescanso(parseInt(e.target.value))}
+                                minLength="0" maxLength="500" step="1" placeholder='60 Segundos' />
+                        </div>
+                    </div>
+                    <div className='container-fluid'>
+                        <div className="input-group input-group-sm mb-3">
+                            <span className="input-group-text" >Frecuencia de Lectura</span>
+                            <select className="form-select form-select-sm text-center" value={frecLectura}
+                                onChange={(e) => setFrecLectura(e.target.value)}>
+                                <option value={300}>0.3 Segundos</option>
+                                <option value={400}>0.4 Segundos</option>
+                                <option value={500}>0.5 Segundos</option>
+                                <option value={600}>0.6 Segundos</option>
+                                <option value={700}>0.7 Segundos</option>
+                                <option value={1000}>1 Segundo</option>
+                                <option value={1200}>1.2 Segundos</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className='container-fluid'>
+                        <div className="input-group input-group-sm mb-3">
+                            <span className="input-group-text" >Esperar Para Lectura</span>
+                            <select className="form-select form-select-sm text-center" value={esperaTime}
+                                onChange={(e) => setEsperaTime(e.target.value)}>
+                                <option value={1}>1</option>
+                                <option value={2}>2</option>
+                                <option value={3}>3</option>
+                                <option value={4}>4</option>
+                                <option value={5}>5</option>
+                                <option value={6}>6</option>
+                                <option value={7}>7</option>
+                                <option value={8}>8</option>
+                                <option value={9}>9</option>
+                                <option value={10}>10</option>
+                            </select>
                         </div>
                     </div>
                     <div className="form-check">
@@ -268,12 +305,9 @@ function Configuraciones(props) {
                 </div>
             </div>
             <div className='container-fluid mb-2'>
-                <button className='btn btn-sm btn-success letraBtn w-50' onClick={() => guardarConfiguracion()}>
+                <button className='btn btn-sm btn-success letraBtn w-100' onClick={() => guardarConfiguracion()}>
                     <i className="fa-solid fa-floppy-disk"></i> Guardar Configuración
                 </button>
-                {config && <button className='btn btn-sm btn-danger letraBtn w-50' onClick={() => eliminarConfiguracion()}>
-                    <i className="fa-solid fa-trash-can"></i> Eliminar Configuración
-                </button>}
             </div>
         </div>
     )

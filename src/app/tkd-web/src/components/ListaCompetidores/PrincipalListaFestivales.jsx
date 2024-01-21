@@ -8,6 +8,7 @@ import Competidor from '../RegistroCompetidor/Competidor';
 import MsgUtils from '../utils/MsgUtils';
 import UtilsCargador from '../utils/UtilsCargador'
 import { server } from '../utils/MsgUtils';
+import MsgDialogo from '../utils/MsgDialogo';
 
 function PrincipalListaFestivales() {
     const tableRef = useRef(null);
@@ -28,6 +29,7 @@ function PrincipalListaFestivales() {
     const [categorias, setCategorias] = useState([]);
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
     const [generado, setGenerado] = useState(false);
+    const [showDialogo,setShowDialogo] = useState(false);
     function esDeTipo(dato, tipo) {
         if (dato.idtipocompetencia !== null) {
             var tipoc = dato.idtipocompetencia.split(':');
@@ -501,20 +503,6 @@ function PrincipalListaFestivales() {
                             </button>
                         </div>
                     </div>
-                    {listaCompetidores.length !== 0 && tipo !== 'R' &&
-                        <div className='col' style={{ minWidth: '130px', maxWidth: '130px' }}>
-                            <button className={`btn btn-sm bg-gradient w-100 ${genManual ? 'btn-danger' : 'btn-primary'}`} onClick={() => GenerarLlaves()}>
-                                <i className="fa-solid fa-network-wired"></i> {genManual ? 'Desactivar' : 'LLave Manual'}
-                            </button>
-                        </div>}
-                    {listaCompetidores.length !== 0 && tipo === 'R' &&
-                        <div className='col' style={{ minWidth: '90px', maxWidth: '90px' }}>
-                            <button className={`btn btn-sm bg-gradient w-100 ${genManual ? 'btn-danger' : 'btn-primary'}`}
-                                disabled={generado}
-                                onClick={() => GenerarLlaves()}>
-                                <i className="fa-solid fa-network-wired"></i>Llaves
-                            </button>
-                        </div>}
                 </div>
             </div>
             <div className='container-fluid text-danger w-100 bg-light text-center fw-bold '>
@@ -554,12 +542,11 @@ function PrincipalListaFestivales() {
                                         <div className='container-fluid p-0 m-0' style={{ fontSize: '16px' }}>
                                             <div className='letraMontserratr' >{'GRADO: ' + item.grado}</div>
                                             <div className='letraMontserratr'>{'CATEGORIA: ' + item.nombrecategoria}</div>
-                                            <div className='letraMontserratr'>{'SUB-CATEGORIA: ' + item.nombresubcategoria}</div>
                                         </div>
                                     </td>
                                     {tipo == 'R' && renderTipoCmp(item)}
                                     <td className='my-auto text-center'>
-                                        <button className='btn text-danger' onClick={() => sacarDeListas(item)}>
+                                        <button className='btn text-danger' onClick={() => {setSelectItem(item);setShowDialogo(true)}}>
                                             <i className="fa-regular fa-circle-xmark fa-2xl"></i>
                                         </button>
                                     </td>
@@ -649,6 +636,7 @@ function PrincipalListaFestivales() {
                     </div>
                 </div>
             }
+            <MsgDialogo show={showDialogo} msg={`Seguro de Eliminar a ${selectItem.nombres} ${selectItem.apellidos}`} okFunction={()=>{sacarDeListas(selectItem);setShowDialogo(false)}} notFunction={()=>{setShowDialogo(false);setSelectItem({})}}/>
         </>
     )
 }

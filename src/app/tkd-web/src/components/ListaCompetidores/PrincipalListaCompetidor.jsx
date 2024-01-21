@@ -188,6 +188,7 @@ function PrincipalListaCompetidor() {
             })
             .catch(error => MsgUtils.msgError(error));
     }
+    
     function buscarCompetidores() {
         if (genero !== '' && tipo !== '' && tipo !== 'D') {
             setCargador(true);
@@ -366,6 +367,9 @@ function PrincipalListaCompetidor() {
             })
             .catch(error => MsgUtils.msgError(error));
     }
+    function generarTargetaComp(){
+        
+    }
     useEffect(() => {
         if (genero != '') {
             getInformacionCategoria({ idcampeonato: idCampeonato, genero })
@@ -520,8 +524,12 @@ function PrincipalListaCompetidor() {
                                 <i className="fa-solid fa-file-excel"></i> Exportar excel </button>
                         </div>
                         <div className='col' style={{ maxWidth: '140px', minWidth: '140px' }}>
-                            <button className='btn btn-sm btn-success w-100' onClick={() => handleDownload()}>
+                            <button className='btn btn-sm btn-primary w-100' onClick={() => handleDownload()}>
                                 <i className="fa-solid fa-file-pdf"></i> Generar Pdf</button>
+                        </div>
+                        <div className='col' style={{ maxWidth: '140px', minWidth: '140px' }}>
+                            <button className='btn btn-sm btn-info w-100' onClick={() => generarTargetaComp()}>
+                                <i className="fa-solid fa-address-card"></i> Generar Tarjeta</button>
                         </div>
                     </div>
                 </div>
@@ -616,12 +624,13 @@ function PrincipalListaCompetidor() {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsPrefix='modal-body'>
-                    {tipoM === 'L' && tipo == 'C' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipoL={'E'} callback={obtenerLLaves} />}
+                    {tipoM === 'L' && tipo == 'C' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipoL={'E'} callback={()=>console.log("jola")} />}
                     {tipoM === 'P' && <CompetidoresPdf categorias={categorias} listaCompetidores={listaCompetidores} campeonato={tituloo} tipo={tipo} idcampeonato={idCampeonato} listaTiposCam={listaTiposCam} />}
                     {tipoM === 'L' && tipo === 'R' && <PrincipalLlaveRom categorias={categorias} idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipo={tipo} tipoL={'E'} />}
                     {tipoM === 'L' && tipo === 'P' && <PrincipalLlavePoomse categorias={categorias} idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipo={tipo} tipoL={'E'} />}
                 </Modal.Body>
             </Modal>
+            
         </div>
     )
 }

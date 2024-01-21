@@ -8,9 +8,10 @@ import Modal from 'react-bootstrap/Modal';
 import PrincipalSubCategoria from './PrincipalSubCategoria';
 import GradosConfig from './GradosConfig';
 import Header from '../Header';
-
 import {server} from '../utils/MsgUtils';
 import MsgDialogo from '../utils/MsgDialogo';
+import Configuraciones from '../PantallaPuntuacion/Configuraciones';
+import ConfiguracionAreaKirugui from './ConfiguracionAreaKirugui';
 
 function PrincipalConfiguracion() {
   const navigate = useNavigate();
@@ -129,6 +130,9 @@ function PrincipalConfiguracion() {
           <button className={`btn btn-sm btn-gradient mx-2 letraBtn ${ventana === 1 ? 'menuActivo' : 'btn-secondary'}`} onClick={() => setVentana(1)}>
             <i className="fa-solid fa-graduation-cap"></i> Grados
           </button>
+          <button className={`btn btn-sm btn-gradient letraBtn ${ventana === 2 ? 'menuActivo' : 'btn-secondary'}`} onClick={() => setVentana(2)}>
+            <i class="fa-brands fa-slideshare"></i> Kirugui
+          </button>
         </div>
       </div>
       {ventana === 0 && <>
@@ -178,7 +182,7 @@ function PrincipalConfiguracion() {
                           </td>
                           <td className='text-end'>
                             <div className='btn-group btn-group-sm'>
-                              {userLogin.tipo=='A'&&<button className='btn btn-sm text-danger' onClick={() => {setShowMessage(true);selectCategoria(item)}}>
+                              {userLogin.tipo=='A'&&<button className='btn btn-sm text-danger' onClick={() => {setShowMessage(true);setSelectCategoria(item)}}>
                                 <i className="fa-solid fa-trash fa-xl"></i>
                               </button>}
                               {userLogin.tipo=='A'&&<button className='btn btn-sm text-warning' onClick={() => editarCategoria(item)}>
@@ -205,6 +209,7 @@ function PrincipalConfiguracion() {
       {ventana === 1 &&
         <GradosConfig campeonato={campeonato} setCampeonato={setCampeonato} tipou={userLogin.tipo}/>
       }
+      {ventana ===2 && <ConfiguracionAreaKirugui/>}
       <Modal show={showModal} onHide={() => setShowModal(false)}
         aria-labelledby="contained-modal-title-vcenter"
         contentClassName='bg-dark bg-gradient'>

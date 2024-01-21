@@ -11,10 +11,8 @@ function RelojPelea() {
     setTimeout(() => {
         if(runPelea){
             if(minuto==null){
-                var numero = configJuego.timeRound.split(':');
-                console.log(parseInt(numero[2])/60);
-                numero= parseInt(numero[1])+(parseInt(numero[2])/60)
-                setMinuto(numero);
+                console.log(configJuego.timeRound)
+                setMinuto((configJuego.timeRound+1)/60);
                 setConfigurado(true);
                 setSegundo(0);
             }else{

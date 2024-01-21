@@ -344,3 +344,43 @@ export const deleteTiposCampeonato = async (info) => {
         if (conn) { await conn.release(); }
     }
 }
+
+export const confiAreasKirugui = async(info)=>{
+    var conn;
+    try {
+        var config = Buffer.from(JSON.stringify(info.conf))
+        conn = await pool.getConnection();
+        const [result] = await conn.query("select * from configuracion where id=?",
+            [info.idConf]);
+        if (result.length!=0){
+            const [result] = await conn.query("update configuracion set nombre=?, config=? where id=?",
+            [info.nombre,config,info.idConf]);
+            await conn.commit();
+            return {"ok":"Configuración Actualizada"}
+        }else{
+            const [result] = await conn.query("insert into configuracion values(?,?,?)",
+            [info.idConf,info.nombre,config]);
+            await conn.commit();
+            return { "ok": "Eliminacion Correcta !!" }
+        }
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}
+export const getConfiAreas = async(info)=>{
+    var conn;
+    try {
+        conn = await pool.getConnection();
+        const [result] = await conn.query("select * from configuracion where id=?",
+            [info.idConf]);
+        return {"ok":result}
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}

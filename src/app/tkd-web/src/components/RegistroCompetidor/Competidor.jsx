@@ -8,7 +8,8 @@ function Competidor({user,tipo}) {
             <div className='ps-2 my-auto' style={{fontSize:'16px'}}>
                 <div className="letrasContenido ">{user.nombres+' '+user.apellidos}</div>
                 <div className='letrasContenido '>{'CLUB: '+user.club}</div>
-                {tipo==null&&<div className='letrasContenido '>{'CINTURON: '+user.cinturon}</div>}
+                {tipo==null&&user.idgrado!=0&&<div className='letrasContenido '>{'CINTURON: '+user.cinturon}</div>}
+                {tipo==null&&user.idgrado==0&&<div className='letrasContenido '><span className="badge bg-danger">No tiene Grado</span></div>}
                 {tipo!=null&&<div className='letrasContenido '>{'CORREO: '+user.correo}</div>}
             </div>
         </div>

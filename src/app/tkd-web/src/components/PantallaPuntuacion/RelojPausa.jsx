@@ -3,7 +3,7 @@ import { ContextPuntuacion } from './PrincipalPuntuacion';
 
 function RelojPausa() {
     const { runPelea, setRunPelea, configJuego,pausa,resetJuego } = useContext(ContextPuntuacion)
-    const [segundo, setSegundo] = useState(0);
+    const [segundo, setSegundo] = useState(configJuego.timeDescanso/60);
     const [minuto, setMinuto] = useState(null);
     const [tiempo, setTiempo] = useState('00:00');
     const [compensar, setCompensar] = useState(false);
@@ -11,10 +11,7 @@ function RelojPausa() {
     setTimeout(() => {
         if (pausa) {
             if (minuto == null && iniciado ===false) {
-                var numero = configJuego.timeDescanso.split(':');
-                console.log(parseInt(numero[2]) / 60);
-                numero = parseInt(numero[1]) + (parseInt(numero[2]) / 60)
-                setMinuto(numero);
+                setMinuto((configJuego.timeDescanso+1)/60);
                 setIniciado(true);
                 setSegundo(0+1);
             }else{

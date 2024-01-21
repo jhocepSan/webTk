@@ -224,7 +224,11 @@ function PrincipalRegistroCompetidor() {
       .then(data => {
         if (data.ok) {
           setListaClubs(data.ok);
-          setClub(user.idclub);
+          if(user.tipo==='A'){
+            setClub(0);
+          }else{
+            setClub(user.idclub);
+          }
         } else {
           MsgUtils.msgError(data.error);
         }
@@ -245,6 +249,7 @@ function PrincipalRegistroCompetidor() {
           <div className='col' style={{ maxWidth: '140px', minWidth: '140px' }}>
             <select className="form-select form-select-sm bg-secondary text-light border-secondary"
               value={club} onChange={(e) => setClub(e.target.value)} disabled={userLogin.tipo == 'A' ? false : true}>
+              <option value={0}>Todos</option>
               {listaClubs.map((item, index) => {
                 return (
                   <option value={item.idclub} key={index}>{item.nombre}</option>
@@ -305,7 +310,7 @@ function PrincipalRegistroCompetidor() {
       <div className='container-fluid text-danger w-100 bg-light text-center fw-bold '>
         {`Numero ${tipo!='D'?'Competidores':'Equipos'} Registrados ${listaCompetidores.length}`}
       </div>
-      {tipo!='D'&&<div className='table-responsive'>
+      {tipo!='D'&&<div className='table-responsive' style={{height:'85vh'}}>
         <table className="table table-dark table-striped table-hover" id='competidoresLista'>
           <tbody>
             {listaCompetidores.map((item, index) => {
@@ -326,6 +331,7 @@ function PrincipalRegistroCompetidor() {
                     <div className='container-fluid'>
                       <div className="form-check form-switch">
                         {getPermiso()&&<input className="form-check-input" type="checkbox"
+                          disabled={item.idgrado===0?true:false}
                           checked={item.estado === 'P' ? false : true}
                           onChange={() => cambiarEstado(item)} />}
                         <label className="form-check-label" ><span className={item.estado === 'P' ? 'badge bg-warning' : 'badge bg-success'}>{item.estado === 'P' ? 'COMPETIRA?' : 'COMPETIDOR'}</span></label>
@@ -351,7 +357,7 @@ function PrincipalRegistroCompetidor() {
           </tbody>
         </table>
       </div>}
-      {tipo=='D'&&<div className='table-responsive'>
+      {tipo=='D'&&<div className='table-responsive' style={{height:'85vh'}}>
         <table className="table table-dark table-striped table-hover" id='competidoresLista'>
           <tbody>
             {listaCompetidores.map((item, index) => {

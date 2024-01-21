@@ -44,9 +44,9 @@ function BuscarCompetidor(props) {
                 },
                 body: JSON.stringify({
                     'idCompetidor':0, 'nombres':selectItem.nombres, 'apellidos':selectItem.apellidos, 'ciUser':selectItem.ci, 
-                    'idClub':selectItem.idclub, 'cinturon':selectItem.idcinturon,
+                    'idClub':selectItem.idclub, 'cinturon':0,
                     'peso':selectItem.peso, 'altura':selectItem.altura, 'tipos':tipo, 'idCampeonato':cpt.idcampeonato,
-                    'edad':selectItem.edad, 'fecha':new Date(selectItem.fecha).toISOString().substring(0, 10), 'idGrado':selectItem.idgrado, 'genero':selectItem.genero, 'listaCTipoC':[]
+                    'edad':selectItem.edad, 'fecha':new Date(selectItem.fecha).toISOString().substring(0, 10), 'idGrado':0, 'genero':selectItem.genero, 'listaCTipoC':[]
                 })
             })
                 .then(res => res.json())
