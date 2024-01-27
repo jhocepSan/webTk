@@ -15,6 +15,7 @@ import { server } from '../utils/MsgUtils';
 import PrincipalLlaveRom from './PrincipalLlaveRom';
 import PrincipalLlavePoomse from './PrincipalLlavePoomse';
 import UtilsBuffer from '../utils/UtilsBuffer';
+import imgTK from '../../assets/tkd.png'
 
 function PrincipalListaCompetidor() {
     const navigate = useNavigate();
@@ -176,7 +177,7 @@ function PrincipalListaCompetidor() {
             .then(data => {
                 if (data.ok) {
                     setListaLlaves(data.ok);
-                    var filtroGenero = data.ok.filter((item)=>item.genero==genero)
+                    var filtroGenero = data.ok.filter((item) => item.genero == genero)
                     if (filtroGenero.length !== 0) {
                         setHayLlaves(true);
                     } else {
@@ -188,7 +189,7 @@ function PrincipalListaCompetidor() {
             })
             .catch(error => MsgUtils.msgError(error));
     }
-    
+
     function buscarCompetidores() {
         if (genero !== '' && tipo !== '' && tipo !== 'D') {
             setCargador(true);
@@ -318,11 +319,11 @@ function PrincipalListaCompetidor() {
         }
     }
     const handleDownload = () => {
-        if(tipo!=='D'){
+        if (tipo !== 'D') {
             setTipoM('P');
             setTituloModal('Clasificación de Competidores');
             setShowModal(true);
-        }else{
+        } else {
             console.log("generar pdf ")
         }
     };
@@ -367,8 +368,90 @@ function PrincipalListaCompetidor() {
             })
             .catch(error => MsgUtils.msgError(error));
     }
-    function generarTargetaComp(){
-        
+    function generarTargetaComp() {
+        var cmpSelect = JSON.parse(localStorage.getItem('campeonato'));
+        var subtitulo = '';
+        if (tipo == 'C') {
+            subtitulo = 'KYORUGUI';
+        } else if (tipo == 'P') {
+            subtitulo = 'POOMSAE';
+        } else if (tipo == 'D') {
+            subtitulo = 'DEMOSTRACIONES';
+        } else if (tipo == 'R') {
+            subtitulo = 'ROMPIMIENTO';
+        }
+        var optiones = {
+            orientation: 'p',
+            unit: 'mm',
+            format: 'letter',
+            putOnlyUsedFonts: true,
+            floatPrecision: 16 // or "smart", default is 16
+        }
+        var doc = new jsPDF(optiones);
+        var x = 5, numColum = 0,pagina=1;
+        var y = 5, numCard = 0;
+        var width = doc.internal.pageSize.getWidth();
+        var height = doc.internal.pageSize.getHeight();
+        for (var est of listaCompetidores) {
+            if (numColum <=2) {
+                doc.setFontSize(6);
+                doc.setTextColor(255, 0, 0);
+                doc.setDrawColor(255, 0, 0);
+                doc.setLineWidth(1.5);
+                doc.line(x, y, x + 60, y, 'FD');
+                doc.line(x, y - 0.5, x, y + 35.5, 'FD');
+                doc.line(x + 60, y - 0.5, x + 60, y + 35.5, 'FD');
+                doc.line(x, y + 35, x + 60, y + 35, 'FD');
+                doc.setDrawColor(0, 0, 255);
+                doc.setLineWidth(0.8);
+                doc.line(x+2, y, x + 60, y, 'FD');
+                doc.line(x, y +2, x, y + 35.5, 'FD');
+                doc.setLineWidth(1.5);
+                doc.line(x,y+2,x+2,y,'FD');
+                doc.setLineWidth(0.8);
+                doc.line(x + 60, y - 0.5, x + 60, y + 35.5, 'FD');
+                doc.line(x, y + 35, x + 60, y + 35, 'FD');
+                y += 3;
+                doc.setTextColor(0, 0, 255);
+                doc.text('ASOCIACIÓN TRADICIONAL DE CLUBES DE', x + 3, y);
+                doc.text('TAEKWONDO COCHABAMBA', x + 9, y + 3);
+                doc.setTextColor(250, 193, 41);
+                doc.setFontSize(7);
+                doc.text('Tarjeta de competencia', x + 4, y + 8);
+                doc.setFontSize(6);
+                doc.setTextColor(0, 0, 0);
+                doc.text('Nombre.- ' + est.nombres + ' ' + est.apellidos, x + 3, y + 13);
+                doc.text('Club.- ' + est.club, x + 3, y + 16);
+                doc.text('Peso/kg.- '+ est.peso, x + 3, y + 19);
+                doc.text('Grado.- ' + est.grado + ' - ' + est.cinturon, x + 3, y + 22);
+                doc.text('Categoria.- ' + est.nombrecategoria, x + 3, y + 25);
+                doc.setFontSize(7);
+                doc.setTextColor(0, 0, 255);
+                doc.text(subtitulo, x + 24, y + 29);
+                doc.setTextColor(0, 0, 0);
+                doc.setDrawColor(0, 0, 0);
+                doc.setLineWidth(0.8);
+                doc.line(x+42,y+24,x+57,y+24,'FD')
+                doc.text('Puesto', x + 45, y + 27);
+                doc.addImage(imgTK, 'JPEG', x + 47, y - 1, 10, 10);
+                y += 36
+                if(numCard<6){
+                    numCard+=1
+                }else{
+                    numCard=0
+                    numColum+=1
+                    x+=64
+                    y=5
+                }
+            } else {
+                numColum=0;
+                pagina+=1;
+                doc.addPage();
+                doc.setPage(pagina);
+                x=5,y=5;
+            }
+        }
+        doc.save(cmpSelect.nombre.replace(' ', '') + subtitulo + 'Tarjetas.pdf');
     }
     useEffect(() => {
         if (genero != '') {
@@ -624,13 +707,13 @@ function PrincipalListaCompetidor() {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsPrefix='modal-body'>
-                    {tipoM === 'L' && tipo == 'C' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipoL={'E'} callback={()=>console.log("jola")} />}
+                    {tipoM === 'L' && tipo == 'C' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipoL={'E'} callback={() => console.log("jola")} />}
                     {tipoM === 'P' && <CompetidoresPdf categorias={categorias} listaCompetidores={listaCompetidores} campeonato={tituloo} tipo={tipo} idcampeonato={idCampeonato} listaTiposCam={listaTiposCam} />}
                     {tipoM === 'L' && tipo === 'R' && <PrincipalLlaveRom categorias={categorias} idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipo={tipo} tipoL={'E'} />}
                     {tipoM === 'L' && tipo === 'P' && <PrincipalLlavePoomse categorias={categorias} idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipo={tipo} tipoL={'E'} />}
                 </Modal.Body>
             </Modal>
-            
+
         </div>
     )
 }

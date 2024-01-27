@@ -142,6 +142,10 @@ body{
 	background-color: rgb(175, 236, 255);
 	color: #000000;
 }
+.botonNegro{
+	background-color: rgb(94, 93, 93);
+	color: #ffffff;
+}
 .colorFiltro{
 	background-color: rgb(118, 118, 189);
 }

@@ -74,21 +74,21 @@ function PrincipalTesting() {
     function procesarFalta(tipo, valor) {
         if (tipo) {
             if ((parseInt(valor) < 0 && puntoJuego.faltaA > 0) || (parseInt(valor) > 0 && puntoJuego.faltaA >= 0)) {
-                setPuntoJuego({ ...puntoJuego, faltaA: puntoJuego.faltaA + valor });
-                localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego, faltaA: puntoJuego.faltaA + valor,nombreA,nombreR,'gano':'' }))
+                setPuntoJuego({ ...puntoJuego, faltaA: puntoJuego.faltaA + valor,puntoR:puntoJuego.puntoR+(valor*parseInt(configure.falta)) });
+                localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego, faltaA: puntoJuego.faltaA + valor,nombreA,nombreR,puntoR:puntoJuego.puntoR+(valor*parseInt(configure.falta)),'gano':'' }))
                 if (puntoJuego.faltaA + valor == configure.maxFaltas) {
                     hayGanador('R');
-                    setPuntoJuego({ ...puntoJuego,isPlay:false, faltaA: puntoJuego.faltaA + valor,'reset': true, });
-                    localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego ,isPlay:false, faltaA: puntoJuego.faltaA + valor,nombreA,nombreR,'gano':'R','reset': true }))
+                    setPuntoJuego({ ...puntoJuego,isPlay:false, faltaA: puntoJuego.faltaA + valor,'reset': true,puntoR:puntoJuego.puntoR+(valor*parseInt(configure.falta)) });
+                    localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego ,isPlay:false, faltaA: puntoJuego.faltaA + valor,nombreA,nombreR,'gano':'R','reset': true,puntoR:puntoJuego.puntoR+(valor*parseInt(configure.falta))}))
                 }
             }
         } else {
             if ((parseInt(valor) < 0 && puntoJuego.faltaR > 0) || (parseInt(valor) > 0 && puntoJuego.faltaR >= 0)) {
-                setPuntoJuego({ ...puntoJuego, faltaR: puntoJuego.faltaR + valor });
-                localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego, faltaR: puntoJuego.faltaR + valor,nombreA,nombreR,'gano':''}))
+                setPuntoJuego({ ...puntoJuego, faltaR: puntoJuego.faltaR + valor,puntoA:puntoJuego.puntoA+(valor*parseInt(configure.falta))});
+                localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego, faltaR: puntoJuego.faltaR + valor,nombreA,nombreR,'gano':'',puntoA:puntoJuego.puntoA+(valor*parseInt(configure.falta))}))
                 if (puntoJuego.faltaR + valor == configure.maxFaltas) {
-                    setPuntoJuego({ ...puntoJuego,isPlay:false, faltaR: puntoJuego.faltaR + valor,'reset': true });
-                    localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego,isPlay:false,'reset': true, faltaR: puntoJuego.faltaR + valor,nombreA,nombreR,'gano':'A' }))
+                    setPuntoJuego({ ...puntoJuego,isPlay:false, faltaR: puntoJuego.faltaR + valor,'reset': true,puntoA:puntoJuego.puntoA+(valor*parseInt(configure.falta))});
+                    localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego,isPlay:false,'reset': true, faltaR: puntoJuego.faltaR + valor,nombreA,nombreR,'gano':'A',puntoA:puntoJuego.puntoA+(valor*parseInt(configure.falta))}))
                     hayGanador('A');
                 }
             }
@@ -251,7 +251,7 @@ function PrincipalTesting() {
         } else if (event.key == 'l') {
             setActivarLectura(false);
         } else if (event.key == 'f') {
-            document.getElementById('faltaA').click()
+            document.getElementById('faltaAR').click()
         } else if (event.key == 'F') {
             document.getElementById('faltaR').click()
         } else if (event.key == 'A') {
@@ -262,6 +262,12 @@ function PrincipalTesting() {
             document.getElementById('buttonPlay').click()
         } else if (event.key == 'p') {
             document.getElementById('buttonStop').click()
+        } else if(event.key == 'Q'){
+            document.getElementById('faltaR').click()
+        } else if(event.key == 'q'){
+            document.getElementById('faltaRR').click()
+        } else if(event.key == '-'){
+            document.getElementById('btnReset').click()
         }
 
     };
@@ -319,20 +325,20 @@ function PrincipalTesting() {
                                         to={'/scoreDobleK'} target='blanck'>
                                         <i className="fa-brands fa-windows fa-2xl"></i>
                                     </Link>
-                                    <button type="button" className="btn mx-1 btn-sm botonMenu"
+                                    <button type="button" className="btn mx-1 btn-sm botonMenu" id='btnReset'
                                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Recetear valores iniciales"
                                         onClick={() => recetearValores()}>
-                                        <i className="fa-solid fa-repeat fa-2xl"></i></button>
+                                        <i className="fa-solid fa-repeat fa-2xl"></i>(-)</button>
                                     {puntoJuego.isPlay === true && <button type="button" className="btn mx-1 btn-sm botonMenu"
                                         id='buttonStop'
                                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Pausar Competencia"
                                         onClick={() => ejecutarJuego(false)}>
-                                        <i className="fa-solid fa-circle-pause fa-2xl"></i>
+                                        <i className="fa-solid fa-circle-pause fa-2xl"></i>(p)
                                     </button>}
                                     {puntoJuego.isPlay === false && <button type="button" className="btn mx-1 btn-sm botonMenu"
                                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Iniciar Competencia" id='buttonPlay'
                                         onClick={() => ejecutarJuego(true)}>
-                                        <i className="fa-solid fa-circle-play fa-2xl"></i>
+                                        <i className="fa-solid fa-circle-play fa-2xl"></i>(P)
                                     </button>}
                                     <button type="button" className="btn mx-1 btn-sm botonMenu d-none"
                                         id='buttonFinal'
@@ -343,10 +349,10 @@ function PrincipalTesting() {
                                     <div className='text-center text-light tituloMenu fw-bold ' style={{ fontSize: '45px', width: '290px' }}>
                                         Round {puntoJuego.round}
                                     </div>
-                                    <div className='text-center' style={{ fontSize: '45px', width: '200px' }} >
+                                    <div className='text-center mx-1' style={{ fontSize: '45px', width: '230px' }} >
                                         <RelojKirugui valor={puntoJuego} conf={configure} tipo='r' collback={()=>''} doble={false}/>
                                     </div>
-                                    <div className='text-center' style={{ fontSize: '45px', width: '200px' }} >
+                                    <div className='text-center mx-1' style={{ fontSize: '45px', width: '230px' }} >
                                         {puntoJuego.isPlay == false && <RelojKirugui valor={puntoJuego} conf={configure} tipo='s' collback={()=>''} doble={false}/>}
                                     </div>
                                 </div>
@@ -412,10 +418,10 @@ function PrincipalTesting() {
                                             <div className='container-fluid'>
                                                 <div className="btn-group btn-group-sm">
                                                     <button className='btn btn-sm btnScore' id='faltaA' onClick={() => procesarFalta(true, 1)}>
-                                                        <i className="fa-solid fa-circle-plus fa-2xl"></i>
+                                                        <i className="fa-solid fa-circle-plus fa-2xl"></i>(F)
                                                     </button>
-                                                    <button className='btn btn-sm btnScore' onClick={() => procesarFalta(true, -1)}>
-                                                        <i className="fa-solid fa-circle-minus fa-2xl"></i>
+                                                    <button className='btn btn-sm btnScore' id='faltaAR' onClick={() => procesarFalta(true, -1)}>
+                                                        <i className="fa-solid fa-circle-minus fa-2xl"></i>(f)
                                                     </button>
                                                 </div>
                                             </div>
@@ -427,10 +433,10 @@ function PrincipalTesting() {
                                             <div className='container-fluid'>
                                                 <div className="btn-group btn-group-sm">
                                                     <button className='btn btn-sm btnScore' id='puntoAP' onClick={() => procesarPunto(true, 1)}>
-                                                        <i className="fa-solid fa-circle-plus fa-2xl"></i>
+                                                        <i className="fa-solid fa-circle-plus fa-2xl"></i>(a)
                                                     </button>
                                                     <button className='btn btn-sm btnScore' id='puntoAN' onClick={() => procesarPunto(true, -1)}>
-                                                        <i className="fa-solid fa-circle-minus fa-2xl"></i>
+                                                        <i className="fa-solid fa-circle-minus fa-2xl"></i>(A)
                                                     </button>
                                                 </div>
                                             </div>
@@ -448,10 +454,10 @@ function PrincipalTesting() {
                                             <div className='container-fluid'>
                                                 <div className="btn-group btn-group-sm">
                                                     <button className='btn btn-sm btnScore' id='puntoRP' onClick={() => procesarPunto(false, 1)}>
-                                                        <i className="fa-solid fa-circle-plus fa-2xl"></i>
+                                                        <i className="fa-solid fa-circle-plus fa-2xl"></i>(R)
                                                     </button>
                                                     <button className='btn btn-sm btnScore' id='puntoRN' onClick={() => procesarPunto(false, -1)}>
-                                                        <i className="fa-solid fa-circle-minus fa-2xl"></i>
+                                                        <i className="fa-solid fa-circle-minus fa-2xl"></i>(r)
                                                     </button>
                                                 </div>
                                             </div>
@@ -463,10 +469,10 @@ function PrincipalTesting() {
                                             <div className='container-fluid'>
                                                 <div className="btn-group btn-group-sm">
                                                     <button className='btn btn-sm btnScore' id='faltaR' onClick={() => procesarFalta(false, 1)}>
-                                                        <i className="fa-solid fa-circle-plus fa-2xl"></i>
+                                                        <i className="fa-solid fa-circle-plus fa-2xl"></i>(Q)
                                                     </button>
-                                                    <button className='btn btn-sm btnScore' onClick={() => procesarFalta(false, -1)}>
-                                                        <i className="fa-solid fa-circle-minus fa-2xl"></i>
+                                                    <button className='btn btn-sm btnScore' id='faltaRR' onClick={() => procesarFalta(false, -1)}>
+                                                        <i className="fa-solid fa-circle-minus fa-2xl"></i>(q)
                                                     </button>
                                                 </div>
                                             </div>

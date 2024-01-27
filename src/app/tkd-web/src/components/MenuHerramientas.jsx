@@ -76,7 +76,7 @@ function MenuHerramientas(props) {
             </li>}
             {userLogin.tipo=='A'&&<li className={`bg-gradient border-none text-start m-0 p-0 w-100 ${menuActivo===7?'menuActivo':''}`}>
                 <button className={`btn btn-sm w-100 ${menuActivo===7?'text-dark':'text-light'} text-start fs-6 menuTk`} 
-                    onClick={()=>cambiarVentana(7,"Sistema de Puntuación","gamePunt")}>
+                    onClick={()=>cambiarVentana(7,"Sistema de Puntuación","nuevaPantallaK")}>
                     <i className="fa-solid fa-display"></i> Puntuación kyrugui
                 </button>
             </li>}

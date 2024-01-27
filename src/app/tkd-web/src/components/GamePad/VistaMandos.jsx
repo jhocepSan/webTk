@@ -56,9 +56,9 @@ function VistaMandos(props) {
             <div className='card-header'>
                 <div className="input-group">
                     <span className="text-light mx-2" >Lectura de Mandos</span>
-                    <button className={`btn btn-sm ${activarLectura ? 'btn-danger' : 'btn-success'}`}
+                    <button className={`btn btn-sm ${activarLectura ? 'btn-success' : 'botonNegro'}`}
                         onClick={() => setActivarLectura(!activarLectura)}>
-                        <i className="fa-solid fa-glasses"></i></button>
+                        <i className="fa-solid fa-glasses"></i>{activarLectura ?'(l)':'(L)'}</button>
                 </div>
             </div>
             <div className='table-responsive conainer-fluid' style={{ maxHeight: '63vh' }}>

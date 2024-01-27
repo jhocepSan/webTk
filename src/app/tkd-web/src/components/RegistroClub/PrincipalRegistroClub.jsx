@@ -7,8 +7,9 @@ import AddEditClub from './AddEditClub';
 import Modal from 'react-bootstrap/Modal';
 import Header from '../Header';
 import UtilsCargador from '../utils/UtilsCargador';
-import {server} from '../utils/MsgUtils';
+import { server } from '../utils/MsgUtils';
 import MsgDialogo from '../utils/MsgDialogo';
+import axios from 'axios';
 
 function PrincipalRegistroClub() {
   const navigate = useNavigate();
@@ -18,8 +19,8 @@ function PrincipalRegistroClub() {
   const [showModal, setShowModal] = useState(false);
   const [titulo, setTitulo] = useState('');
   const [clubSelect, setClubSelect] = useState({});
-  const [cargador,setCargador] = useState(false);
-  const [showMessage,setShowMessage] = useState(false);
+  const [cargador, setCargador] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
   const eliminarClub = (clb) => {
     fetch(`${server}/club/deleteClub`, {
       method: 'POST',
@@ -42,6 +43,35 @@ function PrincipalRegistroClub() {
         setActualizar(!actualizar);
       })
       .catch(error => MsgUtils.msgError(error));
+  }
+  const cargarFoto = (e, tipo,club) => {
+    setCargador(true);
+    var archiv = e.target.files[0];
+    console.log(archiv)
+    if (archiv.size / 1000000 < 3.5) {
+      var formData = new FormData()
+      formData.append('FILE1', new Blob([archiv], { contentType: 'application/octet-stream', contentTransferEncoding: 'binary' }), archiv.name + "." + tipo + "." + club);
+      console.log(formData)
+      try {
+        axios.post(`${server}/usuario/cargarAdjunto`, formData, {
+          'Accept': 'application/json',
+          'content-type': 'multipart/form-data'
+        }).then(res => {
+          setCargador(false);
+          MsgUtils.msgCorrecto("Imagen Cargada Correctamente")
+        }).catch(error => {
+          //MsgUtils.msgError(JSON.parse(error.request.response).error);
+          console.log(error.message);
+          setCargador(false);
+        })
+      } catch (error) {
+        MsgUtils.msgError(error.message);
+        console.error('Error al subir el archivo !!');
+      }
+    } else {
+      setCargador(false);
+      MsgUtils.msgError("Coloque Imagen < 3.5 Megas")
+    }
   }
   const editarClub = (clb) => {
     setClubSelect(clb);
@@ -149,12 +179,16 @@ function PrincipalRegistroClub() {
                   </td>
                   <td className='text-end'>
                     <div className="btn-group btn-group-sm" role="group" aria-label="Basic example">
+                      <label className='btn  text-success'>
+                        <i className="fa-solid fa-image fa-xl"></i>
+                        <input type="file" accept='image/*' onChange={(e) => cargarFoto(e, 'IMG',item.idclub)} />
+                      </label>
                       <button type="button" className="btn btn-transparent text-warning"
                         onClick={() => editarClub(item)}>
                         <i className="fa-solid fa-pen-to-square fa-xl"></i>
                       </button>
                       <button type="button" className="btn btn-transparent text-danger"
-                        onClick={() => {setClubSelect(item);setShowMessage(true)}}>
+                        onClick={() => { setClubSelect(item); setShowMessage(true) }}>
                         <i className="fa-solid fa-trash-can fa-xl"></i>
                       </button>
                     </div>
@@ -183,7 +217,7 @@ function PrincipalRegistroClub() {
         </Modal.Body>
       </Modal>
       <UtilsCargador show={cargador} />
-      <MsgDialogo show={showMessage} msg='Esta seguro de Eliminar EL CLUB' okFunction={()=>eliminarClub(clubSelect)} notFunction={()=>setShowMessage(false)}/>
+      <MsgDialogo show={showMessage} msg='Esta seguro de Eliminar EL CLUB' okFunction={() => eliminarClub(clubSelect)} notFunction={() => setShowMessage(false)} />
     </div>
   )
 }
