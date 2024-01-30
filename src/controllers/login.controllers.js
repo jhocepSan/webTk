@@ -4,6 +4,7 @@ import bycript from 'bcrypt';
 
 function getIPAddress() {
     var interfaces = networkInterfaces();
+    console.log(interfaces);
     var address = []
     for (var devName in interfaces) {
         if(devName=='Wi-Fi' || devName=='eth0'){
@@ -86,6 +87,15 @@ export const iniciarSession = async ({ correo, password }) => {
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
+    }
+}
+
+export const getIpServidor = async ()=>{
+    try {
+        var serverIp = getIPAddress();
+        return {'ok':serverIp}
+    } catch (error) {
+        return {'error':error.message}
     }
 }
 

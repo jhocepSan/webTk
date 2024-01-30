@@ -24,18 +24,18 @@ function VistaInicio() {
     var info = campeonatos.filter((item) => item.idcampeonato == dato);
     setIdCampeonato(dato);
     setCampeonato(info[0]);
-    setInscripcionOpen(info[0].inscripcion=='N'?false:true);
+    setInscripcionOpen(info[0].inscripcion == 'N' ? false : true);
     localStorage.setItem("campeonato", JSON.stringify(info[0]));
   }
-  function cambiarEstadoInscripcion(dato){
-    var estado=dato?'S':'N';
+  function cambiarEstadoInscripcion(dato) {
+    var estado = dato ? 'S' : 'N';
     fetch(`${server}/config/cambiarInscripcion`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json;charset=utf-8',
       },
-      body: JSON.stringify({ estado,idCampeonato })
+      body: JSON.stringify({ estado, idCampeonato })
     })
       .then(res => res.json())
       .then(data => {
@@ -102,9 +102,9 @@ function VistaInicio() {
             setCampeonatos(data.ok);
             setIdCampeonato(data.ok[0].idcampeonato);
             setCampeonato(data.ok[0]);
-            if(data.ok[0].inscripcion=='N'){
+            if (data.ok[0].inscripcion == 'N') {
               setInscripcionOpen(false);
-            }else{
+            } else {
               setInscripcionOpen(true);
             }
             localStorage.setItem("campeonato", JSON.stringify(data.ok[0]));
@@ -118,9 +118,26 @@ function VistaInicio() {
   useEffect(() => {
     var sessionActiva = JSON.parse(localStorage.getItem('login'))
     if (sessionActiva !== null) {
-      setLogin(true);
-      setUserLogin(sessionActiva);
-      navigate("/inicio", { replace: true });
+      fetch(`${server}/login/getIpServidor`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json;charset=utf-8',
+        }
+      }).then(res => res.json())
+        .then(data => {
+          if (data.ok) {
+            console.log(data.ok)
+            setLogin(true);
+            setUserLogin({...sessionActiva,serverIp:data.ok});
+            navigate("/inicio", { replace: true });
+          } else {
+            setLogin(true);
+            setUserLogin({...sessionActiva,serverIp:[]});
+            navigate("/inicio", { replace: true });
+            MsgUtils.msgError(data.error)
+          }
+        })
     }
   }, [])
   return (
@@ -168,10 +185,10 @@ function VistaInicio() {
                 <input className="form-check-input" type="checkbox"
                   checked={inscripcionOpen}
                   onChange={() => cambiarEstadoInscripcion(!inscripcionOpen)} />
-                <label className="form-check-label" ><span className={inscripcionOpen==false ? 'badge bg-danger' : 'badge bg-success'}>{inscripcionOpen==true ? 'Inscripciones Abiertas' : 'Inscripciones Cerradas'}</span></label>
+                <label className="form-check-label" ><span className={inscripcionOpen == false ? 'badge bg-danger' : 'badge bg-success'}>{inscripcionOpen == true ? 'Inscripciones Abiertas' : 'Inscripciones Cerradas'}</span></label>
               </div>
             </div>}
-          {campeonato.nombre!==undefined&&<div className='container-fluid'>
+          {campeonato.nombre !== undefined && <div className='container-fluid'>
             <div className='tituloInicial text-center text-light'>Pequeño resumen del Campeonato</div>
             <div className='text-light letrasContenido'>{`Numero de alumnos sin Pelea: ${campeonato.SINPELEAS}`}</div>
             <div className='text-light letrasContenido'>{`Inscritos en POOMSE: ${campeonato.NPP}`}</div>
@@ -184,7 +201,7 @@ function VistaInicio() {
           <div className="card-header text-dark text-center tituloInicial">
             <i className="fa-solid fa-server fa-fade"></i> Direccion Ip del Servidor TKD <i className="fa-solid fa-server fa-fade"></i>
           </div>
-          {userLogin.serverIp!==undefined &&<div className='card-body text-center'>
+          {userLogin.serverIp !== undefined && <div className='card-body text-center'>
             {userLogin.serverIp.map((item, index) => {
               return (
                 <div key={index}>

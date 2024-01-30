@@ -30,8 +30,7 @@ router.post('/cambiarEstadoUsuario',async(req,res)=>{
 });
 
 router.post('/cargarAdjunto',async(req,res)=>{
-    console.log(req.files)
-    var resultado = await cargarAdjunto(req.files);
+    var resultado = await cargarAdjunto(req.files.FILE1);
     if(resultado.ok){
         res.status(200).json(resultado)
     }else{

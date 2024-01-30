@@ -369,6 +369,7 @@ function PrincipalListaCompetidor() {
             .catch(error => MsgUtils.msgError(error));
     }
     function generarTargetaComp() {
+        setCargador(true);
         var cmpSelect = JSON.parse(localStorage.getItem('campeonato'));
         var subtitulo = '';
         if (tipo == 'C') {
@@ -383,75 +384,79 @@ function PrincipalListaCompetidor() {
         var optiones = {
             orientation: 'p',
             unit: 'mm',
-            format: 'letter',
+            format: 'A4',
             putOnlyUsedFonts: true,
             floatPrecision: 16 // or "smart", default is 16
         }
         var doc = new jsPDF(optiones);
-        var x = 5, numColum = 0,pagina=1;
-        var y = 5, numCard = 0;
+        var x = 3, numColum = 0, pagina = 1;
+        var y = 3, numCard = 0;
         var width = doc.internal.pageSize.getWidth();
         var height = doc.internal.pageSize.getHeight();
         for (var est of listaCompetidores) {
-            if (numColum <=2) {
-                doc.setFontSize(6);
+            if (numColum <= 2) {
                 doc.setTextColor(255, 0, 0);
                 doc.setDrawColor(255, 0, 0);
                 doc.setLineWidth(1.5);
-                doc.line(x, y, x + 60, y, 'FD');
-                doc.line(x, y - 0.5, x, y + 35.5, 'FD');
-                doc.line(x + 60, y - 0.5, x + 60, y + 35.5, 'FD');
-                doc.line(x, y + 35, x + 60, y + 35, 'FD');
+                doc.line(x, y, x + 67, y, 'FD');
+                doc.line(x, y - 0.5, x, y + 39, 'FD');
+                doc.line(x + 67, y - 0.5, x + 67, y + 39, 'FD');
+                doc.line(x, y + 38.5, x + 67, y + 38.5, 'FD');
                 doc.setDrawColor(0, 0, 255);
                 doc.setLineWidth(0.8);
-                doc.line(x+2, y, x + 60, y, 'FD');
-                doc.line(x, y +2, x, y + 35.5, 'FD');
+                doc.line(x + 2, y, x + 67, y, 'FD');
+                doc.line(x, y + 2, x, y + 39, 'FD');
                 doc.setLineWidth(1.5);
-                doc.line(x,y+2,x+2,y,'FD');
+                doc.line(x, y + 2, x + 2, y, 'FD');
                 doc.setLineWidth(0.8);
-                doc.line(x + 60, y - 0.5, x + 60, y + 35.5, 'FD');
-                doc.line(x, y + 35, x + 60, y + 35, 'FD');
+                doc.line(x + 67, y - 0.5, x + 67, y + 39, 'FD');
+                doc.line(x, y + 38.5, x + 67, y + 38.5, 'FD');
                 y += 3;
-                doc.setTextColor(0, 0, 255);
-                doc.text('ASOCIACIÓN TRADICIONAL DE CLUBES DE', x + 3, y);
-                doc.text('TAEKWONDO COCHABAMBA', x + 9, y + 3);
-                doc.setTextColor(250, 193, 41);
                 doc.setFontSize(7);
+                doc.setTextColor(0, 0, 255);
+                doc.setFont('arial','bold');
+                doc.text('ASOCIACIÓN TRADICIONAL DE CLUBES DE', x + 3, y);
+                doc.text('TAEKWONDO COCHABAMBA', x + 9, y + 4);
+                doc.setTextColor(250, 193, 41);
+                doc.setFontSize(8);
                 doc.text('Tarjeta de competencia', x + 4, y + 8);
-                doc.setFontSize(6);
+                doc.setFontSize(7);
+                doc.setFont('arial','');
                 doc.setTextColor(0, 0, 0);
                 doc.text('Nombre.- ' + est.nombres + ' ' + est.apellidos, x + 3, y + 13);
-                doc.text('Club.- ' + est.club, x + 3, y + 16);
-                doc.text('Peso/kg.- '+ est.peso, x + 3, y + 19);
-                doc.text('Grado.- ' + est.grado + ' - ' + est.cinturon, x + 3, y + 22);
-                doc.text('Categoria.- ' + est.nombrecategoria, x + 3, y + 25);
-                doc.setFontSize(7);
+                doc.text('Club.- ' + est.club, x + 3, y + 17);
+                doc.text('Peso/kg.- ' + est.peso, x + 3, y + 21);
+                doc.text('Grado.- ' + est.grado + ' - ' + est.cinturon, x + 3, y + 25);
+                doc.text('Categoria.- ' + est.nombrecategoria, x + 3, y + 29);
+                doc.setFontSize(8);
                 doc.setTextColor(0, 0, 255);
-                doc.text(subtitulo, x + 24, y + 29);
+                doc.setFont('arial','bold');
+                doc.text(subtitulo, x + 24, y + 34);
                 doc.setTextColor(0, 0, 0);
                 doc.setDrawColor(0, 0, 0);
                 doc.setLineWidth(0.8);
-                doc.line(x+42,y+24,x+57,y+24,'FD')
-                doc.text('Puesto', x + 45, y + 27);
-                doc.addImage(imgTK, 'JPEG', x + 47, y - 1, 10, 10);
-                y += 36
-                if(numCard<6){
-                    numCard+=1
-                }else{
-                    numCard=0
-                    numColum+=1
-                    x+=64
-                    y=5
+                doc.line(x + 45, y + 27, x + 57, y + 27, 'FD')
+                doc.text('Puesto', x + 47, y + 30);
+                doc.addImage(imgTK, 'JPEG', x +53, y , 10, 10);
+                y += 39
+                if (numCard < 6) {
+                    numCard += 1
+                } else {
+                    numCard = 0
+                    numColum += 1
+                    x += 69
+                    y = 3
                 }
             } else {
-                numColum=0;
-                pagina+=1;
+                numColum = 0;
+                pagina += 1;
                 doc.addPage();
                 doc.setPage(pagina);
-                x=5,y=5;
+                x = 3, y = 3;
             }
         }
         doc.save(cmpSelect.nombre.replace(' ', '') + subtitulo + 'Tarjetas.pdf');
+        setCargador(false);
     }
     useEffect(() => {
         if (genero != '') {
@@ -584,7 +589,7 @@ function PrincipalListaCompetidor() {
                                 })}
                             </select>
                         </div>
-                        <div className='col' style={{ maxWidth: '160px', minWidth: '160px' }}>
+                        <div className='col' style={{ maxWidth: '167px', minWidth: '167px' }}>
                             <div className="input-group input-group-sm">
                                 <input type="text" className="form-control form-control-sm"
                                     placeholder="Buscar Competidor" id='competidor' onChange={() => buscarCompetidor()} />
@@ -593,7 +598,7 @@ function PrincipalListaCompetidor() {
                                 </button>
                             </div>
                         </div>
-                        <div className='col d-none' style={{ maxWidth: '160px', minWidth: '160px' }}>
+                        <div className='col d-none' style={{ maxWidth: '167px', minWidth: '167px' }}>
                             <div className="input-group input-group-sm">
                                 <input type="text" className="form-control form-control-sm"
                                     placeholder="Buscar CLUB" id='nombreClub' onChange={() => buscarClub()} />

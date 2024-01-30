@@ -4,7 +4,7 @@ export const getListaClub = async ()=>{
     var conn;
     try {
         conn =await pool.getConnection();
-        const [result] = await conn.query('SELECT * FROM club where estado="A";')
+        const [result] = await conn.query('select c.idclub,c.nombre,c.abreviado,c.direccion,c.telefono,c.estado,c.puntuado,c.idadjunto,(select ruta from adjunto where idadjunto=c.idadjunto)as imagen from club c where c.estado="A";')
         return {"ok":result}
     } catch (error) {
         console.log(error);
@@ -18,7 +18,7 @@ export const getListaClubPuntuado = async ()=>{
     var conn;
     try {
         conn =await pool.getConnection();
-        const [result] = await conn.query('SELECT * FROM club where estado="A" and puntuado="A";')
+        const [result] = await conn.query('select c.idclub,c.nombre,c.abreviado,c.direccion,c.telefono,c.estado,c.puntuado,c.idadjunto,(select ruta from adjunto where idadjunto=c.idadjunto)as imagen from club c where c.estado="A" and c.puntuado="A";')
         return {"ok":result}
     } catch (error) {
         console.log(error);
@@ -80,6 +80,19 @@ export const setPuntuadoClub = async (info)=>{
     try {
         conn =await pool.getConnection();
         const [result] = await conn.query('update club set puntuado=? where idclub=?;',[info.puntuado,info.idclub])
+        return {"ok":result}
+    } catch (error) {
+        console.log(error);
+        return {"error":error.message}
+    }finally{
+        if(conn){await conn.release();}
+    }
+}
+export const updateClubImg = async(info)=>{
+    var conn;
+    try {
+        conn =await pool.getConnection();
+        const [result] = await conn.query('update club set idadjunto=? where idclub=?;',[info.idImg,info.club])
         return {"ok":result}
     } catch (error) {
         console.log(error);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 function VisorFaltas(props) {
-    const { valor, tipo } = props;
+    const { valor, tipo,resultPre } = props;
     const [lista, setLista] = useState([]);
     useEffect(() => {
         if (tipo == 'A') {
@@ -13,7 +13,8 @@ function VisorFaltas(props) {
     return (
         <div className='py-2'>
             <div className='text-center w-100'>
-                <h4 className='text-light tituloMenu' style={{fontSize:''}}>Faltas</h4>
+                {resultPre!=undefined&&<h4 className='text-light tituloMenu' style={{fontSize:''}}>Faltas {'('+resultPre+')'}</h4>}
+                {resultPre==undefined&&<h4 className='text-light tituloMenu' style={{fontSize:''}}>Faltas</h4>}
             </div>
             {lista && <div className="btn-group btn-group-sm">
                 {lista.map((i, j) => {

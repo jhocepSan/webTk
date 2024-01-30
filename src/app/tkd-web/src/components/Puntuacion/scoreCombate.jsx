@@ -62,7 +62,7 @@ function scoreCombate() {
             <h1 className='text-light tituloMenu' style={{ fontSize: '70px' }}>Pausa</h1>
           </div>
         </Modal.Header>}
-        {puntoJuego.gano !== '' &&
+        {puntoJuego.gano !== '' &&puntoJuego.gano!=undefined&&
           <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 w-100 ' closeButton={false} closeVariant='white'>
             <div className='fa-fade tituloMenu text-light fw-bold mx-auto' style={{ fontSize: '100px' }}>
               Ganador ...!!

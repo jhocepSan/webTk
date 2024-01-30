@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { agregarUsuario, iniciarSession, crearCampeonato, recuperarCuenta } from '../controllers/login.controllers.js'
+import { agregarUsuario, iniciarSession, crearCampeonato, recuperarCuenta,getIpServidor } from '../controllers/login.controllers.js'
 const router = Router();
 
 
@@ -40,4 +40,12 @@ router.post('/recuperarCuenta', async (req, res) => {
         res.status(404).json(result);
     }
 });
+router.get('/getIpServidor',async(req,res)=>{
+    const result = await getIpServidor();
+    if (result.ok) {
+        res.status(200).json(result);
+    } else {
+        res.status(404).json(result);
+    }
+})
 export default router;

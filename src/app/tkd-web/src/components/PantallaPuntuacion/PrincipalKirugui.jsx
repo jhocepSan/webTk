@@ -3,8 +3,8 @@ import Header from '../Header';
 import { useNavigate } from 'react-router-dom';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import { serverio } from '../utils/MsgUtils'
-import { connect } from 'socket.io-client';
-const socket = connect("http://192.168.1.6:4001");
+//import { connect } from 'socket.io-client';
+//const socket = connect("http://192.168.1.6:4001");
 
 function PrincipalKirugui() {
     const navigate = useNavigate();
@@ -57,9 +57,9 @@ function PrincipalKirugui() {
         socket.emit("enviar", { message: "hello" })
     }
     function unirseReunion(){
-        if(room!==""){
+        /*if(room!==""){
             socket.emit("join_room",room);
-        }
+        }*/
     }
     useEffect(() => {
         //setCargador(true);
@@ -90,13 +90,13 @@ function PrincipalKirugui() {
             window.removeEventListener('keydown', manejarAtajoTeclado);
         };
     }, [])
-    useEffect(() => {
+    /*useEffect(() => {
         if (room !== '') {
             socket.on("receive_message", (data) => {
                 console.log(data);
             });
         }
-    }, [socket])
+    }, [socket])*/
     return (
         <div>
             <Header />

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import {limpiarMandos} from '../utils/UtilsConsultas'
+
 function VistaMandos(props) {
-    const { datos, setActivarLectura, activarLectura, configure, collback } = props;
+    const { datos, setActivarLectura, activarLectura, configure, collback,puntoJuego,showStadistic } = props;
     const [lecturas, setLecturas] = useState([]);
     const [cantJueces, setCantJueces] = useState([]);
     function getDibujo(valor) {
@@ -42,23 +42,31 @@ function VistaMandos(props) {
                     localStorage.setItem('contAux',0);
                 }
             }*/
-            setLecturas([datos.ok, ...lecturas])
+            setLecturas([datos.ok, ...lecturas]) 
         }
     }, [datos])
-    useEffect(() => {        
+    useEffect(() => {     
+        console.log("modificacion de la lectura de mandos")   
         if(configure!=null){
             var albitro = new Array(parseInt(configure.numMandos)).fill(0);
             setCantJueces(albitro);
         }
-    }, [configure])
+        if(puntoJuego.reset==true||(puntoJuego.newRound==true &&puntoJuego.newRound!=undefined)){
+            setLecturas([])
+        }
+    }, [configure,puntoJuego])
     return (
         <div className='card bg-dark bg-gradient'>
-            <div className='card-header'>
+            <div className='card-header m-0 p-0'>
                 <div className="input-group">
-                    <span className="text-light mx-2" >Lectura de Mandos</span>
+                    <span className="text-light mx-2" >Lectura Mando</span>
                     <button className={`btn btn-sm ${activarLectura ? 'btn-success' : 'botonNegro'}`}
                         onClick={() => setActivarLectura(!activarLectura)}>
                         <i className="fa-solid fa-glasses"></i>{activarLectura ?'(l)':'(L)'}</button>
+                    <button className='btn btn-sm mx-2 botonNegro'
+                        onClick={()=>showStadistic(lecturas)}>
+                        <i className="fa-solid fa-magnifying-glass-chart"></i>
+                    </button>
                 </div>
             </div>
             <div className='table-responsive conainer-fluid' style={{ maxHeight: '63vh' }}>

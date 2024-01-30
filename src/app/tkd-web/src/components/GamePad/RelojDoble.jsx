@@ -11,7 +11,7 @@ function RelojDoble(props) {
             var sec=parseInt(conf.timeRound)-segundo
             var aux=Math.round(((sec/60)-Math.trunc(sec/60))*60);
             aux=aux<10?'0'+aux:aux;
-            var seco=Math.trunc(sec/60)==0?'00':Math.trunc(sec/60)
+            var seco=Math.trunc(sec/60)==0?'0':Math.trunc(sec/60)
             seco=seco<10?'0'+seco:seco;
             var conversion=seco+':'+aux
             setTiempo(conversion);
@@ -24,7 +24,7 @@ function RelojDoble(props) {
             var sec=parseInt(conf.timeDescanso)-segundo;
             var aux=Math.round(((sec/60)-Math.trunc(sec/60))*60);
             aux=aux<10?'0'+aux:aux;
-            var seco=Math.trunc(sec/60)==0?'00':Math.trunc(sec/60)
+            var seco=Math.trunc(sec/60)==0?'0':Math.trunc(sec/60)
             var conversion=seco+':'+aux
             setTiempo(conversion);
             if(sec>0){

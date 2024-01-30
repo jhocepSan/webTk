@@ -1,4 +1,9 @@
 import { pool } from '../utils/connection.js'
+import {dirname, join} from 'path'
+import {Buffer} from 'buffer'
+import {existsSync,unlink,writeFileSync} from 'fs'
+import {fileURLToPath} from 'url'
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export const getUsuarios = async () => {
     var conn;
@@ -49,36 +54,37 @@ export const cambiarEstadoUsuario = async (info) => {
 }
 
 export const cargarAdjunto = async (data)=>{
-    var sql = "INSERT INTO adjunto (tipo,ruta)"
+    var sql = "INSERT INTO adjunto (tipo,ruta) values (?,?) ;"
     var conn;
     try {
-        console.log(data,"info");
+        var fecha = new Date().getTime();
         var info = data.name.split('.');
-        console.log(info);
         conn = await pool.getConnection();
-        /*var result = await conn.execute(sql,[]);
-        if(result.rowsAffected!=0){
-            var nameImg = "ADJUNTO_"+regional+'_'+result.outBinds.V_ID+'.'+info[1];
-            var rutaImg = path.join(__dirname,'../public/') + nameImg;
-            if (fs.existsSync(rutaImg) == false) {
-                var imagen = buffer.Buffer.from(data.data);
+        var [result] = await conn.execute(sql,['IMG','ADJUNTO_'+fecha+'_'+info[3]+'.'+info[1]]);
+        if(result.affectedRows!=0){
+            var nameImg = 'ADJUNTO_'+fecha+'_'+info[3]+'.'+info[1];
+            var rutaImg = join(__dirname,'../public/') + nameImg;
+            console.log(rutaImg);
+            if (existsSync(rutaImg) == false) {
+                var imagen = Buffer.from(data.data);
                 imagen = imagen.toString('base64');
-                await fs.writeFileSync(rutaImg, imagen, 'base64');
+                writeFileSync(rutaImg, imagen, 'base64');
                 await conn.commit();
-                return {"ok":result.outBinds}
+                return {"ok":result.insertId}
             }else{
-                fs.unlink(rutaImg,function(err){
+                await conn.rollback()
+                unlink(rutaImg,function(err){
                     if(err) return console.log(err);
                     console.log(rutaImg,'Archivo Eliminado');
                 });
                 return {"error":"intente Nuevamente"}    
             }
         }else{
+            await conn.rollback()
             return {"error":"intente Nuevamente"}
-        }*/
-        
-        return {"ok":"guardado"}
+        }
     } catch (error) {
+        await conn.rollback()
         console.log("error guardarFoto ", error);
         return {"error":error.message}
     }finally {

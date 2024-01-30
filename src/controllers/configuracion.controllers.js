@@ -8,8 +8,8 @@ export const getCampeonato = async () => {
         var resultado=[]
         for await (var cmp of result){
             const [snp] = await conn.query('select count(idcompetidor) sinpelea from competidorsinpelea where idcampeonato=? ',[cmp.idcampeonato])
-            const [pomse] = await conn.query('select count(idcompetidor) as nump from competidor where idcampeonato=? and estado="A" and tipo="C";  ',[cmp.idcampeonato])
-            const [kirugui] = await conn.query('select count(idcompetidor) as numk from competidor where idcampeonato=? and estado="A" and tipo="P"; ',[cmp.idcampeonato])
+            const [pomse] = await conn.query('select count(idcompetidor) as nump from competidor where idcampeonato=? and estado="A" and tipo="P";  ',[cmp.idcampeonato])
+            const [kirugui] = await conn.query('select count(idcompetidor) as numk from competidor where idcampeonato=? and estado="A" and tipo="C"; ',[cmp.idcampeonato])
             resultado.push({...cmp,"SINPELEAS":snp[0].sinpelea,"NPP":pomse[0].nump,"NPK":kirugui[0].numk})
         }
         return { "ok": resultado }

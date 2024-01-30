@@ -44,7 +44,28 @@ function PrincipalRegistroClub() {
       })
       .catch(error => MsgUtils.msgError(error));
   }
-  const cargarFoto = (e, tipo,club) => {
+  function updateClub(club,idImg) {
+    fetch(`${server}/club/updateClubImg`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify({club,idImg})
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          console.log(data.ok);
+          //setCargador(false);
+        } else {
+          MsgUtils.msgError(data.error);
+        }
+        setActualizar(!actualizar);
+      })
+      .catch(error => MsgUtils.msgError(error));
+  }
+  const cargarFoto = (e, tipo, club) => {
     setCargador(true);
     var archiv = e.target.files[0];
     console.log(archiv)
@@ -57,8 +78,14 @@ function PrincipalRegistroClub() {
           'Accept': 'application/json',
           'content-type': 'multipart/form-data'
         }).then(res => {
-          setCargador(false);
-          MsgUtils.msgCorrecto("Imagen Cargada Correctamente")
+          console.log(res.data);
+          if (res.data.ok) {
+            updateClub(club, res.data.ok);
+            MsgUtils.msgCorrecto("Imagen Cargada Correctamente")
+          } else {
+            setCargador(false);
+            MsgUtils.msgError(res.data.error)
+          }
         }).catch(error => {
           //MsgUtils.msgError(JSON.parse(error.request.response).error);
           console.log(error.message);
@@ -151,8 +178,7 @@ function PrincipalRegistroClub() {
         <table className="table table-sm table-dark table-striped table-hover table-bordered">
           <thead>
             <tr className='text-center'>
-              <th scope="col">CLUB</th>
-              <th scope="col">ABR.</th>
+              <th style={{minWidth:'250px'}}>CLUB</th>
               <th scope="col">DIRECCION</th>
               <th className='col-1'>CLUB PUNTUADO</th>
               <th className="col-1"></th>
@@ -162,8 +188,20 @@ function PrincipalRegistroClub() {
             {listaClubs.map((item, index) => {
               return (
                 <tr key={index} className='letraMontserratr'>
-                  <th scope="row" className='col-2'>{item.nombre}</th>
-                  <td className='col-1'>{item.abreviado}</td>
+                  <th scope="row" className='col-2'>
+                    <div className='container-fluid'>
+                      <div className='row row-cols-2 gx-1'>
+                        <div className='col-4'>
+                          {item.imagen!=null&&<img width='55' src={`${server}/adjunto/${item.imagen}`}></img>}
+                          {item.imagen==null&&<div><i className="fa-solid fa-house-flag fa-2xl"></i></div>}
+                        </div>  
+                        <div className='col-6'>
+                          <div className='text-light'> {item.nombre}</div>
+                          <div className='text-light'> {item.abreviado}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </th>
                   <td>{UtilsBuffer.getText(item.direccion)}</td>
                   <td>
                     <div className="form-check form-switch text-center">
@@ -181,7 +219,7 @@ function PrincipalRegistroClub() {
                     <div className="btn-group btn-group-sm" role="group" aria-label="Basic example">
                       <label className='btn  text-success'>
                         <i className="fa-solid fa-image fa-xl"></i>
-                        <input type="file" accept='image/*' onChange={(e) => cargarFoto(e, 'IMG',item.idclub)} />
+                        <input type="file" accept='image/*' onChange={(e) => cargarFoto(e, 'IMG', item.idclub)} />
                       </label>
                       <button type="button" className="btn btn-transparent text-warning"
                         onClick={() => editarClub(item)}>

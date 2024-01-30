@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {
-    getListaClub, addClub, deleteClub,
+    getListaClub, addClub, deleteClub,updateClubImg,
     editarClub, setPuntuadoClub, getListaClubPuntuado
 } from '../controllers/club.controllers.js';
 
@@ -59,4 +59,13 @@ router.post('/setPuntuadoClub', async (req, res) => {
         res.status(404).json(result);
     }
 });
+
+router.post('/updateClubImg',async(req,res)=>{
+    const result = await updateClubImg(req.body);
+    if (result.ok) {
+        res.status(200).json(result);
+    } else {
+        res.status(404).json(result);
+    }
+})
 export default router;

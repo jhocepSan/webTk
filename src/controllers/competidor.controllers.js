@@ -706,7 +706,7 @@ export const buscarCompetidor = async (info) => {
         '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria, ' +
         "(concat_ws(' ', nombres, apellidos)) as nombrex " +
-        "FROM competidor c WHERE c.estado='A') as res where res.idcategoria in (select idcategoria from categoria where estado='A') and (0=? or res.idclub=?) and res.nombrex like '%" + info.competidor + "%'";
+        "FROM competidor c WHERE c.estado='A') as res where (0=? or res.idclub=?) and res.nombrex like '%" + info.competidor + "%'";
     var conn;
     try {
         console.log(sql);

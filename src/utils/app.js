@@ -7,6 +7,7 @@ import confRoutes from '../routes/configuraciones.routes.js'
 import userRoutes from '../routes/user.routes.js'
 import competidorRoutes from '../routes/competidor.routes.js'
 import mandoRoutes from '../routes/mando.routes.js'
+import fileupload from 'express-fileupload'
 import {dirname, join} from 'path'
 import {fileURLToPath} from 'url'
 import {PORT}from '../config/configDeploy.js'
@@ -15,6 +16,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 //Settings
 app.set('port',PORT);
 //Middlewares
+app.use(fileupload());
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
@@ -29,7 +31,7 @@ app.use('/config',confRoutes);
 app.use('/usuario',userRoutes);
 app.use('/competidor',competidorRoutes);
 app.use('/mandojuec',mandoRoutes);
-
+app.use('/adjunto',express.static(join(__dirname,'../public')));
 app.get("*", (req, res) => {
     /*res.sendFile(
       dirname(join(__dirname,"../app/tk-web/build/index.html"))
