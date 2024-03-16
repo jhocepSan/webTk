@@ -55,7 +55,7 @@ function scoreCombate() {
         size={'xl'} centered
         backdrop="static"
         aria-labelledby="contained-modal-title-vcenter"
-        contentClassName={`${(puntoJuego.gano == 'A' || puntoJuego.gano == 'AP' || puntoJuego.gano == 'AR') ? 'bg-primary' : (puntoJuego.gano == 'R' || puntoJuego.gano == 'RP' || puntoJuego.gano == 'RR') ? 'bg-danger' : 'bg-transparent'} bg-gradient`}>
+        contentClassName={`${(puntoJuego.gano == 'A' || puntoJuego.gano == 'AP' || puntoJuego.gano == 'AR') ? 'bg-primary' : (puntoJuego.gano == 'R' || puntoJuego.gano == 'RP' || puntoJuego.gano == 'RR') ? 'bg-danger' : 'bg-dark'} bg-gradient`}>
         {(puntoJuego.gano == undefined || puntoJuego.gano == '') && <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 w-100 ' closeButton={false} closeVariant='white'>
           <div className='text-center w-100' style={{ fontSize: '75px', width: '200px' }} >
             <RelojKirugui valor={puntoJuego} conf={configure} tipo='s' collback={() => ''} doble={false} />
@@ -65,7 +65,7 @@ function scoreCombate() {
         {puntoJuego.gano !== '' &&puntoJuego.gano!=undefined&&
           <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 w-100 ' closeButton={false} closeVariant='white'>
             <div className='fa-fade tituloMenu text-light fw-bold mx-auto' style={{ fontSize: '100px' }}>
-              Ganador ...!!
+              {configure.enableMaxRound==true?'Ganador ...!!':'DESCANSO ...!!'}
             </div>
           </Modal.Header>
         }

@@ -829,3 +829,21 @@ export const eliminarPuntuacion = async (info)=>{
         if (conn) { await conn.release() }
     }
 }
+
+export const eliminarLlavesGeneradas = async(info)=>{
+    var conn;
+    var sql = "update llave set estado='E' where idcampeonato=? and tipo=?;"
+    var sql2 = "update competidorsinpelea set estado='E' where idcampeonato=? and tipo=?;"
+    try {
+        conn = await pool.getConnection();
+        await conn.query(sql,[info.idcampeonato,info.tipo]);
+        await conn.query(sql2,[info.idcampeonato,info.tipo]);
+        await conn.commit();
+        return {'ok':"Eliminacion Correcta"}
+    } catch (error) {
+        console.log(error);
+        return {"error":error.message}
+    } finally {
+        if (conn) {await conn.release()}
+    }
+}

@@ -9,6 +9,7 @@ import MsgUtils from '../utils/MsgUtils';
 import UtilsCargador from '../utils/UtilsCargador'
 import { server } from '../utils/MsgUtils';
 import MsgDialogo from '../utils/MsgDialogo';
+import imgTK from '../../assets/tkd.png'
 
 function PrincipalListaFestivales() {
     const tableRef = useRef(null);
@@ -38,6 +39,96 @@ function PrincipalListaFestivales() {
         } else {
             return false
         }
+    }
+    function generarTargetaComp() {
+        var cmpSelect = JSON.parse(localStorage.getItem('campeonato'));
+        var subtitulo = '';
+        if (tipo == 'C') {
+            subtitulo = 'KYORUGUI';
+        } else if (tipo == 'P') {
+            subtitulo = 'POOMSAE';
+        } else if (tipo == 'D') {
+            subtitulo = 'DEMOSTRACIONES';
+        } else if (tipo == 'R') {
+            subtitulo = 'ROMPIMIENTO';
+        }
+        var optiones = {
+            orientation: 'l',
+            unit: 'mm',
+            format: 'A4',
+            putOnlyUsedFonts: true,
+            floatPrecision: 16 // or "smart", default is 16
+        }
+        var doc = new jsPDF(optiones);
+        var x = 6, numColum = 0, pagina = 1;
+        var y = 6, numCard = 0;
+        var width = doc.internal.pageSize.getWidth();
+        var height = doc.internal.pageSize.getHeight();
+        for (var est of listaCompetidores) {
+            if (numColum <= 2) {
+                doc.setTextColor(255, 0, 0);
+                doc.setDrawColor(255, 0, 0);
+                doc.setLineWidth(1.5);
+                doc.line(x, y, x + 87, y, 'FD');
+                doc.line(x, y - 0.5, x, y + 48, 'FD');
+                doc.line(x + 87, y - 0.5, x + 87, y + 48, 'FD');
+                doc.line(x, y + 47.5, x + 87, y + 47.5, 'FD');
+                doc.setDrawColor(0, 0, 255);
+                doc.setLineWidth(0.8);
+                doc.line(x + 2, y, x + 87, y, 'FD');
+                doc.line(x, y + 2, x, y + 48, 'FD');
+                doc.setLineWidth(1.5);
+                doc.line(x, y + 2, x + 2, y, 'FD');
+                doc.setLineWidth(0.8);
+                doc.line(x + 87, y - 0.5, x + 87, y + 48, 'FD');
+                doc.line(x, y + 47.5, x + 87, y + 47.5, 'FD');
+                y += 3;
+                doc.setFontSize(9);
+                doc.setTextColor(0, 0, 255);
+                doc.setFont('arial','bold');
+                doc.text('ASOCIACIÓN TRADICIONAL DE CLUBES DE', x + 6, y+2);
+                doc.text('TAEKWONDO COCHABAMBA', x + 12, y + 6);
+                doc.setTextColor(250, 193, 41);
+                doc.setFontSize(12);
+                doc.text('Tarjeta de competencia', x + 4, y + 13);
+                doc.setFontSize(9);
+                doc.setFont('arial','');
+                doc.setTextColor(0, 0, 0);
+                doc.text('Nombre.- ' + est.nombres + ' ' + est.apellidos, x + 3, y + 20);
+                doc.text('Club.- ' + est.club, x + 3, y + 24);
+                doc.text('Peso/kg.- ' + est.peso, x + 3, y + 28);
+                doc.text('Grado.- ' + est.grado + ' - ' + est.cinturon, x + 3, y + 32);
+                doc.text('Categoria.- ' + est.nombrecategoria, x + 3, y + 36);
+                doc.setFontSize(13);
+                doc.setTextColor(0, 0, 255);
+                doc.setFont('arial','bold');
+                doc.text(subtitulo, x + 34, y + 42);
+                doc.setTextColor(0, 0, 0);
+                doc.setDrawColor(0, 0, 0);
+                doc.setLineWidth(0.8);
+                doc.setFontSize(10);
+                doc.line(x + 60, y + 34, x + 84, y + 34, 'FD')
+                doc.text('Puesto', x + 68, y + 38);
+                doc.addImage(imgTK, 'JPEG', x +71, y+2 , 14, 14);
+                y += 47
+                if (numCard < 3) {
+                    numCard += 1
+                } else {
+                    numCard = 0
+                    numColum += 1
+                    x += 89
+                    y = 6
+                }
+            } else {
+                numColum = 0;
+                pagina += 1;
+                doc.addPage();
+                doc.setPage(pagina);
+                x = 6, y = 6;
+            }
+        }
+        doc.save(cmpSelect.nombre.replace(' ', '') + subtitulo + 'FestivalTarjetas.pdf');
+        setCargador(false);
     }
     function generarPdf() {
         var cmpSelect = JSON.parse(localStorage.getItem('campeonato'));
@@ -488,6 +579,14 @@ function PrincipalListaFestivales() {
                         <div className='col' style={{ minWidth: '100px', maxWidth: '100px' }}>
                             <button className='btn btn-sm btn-success bg-gradient w-100' onClick={() => generarPdf()}>
                                 <i className="fa-solid fa-file-pdf"></i> PDF
+                            </button>
+                        </div>}
+                    {listaCompetidores.length !== 0 &&
+                        <div className='col' style={{ minWidth: '160px', maxWidth: '160px' }}>
+                            <button className='btn btn-sm btn-info bg-gradient w-100' 
+                                id='generarTargetas'
+                                onClick={() => generarTargetaComp()}>
+                            <i className="fa-solid fa-address-card"></i> Generar Tarjetas
                             </button>
                         </div>}
                     <div className='col' style={{ minWidth: '150px', maxWidth: '150px' }}>

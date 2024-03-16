@@ -4,9 +4,10 @@ import UtilsDate from '../utils/UtilsDate';
 import jsPDF from 'jspdf';
 import ImgUser from '../../assets/user.png'
 import { server } from '../utils/MsgUtils';
+import MsgDialogo from '../utils/MsgDialogo';
 
 function PrincipalLlaves(props) {
-    const { idcampeonato, genero, llaves, callback, tipoL } = props;
+    const { idcampeonato, genero, llaves, callback, tipoL,setCargador,tipoComp} = props;
     const pdfRef = useRef(null);
     const [categorias, setCategorias] = useState([]);
     const [selectItem, setSelectItem] = useState(0);
@@ -14,12 +15,13 @@ function PrincipalLlaves(props) {
     const [numLlave, setNumLlave] = useState(0);
     const [listaLLaves, setListaLLaves] = useState(llaves);
     const [listaManual, setListaManual] = useState([]);
+    const [showModal,setShowModal] = useState(false);
     function verLlavesCategoriaOficial(dato) {
         setSelectItem(dato);
         setLista(listaLLaves.filter((item) => item.idcategoria === dato));
         setNumLlave(0);
     }
-    
+
     function verLlavesCategoria(dato) {
         setSelectItem(dato);
         setNumLlave(0);
@@ -47,7 +49,7 @@ function PrincipalLlaves(props) {
             .catch(error => MsgUtils.msgError(error));
 
     }
-    function cambiarLlave(tipo,tamanio) {
+    function cambiarLlave(tipo, tamanio) {
         if (tipo === 'N') {
             if (numLlave < tamanio - 1) {
                 setNumLlave(numLlave + 1);
@@ -57,6 +59,28 @@ function PrincipalLlaves(props) {
                 setNumLlave(numLlave - 1);
             }
         }
+    }
+    function eliminarLLaves(){
+        setCargador(true);
+        fetch(`${server}/competidor/eliminarLlavesGeneradas`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({ 'idcampeonato': idcampeonato, 'tipo':tipoComp })
+        })
+            .then(res => res.json())
+            .then(data => {
+                setCargador(false);
+                if (data.ok) {
+                    callback()
+                    MsgUtils.msgCorrecto(data.ok);
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
+            })
+            .catch(error => MsgUtils.msgError(error));
     }
     const exportPDF = () => {
         var optiones = {
@@ -74,44 +98,53 @@ function PrincipalLlaves(props) {
         var numPag = 1;
         for (var cat of categorias) {
             for (var subcat of cat.SUBCATEGORIA) {
+                console.log(subcat.idsubcategoria, subcat.idcategoria, cat.idcategoria);
                 var compe = llaves.filter((item) => item.idcategoria == cat.idcategoria && item.idsubcategoria == subcat.idsubcategoria);
                 var tipol = compe.length
                 if (tipol != 0) {
-                    console.log(compe[0].PELEAS)
-                    var lsPele = compe[0].PELEAS;
-                    if (lsPele.length !== 0) {
-                        doc.setFontSize(12);
-                        doc.text(`Pagina: ${numPag}`, (width / 2) - 20, y + 5);
-                        doc.text(`Categoria: ${cat.nombre} -> Edad ${cat.edadini} - ${cat.edadfin} años`, x, y + 10);
-                        doc.text(`Sub Categoria: ${subcat.nombre} -> Peso ${subcat.pesoini} - ${subcat.pesofin} kg`, x, y + 15);
-                        doc.text(`Genero: ${cat.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`, x, y + 20)
-                        doc.setFontSize(9);
-                        y = y + 25
-                        if (lsPele.length == 2) {
-                            for (var cmp of lsPele) {
-                                doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
-                                doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
-                                doc.text(`${cmp.apellidos !== null ? cmp.apellidos : ''}`, x, y + 10)
-                                doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
-                                y = y + 20
-                                doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
-                                doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
-                                doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
-                                doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 : ''}`, x, y + 10)
-                                y = y + 50
+                    for (var peel of compe) {
+                        console.log("pealeas", peel.PELEAS)
+                        var lsPele = peel.PELEAS;
+                        if (lsPele.length !== 0) {
+                            //doc.setTextColor(0, 0, 0);
+                            doc.setFontSize(12);
+                            doc.text(`Pagina: ${numPag}`, (width / 2) - 20, y + 5);
+                            doc.text(`Categoria: ${cat.nombre} -> Edad ${cat.edadini} - ${cat.edadfin} años`, x, y + 10);
+                            doc.text(`Sub Categoria: ${subcat.nombre} -> Peso ${subcat.pesoini} - ${subcat.pesofin} kg`, x, y + 15);
+                            doc.text(`Genero: ${cat.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`, x, y + 20)
+                            doc.setFontSize(9);
+                            y = y + 25
+                            if (lsPele.length == 2) {
+                                for (var cmp of lsPele) {
+                                    //doc.setTextColor(0, 0, 255);
+                                    doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
+                                    doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+                                    doc.text(`${cmp.apellidos !== null ? cmp.apellidos : ''}`, x, y + 10)
+                                    doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
+                                    y = y + 20
+                                    //doc.setTextColor(255, 0, 0);
+                                    doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
+                                    doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
+                                    doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+                                    doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 : ''}`, x, y + 10)
+                                    y = y + 50
+                                    //doc.setTextColor(0, 0, 0);
+                                }
+                                doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
+                                doc.line(x + 105, y - 85, x + 135, y - 85, 'S');
                             }
-                            doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
-                            doc.line(x + 105, y - 85, x + 135, y - 85, 'S');
+                            doc.addPage();
+                            x = 10;
+                            y = 5;
+                            numPag += 1;
+                            doc.setPage(numPag);
                         }
-                        doc.addPage();
-                        x = 10;
-                        y = 5;
-                        numPag += 1;
                     }
                 }
             }
         }
         var nbp = 0;
+        listaManual.sort((a,b)=>b.PELEAS.length-a.PELEAS.length);
         for (var cmpe of listaManual) {
             var lsPele = cmpe.PELEAS
             if (lsPele.length == 2) {
@@ -124,15 +157,18 @@ function PrincipalLlaves(props) {
                 doc.setFontSize(9);
                 y = y + 25
                 for (var cmp of lsPele) {
+                    //doc.setTextColor(0, 0, 255);
                     doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                     doc.text(`${cmp.apellidos !== null ? cmp.apellidos : ''}`, x, y + 10)
                     doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
+                    //doc.setTextColor(255, 0, 0);
                     y = y + 20
                     doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                     doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                     doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 : ''}`, x, y + 10)
+                    //doc.setTextColor(0, 0, 0);
                     y = y + 50
                 }
                 doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
@@ -141,6 +177,7 @@ function PrincipalLlaves(props) {
                 x = 10;
                 y = 5;
                 numPag += 1;
+                doc.setPage(numPag);
             } else if (lsPele.length == 1) {
                 var comp = cmpe.PELEAS[0]
                 doc.setFontSize(12);
@@ -149,25 +186,30 @@ function PrincipalLlaves(props) {
                     y = 5;
                     doc.text(`Pagina: ${numPag}`, (width / 2) - 20, y + 5);
                 }
+                doc.setTextColor(0, 0, 0);
                 doc.text(`Peleas de Exhibición`, x, y + 10);
                 doc.text(`Genero: ${cmpe.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`, x, y + 15)
                 doc.setFontSize(9);
                 y = y + 25
+                //doc.setTextColor(0, 0, 255);
                 doc.text(`${comp.nombres} (${comp.clubuno !== null ? comp.clubuno : '-'})`, x, y + 5)
                 doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                 doc.text(`${comp.apellidos !== null ? comp.apellidos : ''}`, x, y + 10)
                 doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
                 y = y + 20;
+                //doc.setTextColor(255, 0, 0);
                 doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                 doc.text(`${comp.nombres2} (${comp.clubdos !== null ? comp.clubdos : '-'})`, x, y + 5)
                 doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                 doc.text(`${comp.apellidos2 !== null ? comp.apellidos2 : ''}`, x, y + 10)
+                //doc.setTextColor(0, 0, 0);
                 y = y + 50
                 nbp += 1;
                 if (nbp == 2) {
                     nbp = 0;
                     doc.addPage();
                     numPag += 1;
+                    doc.setPage(numPag);
                 }
             }
 
@@ -186,8 +228,8 @@ function PrincipalLlaves(props) {
             windowWidth: 700
         });*/
     }
-    function cambiarValor(dato, valor,i,j) {
-        console.log(dato, valor,j);
+    function cambiarValor(dato, valor, i, j) {
+        console.log(dato, valor, j);
         fetch(`${server}/competidor/cambiarNumPelea`, {
             method: 'POST',
             headers: {
@@ -200,7 +242,7 @@ function PrincipalLlaves(props) {
             .then(data => {
                 if (data.ok) {
                     var aux = listaLLaves;
-                    aux[i].PELEAS[j].nropelea=parseInt(valor)
+                    aux[i].PELEAS[j].nropelea = parseInt(valor)
                     setListaLLaves([...aux]);
                     MsgUtils.msgCorrecto(data.ok);
                 } else {
@@ -242,7 +284,7 @@ function PrincipalLlaves(props) {
         }
     }, [])
     useEffect(() => {
-        if(selectItem!==0){
+        if (selectItem !== 0) {
             verLlavesCategoriaOficial(selectItem);
         }
     }, [listaLLaves, selectItem])
@@ -255,7 +297,7 @@ function PrincipalLlaves(props) {
                 <button className='btn btn-sm btn-info mx-1'>
                     <i className="fa-solid fa-arrow-up-9-1"></i> Numerar LLaves
                 </button>
-                <button className='btn btn-sm btn-danger '>
+                <button className='btn btn-sm btn-danger ' onClick={()=>setShowModal(true)}>
                     <i className="fa-solid fa-trash"></i> Eliminar LLaves
                 </button>
             </div>}
@@ -326,7 +368,7 @@ function PrincipalLlaves(props) {
                                                                                 {tipoL == 'E' &&
                                                                                     <input className="form-control form-control-lg text-light bg-secondary"
                                                                                         type="number" placeholder="#"
-                                                                                        value={itemm.nropelea} onChange={(e) => cambiarValor(itemm, e.target.value,index,indexx)}>
+                                                                                        value={itemm.nropelea} onChange={(e) => cambiarValor(itemm, e.target.value, index, indexx)}>
                                                                                     </input>}
                                                                             </div>
                                                                             <div className='col-8 my-auto'>
@@ -444,7 +486,7 @@ function PrincipalLlaves(props) {
                 <div className='py-1'>
                     <div className='row row-cols-3 g-0'>
                         <div className='col-5 text-start my-auto'>
-                            <button className='btn btn-sm text-light' onClick={() => cambiarLlave('B',lista.length)}>
+                            <button className='btn btn-sm text-light' onClick={() => cambiarLlave('B', lista.length)}>
                                 <i className="fa-solid fa-square-caret-left fa-2xl"></i>
                             </button>
                         </div>
@@ -452,7 +494,7 @@ function PrincipalLlaves(props) {
                             <div className='text-dark letraMontserratr'>{(numLlave + 1) + '/' + lista.length}</div>
                         </div>
                         <div className='col-5 text-end my-auto'>
-                            <button className='btn btn-sm text-light' onClick={() => cambiarLlave('N',lista.length)}>
+                            <button className='btn btn-sm text-light' onClick={() => cambiarLlave('N', lista.length)}>
                                 <i className="fa-solid fa-square-caret-right fa-2xl"></i>
                             </button>
                         </div>
@@ -463,7 +505,7 @@ function PrincipalLlaves(props) {
                 <div className='py-1'>
                     <div className='row row-cols-3 g-0'>
                         <div className='col-5 text-start my-auto'>
-                            <button className='btn btn-sm text-light' onClick={() => cambiarLlave('B',listaManual.length)}>
+                            <button className='btn btn-sm text-light' onClick={() => cambiarLlave('B', listaManual.length)}>
                                 <i className="fa-solid fa-square-caret-left fa-2xl"></i>
                             </button>
                         </div>
@@ -471,13 +513,14 @@ function PrincipalLlaves(props) {
                             <div className='text-dark letraMontserratr'>{(numLlave + 1) + '/' + listaManual.length}</div>
                         </div>
                         <div className='col-5 text-end my-auto'>
-                            <button className='btn btn-sm text-light' onClick={() => cambiarLlave('N',listaManual.length)}>
+                            <button className='btn btn-sm text-light' onClick={() => cambiarLlave('N', listaManual.length)}>
                                 <i className="fa-solid fa-square-caret-right fa-2xl"></i>
                             </button>
                         </div>
                     </div>
                 </div>
             }
+            <MsgDialogo show={showModal} msg='Seguro de eliminar las llaves generadas' okFunction={()=>{setShowModal(false);eliminarLLaves();}} notFunction={()=>setShowModal(false)}/>
         </div >
     )
 }

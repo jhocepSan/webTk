@@ -10,7 +10,7 @@ import MsgUtils from '../utils/MsgUtils';
 import VisorPunto from './VisorPunto';
 import VisorFaltas from './VisorFaltas';
 import RelojKirugui from './RelojKirugui';
-import {server} from '../utils/MsgUtils';
+import { server } from '../utils/MsgUtils';
 import EstadisticaPelea from './EstadisticaPelea';
 
 function PrincipalTesting() {
@@ -34,7 +34,7 @@ function PrincipalTesting() {
     });
     const [msgModal, setMsgModal] = useState({});
     const [resultPre, setResultPre] = useState([]);
-    const [mandoLec,setMandoLec] = useState([]);
+    const [mandoLec, setMandoLec] = useState([]);
     const { isLoading, data, isError, error } = useQuery(
         {
             queryKey: ['mandos'],
@@ -43,6 +43,7 @@ function PrincipalTesting() {
         }
     )
     function hayGanador(color) {
+        Sonido(5);
         setTipoM(color);
         setShowModal(true);
     }
@@ -56,8 +57,11 @@ function PrincipalTesting() {
             'puntoA': 0, 'faltaA': 0,
             'puntoR': 0, 'faltaR': 0
         })
-        localStorage.setItem('doblePant',JSON.stringify({ 'isPlay': false, 'round': 1, 'reset': true,'puntoA': 0, 'faltaA': 0,
-            'puntoR': 0, 'faltaR': 0, 'nombreA':'','nombreR':'','gano':'' }))
+        setResultPre([]);
+        localStorage.setItem('doblePant', JSON.stringify({
+            'isPlay': false, 'round': 1, 'reset': true, 'puntoA': 0, 'faltaA': 0,
+            'puntoR': 0, 'faltaR': 0, 'nombreA': '', 'nombreR': '', 'gano': ''
+        }))
     }
     const getClubes = async () => {
         if (clubes.length == 0) {
@@ -76,21 +80,21 @@ function PrincipalTesting() {
     function procesarFalta(tipo, valor) {
         if (tipo) {
             if ((parseInt(valor) < 0 && puntoJuego.faltaA > 0) || (parseInt(valor) > 0 && puntoJuego.faltaA >= 0)) {
-                setPuntoJuego({ ...puntoJuego, faltaA: puntoJuego.faltaA + valor,puntoR:puntoJuego.puntoR+(valor*parseInt(configure.falta)) });
-                localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego, faltaA: puntoJuego.faltaA + valor,nombreA,nombreR,puntoR:puntoJuego.puntoR+(valor*parseInt(configure.falta)),'gano':'' }))
+                setPuntoJuego({ ...puntoJuego, faltaA: puntoJuego.faltaA + valor, puntoR: puntoJuego.puntoR + (valor * parseInt(configure.falta)) });
+                localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, faltaA: puntoJuego.faltaA + valor, nombreA, nombreR, puntoR: puntoJuego.puntoR + (valor * parseInt(configure.falta)), 'gano': '' }))
                 if (puntoJuego.faltaA + valor == configure.maxFaltas) {
                     hayGanador('R');
-                    setPuntoJuego({ ...puntoJuego,isPlay:false, faltaA: puntoJuego.faltaA + valor,'reset': true,puntoR:puntoJuego.puntoR+(valor*parseInt(configure.falta)) });
-                    localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego ,isPlay:false, faltaA: puntoJuego.faltaA + valor,nombreA,nombreR,'gano':'R','reset': true,puntoR:puntoJuego.puntoR+(valor*parseInt(configure.falta))}))
+                    setPuntoJuego({ ...puntoJuego, isPlay: false, faltaA: puntoJuego.faltaA + valor, 'reset': true, puntoR: puntoJuego.puntoR + (valor * parseInt(configure.falta)) });
+                    localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, isPlay: false, faltaA: puntoJuego.faltaA + valor, nombreA, nombreR, 'gano': 'R', 'reset': true, puntoR: puntoJuego.puntoR + (valor * parseInt(configure.falta)) }))
                 }
             }
         } else {
             if ((parseInt(valor) < 0 && puntoJuego.faltaR > 0) || (parseInt(valor) > 0 && puntoJuego.faltaR >= 0)) {
-                setPuntoJuego({ ...puntoJuego, faltaR: puntoJuego.faltaR + valor,puntoA:puntoJuego.puntoA+(valor*parseInt(configure.falta))});
-                localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego, faltaR: puntoJuego.faltaR + valor,nombreA,nombreR,'gano':'',puntoA:puntoJuego.puntoA+(valor*parseInt(configure.falta))}))
+                setPuntoJuego({ ...puntoJuego, faltaR: puntoJuego.faltaR + valor, puntoA: puntoJuego.puntoA + (valor * parseInt(configure.falta)) });
+                localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, faltaR: puntoJuego.faltaR + valor, nombreA, nombreR, 'gano': '', puntoA: puntoJuego.puntoA + (valor * parseInt(configure.falta)) }))
                 if (puntoJuego.faltaR + valor == configure.maxFaltas) {
-                    setPuntoJuego({ ...puntoJuego,isPlay:false, faltaR: puntoJuego.faltaR + valor,'reset': true,puntoA:puntoJuego.puntoA+(valor*parseInt(configure.falta))});
-                    localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego,isPlay:false,'reset': true, faltaR: puntoJuego.faltaR + valor,nombreA,nombreR,'gano':'A',puntoA:puntoJuego.puntoA+(valor*parseInt(configure.falta))}))
+                    setPuntoJuego({ ...puntoJuego, isPlay: false, faltaR: puntoJuego.faltaR + valor, 'reset': true, puntoA: puntoJuego.puntoA + (valor * parseInt(configure.falta)) });
+                    localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, isPlay: false, 'reset': true, faltaR: puntoJuego.faltaR + valor, nombreA, nombreR, 'gano': 'A', puntoA: puntoJuego.puntoA + (valor * parseInt(configure.falta)) }))
                     hayGanador('A');
                 }
             }
@@ -102,49 +106,65 @@ function PrincipalTesting() {
             if ((parseInt(valor) < 0 && puntoJuego.puntoA > 0) || (parseInt(valor) > 0 && puntoJuego.puntoA >= 0)) {
                 puntoj.puntoA += valor;
                 setPuntoJuego({ ...puntoJuego, puntoA: puntoj.puntoA });
-                localStorage.setItem('doblePant',JSON.stringify({ ...puntoj,nombreA,nombreR,'gano':'' }))
+                localStorage.setItem('doblePant', JSON.stringify({ ...puntoj, nombreA, nombreR, 'gano': '' }))
             }
         } else {
             if ((parseInt(valor) < 0 && puntoJuego.puntoR > 0) || (parseInt(valor) > 0 && puntoJuego.puntoR >= 0)) {
                 puntoj.puntoR += valor;
                 setPuntoJuego({ ...puntoJuego, puntoR: puntoj.puntoR });
-                localStorage.setItem('doblePant',JSON.stringify({ ...puntoj,nombreA,nombreR,'gano':'' }))
+                localStorage.setItem('doblePant', JSON.stringify({ ...puntoj, nombreA, nombreR, 'gano': '' }))
             }
         }
         if (configure.enableDif) {
             if (puntoj.puntoA - puntoj.puntoR >= parseInt(configure.diffPuntos)) {
                 hayGanador('A');
-                setPuntoJuego({...puntoj,'reset': true,})
-                localStorage.setItem('doblePant',JSON.stringify({ ...puntoj,isPlay:false,nombreA,nombreR,'gano':'A','reset': true }))
+                setPuntoJuego({ ...puntoj, isPlay: false,'reset': true, })
+                Sonido(5);
+                localStorage.setItem('doblePant', JSON.stringify({ ...puntoj, isPlay: false, nombreA, nombreR, 'gano': 'A', 'reset': true }))
             } else if (puntoj.puntoR - puntoj.puntoA >= parseInt(configure.diffPuntos)) {
                 hayGanador('R');
-                setPuntoJuego({...puntoj,'reset': true,})
-                localStorage.setItem('doblePant',JSON.stringify({ ...puntoj,isPlay:false,nombreA,nombreR,'gano':'R','reset': true }))
+                Sonido(5);
+                setPuntoJuego({ ...puntoj,isPlay: false, 'reset': true, })
+                localStorage.setItem('doblePant', JSON.stringify({ ...puntoj, isPlay: false, nombreA, nombreR, 'gano': 'R', 'reset': true }))
             }
         }
     }
     function calcularResultado() {
         ejecutarJuego(false);
-        if (parseInt(puntoJuego.puntoA) > parseInt(puntoJuego.puntoR)) {
-            hayGanador('A');
-            localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego,nombreA,nombreR,'gano':'A',isPlay:false }))
-        } else if (parseInt(puntoJuego.puntoR) > parseInt(puntoJuego.puntoA)) {
-            hayGanador('R');
-            localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego,nombreA,nombreR,'gano':'R',isPlay:false }))
-        } 
-    }
-    function declararGanador(punto,color){
-        if (color=='A') {
-            setPuntoJuego({ ...puntoJuego, puntoA: punto });
-            hayGanador('A');
-            localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego,puntoA: punto,nombreA,nombreR,'gano':'A' }))
-        } else if (color=='R') {
-            setPuntoJuego({ ...puntoJuego, puntoR: punto });
-            hayGanador('R');
-            localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego,puntoA: punto,nombreA,nombreR,'gano':'R' }))
+        if(configure.enableMaxRound){
+            if (parseInt(puntoJuego.puntoA) > parseInt(puntoJuego.puntoR)) {
+                hayGanador('A');
+                localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'A', isPlay: false }))
+            } else if (parseInt(puntoJuego.puntoR) > parseInt(puntoJuego.puntoA)) {
+                hayGanador('R');
+                localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'R', isPlay: false }))
+            }
+        }
+        if(configure.enableMaxPoint){
+            if (parseInt(puntoJuego.puntoA) > parseInt(puntoJuego.puntoR)) {
+                hayGanador('A');
+                localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'A', isPlay: false }))
+            } else if (parseInt(puntoJuego.puntoR) > parseInt(puntoJuego.puntoA)) {
+                hayGanador('R');
+                localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'R', isPlay: false }))
+            }else{
+                hayGanador('EM');
+                localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'EM', isPlay: false }))
+            }
         }
     }
-    function resultadoFinal(){
+    function declararGanador(punto, color) {
+        if (color == 'A') {
+            setPuntoJuego({ ...puntoJuego, puntoA: punto });
+            hayGanador('A');
+            localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, puntoA: punto, nombreA, nombreR, 'gano': 'A' }))
+        } else if (color == 'R') {
+            setPuntoJuego({ ...puntoJuego, puntoR: punto });
+            hayGanador('R');
+            localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, puntoA: punto, nombreA, nombreR, 'gano': 'R' }))
+        }
+    }
+    function resultadoFinal() {
         setResultPre([])
         setShowModal(false);
         //document.getElementById('btnReset').click();
@@ -171,7 +191,7 @@ function PrincipalTesting() {
             var cont = parseInt(localStorage.getItem('contAux'));
             if (cont < parseInt(configure.esperaTime)) {
                 var valores = functionContarPunto(datos)
-                if(valores[1]!=''){
+                if (valores[1] != '') {
                     if (valores[0] >= parseInt(configure.maxJueces)) {
                         var prePunt = puntoJuego
                         if (valores[1] == 'd' || valores[1] == 'D' || valores[1] == 'P' || valores[1] == 'c' || valores[1] == 'C') {
@@ -179,17 +199,17 @@ function PrincipalTesting() {
                         } else {
                             prePunt.puntoR = prePunt.puntoR + parseInt(mapPuntos[valores[1]]);
                         }
-                        localStorage.setItem('doblePant',JSON.stringify({ ...prePunt,nombreA,nombreR,'gano':'' }))
+                        localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': '' }))
                         localStorage.setItem('contAux', 0);
                         if (configure.enableDif) {
                             if ((prePunt.puntoA - prePunt.puntoR) > parseInt(configure.diffPuntos)) {
                                 hayGanador('A');
                                 setPuntoJuego({ ...prePunt, isPlay: false });
-                                localStorage.setItem('doblePant',JSON.stringify({ ...prePunt,nombreA,nombreR,'gano':'A',isPlay:false }));
+                                localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': 'A', isPlay: false }));
                             } else if ((prePunt.puntoR - prePunt.puntoA) > parseInt(configure.diffPuntos)) {
                                 setPuntoJuego({ ...prePunt, isPlay: false })
                                 hayGanador('R');
-                                localStorage.setItem('doblePant',JSON.stringify({ ...prePunt,nombreA,nombreR,'gano':'R',isPlay:false }));
+                                localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': 'R', isPlay: false }));
                             }
                             setPuntoJuego({ ...prePunt })
                         }
@@ -203,7 +223,7 @@ function PrincipalTesting() {
             }
         }
     }
-    function recetearValoresDb(){
+    function recetearValoresDb() {
         fetch(`${server}/mandojuec/limpiarLecturas/${0}`, {
             method: 'GET',
             headers: {
@@ -213,7 +233,7 @@ function PrincipalTesting() {
         })
             .then(res => res.json())
             .then(data => {
-                
+
             })
             .catch(error => MsgUtils.msgError(error));
     }
@@ -229,10 +249,10 @@ function PrincipalTesting() {
                 setMsgModal({ 'azul': sumaA, 'rojo': sumaR })
                 if (sumaA > sumaR) {
                     setTipoM('AP');
-                    localStorage.setItem('doblePant',JSON.stringify({...puntoJuego,nombreA,nombreR,'gano':'A',isPlay:false}))
+                    localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'A', isPlay: false }))
                 } else if (sumaR > sumaA) {
                     setTipoM('RP');
-                    localStorage.setItem('doblePant',JSON.stringify({...puntoJuego,nombreA,nombreR,'gano':'R',isPlay:false}))
+                    localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'R', isPlay: false }))
                 } else {
                     setTipoM('EP');
                 }
@@ -251,29 +271,55 @@ function PrincipalTesting() {
                 //setShowModal(true);
             }
         } else {
-            setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }]);
-            setPuntoJuego({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false,'newRound':true });
-            setShowModal(false);
-            localStorage.setItem('doblePant',JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false,'newRound':true }))
+            console.log("esta porocesando")
+            if(configure.enableMaxRound==true){
+                setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }]);
+                setPuntoJuego({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true });
+                setShowModal(false);
+                localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true }))
+            }
+            if(configure.enableMaxPoint==true){
+                console.log("esta porocesando maximo puntos")
+                setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }]);
+                setPuntoJuego({...puntoJuego,'round':puntoJuego.round+1,'isPlay': false, 'newRound': true})
+                setShowModal(false);
+                localStorage.setItem('doblePant',JSON.stringify({...puntoJuego,'round':puntoJuego.round+1,'isPlay': false, 'newRound': true}))
+            }
         }
     }
-    function ejecutarJuego(valor) {
-        localStorage.setItem('contAux', 0);
-        setPuntoJuego({ ...puntoJuego, isPlay: valor, reset: false,'newRound':false })
-        localStorage.setItem('doblePant',JSON.stringify({ ...puntoJuego, isPlay: valor, reset: false,nombreA,nombreR,'gano':'' }))
+    function Sonido(nota) {
+        var Sonidos = [261, 277, 293, 311, 329, 349, 369, 392, 415, 440, 466, 493];
+        var context = new (window.AudioContext || window.webkitAudioContext)();
+        var osc = context.createOscillator();
+        // admite: sine, square, sawtooth, triangle
+        osc.type = 'sawtooth';
+        osc.frequency.value = Sonidos[nota];
+        osc.connect(context.destination);
+        osc.start();
+        osc.stop(context.currentTime + .5);
     }
-    function getFaltaAcumulada(color){
+    function ejecutarJuego(valor) {
+        if(valor){
+            Sonido(11);
+        }else{
+            Sonido(5);
+        }
+        localStorage.setItem('contAux', 0);
+        setPuntoJuego({ ...puntoJuego, isPlay: valor, reset: false, 'newRound': false })
+        localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, isPlay: valor, reset: false, nombreA, nombreR, 'gano': '' }))
+    }
+    function getFaltaAcumulada(color) {
         var cont = 0;
-        for (var valPre of resultPre){
-            if(color=='A'){
-                cont+=parseInt(valPre.faltaA);
-            }else if(color=='R'){
-                cont+=parseInt(valPre.faltaR);
+        for (var valPre of resultPre) {
+            if (color == 'A') {
+                cont += parseInt(valPre.faltaA);
+            } else if (color == 'R') {
+                cont += parseInt(valPre.faltaR);
             }
         }
         return cont;
     }
-    function showStadistic(valor){
+    function showStadistic(valor) {
         setMandoLec(valor);
         setTipoM('S');
         setShowModal(true);
@@ -298,18 +344,17 @@ function PrincipalTesting() {
             document.getElementById('puntoAN').click()
         } else if (event.key == 'P') {
             document.getElementById('buttonPlay').click()
-        } else if(event.key == 'Q'){
+        } else if (event.key == 'Q') {
             document.getElementById('faltaR').click()
-        } else if(event.key == 'q'){
+        } else if (event.key == 'q') {
             document.getElementById('faltaRR').click()
-        } else if(event.key == '.'){
+        } else if (event.key == '.') {
             document.getElementById('btnReset').click()
-        } else if(event.key == '-'){
+        } else if (event.key == '-') {
             document.getElementById('btnSubMin').click()
-        } else if(event.key == '+'){
+        } else if (event.key == '+') {
             document.getElementById('btnSumMin').click()
         }
-
     };
     useEffect(() => {
         //setCargador(true);
@@ -352,25 +397,21 @@ function PrincipalTesting() {
                         <div className='col' style={{ maxWidth: '20%', minWidth: '20%' }}>
                             <VistaMandos datos={data} setActivarLectura={setActivarLectura} activarLectura={activarLectura}
                                 configure={configure.numMandos != undefined ? configure : null} collback={lecturadeDatos}
-                                puntoJuego={puntoJuego} showStadistic={showStadistic}/>
+                                puntoJuego={puntoJuego} showStadistic={showStadistic} />
                         </div>
                         <div className='col' style={{ maxWidth: '80%', minWidth: '80%' }}>
                             <div className='container-fluid fondoControles '>
                                 <div className="btn-group btn-group-sm" role="group" aria-label="Basic example">
                                     <Link className='btn btn-sm botonMenu my-auto' data-bs-toggle="tooltip"
                                         data-bs-placement="bottom" title="Abrir pantalla extendida"
-                                        onClick={() => localStorage.setItem('doblePant',JSON.stringify({
+                                        onClick={() => localStorage.setItem('doblePant', JSON.stringify({
                                             'isPlay': false, 'round': 1, 'reset': false,
-                                            'puntoA': 0, 'faltaA': 0,'gano':'',
-                                            'puntoR': 0, 'faltaR': 0,nombreA,nombreR
+                                            'puntoA': 0, 'faltaA': 0, 'gano': '',
+                                            'puntoR': 0, 'faltaR': 0, nombreA, nombreR
                                         }))}
                                         to={'/scoreDobleK'} target='blanck'>
                                         <i className="fa-brands fa-windows fa-xl"></i>
                                     </Link>
-                                    <button type="button" className="btn mx-1 btn-sm botonMenu" id='btnReset'
-                                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Recetear valores iniciales"
-                                        onClick={() => recetearValores()}>
-                                        <i className="fa-solid fa-repeat fa-xl"></i>(.)</button>
                                     {/*puntoJuego.isPlay === true && <button type="button" className="btn mx-1 btn-sm botonMenu"
                                         id='buttonStop'
                                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Pausar Competencia"
@@ -380,7 +421,7 @@ function PrincipalTesting() {
                                     <button type="button" className="btn mx-1 btn-sm botonMenu"
                                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Iniciar Competencia" id='buttonPlay'
                                         onClick={() => ejecutarJuego(!puntoJuego.isPlay)}>
-                                        <span className='fs-2 fh-1'>{puntoJuego.isPlay?'⌚':'⏵'}</span>(P)
+                                        <span className='fs-2 fh-1'>{puntoJuego.isPlay ? '⌚' : '⏵'}</span>(P)
                                     </button>
                                     <button type="button" className="btn btn-sm mx-1 btn-sm botonMenu d-none"
                                         id='buttonFinal'
@@ -388,15 +429,20 @@ function PrincipalTesting() {
                                         onClick={() => calcularResultado()}>
                                         <i className="fa-solid fa-circle-pause fa-xl"></i>
                                     </button>
-                                    <div className='text-center text-light tituloMenu fw-bold ' style={{ fontSize: '45px', width: '290px' }}>
+                                    <div className='text-center text-light tituloMenu fw-bold ' 
+                                        style={{ fontSize: '45px', width: '290px' }}>
                                         Round {puntoJuego.round}
                                     </div>
                                     <div className='text-center mx-1' style={{ fontSize: '45px', width: '230px' }} >
-                                        <RelojKirugui valor={puntoJuego} conf={configure} tipo='r' collback={()=>''} doble={false}/>
+                                        <RelojKirugui valor={puntoJuego} conf={configure} tipo='r' collback={() => ''} doble={false} />
                                     </div>
                                     <div className='text-center mx-1' style={{ fontSize: '45px', width: '230px' }} >
-                                        {puntoJuego.isPlay == false && <RelojKirugui valor={puntoJuego} conf={configure} tipo='s' collback={()=>''} doble={false}/>}
+                                        {puntoJuego.isPlay == false && <RelojKirugui valor={puntoJuego} conf={configure} tipo='s' collback={() => ''} doble={false} />}
                                     </div>
+                                    <button type="button" className="btn mx-1 btn-sm botonMenu" id='btnReset'
+                                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Recetear valores iniciales"
+                                        onClick={() => recetearValores()}>
+                                        <i className="fa-solid fa-repeat fa-xl"></i>(.)</button>
                                 </div>
                             </div>
                             <div className='container-fluid'>
@@ -412,7 +458,7 @@ function PrincipalTesting() {
                                                 </h4>}
                                         </div>
                                         <VisorPunto valor={puntoJuego} tipo='A' />
-                                        <VisorFaltas valor={puntoJuego} tipo='A' resultPre={getFaltaAcumulada('A')}/>
+                                        <VisorFaltas valor={puntoJuego} tipo='A' resultPre={getFaltaAcumulada('A')} />
                                     </div>
                                     <div className='col bg-danger bg-gradient col-6'>
                                         <div className='w-100 p-2'>
@@ -425,7 +471,7 @@ function PrincipalTesting() {
                                                 </h4>}
                                         </div>
                                         <VisorPunto valor={puntoJuego} tipo='R' />
-                                        <VisorFaltas valor={puntoJuego} tipo='R' resultPre={getFaltaAcumulada('R')}/>
+                                        <VisorFaltas valor={puntoJuego} tipo='R' resultPre={getFaltaAcumulada('R')} />
                                     </div>
                                 </div>
                             </div>
@@ -446,7 +492,7 @@ function PrincipalTesting() {
                                                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrotado por el Oponente">
                                                         <i className="fa-solid fa-skull-crossbones fa-2xl"></i>
                                                     </button>
-                                                    <button className='btn btn-sm btnScore text-info' onClick={()=>declararGanador(puntoJuego.puntoA+1,'A')}>
+                                                    <button className='btn btn-sm btnScore text-info' onClick={() => declararGanador(puntoJuego.puntoA + 1, 'A')}>
                                                         <i className="fa-solid fa-trophy fa-2xl"></i>
                                                     </button>
                                                     <button className='btn btn-sm btnScore text-warning'
@@ -532,7 +578,7 @@ function PrincipalTesting() {
                                                         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrotado por GAM-JEON">
                                                         <i className="fa-solid fa-diamond fa-2xl"></i>
                                                     </button>
-                                                    <button className='btn btn-sm btnScore text-info' onClick={()=>declararGanador(puntoJuego.puntoR+1,'R')}>
+                                                    <button className='btn btn-sm btnScore text-info' onClick={() => declararGanador(puntoJuego.puntoR + 1, 'R')}>
                                                         <i className="fa-solid fa-trophy fa-2xl"></i>
                                                     </button>
                                                     <button className='btn btn-sm btnScore text-light'
@@ -606,25 +652,25 @@ function PrincipalTesting() {
                 </div>
             }
             <Modal show={showModal} onHide={() => setShowModal(false)}
-                size={`${tipoM=='S'?'lm':'xl'}`} centered
+                size={`${tipoM == 'S' ? 'lm' : 'xl'}`} centered
                 backdrop="static"
                 aria-labelledby="contained-modal-title-vcenter"
                 contentClassName={`${(tipoM == 'A' || tipoM == 'AP' || tipoM == 'AR') ? 'bg-primary' : (tipoM == 'R' || tipoM == 'RP' || tipoM == 'RR') ? 'bg-danger' : 'bg-dark'} bg-gradient`}>
-                {tipoM!='S'&&
-                <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 w-100 ' closeButton={false} closeVariant='white'>
-                    <div className='fa-fade tituloMenu text-light fw-bold mx-auto' style={{ fontSize: '100px' }}>
-                        Ganador ...!!
-                    </div>
-                </Modal.Header>}
-                {tipoM=='S'&&
-                <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 w-100' closeButton={true} closeVariant='white'>
-                    <div className='tituloMenu text-light fw-bold ' >
-                        Estadisticas del Round
-                    </div>
-                </Modal.Header>}
-                {tipoM !== 'A' && tipoM !== 'R' && 
+                {tipoM != 'S' &&
+                    <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 w-100 ' closeButton={false} closeVariant='white'>
+                        <div className='fa-fade tituloMenu text-light fw-bold mx-auto' style={{ fontSize: '100px' }}>
+                            {configure.enableMaxRound==true?'Ganador ...!!':'DESCANSO ...!!'}
+                        </div>
+                    </Modal.Header>}
+                {tipoM == 'S' &&
+                    <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 w-100' closeButton={true} closeVariant='white'>
+                        <div className='tituloMenu text-light fw-bold ' >
+                            Estadisticas del Round
+                        </div>
+                    </Modal.Header>}
+                {tipoM !== 'A' && tipoM !== 'R' &&
                     <Modal.Body>
-                        {tipoM!='S'&&<div className='container-fluid bg-transparent'>
+                        {tipoM != 'S' && <div className='container-fluid bg-transparent'>
                             <div className='row row-cols-2 gx-2' >
                                 <div className='col text-primary fw-bold tituloMenu text-center ' style={{ fontSize: '90px' }}>
                                     <div className='bg-light'>{msgModal.azul}</div>
@@ -634,15 +680,15 @@ function PrincipalTesting() {
                                 </div>
                             </div>
                         </div>}
-                        {tipoM=='S'&&<EstadisticaPelea lista={mandoLec}/>}
+                        {tipoM == 'S' && <EstadisticaPelea lista={mandoLec} />}
                     </Modal.Body>
                 }
                 <Modal.Footer>
-                    {tipoM!='S'&&(tipoM == 'A' || tipoM == 'R')&&
+                    {tipoM != 'S' && (tipoM == 'A' || tipoM == 'R'||tipoM=='EM') &&
                         <button className='btn btn-sm btn-info' onClick={() => { guardarCombate(); }}>
                             <i className="fa-solid fa-thumbs-up fa-2xl"></i>Aceptar
                         </button>}
-                    {tipoM!='S'&&tipoM !== 'A' && tipoM !== 'R'&&
+                    {tipoM != 'S' && tipoM !== 'A' && tipoM !== 'R' && tipoM!=='EM' &&
                         <button className='btn btn-sm btn-info' onClick={() => { resultadoFinal(); }}>
                             <i className="fa-solid fa-thumbs-up fa-2xl"></i>Aceptar
                         </button>}

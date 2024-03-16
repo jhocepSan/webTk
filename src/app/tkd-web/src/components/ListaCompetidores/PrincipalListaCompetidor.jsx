@@ -369,7 +369,6 @@ function PrincipalListaCompetidor() {
             .catch(error => MsgUtils.msgError(error));
     }
     function generarTargetaComp() {
-        setCargador(true);
         var cmpSelect = JSON.parse(localStorage.getItem('campeonato'));
         var subtitulo = '';
         if (tipo == 'C') {
@@ -382,15 +381,15 @@ function PrincipalListaCompetidor() {
             subtitulo = 'ROMPIMIENTO';
         }
         var optiones = {
-            orientation: 'p',
+            orientation: 'l',
             unit: 'mm',
             format: 'A4',
             putOnlyUsedFonts: true,
             floatPrecision: 16 // or "smart", default is 16
         }
         var doc = new jsPDF(optiones);
-        var x = 3, numColum = 0, pagina = 1;
-        var y = 3, numCard = 0;
+        var x = 6, numColum = 0, pagina = 1;
+        var y = 6, numCard = 0;
         var width = doc.internal.pageSize.getWidth();
         var height = doc.internal.pageSize.getHeight();
         for (var est of listaCompetidores) {
@@ -398,65 +397,70 @@ function PrincipalListaCompetidor() {
                 doc.setTextColor(255, 0, 0);
                 doc.setDrawColor(255, 0, 0);
                 doc.setLineWidth(1.5);
-                doc.line(x, y, x + 67, y, 'FD');
-                doc.line(x, y - 0.5, x, y + 39, 'FD');
-                doc.line(x + 67, y - 0.5, x + 67, y + 39, 'FD');
-                doc.line(x, y + 38.5, x + 67, y + 38.5, 'FD');
+                doc.line(x, y, x + 87, y, 'FD');
+                doc.line(x, y - 0.5, x, y + 48, 'FD');
+                doc.line(x + 87, y - 0.5, x + 87, y + 48, 'FD');
+                doc.line(x, y + 47.5, x + 87, y + 47.5, 'FD');
                 doc.setDrawColor(0, 0, 255);
                 doc.setLineWidth(0.8);
-                doc.line(x + 2, y, x + 67, y, 'FD');
-                doc.line(x, y + 2, x, y + 39, 'FD');
+                doc.line(x + 2, y, x + 87, y, 'FD');
+                doc.line(x, y + 2, x, y + 48, 'FD');
                 doc.setLineWidth(1.5);
                 doc.line(x, y + 2, x + 2, y, 'FD');
                 doc.setLineWidth(0.8);
-                doc.line(x + 67, y - 0.5, x + 67, y + 39, 'FD');
-                doc.line(x, y + 38.5, x + 67, y + 38.5, 'FD');
+                doc.line(x + 87, y - 0.5, x + 87, y + 48, 'FD');
+                doc.line(x, y + 47.5, x + 87, y + 47.5, 'FD');
                 y += 3;
-                doc.setFontSize(7);
+                doc.setFontSize(9);
                 doc.setTextColor(0, 0, 255);
                 doc.setFont('arial','bold');
-                doc.text('ASOCIACIÓN TRADICIONAL DE CLUBES DE', x + 3, y);
-                doc.text('TAEKWONDO COCHABAMBA', x + 9, y + 4);
+                doc.text('ASOCIACIÓN TRADICIONAL DE CLUBES DE', x + 6, y+2);
+                doc.text('TAEKWONDO COCHABAMBA', x + 12, y + 6);
                 doc.setTextColor(250, 193, 41);
-                doc.setFontSize(8);
-                doc.text('Tarjeta de competencia', x + 4, y + 8);
-                doc.setFontSize(7);
+                doc.setFontSize(12);
+                doc.text('Tarjeta de competencia', x + 4, y + 13);
+                doc.setFontSize(9);
                 doc.setFont('arial','');
                 doc.setTextColor(0, 0, 0);
-                doc.text('Nombre.- ' + est.nombres + ' ' + est.apellidos, x + 3, y + 13);
-                doc.text('Club.- ' + est.club, x + 3, y + 17);
-                doc.text('Peso/kg.- ' + est.peso, x + 3, y + 21);
-                doc.text('Grado.- ' + est.grado + ' - ' + est.cinturon, x + 3, y + 25);
-                doc.text('Categoria.- ' + est.nombrecategoria, x + 3, y + 29);
-                doc.setFontSize(8);
+                doc.text('Nombre.- ' + est.nombres + ' ' + est.apellidos, x + 3, y + 20);
+                doc.text('Club.- ' + est.club, x + 3, y + 24);
+                doc.text('Peso/kg.- ' + est.peso, x + 3, y + 28);
+                doc.text('Grado.- ' + est.grado + ' - ' + est.cinturon, x + 3, y + 32);
+                doc.text('Categoria.- ' + est.nombrecategoria, x + 3, y + 36);
+                doc.setFontSize(13);
                 doc.setTextColor(0, 0, 255);
                 doc.setFont('arial','bold');
-                doc.text(subtitulo, x + 24, y + 34);
+                doc.text(subtitulo, x + 34, y + 42);
                 doc.setTextColor(0, 0, 0);
                 doc.setDrawColor(0, 0, 0);
                 doc.setLineWidth(0.8);
-                doc.line(x + 45, y + 27, x + 57, y + 27, 'FD')
-                doc.text('Puesto', x + 47, y + 30);
-                doc.addImage(imgTK, 'JPEG', x +53, y , 10, 10);
-                y += 39
-                if (numCard < 6) {
+                doc.setFontSize(10);
+                doc.line(x + 60, y + 34, x + 84, y + 34, 'FD')
+                doc.text('Puesto', x + 68, y + 38);
+                doc.addImage(imgTK, 'JPEG', x +71, y+2 , 14, 14);
+                y += 47
+                if (numCard < 3) {
                     numCard += 1
                 } else {
                     numCard = 0
                     numColum += 1
-                    x += 69
-                    y = 3
+                    x += 89
+                    y = 6
                 }
             } else {
                 numColum = 0;
                 pagina += 1;
                 doc.addPage();
                 doc.setPage(pagina);
-                x = 3, y = 3;
+                x = 6, y = 6;
             }
         }
         doc.save(cmpSelect.nombre.replace(' ', '') + subtitulo + 'Tarjetas.pdf');
         setCargador(false);
+    }
+    function eventoLlave(){
+        setShowModal(false);
+        document.getElementById('btnBuscarLista').click();
     }
     useEffect(() => {
         if (genero != '') {
@@ -540,7 +544,9 @@ function PrincipalListaCompetidor() {
                         </select>
                     </div>}
                     <div className='col' style={{ maxWidth: '100px', minWidth: '100px' }}>
-                        <button className='btn btn-sm btn-success letraBtn w-100' onClick={() => buscarCompetidores()}>
+                        <button className='btn btn-sm btn-success letraBtn w-100' 
+                            id='btnBuscarLista'
+                            onClick={() => buscarCompetidores()}>
                             <i className="fa-solid fa-spinner "></i> Buscar
                         </button>
                     </div>
@@ -589,7 +595,7 @@ function PrincipalListaCompetidor() {
                                 })}
                             </select>
                         </div>
-                        <div className='col' style={{ maxWidth: '167px', minWidth: '167px' }}>
+                        <div className='col' style={{ maxWidth: '187px', minWidth: '187px' }}>
                             <div className="input-group input-group-sm">
                                 <input type="text" className="form-control form-control-sm"
                                     placeholder="Buscar Competidor" id='competidor' onChange={() => buscarCompetidor()} />
@@ -598,7 +604,7 @@ function PrincipalListaCompetidor() {
                                 </button>
                             </div>
                         </div>
-                        <div className='col d-none' style={{ maxWidth: '167px', minWidth: '167px' }}>
+                        <div className='col d-none' style={{ maxWidth: '187px', minWidth: '187px' }}>
                             <div className="input-group input-group-sm">
                                 <input type="text" className="form-control form-control-sm"
                                     placeholder="Buscar CLUB" id='nombreClub' onChange={() => buscarClub()} />
@@ -616,7 +622,7 @@ function PrincipalListaCompetidor() {
                                 <i className="fa-solid fa-file-pdf"></i> Generar Pdf</button>
                         </div>
                         <div className='col' style={{ maxWidth: '140px', minWidth: '140px' }}>
-                            <button className='btn btn-sm btn-info w-100' onClick={() => generarTargetaComp()}>
+                            <button className='btn btn-sm btn-info w-100' onClick={() => {setCargador(true);generarTargetaComp()}}>
                                 <i className="fa-solid fa-address-card"></i> Generar Tarjeta</button>
                         </div>
                     </div>
@@ -712,7 +718,7 @@ function PrincipalListaCompetidor() {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsPrefix='modal-body'>
-                    {tipoM === 'L' && tipo == 'C' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipoL={'E'} callback={() => console.log("jola")} />}
+                    {tipoM === 'L' && tipo == 'C' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipoL={'E'} callback={() => eventoLlave()} setCargador={setCargador} tipoComp={tipo}/>}
                     {tipoM === 'P' && <CompetidoresPdf categorias={categorias} listaCompetidores={listaCompetidores} campeonato={tituloo} tipo={tipo} idcampeonato={idCampeonato} listaTiposCam={listaTiposCam} />}
                     {tipoM === 'L' && tipo === 'R' && <PrincipalLlaveRom categorias={categorias} idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipo={tipo} tipoL={'E'} />}
                     {tipoM === 'L' && tipo === 'P' && <PrincipalLlavePoomse categorias={categorias} idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipo={tipo} tipoL={'E'} />}
