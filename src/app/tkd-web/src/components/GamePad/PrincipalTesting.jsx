@@ -377,6 +377,8 @@ function PrincipalTesting() {
             })
             setFrecLectura(parseInt(conf.frecLectura));
             setConfigure(conf)
+        }else{
+            MsgUtils.msgError("Configuracion no Existente ....")
         }
         window.addEventListener('keydown', manejarAtajoTeclado);
 
@@ -593,7 +595,7 @@ function PrincipalTesting() {
                             </div>
                         </div>
                     </div>
-                    <div className='container-fluid m-0 p-0 py-1'>
+                    <div className='container-fluid m-0 p-0 py-1 d-none'>
                         <div className='row row-cols-2 gx-1'>
                             <div className='col'>
                                 <div className='card bg-primary bg-gradient'>

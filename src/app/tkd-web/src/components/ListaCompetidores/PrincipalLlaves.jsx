@@ -7,15 +7,17 @@ import { server } from '../utils/MsgUtils';
 import MsgDialogo from '../utils/MsgDialogo';
 
 function PrincipalLlaves(props) {
-    const { idcampeonato, genero, llaves, callback, tipoL,setCargador,tipoComp} = props;
+    const { idcampeonato, genero, callback, tipoL, setCargador, tipoComp } = props;
     const pdfRef = useRef(null);
     const [categorias, setCategorias] = useState([]);
     const [selectItem, setSelectItem] = useState(0);
     const [lista, setLista] = useState([]);
     const [numLlave, setNumLlave] = useState(0);
-    const [listaLLaves, setListaLLaves] = useState(llaves);
+    const [listaLLaves, setListaLLaves] = useState();
     const [listaManual, setListaManual] = useState([]);
-    const [showModal,setShowModal] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [areas, setAreas] = useState([]);
+    const [actualizar,setActualizar] = useState(false);
     function verLlavesCategoriaOficial(dato) {
         setSelectItem(dato);
         setLista(listaLLaves.filter((item) => item.idcategoria === dato));
@@ -60,7 +62,7 @@ function PrincipalLlaves(props) {
             }
         }
     }
-    function eliminarLLaves(){
+    function eliminarLLaves() {
         setCargador(true);
         fetch(`${server}/competidor/eliminarLlavesGeneradas`, {
             method: 'POST',
@@ -68,7 +70,7 @@ function PrincipalLlaves(props) {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json;charset=utf-8',
             },
-            body: JSON.stringify({ 'idcampeonato': idcampeonato, 'tipo':tipoComp })
+            body: JSON.stringify({ 'idcampeonato': idcampeonato, 'tipo': tipoComp })
         })
             .then(res => res.json())
             .then(data => {
@@ -76,6 +78,26 @@ function PrincipalLlaves(props) {
                 if (data.ok) {
                     callback()
                     MsgUtils.msgCorrecto(data.ok);
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
+            })
+            .catch(error => MsgUtils.msgError(error));
+    }
+    function getLLavesOficiales() {
+        fetch(`${server}/competidor/obtenerLlaves`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({ 'idCampeonato':idcampeonato, genero, 'tipo': tipoComp })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    console.log(data.ok)
+                    setListaLLaves(data.ok);
                 } else {
                     MsgUtils.msgError(data.error);
                 }
@@ -144,7 +166,7 @@ function PrincipalLlaves(props) {
             }
         }
         var nbp = 0;
-        listaManual.sort((a,b)=>b.PELEAS.length-a.PELEAS.length);
+        listaManual.sort((a, b) => b.PELEAS.length - a.PELEAS.length);
         for (var cmpe of listaManual) {
             var lsPele = cmpe.PELEAS
             if (lsPele.length == 2) {
@@ -251,6 +273,30 @@ function PrincipalLlaves(props) {
             })
             .catch(error => MsgUtils.msgError(error));
     }
+    function cambiarAreaLlave(dato, valor,i) {
+        console.log(dato, valor);
+        var aux = listaLLaves;
+        setListaLLaves([]);
+        fetch(`${server}/competidor/cambiarAreaLlave`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({ 'area': valor, 'idllave': dato.idllave })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    setSelectItem(0);
+                    setActualizar(!actualizar);
+                    MsgUtils.msgCorrecto(data.ok);
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
+            })
+            .catch(error => MsgUtils.msgError(error));
+    }
     const getMargin = (valor) => {
         if (valor < 6) {
             return '100px';
@@ -262,28 +308,39 @@ function PrincipalLlaves(props) {
     }
 
     useEffect(() => {
-        if (categorias.length == 0) {
-            fetch(`${server}/config/getConfiCategoriaUnido`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json;charset=utf-8',
-                },
-                body: JSON.stringify({ idcampeonato })
+        //if (categorias.length == 0) {
+        fetch(`${server}/config/getConfiCategoriaUnido`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({ idcampeonato })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    setCategorias(data.ok);
+                    getLlavesCategoria();
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
             })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.ok) {
-                        setCategorias(data.ok);
-                        getLlavesCategoria();
-                    } else {
-                        MsgUtils.msgError(data.error);
-                    }
-                })
-                .catch(error => MsgUtils.msgError(error));
-        }
-    }, [])
+            .catch(error => MsgUtils.msgError(error));
+        //}
+        getLLavesOficiales();
+    }, [actualizar])
     useEffect(() => {
+        var conf = JSON.parse(localStorage.getItem('kirugui'));
+        if (conf != undefined) {
+            var listaAr = []
+            for (var i = 0; i < parseInt(conf.cantAreas); i++) {
+                listaAr.push({ 'id': i + 1, 'nombre': 'Area ' + (i + 1) })
+            }
+            setAreas(listaAr)
+        } else {
+            MsgUtils.msgError("Configuracion de KIRUGUI no existe...")
+        }
         if (selectItem !== 0) {
             verLlavesCategoriaOficial(selectItem);
         }
@@ -297,7 +354,7 @@ function PrincipalLlaves(props) {
                 <button className='btn btn-sm btn-info mx-1'>
                     <i className="fa-solid fa-arrow-up-9-1"></i> Numerar LLaves
                 </button>
-                <button className='btn btn-sm btn-danger ' onClick={()=>setShowModal(true)}>
+                <button className='btn btn-sm btn-danger ' onClick={() => setShowModal(true)}>
                     <i className="fa-solid fa-trash"></i> Eliminar LLaves
                 </button>
             </div>}
@@ -324,8 +381,8 @@ function PrincipalLlaves(props) {
                             return (
                                 <div className='card' key={index} >
                                     <div className='card-header bg-transparent'>
-                                        <div className='row row-cols-2 g-0'>
-                                            <div className='col'>
+                                        <div className='row row-cols gx-1'>
+                                            <div className='col' style={{ minWidth: '430px', maxWidth: '430px' }}>
                                                 <div className='tituloHeader' style={{ fontSize: '20px' }}>
                                                     {`${item.nombregrado} ${item.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`}
                                                 </div>
@@ -333,13 +390,26 @@ function PrincipalLlaves(props) {
                                                     {item.nombrecategoria + ' => ' + item.edadini + ' - ' + item.edadfin + ' Años'}
                                                 </div>
                                             </div>
-                                            <div className='col'>
+                                            <div className='col' style={{ minWidth: '400px', maxWidth: '400px' }}>
                                                 <div className='tituloHeader' style={{ fontSize: '20px' }}>
                                                     {UtilsDate.getDateFormato(item.fecha)}
                                                 </div>
                                                 <div className='tituloHeader' style={{ fontSize: '20px' }}>
                                                     {item.nombresubcategoria + ' => ' + item.pesoini + ' - ' + item.pesofin + ' Kg'}
                                                 </div>
+                                            </div>
+                                            <div className='col lh-1' style={{ minWidth: '120px', maxWidth: '120px' }}>
+                                                <label className="form-label tituloHeader" style={{ fontSize: '20px' }}>Area</label>
+                                                <select className="form-select form-select-sm text-light" style={{ background: '#1B8DFF' }}
+                                                    value={(item.area==undefined||item.area==null)?0:item.area}
+                                                    onChange={(e)=>cambiarAreaLlave(item,e.target.value,index)}>
+                                                    <option selected>Ninguno</option>
+                                                    {areas.map((item, index) => {
+                                                        return (
+                                                            <option value={item.id} key={index}>{item.nombre}</option>
+                                                        )
+                                                    })}
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -520,7 +590,7 @@ function PrincipalLlaves(props) {
                     </div>
                 </div>
             }
-            <MsgDialogo show={showModal} msg='Seguro de eliminar las llaves generadas' okFunction={()=>{setShowModal(false);eliminarLLaves();}} notFunction={()=>setShowModal(false)}/>
+            <MsgDialogo show={showModal} msg='Seguro de eliminar las llaves generadas' okFunction={() => { setShowModal(false); eliminarLLaves(); }} notFunction={() => setShowModal(false)} />
         </div >
     )
 }

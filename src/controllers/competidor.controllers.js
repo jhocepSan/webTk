@@ -631,13 +631,13 @@ export const obtenerLlaveRompimineto = async (info) => {
 }
 
 export const obtenerLlaves = async (info) => {
-    var sql = 'select * from (SELECT lv.idllave,lv.fecha,lv.tipo,lv.idgrado,lv.genero,lv.idcategoria,lv.idsubcategoria,lv.idcampeonato,lv.estado, ' +
+    var sql = 'select * from (SELECT lv.idllave,lv.fecha,lv.tipo,lv.idgrado,lv.genero,lv.idcategoria,lv.idsubcategoria,lv.idcampeonato,lv.estado,lv.area, ' +
         'gr.nombre as nombregrado,cat.nombre as nombrecategoria,scat.nombre as nombresubcategoria,cat.edadini,cat.edadfin,scat.pesoini,scat.pesofin ' +
         'FROM llave lv INNER JOIN grado gr on gr.idgrado=lv.idgrado ' +
         'INNER JOIN categoria cat on cat.idcategoria=lv.idcategoria ' +
         'INNER JOIN subcategoria scat on scat.idsubcategoria=lv.idsubcategoria ' +
         'WHERE lv.tipo=? and lv.idcampeonato=? and lv.estado="A" ' +
-        'UNION SELECT idllave,fecha,tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato,estado,"EXHIBICIÓN","EXHIBICIÓN","EXHIBICIÓN",1,1,1,1 FROM llave where idgrado=-1 and tipo=? and idcampeonato=? and estado="A" )res order by res.genero ;';
+        'UNION SELECT idllave,fecha,tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato,estado,0,"EXHIBICIÓN","EXHIBICIÓN","EXHIBICIÓN",1,1,1,1 FROM llave where idgrado=-1 and tipo=? and idcampeonato=? and estado="A" )res order by res.genero ;';
     var sql2 = 'SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,res.nropelea,'+
         'res.idganador,res.idperdedor,res.nombres,res.apellidos,res.clubuno, ' +
         'res.idcinturon,res.cinturonuno,cm.idcinturon as idcinturondos,(select cin.nombre from cinturon cin where cin.idcinturon=cm.idcinturon)as cinturondos, ' +
@@ -645,8 +645,8 @@ export const obtenerLlaves = async (info) => {
         '(SELECT p.idpelea,p.idpeleapadre,p.idllave,p.idcompetidor1,p.idcompetidor2,p.nropelea,p.idganador,p.idperdedor,c.nombres,c.apellidos,c.idcinturon, ' +
         '(select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturonuno, ' +
         '(select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno ' +
-        'FROM pelea p inner join (select * from competidor union select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null,null) c on c.idcompetidor=p.idcompetidor1) res ' +
-        'INNER JOIN (select * from competidor union select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null,null) cm on cm.idcompetidor=res.idcompetidor2 where res.idllave=? order by res.idpelea';
+        'FROM pelea p inner join (select * from competidor union select 0,"BYE",null,null,null,null,null,null,null,null,null,null,"A",null,null,null) c on c.idcompetidor=p.idcompetidor1) res ' +
+        'INNER JOIN (select * from competidor union select 0,"BYE",null,null,null,null,null,null,null,null,null,null,"A",null,null,null) cm on cm.idcompetidor=res.idcompetidor2 where res.idllave=? order by res.idpelea';
     var conn;
     try {
         conn = await pool.getConnection();
@@ -706,7 +706,7 @@ export const buscarCompetidor = async (info) => {
         '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria, ' +
         "(concat_ws(' ', nombres, apellidos)) as nombrex " +
-        "FROM competidor c WHERE c.estado='A') as res where (0=? or res.idclub=?) and res.nombrex like '%" + info.competidor + "%'";
+        "FROM competidor c ) as res where res.nombrex like '%" + info.competidor + "%'";
     var conn;
     try {
         console.log(sql);
@@ -737,7 +737,22 @@ export const cambiarNumPelea = async (info) => {
         if (conn) { await conn.release(); }
     }
 }
-
+export const cambiarAreaLlave = async (info) => {
+    var sql = "UPDATE llave set area=? where idllave=?"
+    var conn;
+    try {
+        console.log(info);
+        conn = await pool.getConnection();
+        const [result] = await conn.query(sql, [info.area, info.idllave])
+        await conn.commit();
+        return { "ok": "Se cambio el numero de llave ..." }
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}
 export const obtenerDatosPuntuados = async (info) => {
     var sql = 'select res.idclub,res.nombre,res.abreviado,count(ct.estado) as oro from (select cl.idclub,cl.nombre,cl.abreviado,(select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin ' +
         'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as idcategoria ' +

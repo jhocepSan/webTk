@@ -4,12 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import ImgHeader from '../assets/tkd.png'
 import ImgUser from '../assets/user.png'
 import MenuHerramientas from './MenuHerramientas';
+import { server } from './utils/MsgUtils';
 import { ContextAplicacions } from './Context/ContextAplicacion';
 
 function Header(props) {
     const { puntuacion } = props;
     const navigate = useNavigate();
-    const { login, setLogin, setUserLogin, titulo, setTitulo, setMenuActivo } = useContext(ContextAplicacions);
+    const { login, setLogin,userLogin, setUserLogin, titulo, setTitulo, setMenuActivo } = useContext(ContextAplicacions);
     const [showMenu, setShowMenu] = useState(false);
     const salirSistema = () => {
         localStorage.clear();
@@ -38,7 +39,8 @@ function Header(props) {
                     {titulo !== '' && <div className='text-light fw-bold fs-6 text-uppercase fa-bounce'>{titulo}</div>}
                     {login &&
                         <div className="navbar-brand card flex-row bg-transparent m-0 p-0 " >
-                            <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
+                            {userLogin.foto!=null&&<img width='40' height={40} src={`${server}/adjunto/${userLogin.foto}`} className='my-auto'></img>}
+                            {(userLogin.foto==null||userLogin.foto==undefined)&&<div className='my-auto'><img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" /></div>}
                             <div className='ps-2 my-auto d-none d-sm-inline'>
                                 <div className="userHeader">{JSON.parse(localStorage.getItem('login')).nombres}</div>
                                 <div className='userHeader'>{JSON.parse(localStorage.getItem('login')).apellido}</div>

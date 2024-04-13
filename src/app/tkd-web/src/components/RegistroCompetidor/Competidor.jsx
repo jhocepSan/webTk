@@ -1,10 +1,10 @@
 import React from 'react'
-import UtilsBufer from '../utils/UtilsBuffer';
-
+import { server } from '../utils/MsgUtils';
 function Competidor({user,tipo}) {
     return (
         <div className="card bg-transparent flex-row m-0 p-0" style={{ border: 'none' }}>
-            {UtilsBufer.getFotoCard(user.FOTO, 40)}
+            {user.foto!=null&&<img width={50} height={50} src={`${server}/adjunto/${user.foto}`} className='my-auto'></img>}
+            {user.foto==null&&<div className='my-auto'><i className="fa-solid fa-house-flag fa-2xl"></i></div>}
             <div className='ps-2 my-auto' style={{fontSize:'16px'}}>
                 <div className="letrasContenido ">{user.nombres+' '+user.apellidos}</div>
                 <div className='letrasContenido '>{'CLUB: '+user.club}</div>

@@ -16,6 +16,7 @@ import PrincipalLlaveRom from './PrincipalLlaveRom';
 import PrincipalLlavePoomse from './PrincipalLlavePoomse';
 import UtilsBuffer from '../utils/UtilsBuffer';
 import imgTK from '../../assets/tkd.png'
+import AdminLlaves from './AdminLlaves';
 
 function PrincipalListaCompetidor() {
     const navigate = useNavigate();
@@ -40,6 +41,7 @@ function PrincipalListaCompetidor() {
     const [listaClubs, setListaClubs] = useState([]);
     const [idClub, setIdClub] = useState(0);
     const [listaTiposCam, setListaTiposCam] = useState([]);
+    const [ventana,setVentana] = useState(0);
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
 
     function handleDownloadExcel() {
@@ -504,9 +506,10 @@ function PrincipalListaCompetidor() {
         }
     }, [])
     return (
-        <div>
+        <>
             <Header />
             <UtilsCargador show={cargador} />
+            {ventana==0&&
             <div className='container-fluid bg-dark bg-gradient py-2'>
                 <div className='row g-2'>
                     <div className='col-12 col-md-3 my-auto'>
@@ -559,13 +562,19 @@ function PrincipalListaCompetidor() {
                             </button>
                         </div>}
                     {hayLlaves && tipo !== 'D' && <div className='col' style={{ maxWidth: '110px', minWidth: '110px' }}>
-                        <button className='btn btn-sm btn-primary letraBtn w-100' onClick={() => { setTipoM('L'); setTituloModal('Llaves Generadas'); setShowModal(true) }}>
+                        <button className='btn btn-sm btn-primary letraBtn w-100' 
+                            onClick={() => { 
+                                //setVentana(1);
+                                setTipoM('L'); 
+                                setTituloModal('Llaves Generadas');
+                                setShowModal(true);
+                            }}>
                             <i className="fa-solid fa-network-wired"></i> Llaves
                         </button>
                     </div>}
                 </div>
-            </div>
-            {buscado && listaCompetidores.length !== 0 && tipo != 'D' && <>
+            </div>}
+            {buscado && listaCompetidores.length !== 0 && tipo != 'D' && ventana==0&&<>
                 <div className='container-fluid colorFiltro bg-gradient py-1'>
                     <div className='row g-1'>
                         <div className='col my-auto' style={{ maxWidth: '90px', minWidth: '90px' }}>
@@ -630,7 +639,7 @@ function PrincipalListaCompetidor() {
                 <div className='container-fluid text-danger w-100 bg-light text-center fw-bold '>
                     Numero Competidores {listaCompetidores.length}
                 </div>
-                <div className='table-responsive py-2'>
+                <div className='table-responsive'>
                     <table className="table table-dark table-striped table-hover table-bordered" id='competidoresLista' >
                         <thead>
                             <tr className='text-center'>
@@ -681,7 +690,7 @@ function PrincipalListaCompetidor() {
                         </tbody>
                     </table>
                 </div></>}
-            {buscado && listaCompetidores.length !== 0 && tipo == 'D' &&
+            {buscado && listaCompetidores.length !== 0 && tipo == 'D' &&ventana==0&&
                 <>
                     <div className='container-fluid text-danger w-100 bg-light text-center fw-bold '>
                         Numero Equipos {listaCompetidores.length}
@@ -706,6 +715,7 @@ function PrincipalListaCompetidor() {
                         </table>
                     </div>
                 </>}
+            {ventana==1&&<AdminLlaves llaves={listaLlaves} idCampeonato={idCampeonato} tipo={tipo}/>}
             <Modal show={showModal} onHide={() => setShowModal(false)}
                 size={'xl'}
                 aria-labelledby="contained-modal-title-vcenter"
@@ -725,7 +735,7 @@ function PrincipalListaCompetidor() {
                 </Modal.Body>
             </Modal>
 
-        </div>
+        </>
     )
 }
 

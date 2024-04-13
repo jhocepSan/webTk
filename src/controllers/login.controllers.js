@@ -64,7 +64,7 @@ export const iniciarSession = async ({ correo, password }) => {
     var serverIp=getIPAddress();
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query('select * from usuario where correo=?', [correo.replace(' ', '')])
+        const [result] = await conn.query('select *,(select ruta from adjunto where idadjunto=foto)as foto from usuario where correo=?', [correo.replace(' ', '')])
         console.log(result)
         if (result.length !== 0) {
             if (bycript.compareSync(password.replace(' ', ''), result[0].password)) {
@@ -76,6 +76,7 @@ export const iniciarSession = async ({ correo, password }) => {
                         apellido: result[0].apellidos,
                         idclub: result[0].idclub,
                         tipo: result[0].estado,
+                        foto:result[0].foto,
                         serverIp
                     }
                 }

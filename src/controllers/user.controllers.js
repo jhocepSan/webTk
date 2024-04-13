@@ -9,7 +9,8 @@ export const getUsuarios = async () => {
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query('SELECT *,(select nombre from club where idclub=us.idclub)as club,(select nombre from cinturon where idcinturon=us.idcinturon)as cinturon FROM usuario us where us.estado!="E";')
+        const [result] = await conn.query('SELECT idusuario,correo,nombres,apellidos,idclub,idcinturon,ci,estado,tipo,albitro,(select ruta from adjunto where idadjunto=foto)as foto,tipoalbitro, '+
+            '(select nombre from club where idclub=us.idclub)as club,(select nombre from cinturon where idcinturon=us.idcinturon)as cinturon FROM usuario us where us.estado!="E";')
         return { "ok": result }
     } catch (error) {
         console.log(error);
@@ -36,7 +37,24 @@ export const cambiarEstadoAlbitro = async (info) => {
         if (conn) { await conn.release(); }
     }
 }
-
+export const cambiarTipoDeAlbitro = async (info) => {
+    var conn;
+    try {
+        console.log(info);
+        conn = await pool.getConnection();
+        const [result] = await conn.query('UPDATE usuario SET tipoalbitro=? WHERE idusuario=?;',
+            [info.tipoAlbitro, info.idusuario])
+        await conn.query('UPDATE mandopunto SET tipoalbitro=? WHERE idusuario=?;',
+            [info.tipoAlbitro, info.idusuario])
+        await conn.commit();
+        return { "ok": result }
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}
 export const cambiarEstadoUsuario = async (info) => {
     var conn;
     try {
@@ -44,6 +62,21 @@ export const cambiarEstadoUsuario = async (info) => {
         conn = await pool.getConnection();
         const [result] = await conn.query('UPDATE usuario SET estado=? WHERE idusuario=?;',
             [info.estado, info.idusuario])
+        return { "ok": result }
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}
+export const updateUsuarioImg=async(info)=>{
+    var conn;
+    try {
+        console.log(info);
+        conn = await pool.getConnection();
+        const [result] = await conn.query('UPDATE usuario SET foto=? WHERE idusuario=?;',
+            [info.idImg, info.usuario])
         return { "ok": result }
     } catch (error) {
         console.log(error);

@@ -36,6 +36,7 @@ function BuscarCompetidor(props) {
     function agregarCompetidor() {
         if (selectItem) {
             var cpt = JSON.parse(localStorage.getItem('campeonato'));
+            var edad = new Date().getFullYear()-new Date(selectItem.fecha).getFullYear()
             fetch(`${server}/competidor/addEditCompetidor`, {
                 method: 'POST',
                 headers: {
@@ -46,7 +47,7 @@ function BuscarCompetidor(props) {
                     'idCompetidor':0, 'nombres':selectItem.nombres, 'apellidos':selectItem.apellidos, 'ciUser':selectItem.ci, 
                     'idClub':selectItem.idclub, 'cinturon':0,
                     'peso':selectItem.peso, 'altura':selectItem.altura, 'tipos':tipo, 'idCampeonato':cpt.idcampeonato,
-                    'edad':selectItem.edad, 'fecha':new Date(selectItem.fecha).toISOString().substring(0, 10), 'idGrado':0, 'genero':selectItem.genero, 'listaCTipoC':[]
+                    'edad':parseInt(edad), 'fecha':new Date(selectItem.fecha).toISOString().substring(0, 10), 'idGrado':0, 'genero':selectItem.genero, 'listaCTipoC':[]
                 })
             })
                 .then(res => res.json())

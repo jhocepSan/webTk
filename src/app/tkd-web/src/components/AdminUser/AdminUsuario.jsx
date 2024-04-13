@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import Header from '../Header';
+import axios from 'axios';
 import Competidor from '../RegistroCompetidor/Competidor';
 import MsgUtils from '../utils/MsgUtils';
 import UtilsCargador from '../utils/UtilsCargador';
@@ -104,6 +105,83 @@ function AdminUsuario() {
             })
             .catch(error => MsgUtils.msgError(error));
     }
+    function cambiarTipoAlbitro(valor,item) {
+        fetch(`${server}/usuario/cambiarTipoDeAlbitro`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({ 'tipoAlbitro':valor, 'idusuario':item.idusuario })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    console.log(data.ok);
+                    //setTipoAlbitro(valor);
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
+                setActualizar(!actualizar);
+            })
+            .catch(error => MsgUtils.msgError(error));
+    }
+    function updateUsario(usuario, idImg) {
+        fetch(`${server}/usuario/updateUsuarioImg`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({ usuario, idImg })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    console.log(data.ok);
+                    //setCargador(false);
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
+                setActualizar(!actualizar);
+            })
+            .catch(error => MsgUtils.msgError(error));
+    }
+    const cargarFoto = (e, tipo, usuario) => {
+        setCargador(true);
+        var archiv = e.target.files[0];
+        console.log(archiv)
+        if (archiv.size / 1000000 < 3.5) {
+            var formData = new FormData()
+            formData.append('FILE1', new Blob([archiv], { contentType: 'application/octet-stream', contentTransferEncoding: 'binary' }), archiv.name + "." + tipo + "." + usuario);
+            console.log(formData)
+            try {
+                axios.post(`${server}/usuario/cargarAdjunto`, formData, {
+                    'Accept': 'application/json',
+                    'content-type': 'multipart/form-data'
+                }).then(res => {
+                    console.log(res.data);
+                    if (res.data.ok) {
+                        updateUsario(usuario, res.data.ok);
+                        MsgUtils.msgCorrecto("Imagen Cargada Correctamente")
+                    } else {
+                        setCargador(false);
+                        MsgUtils.msgError(res.data.error)
+                    }
+                }).catch(error => {
+                    //MsgUtils.msgError(JSON.parse(error.request.response).error);
+                    console.log(error.message);
+                    setCargador(false);
+                })
+            } catch (error) {
+                MsgUtils.msgError(error.message);
+                console.error('Error al subir el archivo !!');
+            }
+        } else {
+            setCargador(false);
+            MsgUtils.msgError("Coloque Imagen < 3.5 Megas")
+        }
+    }
     useEffect(() => {
         setCargador(true);
         var sessionActiva = JSON.parse(localStorage.getItem('login'));
@@ -165,14 +243,14 @@ function AdminUsuario() {
                 {`Numero de Usuarios del sistema: ${usuarios.length}`}
             </div>
             {cargador == false &&
-                <div className='table-responsive' style={{height:'87vh'}}>
+                <div className='table-responsive' style={{ height: '87vh' }}>
                     <table className="table table-dark table-hover table-bordered table-striped" id='competidoresLista' >
                         <thead>
                             <tr className='text-center'>
                                 <th className="col-3">Usuario Sistema</th>
                                 <th className="col-2">Tipo Usuario</th>
-                                <th className="col-2">Es Álbitro</th>
-                                <th className='col-2'></th>
+                                <th className="col-2"></th>
+                                <th className='col-2'>Es Álbitro</th>
                                 <th className='col'></th>
                             </tr>
                         </thead>
@@ -204,9 +282,21 @@ function AdminUsuario() {
                                                     </span>
                                                 </label>
                                             </div>
+                                            <select className="form-select form-select-sm btn-secondary letraBtn" value={item.tipoalbitro}
+                                                onChange={(e) => { cambiarTipoAlbitro(e.target.value,item); }}>
+                                                <option value=''>Tipo (Ninguno)</option>
+                                                <option value="C">Combate</option>
+                                                <option value="P">Poomse</option>
+                                                <option value="D">Demostraciones</option>
+                                                <option value="R">Rompimiento</option>
+                                            </select>
                                         </td>
                                         <td className='my-auto text-end'>
                                             <div className="btn-group" role="group" aria-label="Basic example">
+                                                <label className='btn  text-success'>
+                                                    <i className="fa-solid fa-image fa-xl"></i>
+                                                    <input type="file" accept='image/*' onChange={(e) => cargarFoto(e, 'IMG', item.idusuario)} />
+                                                </label>
                                                 <button className='btn text-warning' onClick={() => { setSelectItem(item); setTipoModal('M'); setShowModal(true); }}>
                                                     <i className="fa-solid fa-user-pen fa-xl"></i>
                                                 </button>
@@ -275,8 +365,8 @@ function AdminUsuario() {
                         actualizar={actualizar} setShowModal={setShowModal} selectItem={selectItem} setSelectItem={setSelectItem} />}
                 </Modal.Body>
             </Modal>
-            <MsgDialogo show={showMessage} 
-                msg={selectItem.nombres!==null?`Esta seguro de Eliminar EL USUARIO ${selectItem.nombres} ${selectItem.apellidos}`:''} 
+            <MsgDialogo show={showMessage}
+                msg={selectItem.nombres !== null ? `Esta seguro de Eliminar EL USUARIO ${selectItem.nombres} ${selectItem.apellidos}` : ''}
                 okFunction={() => cambiarEstadoUser(selectItem, 'E')} notFunction={() => setShowMessage(false)} />
         </div>
     )

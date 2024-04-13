@@ -12,6 +12,7 @@ import {server} from '../utils/MsgUtils';
 import MsgDialogo from '../utils/MsgDialogo';
 import Configuraciones from '../PantallaPuntuacion/Configuraciones';
 import ConfiguracionAreaKirugui from './ConfiguracionAreaKirugui';
+import ConfiguracionAreaPoomse from './ConfiguracionAreaPoomse';
 
 function PrincipalConfiguracion() {
   const navigate = useNavigate();
@@ -131,7 +132,10 @@ function PrincipalConfiguracion() {
             <i className="fa-solid fa-graduation-cap"></i> Grados
           </button>
           <button className={`btn btn-sm btn-gradient letraBtn ${ventana === 2 ? 'menuActivo' : 'btn-secondary'}`} onClick={() => setVentana(2)}>
-            <i class="fa-brands fa-slideshare"></i> Kirugui
+            <i className="fa-solid fa-person-military-to-person"></i> Kirugui
+          </button>
+          <button className={`btn btn-sm btn-gradient mx-2 letraBtn ${ventana === 3 ? 'menuActivo' : 'btn-secondary'}`} onClick={() => setVentana(3)}>
+            <i className="fa-solid fa-person-circle-check"></i> Poomse
           </button>
         </div>
       </div>
@@ -210,6 +214,7 @@ function PrincipalConfiguracion() {
         <GradosConfig campeonato={campeonato} setCampeonato={setCampeonato} tipou={userLogin.tipo}/>
       }
       {ventana ===2 && <ConfiguracionAreaKirugui/>}
+      {ventana ===3 && <ConfiguracionAreaPoomse/>}
       <Modal show={showModal} onHide={() => setShowModal(false)}
         aria-labelledby="contained-modal-title-vcenter"
         contentClassName='bg-dark bg-gradient'>

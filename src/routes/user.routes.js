@@ -1,5 +1,6 @@
 import {Router} from 'express';
-import {getUsuarios,cambiarEstadoAlbitro,cambiarEstadoUsuario,cargarAdjunto} from '../controllers/user.controllers.js'
+import {getUsuarios,cambiarEstadoAlbitro,updateUsuarioImg,cambiarTipoDeAlbitro,
+    cambiarEstadoUsuario,cargarAdjunto} from '../controllers/user.controllers.js'
 
 const router = Router();
 router.get('/getUsuarios',async(req,res)=>{
@@ -37,4 +38,21 @@ router.post('/cargarAdjunto',async(req,res)=>{
         res.status(404).json(resultado)
     }
 });
+router.post('/updateUsuarioImg',async(req,res)=>{
+    const result = await updateUsuarioImg(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
+
+router.post('/cambiarTipoDeAlbitro',async(req,res)=>{
+    const result = await cambiarTipoDeAlbitro(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
 export default router;

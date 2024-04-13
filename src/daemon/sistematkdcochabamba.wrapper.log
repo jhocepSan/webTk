@@ -581,3 +581,51 @@ Stacktrace:   en System.Runtime.InteropServices.Marshal.ThrowExceptionForHRInter
 2024-01-18 16:34:59 - Send SIGINT 6992
 2024-01-18 16:34:59 - SIGINT to 6992 failed - Killing as fallback
 2024-01-18 16:34:59 - Finished sistematkdcochabamba.exe
+2024-03-16 16:48:52 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 D:\tekondo\TekwondoWeb\node_modules\node-windows\lib\wrapper.js --file D:\tekondo\TekwondoWeb\src\index.js --scriptoptions= --log "Sistema TKD Cochabamba wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2024-03-16 16:48:53 - Started 4624
+2024-03-16 19:14:55 - Stopping sistematkdcochabamba.exe
+2024-03-16 19:14:55 - ProcessKill 4624
+2024-03-16 19:14:55 - Found child process: 5388 Name: conhost.exe
+2024-03-16 19:14:55 - Found child process: 6204 Name: node.exe
+2024-03-16 19:14:55 - Stopping process 5388
+2024-03-16 19:14:55 - Send SIGINT 5388
+2024-03-16 19:14:55 - SIGINT to 5388 failed - Killing as fallback
+2024-03-16 19:14:55 - Stopping process 6204
+2024-03-16 19:14:55 - Send SIGINT 6204
+2024-03-16 19:14:55 - SIGINT to 6204 failed - Killing as fallback
+2024-03-16 19:14:55 - Stopping process 4624
+2024-03-16 19:14:55 - Send SIGINT 4624
+2024-03-16 19:14:55 - SIGINT to 4624 failed - Killing as fallback
+2024-03-16 19:14:56 - Finished sistematkdcochabamba.exe
+2024-04-08 13:08:35 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 D:\tekondo\TekwondoWeb\node_modules\node-windows\lib\wrapper.js --file D:\tekondo\TekwondoWeb\src\index.js --scriptoptions= --log "Sistema TKD Cochabamba wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2024-04-08 13:08:37 - Started 5460
+2024-04-08 13:16:03 - Stopping sistematkdcochabamba.exe
+2024-04-08 13:16:03 - ProcessKill 5460
+2024-04-08 13:16:04 - Found child process: 5512 Name: conhost.exe
+2024-04-08 13:16:04 - Found child process: 6024 Name: node.exe
+2024-04-08 13:16:04 - Stopping process 5512
+2024-04-08 13:16:04 - Send SIGINT 5512
+2024-04-08 13:16:04 - SIGINT to 5512 failed - Killing as fallback
+2024-04-08 13:16:04 - Stopping process 6024
+2024-04-08 13:16:04 - Send SIGINT 6024
+2024-04-08 13:16:04 - SIGINT to 6024 failed - Killing as fallback
+2024-04-08 13:16:04 - Stopping process 5460
+2024-04-08 13:16:04 - Send SIGINT 5460
+2024-04-08 13:16:04 - SIGINT to 5460 failed - Killing as fallback
+2024-04-08 13:16:04 - Finished sistematkdcochabamba.exe
+2024-04-10 21:01:27 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 D:\tekondo\TekwondoWeb\node_modules\node-windows\lib\wrapper.js --file D:\tekondo\TekwondoWeb\src\index.js --scriptoptions= --log "Sistema TKD Cochabamba wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2024-04-10 21:01:28 - Started 4924
+2024-04-12 14:16:43 - Stopping sistematkdcochabamba.exe
+2024-04-12 14:16:43 - ProcessKill 4924
+2024-04-12 14:16:44 - Found child process: 4932 Name: conhost.exe
+2024-04-12 14:16:44 - Found child process: 2844 Name: node.exe
+2024-04-12 14:16:44 - Stopping process 4932
+2024-04-12 14:16:44 - Send SIGINT 4932
+2024-04-12 14:16:44 - SIGINT to 4932 failed - Killing as fallback
+2024-04-12 14:16:44 - Stopping process 2844
+2024-04-12 14:16:44 - Send SIGINT 2844
+2024-04-12 14:16:44 - SIGINT to 2844 failed - Killing as fallback
+2024-04-12 14:16:44 - Stopping process 4924
+2024-04-12 14:16:44 - Send SIGINT 4924
+2024-04-12 14:16:44 - SIGINT to 4924 failed - Killing as fallback
+2024-04-12 14:16:44 - Finished sistematkdcochabamba.exe

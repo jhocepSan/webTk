@@ -361,7 +361,7 @@ export const confiAreasKirugui = async(info)=>{
             const [result] = await conn.query("insert into configuracion values(?,?,?)",
             [info.idConf,info.nombre,config]);
             await conn.commit();
-            return { "ok": "Eliminacion Correcta !!" }
+            return { "ok": "Configuración Agregada  !!" }
         }
     } catch (error) {
         console.log(error);
