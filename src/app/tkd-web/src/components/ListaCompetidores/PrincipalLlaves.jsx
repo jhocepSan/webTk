@@ -105,6 +105,7 @@ function PrincipalLlaves(props) {
             .catch(error => MsgUtils.msgError(error));
     }
     const exportPDF = () => {
+        console.log("generando")
         var optiones = {
             orientation: 'p',
             unit: 'mm',
@@ -121,7 +122,7 @@ function PrincipalLlaves(props) {
         for (var cat of categorias) {
             for (var subcat of cat.SUBCATEGORIA) {
                 console.log(subcat.idsubcategoria, subcat.idcategoria, cat.idcategoria);
-                var compe = llaves.filter((item) => item.idcategoria == cat.idcategoria && item.idsubcategoria == subcat.idsubcategoria);
+                var compe = listaLLaves.filter((item) => item.idcategoria == cat.idcategoria && item.idsubcategoria == subcat.idsubcategoria);
                 var tipol = compe.length
                 if (tipol != 0) {
                     for (var peel of compe) {
@@ -152,6 +153,27 @@ function PrincipalLlaves(props) {
                                     y = y + 50
                                     //doc.setTextColor(0, 0, 0);
                                 }
+                                doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
+                                doc.line(x + 105, y - 85, x + 135, y - 85, 'S');
+                            }
+                            if (lsPele.length == 4){
+                                for (var cmp of lsPele) {
+                                    //doc.setTextColor(0, 0, 255);
+                                    doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
+                                    doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+                                    doc.text(`${cmp.apellidos !== null ? cmp.apellidos : ''}`, x, y + 10)
+                                    doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
+                                    y = y + 20
+                                    //doc.setTextColor(255, 0, 0);
+                                    doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
+                                    doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
+                                    doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+                                    doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 : ''}`, x, y + 10)
+                                    y = y + 50
+                                    //doc.setTextColor(0, 0, 0);
+                                }
+                                doc.line(x + 105, y - 300, x + 105, y - 300, 'S');
+                                doc.line(x + 105, y - 185, x + 135, y - 185, 'S');
                                 doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
                                 doc.line(x + 105, y - 85, x + 135, y - 85, 'S');
                             }

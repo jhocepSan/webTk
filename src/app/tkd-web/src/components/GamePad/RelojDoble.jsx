@@ -28,7 +28,7 @@ function RelojDoble(props) {
             var conversion=seco+':'+aux
             setTiempo(conversion);
             if(sec>0){
-                setSegundo(segundo+1);
+                setSegundo(segundo+0.5);
             }else{
                 setSegundo(segundo-10);
             }
@@ -39,7 +39,7 @@ function RelojDoble(props) {
         // Configurar el temporizador al montar el componente
         const timeoutId = setTimeout(() => {
             calcularReloj();
-        }, 1000);
+        }, 500);
 
         // Limpiar el temporizador al desmontar el componente
         return () => {
