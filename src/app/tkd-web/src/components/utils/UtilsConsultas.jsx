@@ -7,8 +7,19 @@ export const getMandosPuntuados = async (cuerpo) => {
     var resul = await consultasMandos.post('/mandojuec/getPuntosMando', cuerpo)
     return resul.data
 }
+export const setPuntuacionPoomse = async (cuerpo) => {
+    var resul = await consultasMandos.post('/mandojuec/setPuntuacionPoomse', cuerpo)
+    return resul.data
+}
+export const getPuntosPoomse = async (cuerpo) => {
+    var resul = await consultasMandos.post('/mandojuec/getPuntosPoomse', cuerpo)
+    return resul.data
+}
 export const limpiarMandos = async(sector)=>{
     await consultasMandos.get(`${server}/mandojuec/limpiarLecturas/${sector}`)
+}
+export const limpiarLecturasPoomse = async(cuerpo)=>{
+    await consultasMandos.post(`/mandojuec/limpiarLecturasPoomse`,cuerpo)
 }
 export const getPuntosMando = async (sector) => {
     const response = await fetch(`${server}/mandojuec/getPuntosMando/${sector}`);

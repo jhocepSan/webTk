@@ -51,6 +51,9 @@ function scoreCombate() {
           </div>
         </div>
       </div>
+      {puntoJuego.area!=undefined&&<div className='text-center mx-auto py-2' style={{ fontSize: '85px', width: '320px' }}>
+        <div style={{ fontSize: '60px', borderRadius: '20px' }} className='text-light tituloMenu bg-success bg-gradient'>Area {puntoJuego.area}</div>
+      </div>}
       <Modal show={puntoJuego.isPlay == false}
         size={'xl'} centered
         backdrop="static"

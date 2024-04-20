@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import Header from '../Header';
+import { server } from '../utils/MsgUtils';
 import { useNavigate, Link } from 'react-router-dom';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import VistaMandos from '../GamePad/VistaMandos';
@@ -10,8 +10,10 @@ import VisorPunto from '../GamePad/VisorPunto';
 import VisorFaltas from '../GamePad/VisorFaltas';
 import Modal from 'react-bootstrap/Modal';
 import MsgUtils from '../utils/MsgUtils';
+import EstadisticaPelea from '../GamePad/EstadisticaPelea';
 
-function PrincipalKirugui() {
+function PrincipalKirugui(props) {
+    const {area} = props;
     const navigate = useNavigate();
     const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
     const [activarLectura, setActivarLectura] = useState(false);
@@ -31,14 +33,14 @@ function PrincipalKirugui() {
         'puntoR': 0, 'faltaR': 0
     });
     const [areas, setAreas] = useState([]);
-    const [idArea,setIdArea] = useState(0);
+    const [idArea,setIdArea] = useState(area);
     const [msgModal, setMsgModal] = useState({});
     const [resultPre, setResultPre] = useState([]);
     const [mandoLec, setMandoLec] = useState([]);
     const { isLoading, data, isError, error } = useQuery(
         {
             queryKey: ['mandos'],
-            queryFn: () => getMandosPuntuados({ sector: 0, cont: localStorage.getItem('contAux') != undefined ? 0 : localStorage.getItem('contAux') }),
+            queryFn: () => getMandosPuntuados({ sector: area, cont: localStorage.getItem('contAux') != undefined ? 0 : localStorage.getItem('contAux') }),
             refetchInterval: activarLectura ? frecLectura : false
         }
     )
@@ -60,7 +62,7 @@ function PrincipalKirugui() {
         setResultPre([]);
         localStorage.setItem('doblePant', JSON.stringify({
             'isPlay': false, 'round': 1, 'reset': true, 'puntoA': 0, 'faltaA': 0,
-            'puntoR': 0, 'faltaR': 0, 'nombreA': '', 'nombreR': '', 'gano': ''
+            'puntoR': 0, 'faltaR': 0, 'nombreA': '', 'nombreR': '', 'gano': '','area':idArea
         }))
     }
     const getClubes = async () => {
@@ -395,7 +397,6 @@ function PrincipalKirugui() {
 
     return (
         <div>
-            <Header />
             {isLoading && <div>Cargando ...</div>}
             {isError && <div>error: {error.message}</div>}
             {isError == false &&
@@ -415,7 +416,7 @@ function PrincipalKirugui() {
                                             onClick={() => localStorage.setItem('doblePant', JSON.stringify({
                                                 'isPlay': false, 'round': 1, 'reset': false,
                                                 'puntoA': 0, 'faltaA': 0, 'gano': '',
-                                                'puntoR': 0, 'faltaR': 0, nombreA, nombreR
+                                                'puntoR': 0, 'faltaR': 0, nombreA, nombreR,'area':idArea
                                             }))}
                                             to={'/scoreDobleK'} target='blanck'>
                                             <i className="fa-brands fa-windows fa-xl"></i>
@@ -598,16 +599,6 @@ function PrincipalKirugui() {
                     </div>
                     <div className='container-fluid bg-dark bg-gradient py-1'>
                         <div className='row row-cols gx-1'>
-                            <div className='col' style={{ minWidth: '100px', maxWidth: '100px' }}>
-                                <select className="form-select form-select-sm" value={idArea} onChange={(e)=>setIdArea(e.target.value)}>
-                                    <option value={0}>Area ?</option>
-                                    {areas.map((item,index)=>{
-                                        return(
-                                            <option value={item.id} key={index}>{item.nombre}</option>
-                                        )
-                                    })}
-                                </select>
-                            </div>
                             <div className='col' style={{minWidth:'100px',maxWidth:'100px'}}>
                                 <button className='btn btn-sm w-100 btn-success'><i className="fa-solid fa-magnifying-glass"></i> CARGAR</button>
                             </div>

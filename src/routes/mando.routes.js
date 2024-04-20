@@ -1,5 +1,6 @@
 import {Router} from 'express';
-import { getPuntosMando,limpiarLecturas } from '../controllers/mando.controllers.js';
+import { getPuntosMando,limpiarLecturas,setPuntuacionPoomse,
+    getPuntosPoomse,limpiarLecturasPoomse } from '../controllers/mando.controllers.js';
 
 const router = Router();
 
@@ -26,6 +27,33 @@ router.get('/conectar',async(req,res)=>{
 router.post('/getPuntosMando',async(req,res)=>{
     console.log(req.body);
     const result =await getPuntosMando(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
+router.post('/getPuntosPoomse',async(req,res)=>{
+    console.log(req.body);
+    const result =await getPuntosPoomse(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
+router.post('/limpiarLecturasPoomse',async(req,res)=>{
+    console.log(req.body);
+    const result =await limpiarLecturasPoomse(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+});
+router.post('/setPuntuacionPoomse',async(req,res)=>{
+    console.log(req.body);
+    const result =await setPuntuacionPoomse(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

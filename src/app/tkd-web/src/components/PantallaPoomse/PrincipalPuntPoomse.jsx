@@ -1,15 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react'
 import Header from '../Header';
 import { useNavigate, Link } from 'react-router-dom';
+import { limpiarLecturasPoomse, getPuntosPoomse,setPuntuacionPoomse } from '../utils/UtilsConsultas';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import MsgUtils, { server } from '../utils/MsgUtils';
 import PrincipalLlavePoomse from '../ListaCompetidores/PrincipalLlavePoomse';
 import UtilsBuffer from '../utils/UtilsBuffer';
+import Modal from 'react-bootstrap/Modal';
 
 function PrincipalPuntPoomse() {
   const navigate = useNavigate();
   const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
+  const [config,setConfig] = useState({});
   const [showModal, setShowModal] = useState(false);
+  const [showResultado, setShowResultado] = useState(false);
   const [tipom, setTipoM] = useState('');
   const [runPlay, setRunPlay] = useState(false);
   const [categorias, setCategorias] = useState([]);
@@ -18,9 +22,12 @@ function PrincipalPuntPoomse() {
   const [selectItem, setSelectItem] = useState(null);
   const [puntuacion, setPuntuacion] = useState(0);
   const [selectComp, setSelectComp] = useState({});
+  const [segundo, setSegundo] = useState(0);
   function elegirCompetidor(dato) {
+    console.log(dato);
+    setSelectComp(dato.competidor)
     setSelectItem({ ...dato.GRADO, 'categoria': dato.nombre, 'genero': dato.genero });
-    setListaElegida(dato.COMPETIDORES);
+    /*setListaElegida(dato.COMPETIDORES);*/
   }
   function getInformacionCategoria() {
     fetch(`${server}/config/getConfiCategoriaUnido`, {
@@ -49,7 +56,7 @@ function PrincipalPuntPoomse() {
         'Accept': 'application/json',
         'Content-Type': 'application/json;charset=utf-8',
       },
-      body: JSON.stringify({ 'idCampeonato': campeonato.idcampeonato, 'estado':'A','tipo': 'P' })
+      body: JSON.stringify({ 'idCampeonato': campeonato.idcampeonato, 'estado': 'A', 'tipo': 'P' })
     })
       .then(res => res.json())
       .then(data => {
@@ -65,9 +72,52 @@ function PrincipalPuntPoomse() {
   function selectCompetidor(dato) {
     setSelectComp(dato);
   }
+  const recetearValores=async()=>{
+    await limpiarLecturasPoomse({'sector':1})
+    await setPuntuacionPoomse({'puntuacion':puntuacion,'idclasificacion':selectComp.idclasificacion})
+    setPuntuacion(0);
+    setShowResultado(false);
+    setRunPlay(false);
+  }
+  const obtenerDatosPunto=async()=>{
+    if(runPlay==true){
+      var datos = await getPuntosPoomse({'sector':1})
+      if(datos.ok){
+        if(datos.ok.length==parseInt(config.numJueces)){
+          if(config.enablePromedio){
+            var puntuacionMando=datos.ok.map(item=>item.poomseaccuracy+item.poomsepresentation);
+            var sumatoria = puntuacionMando.reduce(function(acumulador, siguienteValor){
+              return acumulador + siguienteValor;
+            }, 0);
+            localStorage.setItem('puntuacionPoomse', JSON.stringify({
+              'selectComp': selectComp,
+              'puntuacion': (sumatoria/datos.ok.length).toFixed(1),
+              'selectItem': selectItem,
+              'runPlay': runPlay
+            }));
+            setPuntuacion((sumatoria/datos.ok.length).toFixed(1));
+            setShowResultado(true);
+          }
+        }
+      }
+    }
+    setSegundo(segundo+1)
+  }
+  useEffect(() => {
+    // Configurar el temporizador al montar el componente
+    const timeoutId = setTimeout(() => {
+      obtenerDatosPunto();
+    }, 2000);
+
+    // Limpiar el temporizador al desmontar el componente
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [segundo]);
   useEffect(() => {
     var sessionActiva = JSON.parse(localStorage.getItem('login'));
     var cmp = JSON.parse(localStorage.getItem('campeonato'));
+    var confi = JSON.parse(localStorage.getItem('poomse'))
     categorias.length == 0 ? getInformacionCategoria() : '';
     competidores.length == 0 ? getInformacionPoomse() : '';
     if (sessionActiva !== null) {
@@ -77,9 +127,14 @@ function PrincipalPuntPoomse() {
       setUserLogin(sessionActiva);
       navigate("/gamePoomse", { replace: true });
     }
+    if(confi!=undefined||confi!=null){
+      setConfig(confi);
+    }else{
+      MsgUtils.msgError("No tiene la configuracion de poomse.")
+    }
   }, [])
   return (
-    <div className='vh-100 bg-primary bg-gradient' tabIndex={0} onKeyDown={(e) => console.log(e)}>
+    <div className='vh-100 bg-primary bg-gradient' tabIndex={0} onKeyDown={(e) => { }}>
       <Header puntuacion={true} />
       <div className="btn-group btn-group-sm" role="group" aria-label="Basic example">
         <Link className='btn btn-sm botonMenu' data-bs-toggle="tooltip"
@@ -99,9 +154,9 @@ function PrincipalPuntPoomse() {
           data-bs-toggle="tooltip" data-bs-placement="bottom" title="Pausar Competencia"
           onClick={() => {
             localStorage.setItem('puntuacionPoomse', JSON.stringify({
-              'selectComp':selectComp,
-              'puntuacion':puntuacion,
-              'selectItem':selectItem,
+              'selectComp': selectComp,
+              'puntuacion': puntuacion,
+              'selectItem': selectItem,
               'runPlay': false
             })); setRunPlay(false)
           }}>
@@ -111,9 +166,9 @@ function PrincipalPuntPoomse() {
           data-bs-toggle="tooltip" data-bs-placement="bottom" title="Iniciar Competencia"
           onClick={() => {
             localStorage.setItem('puntuacionPoomse', JSON.stringify({
-              'selectComp':selectComp,
-              'puntuacion':puntuacion,
-              'selectItem':selectItem,
+              'selectComp': selectComp,
+              'puntuacion': puntuacion,
+              'selectItem': selectItem,
               'runPlay': true
             }));
             setRunPlay(true);
@@ -122,7 +177,7 @@ function PrincipalPuntPoomse() {
         </button>}
       </div>
       <div className='container-fluid mb-2' style={{ height: '50vh' }}>
-        <div className='row row-cols-sm-1 row-cols-md-3 g-2'>
+        <div className='row row-cols-sm-1 row-cols-md-2 gx-2'>
           <div className='col' style={{ minWidth: '450px' }}>
             <div className='card bg-transparent'>
               <div className='card-header bg-dark'>
@@ -174,16 +229,9 @@ function PrincipalPuntPoomse() {
                 <div className="letrasContenido text-light fw-bold">{selectComp.club}</div>
                 <div className="input-group mb-3">
                   <span className="input-group-text" >Puntos Manual</span>
-                  <input type="number" className="form-control form-control-sm" placeholder="Puntuación"/>
+                  <input type="number" className="form-control form-control-sm" placeholder="Puntuación" />
                   <button className='btn btn-success btn-sm'>Aceptar</button>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div className='col' style={{ width: '270px' }}>
-            <div className='card bg-dark bg-gradient'>
-              <div className='card-header text-light'>
-                Lectura Mandos
               </div>
             </div>
           </div>
@@ -195,6 +243,20 @@ function PrincipalPuntPoomse() {
             genero={''} llaves={competidores} tipo={'P'} tipoL={'A'} collback={elegirCompetidor} />
         </div>
       }
+      <Modal show={showResultado} onHide={() => setShowResultado(false)}
+        aria-labelledby="contained-modal-title-vcenter"
+        contentClassName='bg-dark bg-gradient'>
+        <Modal.Header closeButton closeVariant='white' bsPrefix='modal-header m-0 p-0 px-2 '>
+          <Modal.Title >
+            <div className='text-light letraMontserratr mx-auto'>
+              calificado
+            </div>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Footer>
+          <button className='btn btn-success' onClick={()=>recetearValores()}>Aceptar</button>
+        </Modal.Footer>
+      </Modal>
     </div>
   )
 }

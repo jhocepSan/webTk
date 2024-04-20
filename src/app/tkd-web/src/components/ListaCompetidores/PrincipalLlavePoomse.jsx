@@ -7,7 +7,7 @@ function PrincipalLlavePoomse(props) {
     const [selectItem, setSelectItem] = useState({});
     const [listaFiltrada, setListaFiltrada] = useState([]);
     const [grados, setGrados] = useState([]);
-
+    const [idcompetidor,setIdCompetidor] = useState(0);
     function verLlavesCategoriaOficial(dato) {
         setSelectItem(dato);
         var filtro = llaves.filter((item) => item.idcategoria == dato.idcategoria);
@@ -79,7 +79,7 @@ function PrincipalLlavePoomse(props) {
                                     <div className='col'>
                                         <div className='tituloHeader'>Edad: <span className='fw-bold'>{selectItem.edadini}</span> - <span className='fw-bold'>{selectItem.edadfin} Años</span></div>
                                     </div>
-                                    {tipoL == 'A' && <div className='col-2 my-auto'>
+                                    {tipoL == 'A' && <div className='col-2 my-auto d-none'>
                                         <button className='btn btn-success btn-gradient w-100'
                                             onClick={() => collback({...item,...selectItem})}>
                                             <i className="fa-solid fa-check-double"></i> Elegir
@@ -95,17 +95,26 @@ function PrincipalLlavePoomse(props) {
                                                 <th>Club</th>
                                                 <th>Cinturon</th>
                                                 <th>Grado</th>
+                                                <th>Punto</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {item.COMPETIDORES.map((comp, kj) => {
                                                 return (
-                                                    <tr key={kj}>
+                                                    <tr key={kj} className={`${idcompetidor==comp.idcompetidor?'botonMasc':''}`}>
                                                         <td>{comp.nombres + ' ' + comp.apellidos}</td>
                                                         <td>{comp.edad}</td>
                                                         <td>{comp.club}</td>
                                                         <td>{comp.cinturon}</td>
                                                         <td>{comp.grado}</td>
+                                                        <td>{comp.puntuacion!=undefined?comp.puntuacion:''}</td>
+                                                        {tipoL == 'A' &&
+                                                        <th>
+                                                            <button className='btn btn-sm btn-outline-success'
+                                                                onClick={()=>{setIdCompetidor(comp.idcompetidor);collback({...item,...selectItem,'competidor':comp});}}>
+                                                                <i className="fa-solid fa-file-signature"></i>
+                                                            </button>
+                                                        </th>}
                                                     </tr>
                                                 )
                                             })}

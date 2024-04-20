@@ -7,13 +7,13 @@ import { server } from '../utils/MsgUtils';
 import MsgDialogo from '../utils/MsgDialogo';
 
 function PrincipalLlaves(props) {
-    const { idcampeonato, genero, callback, tipoL, setCargador, tipoComp } = props;
+    const { idcampeonato,llaves, genero, callback, tipoL, setCargador, tipoComp } = props;
     const pdfRef = useRef(null);
     const [categorias, setCategorias] = useState([]);
     const [selectItem, setSelectItem] = useState(0);
     const [lista, setLista] = useState([]);
     const [numLlave, setNumLlave] = useState(0);
-    const [listaLLaves, setListaLLaves] = useState();
+    const [listaLLaves, setListaLLaves] = useState(llaves);
     const [listaManual, setListaManual] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [areas, setAreas] = useState([]);
@@ -41,6 +41,7 @@ function PrincipalLlaves(props) {
             .then(res => res.json())
             .then(data => {
                 if (data.ok) {
+                    console.log(data.ok)
                     //setLista(llaves.filter((item) => item.idcategoria === dato));
                     setListaManual(data.ok)
                     //MsgUtils.msgCorrecto(data.ok);
@@ -126,7 +127,6 @@ function PrincipalLlaves(props) {
                 var tipol = compe.length
                 if (tipol != 0) {
                     for (var peel of compe) {
-                        console.log("pealeas", peel.PELEAS)
                         var lsPele = peel.PELEAS;
                         if (lsPele.length !== 0) {
                             //doc.setTextColor(0, 0, 0);
@@ -135,47 +135,77 @@ function PrincipalLlaves(props) {
                             doc.text(`Categoria: ${cat.nombre} -> Edad ${cat.edadini} - ${cat.edadfin} años`, x, y + 10);
                             doc.text(`Sub Categoria: ${subcat.nombre} -> Peso ${subcat.pesoini} - ${subcat.pesofin} kg`, x, y + 15);
                             doc.text(`Genero: ${cat.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`, x, y + 20)
+                            doc.text(`Grado: ${peel.nombregrado}`,x+70,y+20)
                             doc.setFontSize(9);
                             y = y + 25
                             if (lsPele.length == 2) {
                                 for (var cmp of lsPele) {
-                                    //doc.setTextColor(0, 0, 255);
-                                    doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
+                                    doc.setTextColor(0, 0, 255);
+                                    if(cmp.clubdos!=null){
+                                        doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
+                                        doc.text(`${cmp.apellidos !== null ? cmp.apellidos+' Grado:'+cmp.cinturonuno : ''}`, x, y + 10)    
+                                    }
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
-                                    doc.text(`${cmp.apellidos !== null ? cmp.apellidos : ''}`, x, y + 10)
                                     doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
+                                    if(cmp.clubuno==null){
+                                        doc.setTextColor(0, 0, 255);
+                                        doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x+85, y + 10)
+                                        doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2+' Grado:'+cmp.cinturondos : ''}`, x+85, y + 15)
+                                    }
                                     y = y + 20
-                                    //doc.setTextColor(255, 0, 0);
+                                    if(cmp.clubdos==null){
+                                        doc.setTextColor(255, 0, 0);
+                                        doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x+85, y + 10)
+                                        doc.text(`${cmp.apellidos!== null ? cmp.apellidos+' Grado:'+cmp.cinturonuno : ''}`, x+85, y + 15)
+                                    }
+                                    if(cmp.clubuno!=null){
+                                        doc.setTextColor(255, 0, 0);
+                                        doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
+                                        doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2+' Grado:'+cmp.cinturondos : ''}`, x, y + 10)
+                                    }
                                     doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
-                                    doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
-                                    doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 : ''}`, x, y + 10)
                                     y = y + 50
-                                    //doc.setTextColor(0, 0, 0);
+                                    doc.setTextColor(0, 0, 0);
                                 }
                                 doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
                                 doc.line(x + 105, y - 85, x + 135, y - 85, 'S');
                             }
                             if (lsPele.length == 4){
                                 for (var cmp of lsPele) {
-                                    //doc.setTextColor(0, 0, 255);
-                                    doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
+                                    doc.setTextColor(0, 0, 255);
+                                    if(cmp.clubdos!=null){
+                                        doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
+                                        doc.text(`${cmp.apellidos !== null ? cmp.apellidos+' Grado:'+cmp.cinturonuno : ''}`, x, y + 10)    
+                                    }
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
-                                    doc.text(`${cmp.apellidos !== null ? cmp.apellidos : ''}`, x, y + 10)
                                     doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
+                                    if(cmp.clubuno==null){
+                                        doc.setTextColor(0, 0, 255);
+                                        doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x+85, y + 10)
+                                        doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2+' Grado:'+cmp.cinturondos : ''}`, x+85, y + 15)
+                                    }
                                     y = y + 20
-                                    //doc.setTextColor(255, 0, 0);
+                                    if(cmp.clubdos==null){
+                                        doc.setTextColor(255, 0, 0);
+                                        doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x+85, y + 5)
+                                        doc.text(`${cmp.apellidos !== null ? cmp.apellidos+' Grado:'+cmp.cinturonuno : ''}`, x+85, y + 10)
+                                    }
+                                    if(cmp.clubuno!=null){
+                                        doc.setTextColor(255, 0, 0);
+                                        doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
+                                        doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2+' Grado:'+cmp.cinturondos : ''}`, x, y + 10)
+                                    }
                                     doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
-                                    doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
-                                    doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 : ''}`, x, y + 10)
                                     y = y + 50
-                                    //doc.setTextColor(0, 0, 0);
+                                    doc.setTextColor(0, 0, 0);
                                 }
-                                doc.line(x + 105, y - 300, x + 105, y - 300, 'S');
-                                doc.line(x + 105, y - 185, x + 135, y - 185, 'S');
+                                doc.line(x + 105, y - 265, x + 105, y - 190, 'S');
+                                doc.line(x + 105, y - 225, x + 135, y - 225, 'S');
                                 doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
                                 doc.line(x + 105, y - 85, x + 135, y - 85, 'S');
+                                doc.line(x + 135, y - 225, x + 135, y - 85, 'S');
                             }
                             doc.addPage();
                             x = 10;
@@ -201,18 +231,33 @@ function PrincipalLlaves(props) {
                 doc.setFontSize(9);
                 y = y + 25
                 for (var cmp of lsPele) {
-                    //doc.setTextColor(0, 0, 255);
-                    doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
+                    doc.setTextColor(0, 0, 255);
+                    if(cmp.clubdos!=null){
+                        doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
+                        doc.text(`${cmp.apellidos !== null ? cmp.apellidos+' Grado:'+cmp.cinturonuno : ''}`, x, y + 10)    
+                    }
                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
-                    doc.text(`${cmp.apellidos !== null ? cmp.apellidos : ''}`, x, y + 10)
                     doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
-                    //doc.setTextColor(255, 0, 0);
+                    doc.setTextColor(255, 0, 0);
+                    if(cmp.clubuno==null){
+                        doc.setTextColor(0, 0, 255);
+                        doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x+85, y + 10)
+                        doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2+' Grado:'+cmp.cinturondos : ''}`, x+85, y + 15)
+                    }
                     y = y + 20
+                    if(cmp.clubdos==null){
+                        doc.setTextColor(255, 0, 0);
+                        doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x+85, y + 10)
+                        doc.text(`${cmp.apellidos !== null ? cmp.apellidos +' Grado:'+cmp.cinturonuno: ''}`, x+85, y + 15)
+                    }
+                    if(cmp.clubuno!=null){
+                        doc.setTextColor(255, 0, 0);
+                        doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
+                        doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 +' Grado:'+cmp.cinturondos: ''}`, x, y + 10)
+                    }
                     doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
-                    doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
-                    doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 : ''}`, x, y + 10)
-                    //doc.setTextColor(0, 0, 0);
+                    doc.setTextColor(0, 0, 0);
                     y = y + 50
                 }
                 doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
@@ -235,18 +280,18 @@ function PrincipalLlaves(props) {
                 doc.text(`Genero: ${cmpe.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`, x, y + 15)
                 doc.setFontSize(9);
                 y = y + 25
-                //doc.setTextColor(0, 0, 255);
+                doc.setTextColor(0, 0, 255);
                 doc.text(`${comp.nombres} (${comp.clubuno !== null ? comp.clubuno : '-'})`, x, y + 5)
                 doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
-                doc.text(`${comp.apellidos !== null ? comp.apellidos : ''}`, x, y + 10)
+                doc.text(`${comp.apellidos !== null ? comp.apellidos+' Grado:'+cmp.cinturonuno : ''}`, x, y + 10)
                 doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
                 y = y + 20;
-                //doc.setTextColor(255, 0, 0);
+                doc.setTextColor(255, 0, 0);
                 doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                 doc.text(`${comp.nombres2} (${comp.clubdos !== null ? comp.clubdos : '-'})`, x, y + 5)
                 doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
-                doc.text(`${comp.apellidos2 !== null ? comp.apellidos2 : ''}`, x, y + 10)
-                //doc.setTextColor(0, 0, 0);
+                doc.text(`${comp.apellidos2 !== null ? comp.apellidos2 +' Grado:'+cmp.cinturondos: ''}`, x, y + 10)
+                doc.setTextColor(0, 0, 0);
                 y = y + 50
                 nbp += 1;
                 if (nbp == 2) {
@@ -328,9 +373,29 @@ function PrincipalLlaves(props) {
             return '20px'
         }
     }
-
+    function eliminarLLaveManual(valor){
+        var idCompetidores =[]
+        valor.PELEAS.map(item=>{idCompetidores.push(item.idcompetidor1);idCompetidores.push(item.idcompetidor2)})
+        fetch(`${server}/competidor/eliminarLlaveManual`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json;charset=utf-8',
+            },
+            body: JSON.stringify({ 'idllave':valor.idllave,'idCompetidor':idCompetidores,idcampeonato,'tipo': tipoComp})
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    MsgUtils.msgCorrecto(data.ok);
+                } else {
+                    MsgUtils.msgError(data.error);
+                }
+            })
+            .catch(error => MsgUtils.msgError(error));
+    }
     useEffect(() => {
-        //if (categorias.length == 0) {
+        if (categorias.length == 0) {
         fetch(`${server}/config/getConfiCategoriaUnido`, {
             method: 'POST',
             headers: {
@@ -349,8 +414,8 @@ function PrincipalLlaves(props) {
                 }
             })
             .catch(error => MsgUtils.msgError(error));
-        //}
-        getLLavesOficiales();
+        }
+        //getLLavesOficiales();
     }, [actualizar])
     useEffect(() => {
         var conf = JSON.parse(localStorage.getItem('kirugui'));
@@ -559,13 +624,14 @@ function PrincipalLlaves(props) {
                                                                     </div>
                                                                 </th>
                                                                 <td></td>
-                                                                <td></td>
-                                                                <td></td>
                                                             </tr>
                                                         )
                                                     })}
                                                 </tbody>
                                             </table>
+                                            <button className='btn btn-danger btn-sm' onClick={()=>eliminarLLaveManual(item)}>
+                                                <i className="fa-solid fa-trash"></i> Eliminar Llave
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

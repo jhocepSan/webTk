@@ -5,7 +5,7 @@ import {addEditCompetidor,getCompetidores,generateLLaves,getCompetidorSinPelea,
     obtenerLlaves,cambiarNumPelea,obtenerLlavesManuales,buscarCompetidor,
     obtenerLlaveRompimineto,getInformacionRompimiento,generarLlavePoomse,
     generarLlaveRompimiento,addEditEquipo,deleteEquipo,getEquipoDemostration,
-    guardarRompimientoPuntos,generarLlaveRompimientoFestival,setPosition,cambiarAreaLlave,
+    guardarRompimientoPuntos,generarLlaveRompimientoFestival,setPosition,cambiarAreaLlave,eliminarLlaveManual,
     obtenerDatosPuntuadosR,eliminarPuntuacion,eliminarLlavesGeneradas} from '../controllers/competidor.controllers.js'
 const router = Router();
 
@@ -240,6 +240,14 @@ router.post('/eliminarPuntuacion',async(req,res)=>{
 })
 router.post('/eliminarLlavesGeneradas',async(req,res)=>{
     const result = await eliminarLlavesGeneradas(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
+router.post('/eliminarLlaveManual',async(req,res)=>{
+    const result = await eliminarLlaveManual(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

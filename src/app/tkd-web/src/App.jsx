@@ -21,7 +21,7 @@ import ScoreRompimiento from "./components/Puntuacion/ScoreRompimiento";
 import ScorePoomse from "./components/Puntuacion/ScorePoomse";
 import PrincipalPuntuacionPrevia from "./components/PuntuacionPrevias/PrincipalPuntuacionPrevia";
 import PrincipalPantallaDemo from "./components/PantallaDemostracion/PrincipalPantallaDemo";
-import PrincipalKirugui from "./components/PantallaPuntuacion/PrincipalKirugui";
+import ConfigAreaKirugui from "./components/PantallaPuntuacion/ConfigAreaKirugui";
 function App() {
   return (
     <ContextAplicacion>
@@ -46,7 +46,7 @@ function App() {
           <Route path='/gameDemost' element={<PrincipalPantallaDemo/>}/>
           <Route path='/gamePoomse' element={<PrincipalPuntPoomse/>}/>
           <Route path='/gameRompim' element={<PrincipalPuntRompi/>}/>
-          <Route path='/nuevaPantallaK' element={<PrincipalKirugui/>}/>
+          <Route path='/nuevaPantallaK' element={<ConfigAreaKirugui/>}/>
         </Routes>
         <ToastContainer
           position="bottom-right"

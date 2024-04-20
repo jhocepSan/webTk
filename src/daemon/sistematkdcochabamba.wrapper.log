@@ -629,3 +629,21 @@ Stacktrace:   en System.Runtime.InteropServices.Marshal.ThrowExceptionForHRInter
 2024-04-12 14:16:44 - Send SIGINT 4924
 2024-04-12 14:16:44 - SIGINT to 4924 failed - Killing as fallback
 2024-04-12 14:16:44 - Finished sistematkdcochabamba.exe
+2024-04-18 16:48:38 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 D:\tekondo\TekwondoWeb\node_modules\node-windows\lib\wrapper.js --file D:\tekondo\TekwondoWeb\src\index.js --scriptoptions= --log "Sistema TKD Cochabamba wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2024-04-18 16:48:38 - Started 5448
+2024-04-19 18:41:14 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 D:\tekondo\TekwondoWeb\node_modules\node-windows\lib\wrapper.js --file D:\tekondo\TekwondoWeb\src\index.js --scriptoptions= --log "Sistema TKD Cochabamba wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2024-04-19 18:41:15 - Started 4760
+2024-04-19 22:57:32 - Stopping sistematkdcochabamba.exe
+2024-04-19 22:57:32 - ProcessKill 4760
+2024-04-19 22:57:32 - Found child process: 4784 Name: conhost.exe
+2024-04-19 22:57:32 - Found child process: 6064 Name: node.exe
+2024-04-19 22:57:33 - Stopping process 4784
+2024-04-19 22:57:33 - Send SIGINT 4784
+2024-04-19 22:57:33 - SIGINT to 4784 failed - Killing as fallback
+2024-04-19 22:57:33 - Stopping process 6064
+2024-04-19 22:57:33 - Send SIGINT 6064
+2024-04-19 22:57:33 - SIGINT to 6064 failed - Killing as fallback
+2024-04-19 22:57:33 - Stopping process 4760
+2024-04-19 22:57:33 - Send SIGINT 4760
+2024-04-19 22:57:33 - SIGINT to 4760 failed - Killing as fallback
+2024-04-19 22:57:33 - Finished sistematkdcochabamba.exe

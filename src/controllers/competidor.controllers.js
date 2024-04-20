@@ -666,7 +666,7 @@ export const obtenerLlaves = async (info) => {
     }
 }
 export const obtenerLlavesManuales = async (info) => {
-    var sql = 'select * from llave where tipo=? and idcampeonato=? and idcategoria=? order by genero ;';
+    var sql = 'select * from llave where tipo=? and idcampeonato=? and idcategoria=? and estado="A" order by genero ;';
     var sql2 = 'select res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,res.nropelea,res.idganador,res.idperdedor,res.nombres,res.edad,res.peso,res.apellidos,res.clubuno,res.cinturonuno, ' +
         'c.nombres as nombres2,c.apellidos as apellidos2,(select cl.nombre from club cl where cl.idclub=c.idclub) as clubdos,(select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturondos, ' +
         'c.peso as peso2,c.edad as edad2 ' +
@@ -853,6 +853,26 @@ export const eliminarLlavesGeneradas = async(info)=>{
         conn = await pool.getConnection();
         await conn.query(sql,[info.idcampeonato,info.tipo]);
         await conn.query(sql2,[info.idcampeonato,info.tipo]);
+        await conn.commit();
+        return {'ok':"Eliminacion Correcta"}
+    } catch (error) {
+        console.log(error);
+        return {"error":error.message}
+    } finally {
+        if (conn) {await conn.release()}
+    }
+}
+export const eliminarLlaveManual = async(info)=>{
+    console.log(info);
+    var conn;
+    var sql = "update llave set estado='E' where idcampeonato=? and idllave=?;"
+    var sql2 = "update competidorsinpelea set estado='A' where idcampeonato=? and tipo=? and idcompetidor=?;"
+    try {
+        conn = await pool.getConnection();
+        await conn.query(sql,[info.idcampeonato,info.idllave]);
+        for (var i of info.idCompetidor){
+            await conn.query(sql2,[info.idcampeonato,info.tipo,i]);
+        }
         await conn.commit();
         return {'ok':"Eliminacion Correcta"}
     } catch (error) {
