@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import MsgUtils from '../utils/MsgUtils';
 import { server } from '../utils/MsgUtils';
+import axios from 'axios';
 function AddEditCompetidor(props) {
     const { listaClubs, tipo, actualizarDatos, selectItem, club, generoee, listaTiposC } = props;
     const [idCompetidor, setIdCompetidor] = useState(0);
@@ -19,11 +20,15 @@ function AddEditCompetidor(props) {
     const [edad, setEdad] = useState(0);
     const [idGrado, setIdGrado] = useState(0);
     const [genero, setGenero] = useState(generoee);
-    //const [listaTiposC, setListaTiposC] = useState([]);
+    const [idAdjunto,setIdAdjunto] = useState(0);
+    const [urlImg,setUrlImg] = useState('');
+    const [cargador,setCargador] = useState(false);
     const [itemTipoC, setItemTipo] = useState(0);
     const [listaCTipoC, setListaCTipoC] = useState([]);
     function validarDatos() {
-        if (nombres !== '' && apellidos !== '' && ciUser !== '' && idClub !== 0 && cinturon !== 0 && peso !== 0 && altura !== 0 && genero !== '') {
+        if (nombres !== '' && apellidos !== '' && ciUser !== '' && 
+            idClub !== 0 && cinturon !== 0 && peso !== 0 && 
+            altura !== 0 && genero !== '') {
             return true;
         } else {
             setError({ "error": "Campo Vacio!!!" })
@@ -32,6 +37,11 @@ function AddEditCompetidor(props) {
     }
     function guardarCompetidor() {
         if (validarDatos()) {
+            console.log({
+                idCompetidor, nombres, apellidos, ciUser, idClub, cinturon,
+                peso, altura, tipos, idCampeonato, edad, fecha, idGrado,
+                genero, listaCTipoC,idAdjunto
+            })
             fetch(`${server}/competidor/addEditCompetidor`, {
                 method: 'POST',
                 headers: {
@@ -40,7 +50,8 @@ function AddEditCompetidor(props) {
                 },
                 body: JSON.stringify({
                     idCompetidor, nombres, apellidos, ciUser, idClub, cinturon,
-                    peso, altura, tipos, idCampeonato, edad, fecha, idGrado, genero, listaCTipoC
+                    peso, altura, tipos, idCampeonato, edad, fecha, idGrado,
+                    genero, listaCTipoC,idAdjunto
                 })
             })
                 .then(res => res.json())
@@ -106,6 +117,44 @@ function AddEditCompetidor(props) {
         setEdad(fechaHoy.getFullYear() - fechaEle.getFullYear());
         setFecha(date);
     }
+    function cargarFoto(e, tipo) {
+        setCargador(true);
+        var archiv = e.target.files[0];
+        console.log(archiv)
+        if (archiv.size / 1000000 < 3.5) {
+            var formData = new FormData()
+            formData.append('FILE1', new Blob([archiv], 
+                { contentType: 'application/octet-stream', contentTransferEncoding: 'binary' }),
+                 archiv.name + "." + tipo + ".ESTU");
+            console.log(formData)
+            try {
+                axios.post(`${server}/usuario/cargarAdjunto`, formData, {
+                    'Accept': 'application/json',
+                    'content-type': 'multipart/form-data'
+                }).then(res => {
+                    setCargador(false);
+                    console.log(res.data.url);
+                    if (res.data.ok) {
+                        setIdAdjunto(res.data.ok);
+                        setUrlImg(res.data.url);
+                        MsgUtils.msgCorrecto("Imagen Cargada Correctamente")
+                    } else {
+                        MsgUtils.msgError(res.data.error);
+                    }
+                }).catch(error => {
+                    console.log(error.message);
+                    setCargador(false);
+                })
+            } catch (error) {
+                setCargador(false);
+                MsgUtils.msgError(error.message);
+                console.error('Error al subir el archivo !!');
+            }
+        } else {
+            setCargador(false);
+            MsgUtils.msgError("Coloque Imagen < 3.5 Megas")
+        }
+    }
     useEffect(() => {
         console.log("recuperando información");
         var idcampeonato = JSON.parse(localStorage.getItem('campeonato')).idcampeonato;
@@ -140,7 +189,8 @@ function AddEditCompetidor(props) {
             <div className='row row-cols-2 g-1'>
                 <div className='col col-10'>
                     <div className="mb-3">
-                        <label className="form-label text-light fw-bold"><i className="fa-solid fa-user fa-fade"></i> Nombres</label>
+                        <label className="form-label text-light fw-bold">
+                            <i className="fa-solid fa-user fa-fade"></i> Nombres</label>
                         <input type="text" className="form-control form-control-sm" placeholder='Escriba su nombre'
                             value={nombres} onChange={(e) => { setNombres(e.target.value.toUpperCase()); setError({}) }} />
                         {error.error && nombres === '' && <div className="alert alert-danger m-0 p-0" role="alert">
@@ -157,12 +207,28 @@ function AddEditCompetidor(props) {
                     </div>
                 </div>
                 <div className='col col-2 my-auto'>
+                    {cargador==false&&idAdjunto==0&&selectItem.foto==null&&
                     <div>
                         <label for="file-upload" className="custom-file-upload text-light">
                             <i className="fa fa-cloud-upload"></i> Foto
                         </label>
-                        <input id="file-upload" type="file" />
-                    </div>
+                        <input id="file-upload" type="file" accept='image/*'
+                            onChange={(e) => cargarFoto(e, 'IMG')} />
+                    </div>}
+                    {cargador==true && idAdjunto==0&&
+                        <div className='fa-fade'>
+                            <div className='text-light fs-1'><i className="fa fa-cloud-upload"></i></div>
+                            <div className='text-light fw-bold'>Espere Por Favor ...</div>
+                        </div>}
+                    {cargador==false&&urlImg!=''&&
+                        <div>
+                            <img src={`${server}/adjunto/${urlImg}`} className='img-fluid'></img>
+                        </div>}
+                    {cargador==false&&selectItem.foto!=null&&
+                        <div className='img-fluid'>
+                            <img src={`${server}/adjunto/${selectItem.foto}`} className='img-fluid'></img>
+                        </div>
+                    }
                 </div>
             </div>
             <div className="mb-3">
@@ -288,10 +354,10 @@ function AddEditCompetidor(props) {
                         Agregar
                     </button>
                 </div>
-                <div className='row'>
+                <div className='w-100 overflow-auto' style={{maxHeight:'100px'}}>
                     {listaCTipoC.map((item, index) => {
                         return (
-                            <div className='col' style={{ maxWidth: '140px', minWidth: '140px' }} key={index}>
+                            <div className='container-fluid py-1' key={index}>
                                 <span className="badge rounded-pill bg-primary position-relative">{item.descripcion}
                                     <button className="btn position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" onClick={() => eliminarListaCtipo(item)}>
                                         X</button>

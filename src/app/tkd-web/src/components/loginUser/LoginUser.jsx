@@ -18,6 +18,7 @@ function LoginUser() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState({});
     const [cargador,setCargador] = useState(false);
+    const [showPassword,setShowPassword] = useState(false);
     function validarInformacion() {
         if (correo !== '' && password !== '') {
             return true;
@@ -92,7 +93,19 @@ function LoginUser() {
                             </div>
                             <div className="mb-3">
                                 <label className="form-label text-light fw-bold"><i className="fa-solid fa-key fa-fade"></i> Contraseña</label>
-                                <input type="password" className="form-control" placeholder='Tu Contraseña' value={password} onChange={(e) => { setPassword(e.target.value); setError({}) }} />
+                                <div className='input-group input-group-sm'>
+                                    <input type={showPassword==false?"password":"text"} className="form-control" 
+                                        placeholder='Tu Contraseña' value={password} 
+                                        onChange={(e) => { setPassword(e.target.value); setError({}) }} />
+                                    {showPassword==false&&<button className='btn btn-sm btn-transparent text-light' 
+                                        onClick={()=>setShowPassword(!showPassword)}>
+                                        <i className="fa-solid fa-eye"></i>
+                                    </button>}
+                                    {showPassword==true&&<button className='btn btn-sm btn-transparent text-light' 
+                                        onClick={()=>setShowPassword(!showPassword)}>
+                                        <i className="fa-solid fa-eye-slash"></i>
+                                    </button>}
+                                </div>
                                 {error.error && password === '' && <div className="alert alert-danger m-0 p-0" role="alert">
                                     {error.error}
                                 </div>}

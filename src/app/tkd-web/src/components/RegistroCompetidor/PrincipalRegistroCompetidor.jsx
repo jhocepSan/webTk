@@ -315,7 +315,7 @@ function PrincipalRegistroCompetidor() {
           <tbody>
             {listaCompetidores.map((item, index) => {
               return (
-                <tr key={index}>
+                <tr key={index} style={{borderBottom:'1px',borderColor:'#ffff'}}>
                   <td scope="row" style={{ minWidth: '260px' }}><Competidor user={item} /></td>
                   <td style={{ minWidth: '200px' }}>
                     <div className='container-fluid p-0 m-0' style={{ fontSize: '16px' }}>
@@ -340,7 +340,7 @@ function PrincipalRegistroCompetidor() {
                   </td>
                   {tipo == 'R' && renderTipoCmp(item)}
                   {getPermiso()&&<td className='text-end' style={{ minWidth: '100px' }}>
-                    <div className="btn-group" role="group" aria-label="Basic example">
+                    <div className="btn-group btn-group-sm" role="group" aria-label="Basic example">
                       <button type="button" className="btn btn-sm text-danger m-0 p-0"
                         onClick={() => { setSelectItem(item); setShowMessage(true) }}>
                         <i className="fa-solid fa-trash-can fa-xl"></i>

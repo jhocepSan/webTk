@@ -103,7 +103,7 @@ export const cargarAdjunto = async (data)=>{
                 imagen = imagen.toString('base64');
                 writeFileSync(rutaImg, imagen, 'base64');
                 await conn.commit();
-                return {"ok":result.insertId}
+                return {"ok":result.insertId,"url":nameImg}
             }else{
                 await conn.rollback()
                 unlink(rutaImg,function(err){

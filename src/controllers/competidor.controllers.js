@@ -26,20 +26,24 @@ export const addEditCompetidor = async (info) => {
     var conn;
     try {
         conn = await pool.getConnection();
-        console.log(info);
         var tipoComt = null;
         if (info.listaCTipoC.length !== 0) {
             tipoComt = info.listaCTipoC.map((item) => item.idtipo).join(':');
         }
-        console.log(tipoComt);
         if (parseInt(info.idCompetidor) === 0) {
-            const [result] = await conn.query('INSERT INTO competidor (nombres,apellidos,fecha,edad,peso,ci,idclub,idcinturon,idcampeonato,tipo,idgrado,genero,altura,idtipocompetencia) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);',
-                [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado, info.genero, info.altura, tipoComt])
+            const [result] = await conn.query(`INSERT INTO competidor (nombres,apellidos,fecha,edad,peso,ci,
+                idclub,idcinturon,idcampeonato,tipo,idgrado,genero,altura,idtipocompetencia,idadjunto) 
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);`,
+                [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado, info.genero, info.altura, tipoComt,info.idAdjunto])
             await conn.commit()
             return { "ok": "GUARDADO" }
         } else {
-            const [result] = await conn.query('UPDATE competidor SET nombres=?,apellidos=?,fecha=?,edad=?,peso=?,ci=?,idclub=?,idcinturon=?,idcampeonato=?,tipo=?,idgrado=?,genero=?,altura=?,idtipocompetencia=? WHERE idcompetidor=?;',
-                [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado, info.genero, info.altura, tipoComt, info.idCompetidor])
+            const [result] = await conn.query(`UPDATE competidor SET nombres=?,apellidos=?,fecha=?,
+                edad=?,peso=?,ci=?,idclub=?,idcinturon=?,idcampeonato=?,tipo=?,idgrado=?,genero=?,altura=?,
+                idtipocompetencia=?,idadjunto=? WHERE idcompetidor=?;`,
+                [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, 
+                info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado, info.genero,
+                 info.altura, tipoComt,info.idAdjunto,info.idCompetidor])
             await conn.commit()
             return { "ok": "ACTUALIZANDO" }
         }
@@ -95,8 +99,11 @@ export const getCompetidores = async (info) => {
         console.log(info);
         conn = await pool.getConnection();
         if (info.tipo != 'D') {
-            var sql = 'SELECT *,(select nombre from club where idclub=c.idclub) as club,(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon '+
-                'FROM competidor c WHERE c.idcampeonato=? and (0=? or c.idclub=?) and c.tipo=? and c.genero=? and c.estado!="E";'
+            var sql = `SELECT *,(select nombre from club where idclub=c.idclub) as club,
+                (select ad.ruta from adjunto ad where ad.idadjunto=c.idadjunto)as foto,
+                (select nombre from cinturon where idcinturon=c.idcinturon) as cinturon 
+                FROM competidor c WHERE c.idcampeonato=? and (0=? or c.idclub=?) and c.tipo=? 
+                and c.genero=? and c.estado!="E";`
             const [result] = await conn.query(sql,
                 [info.idCampeonato, info.club, info.club,info.tipo, info.genero])
             return { "ok": result }
@@ -186,7 +193,7 @@ export const getCompetidorClasificado = async (info) => {
     }
 }
 export const getCompetidorClasificadoLista = async (info) => {
-    var sql = 'SELECT * FROM (SELECT *,(select nombre from club where idclub=c.idclub) as club, ' +
+    var sql1 = 'SELECT * FROM (SELECT *,(select nombre from club where idclub=c.idclub) as club, ' +
         '(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, ' +
         '(SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, ' +
         '(select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin ' +
@@ -198,6 +205,16 @@ export const getCompetidorClasificadoLista = async (info) => {
         '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria ' +
         'FROM competidor c WHERE c.idcampeonato=? and c.tipo=? and c.genero=? and c.estado="A" and (c.idclub=? or ?=0)) as res where res.idcategoria in (select idcategoria from categoria where estado="A") order by res.idgrado;'
+    var sql = `select res.*,subcate.idsubcategoria,subcate.pesoini,subcate.pesofin,subcate.nombre as nombresubcategoria from 
+            (SELECT c.*,cat.idcategoria,cat.nombre as nombrecategoria,cat.edadini,cat.edadfin,
+            (select nombre from club where idclub=c.idclub) as club, 
+            (select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, 
+            (SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado
+            FROM competidor c left join categoria cat on (c.edad>=cat.edadini and c.edad<=cat.edadfin and cat.idcampeonato=c.idcampeonato and c.genero=cat.genero)
+            WHERE c.idcampeonato=? and c.tipo=? and c.genero=?  and c.estado="A" 
+            and (c.idclub=? or ?=0) )res left join subcategoria subcate on res.idcategoria=subcate.idcategoria
+            where (res.peso+0.001)>=subcate.pesoini and (res.peso-0.001)<=subcate.pesofin
+            order by res.idcompetidor`
     var conn;
     try {
         conn = await pool.getConnection();
@@ -224,10 +241,20 @@ export const getCompetidorSinPelea = async (info) => {
         '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria ' +
         'FROM competidorsinpelea c WHERE c.idcampeonato=? and c.tipo=? and c.genero=? and c.estado="A" and (c.idclub=? or 0=?)) res where (res.idcategoria=? or 0=?)  order by res.idgrado;'
+    var sql1 = `select res.*,subcate.idsubcategoria,subcate.pesoini,subcate.pesofin,subcate.nombre as nombresubcategoria from 
+        (SELECT c.*,cat.idcategoria,cat.nombre as nombrecategoria,cat.edadini,cat.edadfin,
+        (select nombre from club where idclub=c.idclub) as club, 
+        (select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, 
+        (SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado
+        FROM competidorsinpelea c left join categoria cat on (c.edad>=cat.edadini and c.edad<=cat.edadfin and cat.idcampeonato=c.idcampeonato and c.genero=cat.genero)
+        WHERE c.idcampeonato=? and c.tipo=? and c.genero=?  and c.estado="A" 
+        and (c.idclub=? or ?=0) )res left join subcategoria subcate on res.idcategoria=subcate.idcategoria
+        where (res.peso+0.001)>=subcate.pesoini and (res.peso-0.001)<=subcate.pesofin and (res.idcategoria=? or 0=?)
+        order by res.idgrado;`;
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql,
+        const [result] = await conn.query(sql1,
             [info.idCampeonato, info.tipo, info.genero, info.idClub, info.idClub, info.idCategoria, info.idCategoria])
         return { "ok": result }
     } catch (error) {
@@ -250,10 +277,21 @@ export const getCompetidoresFestival = async (info) => {
         '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria ' +
         'FROM competidor c WHERE c.idcampeonato=? and c.tipo=? and c.genero=?  and c.estado="A" and (c.idclub=? or ?=0) ) as res where res.idcategoria in (select idcategoria from categoria where estado="P") order by res.edad,res.peso;';
+    var sql1 = `select res.*,subcate.idsubcategoria,subcate.pesoini,subcate.pesofin,subcate.nombre as nombresubcategoria from 
+            (SELECT c.*,cat.idcategoria,cat.nombre as nombrecategoria,cat.edadini,cat.edadfin,
+            (select nombre from club where idclub=c.idclub) as club, 
+            (select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, 
+            (SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado
+            FROM competidor c left join categoria cat on (c.edad>=cat.edadini and c.edad<=cat.edadfin and cat.idcampeonato=c.idcampeonato and c.genero=cat.genero)
+            WHERE c.idcampeonato=? and c.tipo=? and c.genero=?  and c.estado="A" 
+            and (c.idclub=? or ?=0) )res left join subcategoria subcate on res.idcategoria=subcate.idcategoria
+            where (res.peso+0.001)>=subcate.pesoini and (res.peso-0.001)<=subcate.pesofin 
+            and res.idcategoria in (select idcategoria from categoria where estado="P")
+            order by res.edad,res.peso`;
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql,
+        const [result] = await conn.query(sql1,
             [info.idCampeonato, info.tipo, info.genero, info.idClub, info.idClub])
         return { "ok": result }
     } catch (error) {
@@ -277,10 +315,20 @@ const getCompetidorClasificados = async (info) => {
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria ' +
         'FROM competidor c WHERE c.idcampeonato=? and c.tipo=? and c.genero=? and c.estado="A" and c.idgrado=?)res ' +
         'where res.idcategoria=? and res.idsubcategoria=? ; '
+    var sql1 = `select res.*,subcate.idsubcategoria,subcate.pesoini,subcate.pesofin,subcate.nombre as nombresubcategoria from 
+            (SELECT c.*,cat.idcategoria,cat.nombre as nombrecategoria,cat.edadini,cat.edadfin,
+            (select nombre from club where idclub=c.idclub) as club, 
+            (select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, 
+            (SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado
+            FROM competidor c left join categoria cat on (c.edad>=cat.edadini and c.edad<=cat.edadfin and cat.idcampeonato=c.idcampeonato and c.genero=cat.genero)
+            WHERE c.idcampeonato=? and c.tipo=? and c.genero=?  and c.estado="A" 
+            and c.idgrado=? )res left join subcategoria subcate on res.idcategoria=subcate.idcategoria
+            where (res.peso+0.001)>=subcate.pesoini and (res.peso-0.001)<=subcate.pesofin
+            and res.idcategoria=? and res.idsubcategoria=?;`;
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql,
+        const [result] = await conn.query(sql1,
             [info.idCampeonato, info.tipo, info.genero, info.idgrado, info.idcategoria, info.idsubcategoria])
         return { "ok": result }
     } catch (error) {

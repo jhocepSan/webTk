@@ -55,9 +55,9 @@ function scoreCombate() {
         <div style={{ fontSize: '60px', borderRadius: '20px' }} className='text-light tituloMenu bg-success bg-gradient'>Area {puntoJuego.area}</div>
       </div>}
       <Modal show={puntoJuego.isPlay == false}
-        size={'xl'} centered
+        size={'xl'} 
         backdrop="static"
-        aria-labelledby="contained-modal-title-vcenter"
+        //aria-labelledby="contained-modal-title-vcenter"
         contentClassName={`${(puntoJuego.gano == 'A' || puntoJuego.gano == 'AP' || puntoJuego.gano == 'AR') ? 'bg-primary' : (puntoJuego.gano == 'R' || puntoJuego.gano == 'RP' || puntoJuego.gano == 'RR') ? 'bg-danger' : 'bg-dark'} bg-gradient`}>
         {(puntoJuego.gano == undefined || puntoJuego.gano == '') && <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 w-100 ' closeButton={false} closeVariant='white'>
           <div className='text-center w-100' style={{ fontSize: '75px', width: '200px' }} >

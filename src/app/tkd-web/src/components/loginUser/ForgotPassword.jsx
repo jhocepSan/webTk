@@ -1,14 +1,15 @@
 import React, { useState } from 'react'
 import ImgLogin from '../../assets/login.png';
 import MsgUtils from '../utils/MsgUtils';
-import {server} from '../utils/MsgUtils';
- 
+import { server } from '../utils/MsgUtils';
+
 function ForgotPassword(props) {
-    const { setVentana,setCargador } = props;
+    const { setVentana, setCargador } = props;
     const [error, setError] = useState({});
     const [email, setEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [newPasswordR, setNewPasswordR] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [ci, setCi] = useState('');
     function validarCampos() {
         if (email !== '' && ci !== '' && newPassword != '' && newPasswordR !== '') {
@@ -34,7 +35,7 @@ function ForgotPassword(props) {
                     'Content-Type': 'application/json;charset=utf-8',
                 },
                 body: JSON.stringify({
-                    newPassword,ci,email
+                    newPassword, ci, email
                 })
             })
                 .then(res => res.json())
@@ -71,12 +72,12 @@ function ForgotPassword(props) {
                     </div>
                 </div>
                 <div className="card-body">
-                    <div class="alert alert-warning letrasContenido">
+                    <div className="alert alert-warning letrasContenido m-0 p-1">
                         Solo podras recuperar tu contraseña con tus datos personales, y ser miembro de la asociación ...
                     </div>
                     <div className="mb-3">
                         <label className="form-label text-light fw-bold"><i className="fa-solid fa-user fa-fade"></i> Correo</label>
-                        <input type="email" className="form-control" placeholder='Correo del usuario'
+                        <input type="email" className="form-control form-control-sm" placeholder='Correo del usuario'
                             value={email} onChange={(e) => { setEmail(e.target.value); setError({}) }} />
                         {error.error && email === '' && <div className="alert alert-danger m-0 p-0" role="alert">
                             Coloca su Correo por favor ...
@@ -84,7 +85,7 @@ function ForgotPassword(props) {
                     </div>
                     <div className="mb-3">
                         <label className="form-label text-light fw-bold"><i className="fa-solid fa-address-card fa-fade"></i> Carnet de Identidad</label>
-                        <input type="number" className="form-control" placeholder='Carnet de Identidad'
+                        <input type="number" className="form-control form-control-sm" placeholder='Carnet de Identidad'
                             value={ci} onChange={(e) => { setCi(e.target.value); setError({}) }} />
                         {error.error && email === '' && <div className="alert alert-danger m-0 p-0" role="alert">
                             Ingrese su carnet por favor ...
@@ -92,15 +93,25 @@ function ForgotPassword(props) {
                     </div>
                     <div className="mb-3">
                         <label className="form-label text-light fw-bold"><i className="fa-solid fa-key fa-fade"></i> Nueva Contraseña</label>
-                        <input type="password" className="form-control" placeholder='Nueva contraseña'
-                            value={newPassword} onChange={(e) => { setNewPassword(e.target.value); setError({}) }} />
+                        <div className='input-group input-group-sm'>
+                            <input type={showPassword==false?"password":"text"} className="form-control form-control-sm" placeholder='Nueva contraseña'
+                                value={newPassword} onChange={(e) => { setNewPassword(e.target.value); setError({}) }} />
+                            {showPassword == false && <button className='btn btn-sm btn-transparent text-light'
+                                onClick={() => setShowPassword(!showPassword)}>
+                                <i className="fa-solid fa-eye"></i>
+                            </button>}
+                            {showPassword == true && <button className='btn btn-sm btn-transparent text-light'
+                                onClick={() => setShowPassword(!showPassword)}>
+                                <i className="fa-solid fa-eye-slash"></i>
+                            </button>}
+                        </div>
                         {error.error && (newPassword === '' || newPassword !== newPasswordR) && <div className="alert alert-danger m-0 p-0" role="alert">
                             {error.error}
                         </div>}
                     </div>
                     <div className="mb-3">
                         <label className="form-label text-light fw-bold"><i className="fa-solid fa-key fa-fade"></i> Repita su Nueva Contraseña</label>
-                        <input type="password" className="form-control" placeholder='Repita su Nueva contraseña'
+                        <input type={showPassword==false?"password":"text"} className="form-control form-control-sm" placeholder='Repita su Nueva contraseña'
                             value={newPasswordR} onChange={(e) => { setNewPasswordR(e.target.value); setError({}) }} />
                         {error.error && (newPasswordR === '' || newPassword !== newPasswordR) && <div className="alert alert-danger m-0 p-0" role="alert">
                             {error.error}

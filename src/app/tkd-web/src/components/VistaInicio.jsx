@@ -129,11 +129,11 @@ function VistaInicio() {
           if (data.ok) {
             console.log(data.ok)
             setLogin(true);
-            setUserLogin({...sessionActiva,serverIp:data.ok});
+            setUserLogin({ ...sessionActiva, serverIp: data.ok });
             navigate("/inicio", { replace: true });
           } else {
             setLogin(true);
-            setUserLogin({...sessionActiva,serverIp:[]});
+            setUserLogin({ ...sessionActiva, serverIp: [] });
             navigate("/inicio", { replace: true });
             MsgUtils.msgError(data.error)
           }
@@ -143,7 +143,7 @@ function VistaInicio() {
   return (
     <>
       <Header />
-      <div className='container-fluid py-4'>
+      <div className='container-fluid py-2'>
         <div className='card bg-dark bg-gradient'>
           <div className="card-header text-light text-center tituloInicial">
             <i className="fa-solid fa-arrows-to-circle fa-fade fa-xl"></i> Configuracion Inicial Del Campeonato <i className="fa-solid fa-arrows-to-circle fa-fade fa-xl"></i>
@@ -196,37 +196,41 @@ function VistaInicio() {
           </div>}
         </div>
       </div>
-      <div className='container-fluid mb-4'>
-        <div className="card bg-warning bg-gradient">
-          <div className="card-header text-dark text-center tituloInicial">
-            <i className="fa-solid fa-server fa-fade"></i> Direccion Ip del Servidor TKD <i className="fa-solid fa-server fa-fade"></i>
+      <div className='container-fluid'>
+        <div className='row row-cols-2 row-cols-sm-1 row-cols-md-2 g-1'>
+          <div className='col'>
+            <div className="card bg-warning bg-gradient">
+              <div className="card-header text-dark text-center tituloInicial">
+                <i className="fa-solid fa-server fa-fade"></i> Direccion Ip del Servidor TKD <i className="fa-solid fa-server fa-fade"></i>
+              </div>
+              {userLogin.serverIp !== undefined && <div className='card-body text-center'>
+                {userLogin.serverIp.map((item, index) => {
+                  return (
+                    <div key={index}>
+                      <div className='letrasContenido text-dark' style={{ fontSize: '19px' }}>
+                        Red {item.name} la direccion Registro es = {item.ip}:4000
+                      </div>
+                      <div className='letrasContenido text-dark' style={{ fontSize: '19px' }}>
+                        Red {item.name} la direccion APK es = {item.ip}:4001
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>}
+            </div>
           </div>
-          {userLogin.serverIp !== undefined && <div className='card-body text-center'>
-            {userLogin.serverIp.map((item, index) => {
-              return (
-                <div key={index}>
-                  <div className='letrasContenido text-dark' style={{ fontSize: '19px' }}>
-                    Red {item.name} la direccion Registro es = {item.ip}:4000
-                  </div>
-                  <div className='letrasContenido text-dark' style={{ fontSize: '19px' }}>
-                    Red {item.name} la direccion APK es = {item.ip}:4001
-                  </div>
-                </div>
-              )
-            })}
-          </div>}
-        </div>
-      </div>
-      <div className='container-fluid '>
-        <div className="card bg-dark bg-gradient">
-          <div className="card-header text-light text-center tituloInicial">
-            Bienvenidos Al Sistema TK
-          </div>
-          <div className="card-body">
-            <h5 className="card-title text-light letrasContenido">Sistema desarrollado en COCHABAMBA_BOLIVIA</h5>
-            <p className="card-text text-light letrasContenido">Ayuda a tener mas control, en competencias, y manejo de estudiantes
-              en la asociacion de TEKWONDO CBBA, y manejo de los diferentes clubs de la misma.</p>
-            <p className="card-text text-light letrasContenido">Gracias por utilizar el sistema cualquier Información comunicarce con el DESARROLLADOR, JUAN JOSE SANCHEZ CHOQUECALLATA numero de referencia 60790682</p>
+          <div className='col'>
+            <div className="card bg-dark bg-gradient">
+              <div className="card-header text-light text-center tituloInicial">
+                Bienvenidos Al Sistema TK
+              </div>
+              <div className="card-body">
+                <h5 className="card-title text-light letrasContenido">Sistema desarrollado en COCHABAMBA_BOLIVIA</h5>
+                <p className="card-text text-light letrasContenido">Ayuda a tener mas control, en competencias, y manejo de estudiantes
+                  en la asociacion de TEKWONDO CBBA, y manejo de los diferentes clubs de la misma.</p>
+                <p className="card-text text-light letrasContenido">Gracias por utilizar el sistema cualquier Información comunicarce con el DESARROLLADOR, JUAN JOSE SANCHEZ CHOQUECALLATA numero de referencia 60790682</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

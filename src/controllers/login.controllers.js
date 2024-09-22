@@ -64,8 +64,7 @@ export const iniciarSession = async ({ correo, password }) => {
     var serverIp=getIPAddress();
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query('select *,(select ruta from adjunto where idadjunto=foto)as foto from usuario where correo=?', [correo.replace(' ', '')])
-        console.log(result)
+        const [result] = await conn.query('select *,(select ruta from adjunto where idadjunto=foto)as foto from usuario where correo=? and estado!="E"', [correo.replace(' ', '')]);
         if (result.length !== 0) {
             if (bycript.compareSync(password.replace(' ', ''), result[0].password)) {
                 return {
@@ -109,7 +108,7 @@ export const crearCampeonato = async (info) => {
         if (result.length === 0) {
             const [rows] = await conn.query('insert into campeonato(nombre,descripcion) values(?,?)', [info.nombre, buf])
             if (info.importCat) {
-                const [categorias] = await conn.query('SELECT * FROM categoria where estado="A" and idcampeonato=? order by edadini;',
+                const [categorias] = await conn.query('SELECT * FROM categoria where estado!="E" and idcampeonato=? order by edadini;',
                     [info.importId]);
                 for (var cat of categorias){
                     cat.idcampeonato=rows.insertId
