@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import Header from '../Header';
 import { useNavigate, Link } from 'react-router-dom';
-import { limpiarLecturasPoomse, getPuntosPoomse,setPuntuacionPoomse } from '../utils/UtilsConsultas';
+import { limpiarLecturasPoomse, getPuntosPoomse, setPuntuacionPoomse } from '../utils/UtilsConsultas';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import MsgUtils, { server } from '../utils/MsgUtils';
 import PrincipalLlavePoomse from '../ListaCompetidores/PrincipalLlavePoomse';
@@ -11,7 +11,7 @@ import Modal from 'react-bootstrap/Modal';
 function PrincipalPuntPoomse() {
   const navigate = useNavigate();
   const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
-  const [config,setConfig] = useState({});
+  const [config, setConfig] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [showResultado, setShowResultado] = useState(false);
   const [tipom, setTipoM] = useState('');
@@ -23,6 +23,8 @@ function PrincipalPuntPoomse() {
   const [puntuacion, setPuntuacion] = useState(0);
   const [selectComp, setSelectComp] = useState({});
   const [segundo, setSegundo] = useState(0);
+  const [sectorLectura, setSectorLectura] = useState(0);
+  const [puntoLeido, setPuntoLeido] = useState([]);
   function elegirCompetidor(dato) {
     console.log(dato);
     setSelectComp(dato.competidor)
@@ -72,36 +74,38 @@ function PrincipalPuntPoomse() {
   function selectCompetidor(dato) {
     setSelectComp(dato);
   }
-  const recetearValores=async()=>{
-    await limpiarLecturasPoomse({'sector':1})
-    await setPuntuacionPoomse({'puntuacion':puntuacion,'idclasificacion':selectComp.idclasificacion})
+  const recetearValores = async () => {
+    await limpiarLecturasPoomse({ 'sector': 1 })
+    await setPuntuacionPoomse({ 'puntuacion': puntuacion, 'idclasificacion': selectComp.idclasificacion })
     setPuntuacion(0);
     setShowResultado(false);
     setRunPlay(false);
   }
-  const obtenerDatosPunto=async()=>{
-    if(runPlay==true){
-      var datos = await getPuntosPoomse({'sector':1})
-      if(datos.ok){
-        if(datos.ok.length==parseInt(config.numJueces)){
-          if(config.enablePromedio){
-            var puntuacionMando=datos.ok.map(item=>item.poomseaccuracy+item.poomsepresentation);
-            var sumatoria = puntuacionMando.reduce(function(acumulador, siguienteValor){
+  const obtenerDatosPunto = async () => {
+    if (runPlay == true) {
+      var datos = await getPuntosPoomse({ 'sector': sectorLectura })
+      if (datos.ok) {
+        console.log(datos.ok);
+        setPuntoLeido(datos.ok)
+        if (datos.ok.length == parseInt(config.numJueces)) {
+          if (config.enablePromedio) {
+            var puntuacionMando = datos.ok.map(item => item.poomseaccuracy + item.poomsepresentation);
+            var sumatoria = puntuacionMando.reduce(function (acumulador, siguienteValor) {
               return acumulador + siguienteValor;
             }, 0);
             localStorage.setItem('puntuacionPoomse', JSON.stringify({
               'selectComp': selectComp,
-              'puntuacion': (sumatoria/datos.ok.length).toFixed(1),
+              'puntuacion': (sumatoria / datos.ok.length).toFixed(1),
               'selectItem': selectItem,
               'runPlay': runPlay
             }));
-            setPuntuacion((sumatoria/datos.ok.length).toFixed(1));
-            setShowResultado(true);
+            setPuntuacion((sumatoria / datos.ok.length).toFixed(1));
+            //setShowResultado(true);
           }
         }
       }
     }
-    setSegundo(segundo+1)
+    setSegundo(segundo + 1)
   }
   useEffect(() => {
     // Configurar el temporizador al montar el componente
@@ -127,9 +131,9 @@ function PrincipalPuntPoomse() {
       setUserLogin(sessionActiva);
       navigate("/gamePoomse", { replace: true });
     }
-    if(confi!=undefined||confi!=null){
+    if (confi != undefined || confi != null) {
       setConfig(confi);
-    }else{
+    } else {
       MsgUtils.msgError("No tiene la configuracion de poomse.")
     }
   }, [])
@@ -179,29 +183,55 @@ function PrincipalPuntPoomse() {
       <div className='container-fluid mb-2' style={{ height: '50vh' }}>
         <div className='row row-cols-sm-1 row-cols-md-2 gx-2'>
           <div className='col' style={{ minWidth: '450px' }}>
+            <div className='container-fluid'>
+              <div className="input-group input-group-sm">
+                <span className="input-group-text" >Area </span>
+                <select className="form-select form-select-sm"
+                  title='Elegimos el are de calificación'
+                  value={sectorLectura}
+                  onChange={(e) => setSectorLectura(e.target.value)}>
+                  <option value={0}>Area 0</option>
+                  <option value={1}>Area 1</option>
+                  <option value={2}>Area 2</option>
+                  <option value={3}>Area 3</option>
+                </select>
+              </div>
+            </div>
             <div className='card bg-transparent'>
               <div className='card-header bg-dark'>
-                <div className='text-light'>Lista Competidores</div>
+                <div className='text-light'>Lectura Calificaciones</div>
               </div>
               <div className='card-body m-0 p-0'>
                 <div className='overflow-auto' style={{ maxHeight: '45vh' }}>
-                  <div className='bg-secondary'>
-                    <ul className="list-group">
-                      {listaElegida.map((item, index) => {
+                  <div className='bg-secondary container-fluid'>
+                    <div className='row row-cols g-1'>
+                      {puntoLeido.map((item, index) => {
                         return (
-                          <li className={`${item.idcompetidor == selectComp.idcompetidor ? 'bg-success ' : 'bg-dark '}list-group-item w-100 mb-1`} key={index}
-                            onClick={() => selectCompetidor({ ...item, 'position': index })}>
-                            <div className="card bg-transparent flex-row m-0 p-0" style={{ border: 'none' }} >
-                              {UtilsBuffer.getFotoCard(item.FOTO, 40)}
-                              <div className='ps-2 my-auto text-start' style={{ fontSize: '16px' }}>
-                                <div className="letrasContenido text-light">{item.nombres + ' ' + item.apellidos}</div>
-                                <div className='letrasContenido text-light'>Club: <span className='fw-bold'>{item.club}</span></div>
-                                <div className='letrasContenido text-light'>Grado: <span className='fw-bold'>{item.grado}</span></div>
+                          <div className='col text-light' key={index} style={{maxWidth:'120px',borderRight:'solid',borderColor:'white'}} >
+                            <div className='row row-cols g-1'>
+                              <div className='col'>
+                                <div className='text-center' style={{ fontSize: '9px' }}>Accuracy</div>
+                                <div className='text-center fw-bold'>{item.poomseaccuracy}</div>
+                              </div>
+                              <div className='col'>
+                                <div className='text-center' style={{ fontSize: '9px' }}>Presentation</div>
+                                <div className='text-center fw-bold'>{item.poomsepresentation}</div>
                               </div>
                             </div>
-                          </li>)
+                            <hr style={{margin:'0',padding:'0'}} className='text-light'></hr>
+                            <div className='row row-cols g-1'>
+                              <div className='col my-auto mx-auto'>
+                                {item.ruta!=null&&<img width='30' src={`${server}/adjunto/${item.ruta}`}></img>}
+                              </div>
+                              <div className='col text-start'>
+                                <div className='text-center fw-bold' style={{fontSize:'10px'}}>Albitro: {index+1}</div>
+                                <div className='text-center fw-bold' style={{fontSize:'10px'}}>{item.nombres}</div>
+                              </div>
+                            </div>
+                          </div>
+                        )
                       })}
-                    </ul>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -229,8 +259,11 @@ function PrincipalPuntPoomse() {
                 <div className="letrasContenido text-light fw-bold">{selectComp.club}</div>
                 <div className="input-group mb-3">
                   <span className="input-group-text" >Puntos Manual</span>
-                  <input type="number" className="form-control form-control-sm" placeholder="Puntuación" />
-                  <button className='btn btn-success btn-sm'>Aceptar</button>
+                  <input type="number" className="form-control form-control-sm" placeholder="Puntuación"
+                    onChange={(e) => setPuntuacion(e.target.value)} />
+                  <button className='btn btn-success btn-sm' onClick={() => { }}>
+                    Guardar Puntuación
+                  </button>
                 </div>
               </div>
             </div>
@@ -254,7 +287,7 @@ function PrincipalPuntPoomse() {
           </Modal.Title>
         </Modal.Header>
         <Modal.Footer>
-          <button className='btn btn-success' onClick={()=>recetearValores()}>Aceptar</button>
+          <button className='btn btn-success' onClick={() => recetearValores()}>Aceptar</button>
         </Modal.Footer>
       </Modal>
     </div>

@@ -15,10 +15,14 @@ export const getPuntosMando = async (info) => {
     }
 }
 export const getPuntosPoomse = async (info) => {
+    var sql = `SELECT m.*,us.nombres,ad.ruta FROM mandopunto m 
+        left join usuario us on m.idusuario=us.idusuario
+        left join adjunto ad on ad.idadjunto=us.foto
+        WHERE m.sector=? and m.estado="A" and m.tipoalbitro="P" and m.poomseaccuracy!=0 order by id;`
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query('SELECT * FROM mandopunto WHERE sector=? and estado="A" and tipoalbitro="P" and poomseaccuracy!=0 order by id;', [info.sector]);
+        const [result] = await conn.query(sql, [info.sector]);
         //await conn.query('UPDATE mandopunto SET dato="" WHERE sector=?;',[info.sector])
         return { "ok": result }
     } catch (error) {
