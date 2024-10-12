@@ -15,6 +15,10 @@ export const getPuntosPoomse = async (cuerpo) => {
     var resul = await consultasMandos.post('/mandojuec/getPuntosPoomse', cuerpo)
     return resul.data
 }
+export const savePuntuacionPoomse = async (cuerpo)=>{
+    var resul = await consultasMandos.post('/mandojuec/savePuntuacionPoomse', cuerpo)
+    return resul.data
+}
 export const limpiarMandos = async(sector)=>{
     await consultasMandos.get(`${server}/mandojuec/limpiarLecturas/${sector}`)
 }

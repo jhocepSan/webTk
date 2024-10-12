@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import Header from '../Header';
 import { useNavigate, Link } from 'react-router-dom';
-import { limpiarLecturasPoomse, getPuntosPoomse, setPuntuacionPoomse } from '../utils/UtilsConsultas';
+import { limpiarLecturasPoomse, getPuntosPoomse, setPuntuacionPoomse,savePuntuacionPoomse } from '../utils/UtilsConsultas';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import MsgUtils, { server } from '../utils/MsgUtils';
 import PrincipalLlavePoomse from '../ListaCompetidores/PrincipalLlavePoomse';
@@ -75,12 +75,21 @@ function PrincipalPuntPoomse() {
     setSelectComp(dato);
   }
   const recetearValores = async () => {
-    await limpiarLecturasPoomse({ 'sector': 1 })
+    await limpiarLecturasPoomse({ 'sector': sectorLectura })
     await setPuntuacionPoomse({ 'puntuacion': puntuacion, 'idclasificacion': selectComp.idclasificacion })
+    await savePuntuacionPoomse({'puntosLeidos':puntoLeido,'infoCompetidor':selectComp,'puntuacion': puntuacion})
+    getInformacionPoomse()
     setPuntuacion(0);
-    setShowResultado(false);
+    //setShowResultado(false);
     setRunPlay(false);
   }
+  function sacarPromedio(lista){
+    var sumatoria = lista.reduce(function (acumulador, siguienteValor) {
+      return acumulador + siguienteValor;
+    }, 0);
+    return sumatoria / lista.length
+  }
+  
   const obtenerDatosPunto = async () => {
     if (runPlay == true) {
       var datos = await getPuntosPoomse({ 'sector': sectorLectura })
@@ -89,18 +98,34 @@ function PrincipalPuntPoomse() {
         setPuntoLeido(datos.ok)
         if (datos.ok.length == parseInt(config.numJueces)) {
           if (config.enablePromedio) {
+            var resultadoFinal = 0;
             var puntuacionMando = datos.ok.map(item => item.poomseaccuracy + item.poomsepresentation);
-            var sumatoria = puntuacionMando.reduce(function (acumulador, siguienteValor) {
-              return acumulador + siguienteValor;
-            }, 0);
+            if(parseInt(config.numJueces)<=3){
+              resultadoFinal=sacarPromedio(puntuacionMando);
+            }else if(parseInt(config.numJueces)>=4){
+              puntuacionMando.sort(function(a,b){return a-b});
+              puntuacionMando.pop();
+              puntuacionMando.shift();
+              resultadoFinal=sacarPromedio(puntuacionMando);
+            } 
             localStorage.setItem('puntuacionPoomse', JSON.stringify({
               'selectComp': selectComp,
-              'puntuacion': (sumatoria / datos.ok.length).toFixed(1),
+              'puntuacion': (resultadoFinal).toFixed(1),
               'selectItem': selectItem,
               'runPlay': runPlay
             }));
-            setPuntuacion((sumatoria / datos.ok.length).toFixed(1));
+            setPuntuacion((resultadoFinal).toFixed(1));
             //setShowResultado(true);
+          }else if(config.enableMaximo){
+            var puntuacionMando = datos.ok.map(item => item.poomseaccuracy + item.poomsepresentation);
+            var puntoMaximo = Math.max(...puntuacionMando);
+            localStorage.setItem('puntuacionPoomse', JSON.stringify({
+              'selectComp': selectComp,
+              'puntuacion': (puntoMaximo).toFixed(1),
+              'selectItem': selectItem,
+              'runPlay': runPlay
+            }));
+            setPuntuacion((puntoMaximo).toFixed(1));
           }
         }
       }
@@ -261,7 +286,7 @@ function PrincipalPuntPoomse() {
                   <span className="input-group-text" >Puntos Manual</span>
                   <input type="number" className="form-control form-control-sm" placeholder="Puntuación"
                     onChange={(e) => setPuntuacion(e.target.value)} />
-                  <button className='btn btn-success btn-sm' onClick={() => { }}>
+                  <button className='btn btn-success btn-sm' onClick={() => recetearValores()}>
                     Guardar Puntuación
                   </button>
                 </div>

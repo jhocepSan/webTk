@@ -72,3 +72,24 @@ export const setPuntuacionPoomse = async (info) => {
         if (conn) { await conn.release(); }
     }
 }
+export const savePuntuacionPoomse = async(info)=>{
+    var sql = `insert into puntospoomse(idcompetidor,idcampeonato,tipo,idalbitro,valoruno,valordos,valortres,valorcuatro,valorfinal)
+        values(?,?,?,?,?,?,?,?,?);`
+    var conn;
+    try {
+        console.log(info);
+        conn = await pool.getConnection();
+        for await (var mando of info.puntosLeidos){
+            await conn.query(sql, [info.infoCompetidor.idcompetidor,info.infoCompetidor.idcampeonato,info.infoCompetidor.tipo,
+                mando.idusuario,mando.poomseaccuracy,mando.poomsepresentation,null,null,mando.poomseaccuracy+mando.poomsepresentation
+            ])
+        }
+        await conn.commit();
+        return { "ok": "Guardado" }
+    } catch (error) {
+        console.log(error)
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}

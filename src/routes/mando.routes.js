@@ -1,6 +1,6 @@
 import {Router} from 'express';
 import { getPuntosMando,limpiarLecturas,setPuntuacionPoomse,
-    getPuntosPoomse,limpiarLecturasPoomse } from '../controllers/mando.controllers.js';
+    getPuntosPoomse,limpiarLecturasPoomse,savePuntuacionPoomse } from '../controllers/mando.controllers.js';
 
 const router = Router();
 
@@ -70,6 +70,14 @@ router.get('/getPuntosMando/:sector',async(req,res)=>{
 });
 router.get('/limpiarLecturas/:sector',async(req,res)=>{
     const result =await limpiarLecturas({sector:req.params.sector});
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
+router.post('/savePuntuacionPoomse',async(req,res)=>{
+    const result =await savePuntuacionPoomse(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

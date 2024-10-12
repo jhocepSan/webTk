@@ -44,7 +44,7 @@ function PrincipalLlavePoomse(props) {
                 })
                 .catch(error => MsgUtils.msgError(error));
         }
-    }, [])
+    }, [llaves])
     return (
         <div>
             <div className=' mb-2'>

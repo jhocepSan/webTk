@@ -7,10 +7,12 @@ function ConfiguracionAreaPoomse() {
     const [numJueces, setNumJueces] = useState(0);
     const [enablePromedio,setEnablePromedio]=useState(false);
     const [enableMaximo,setEnableMax]=useState(false);
+    const [promedioTradicional,setPromedioTradicional] = useState(false);
+    const [promedioEliminador,setPromedioEliminador] = useState(false);
     function guardarConfiguracion() {
         if (numJueces!=0) {
             var datos = {
-                numJueces,enablePromedio,enableMaximo
+                numJueces,enablePromedio,enableMaximo,promedioTradicional,promedioEliminador
             }
             fetch(`${server}/config/confiAreasKirugui`, {
                 method: 'POST',
@@ -23,7 +25,7 @@ function ConfiguracionAreaPoomse() {
                 .then(res => res.json())
                 .then(data => {
                     if (data.ok) {
-                        localStorage.setItem('kirugui', JSON.stringify(datos));
+                        localStorage.setItem('poomse', JSON.stringify(datos));
                         MsgUtils.msgCorrecto(data.ok);
                     } else {
                         MsgUtils.msgError(data.error);
@@ -52,6 +54,8 @@ function ConfiguracionAreaPoomse() {
                     setNumJueces(datos.numJueces);
                     setEnablePromedio(datos.enablePromedio);
                     setEnableMax(datos.enableMaximo);
+                    setPromedioEliminador(datos.promedioEliminador);
+                    setPromedioTradicional(datos.promedioTradicional);
                     localStorage.setItem('poomse', JSON.stringify(datos));
                     //MsgUtils.msgCorrecto(data.ok);
                 } else {
@@ -76,6 +80,9 @@ function ConfiguracionAreaPoomse() {
                         <option value={3}>3</option>
                         <option value={4}>4</option>
                         <option value={5}>5</option>
+                        <option value={6}>6</option>
+                        <option value={7}>7</option>
+                        <option value={8}>8</option>
                     </select>
                 </div>
                 <div className="form-check">
@@ -96,6 +103,27 @@ function ConfiguracionAreaPoomse() {
                         }} />
                     <label className="form-check-label text-light letraMontserratr">
                         Habilitar Puntuacion Maxima
+                    </label>
+                </div>
+                <hr className='text-light fw-bold m-0 p-0'></hr>
+                <div className="form-check">
+                    <input className="form-check-input" type="checkbox" checked={promedioTradicional}
+                        defaultChecked={promedioTradicional} onChange={() => {
+                            promedioTradicional==false?setPromedioEliminador(false):''
+                            setPromedioTradicional(!promedioTradicional)
+                        }} />
+                    <label className="form-check-label text-light letraMontserratr">
+                        Habilitar Promedio tradicional
+                    </label>
+                </div>
+                <div className="form-check">
+                    <input className="form-check-input" type="checkbox" checked={promedioEliminador}
+                        defaultChecked={promedioEliminador} onChange={() => {
+                            promedioEliminador==false?setPromedioTradicional(false):''
+                            setPromedioEliminador(!promedioEliminador)
+                        }} />
+                    <label className="form-check-label text-light letraMontserratr">
+                        Habilitar Promedio con eliminación
                     </label>
                 </div>
             </div>
