@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import Header from '../Header';
 import { useNavigate, Link } from 'react-router-dom';
-import { limpiarLecturasPoomse, getPuntosPoomse, setPuntuacionPoomse,savePuntuacionPoomse } from '../utils/UtilsConsultas';
+import { limpiarLecturasPoomse, getPuntosPoomse, setPuntuacionPoomse, savePuntuacionPoomse } from '../utils/UtilsConsultas';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import MsgUtils, { server } from '../utils/MsgUtils';
 import PrincipalLlavePoomse from '../ListaCompetidores/PrincipalLlavePoomse';
@@ -77,19 +77,19 @@ function PrincipalPuntPoomse() {
   const recetearValores = async () => {
     await limpiarLecturasPoomse({ 'sector': sectorLectura })
     await setPuntuacionPoomse({ 'puntuacion': puntuacion, 'idclasificacion': selectComp.idclasificacion })
-    await savePuntuacionPoomse({'puntosLeidos':puntoLeido,'infoCompetidor':selectComp,'puntuacion': puntuacion})
+    await savePuntuacionPoomse({ 'puntosLeidos': puntoLeido, 'infoCompetidor': selectComp, 'puntuacion': puntuacion })
     getInformacionPoomse()
     setPuntuacion(0);
     //setShowResultado(false);
     setRunPlay(false);
   }
-  function sacarPromedio(lista){
+  function sacarPromedio(lista) {
     var sumatoria = lista.reduce(function (acumulador, siguienteValor) {
       return acumulador + siguienteValor;
     }, 0);
     return sumatoria / lista.length
   }
-  
+
   const obtenerDatosPunto = async () => {
     if (runPlay == true) {
       var datos = await getPuntosPoomse({ 'sector': sectorLectura })
@@ -100,23 +100,33 @@ function PrincipalPuntPoomse() {
           if (config.enablePromedio) {
             var resultadoFinal = 0;
             var puntuacionMando = datos.ok.map(item => item.poomseaccuracy + item.poomsepresentation);
-            if(parseInt(config.numJueces)<=3){
-              resultadoFinal=sacarPromedio(puntuacionMando);
-            }else if(parseInt(config.numJueces)>=4){
-              puntuacionMando.sort(function(a,b){return a-b});
-              puntuacionMando.pop();
-              puntuacionMando.shift();
-              resultadoFinal=sacarPromedio(puntuacionMando);
-            } 
-            localStorage.setItem('puntuacionPoomse', JSON.stringify({
-              'selectComp': selectComp,
-              'puntuacion': (resultadoFinal).toFixed(1),
-              'selectItem': selectItem,
-              'runPlay': runPlay
-            }));
-            setPuntuacion((resultadoFinal).toFixed(1));
-            //setShowResultado(true);
-          }else if(config.enableMaximo){
+            if (config.promedioEliminador) {
+              if (parseInt(config.numJueces) <= 3) {
+                resultadoFinal = sacarPromedio(puntuacionMando);
+              } else if (parseInt(config.numJueces) >= 4) {
+                puntuacionMando.sort(function (a, b) { return a - b });
+                puntuacionMando.pop();
+                puntuacionMando.shift();
+                resultadoFinal = sacarPromedio(puntuacionMando);
+              }
+              localStorage.setItem('puntuacionPoomse', JSON.stringify({
+                'selectComp': selectComp,
+                'puntuacion': (resultadoFinal).toFixed(1),
+                'selectItem': selectItem,
+                'runPlay': runPlay
+              }));
+              setPuntuacion((resultadoFinal).toFixed(1));
+            } else if (config.promedioTradicional) {
+              resultadoFinal = sacarPromedio(puntuacionMando);
+              localStorage.setItem('puntuacionPoomse', JSON.stringify({
+                'selectComp': selectComp,
+                'puntuacion': (resultadoFinal).toFixed(1),
+                'selectItem': selectItem,
+                'runPlay': runPlay
+              }));
+              setPuntuacion((resultadoFinal).toFixed(1));
+            }
+          } else if (config.enableMaximo) {
             var puntuacionMando = datos.ok.map(item => item.poomseaccuracy + item.poomsepresentation);
             var puntoMaximo = Math.max(...puntuacionMando);
             localStorage.setItem('puntuacionPoomse', JSON.stringify({
@@ -232,7 +242,7 @@ function PrincipalPuntPoomse() {
                     <div className='row row-cols g-1'>
                       {puntoLeido.map((item, index) => {
                         return (
-                          <div className='col text-light' key={index} style={{maxWidth:'120px',borderRight:'solid',borderColor:'white'}} >
+                          <div className='col text-light' key={index} style={{ maxWidth: '120px', borderRight: 'solid', borderColor: 'white' }} >
                             <div className='row row-cols g-1'>
                               <div className='col'>
                                 <div className='text-center' style={{ fontSize: '9px' }}>Accuracy</div>
@@ -243,14 +253,14 @@ function PrincipalPuntPoomse() {
                                 <div className='text-center fw-bold'>{item.poomsepresentation}</div>
                               </div>
                             </div>
-                            <hr style={{margin:'0',padding:'0'}} className='text-light'></hr>
+                            <hr style={{ margin: '0', padding: '0' }} className='text-light'></hr>
                             <div className='row row-cols g-1'>
                               <div className='col my-auto mx-auto'>
-                                {item.ruta!=null&&<img width='30' src={`${server}/adjunto/${item.ruta}`}></img>}
+                                {item.ruta != null && <img width='30' src={`${server}/adjunto/${item.ruta}`}></img>}
                               </div>
                               <div className='col text-start'>
-                                <div className='text-center fw-bold' style={{fontSize:'10px'}}>Albitro: {index+1}</div>
-                                <div className='text-center fw-bold' style={{fontSize:'10px'}}>{item.nombres}</div>
+                                <div className='text-center fw-bold' style={{ fontSize: '10px' }}>Albitro: {index + 1}</div>
+                                <div className='text-center fw-bold' style={{ fontSize: '10px' }}>{item.nombres}</div>
                               </div>
                             </div>
                           </div>
