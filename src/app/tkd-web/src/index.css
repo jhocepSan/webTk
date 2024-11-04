@@ -131,16 +131,16 @@ body{
 	height: 350px !important;
 }
 .botonLlave{
-	background-color: rgba(160, 74, 241, 0.562);
-	color: #ffffff;
+	background-color: rgba(160, 74, 241, 0.562) !important;
+	color: #ffffff !important;
 }
 .botonFeme{
-	background-color: rgb(255, 175, 222);
-	color: #000000;
+	background-color: rgb(255, 175, 222) !important;
+	color: #000000 !important;
 }
 .botonMasc{
-	background-color: rgb(175, 236, 255);
-	color: #000000;
+	background-color: rgb(175, 236, 255) !important;
+	color: #000000 !important;
 }
 .botonNegro{
 	background-color: rgb(94, 93, 93);

@@ -19,7 +19,7 @@ function VisorFaltas(props) {
             {lista && <div className="btn-group btn-group-sm">
                 {lista.map((i, j) => {
                     return (
-                        <button className='btn btn-sm btn-warning mx-1 text-light text-center fw-bold' key={j}>
+                        <button className='btn btn-sm btn-warning mx-2 text-light text-center fw-bold' key={j}>
                             F{j+1}
                         </button>
                     )

@@ -215,12 +215,21 @@ export const getCompetidorClasificadoLista = async (info) => {
             and (c.idclub=? or ?=0) )res left join subcategoria subcate on res.idcategoria=subcate.idcategoria
             where (res.peso+0.001)>=subcate.pesoini and (res.peso-0.001)<=subcate.pesofin
             order by res.idcompetidor`
+    var sql3 = `select count(idllave)as numLLaves from tkdb.llave where idcampeonato=? and tipo=? and genero=? and estado='A';`
+    var sql4 = `DROP TEMPORARY TABLE IF EXISTS lista_comp;`
+    var sql5 = `CREATE TEMPORARY TABLE lista_comp AS
+        SELECT * FROM tkdb.competidor WHERE idcampeonato=?
+        UNION 
+        SELECT 0, 'SIN OPONENTE', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'A', NULL, NULL, NULL, NULL;`
     var conn;
     try {
         conn = await pool.getConnection();
         const [result] = await conn.query(sql,
             [info.idCampeonato, info.tipo, info.genero, info.idClub, info.idClub])
-        return { "ok": result }
+        const [hayLlave] = await conn.query(sql3,[info.idCampeonato,info.tipo,info.genero])
+        await conn.query(sql4)
+        await conn.query(sql5,[info.idCampeonato])
+        return { "ok": {'lista':result,'hayLlave':hayLlave} }
     } catch (error) {
         console.log(error);
         return { "error": error.message }
@@ -291,7 +300,7 @@ export const getCompetidoresFestival = async (info) => {
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql1,
+        const [result] = await conn.query(sql,
             [info.idCampeonato, info.tipo, info.genero, info.idClub, info.idClub])
         return { "ok": result }
     } catch (error) {
@@ -324,9 +333,10 @@ const getCompetidorClasificados = async (info) => {
             WHERE c.idcampeonato=? and c.tipo=? and c.genero=?  and c.estado="A" 
             and c.idgrado=? )res left join subcategoria subcate on res.idcategoria=subcate.idcategoria
             where (res.peso+0.001)>=subcate.pesoini and (res.peso-0.001)<=subcate.pesofin
-            and res.idcategoria=? and res.idsubcategoria=?;`;
+            and res.idcategoria=? and subcate.idsubcategoria=?;`;
     var conn;
     try {
+        console.log(info)
         conn = await pool.getConnection();
         const [result] = await conn.query(sql1,
             [info.idCampeonato, info.tipo, info.genero, info.idgrado, info.idcategoria, info.idsubcategoria])
@@ -349,8 +359,32 @@ function getNumLL(numC){
         return 32
     }
 }
+const procesarLlave =async(info)=>{
+    var sql = `SELECT idpelea,idllave,idganador,tipo FROM tkdb.pelea WHERE idganador is not NULL
+        AND idllave=? AND tipo=? ORDER BY idpelea;`
+    var sql1 = 'INSERT INTO tkdb.pelea (idllave,idcompetidor1,idcompetidor2,nropelea,idganador,tipo) VALUES (?,?,?,?,?,?);'
+    var conn;
+    try {
+        conn = await pool.getConnection();
+        var [result]= await conn.query(sql,[info.idllave,info.nivel]);
+        if(result.length>1){
+            for (var i=0 ;i<result.length;i+=2){
+                if(Math.abs(result[i].idpelea-result[i+1].idpelea)==1){
+                    await conn.query(sql1,[info.idllave,result[i].idganador,result[i+1].idganador,0,null,info.nivel+1])
+                    await conn.commit()
+                }
+            }
+        }
+        return {'ok':"okey "}
+    } catch (error) {
+        await conn.rollback()
+        return { "error": error.message }
+    }finally {
+        if (conn) { await conn.release(); }
+    }
+}
 const generarPelea = async (info) => {
-    var sql = 'INSERT INTO pelea (idllave,idcompetidor1,idcompetidor2,nropelea) VALUES (?,?,?,?);'
+    var sql = 'INSERT INTO pelea (idllave,idcompetidor1,idcompetidor2,nropelea,idganador) VALUES (?,?,?,?,?);'
     var conn;
     try {
         var competidores = info.COMPETIDORES.sort(function (a, b) { return (Math.random() - 0.5) })
@@ -366,9 +400,18 @@ const generarPelea = async (info) => {
             }   
         }
         for (let i = 0; i < listaId.length; i += 2) {
-            const [result] = await conn.query(sql, [info.idllave, listaId[i], listaId[i + 1], 0]);
+            var idGanador=null;
+            if(listaId[i]==0){
+                idGanador=listaId[i+1];
+            }else if(listaId[i+1]==0){
+                idGanador=listaId[i];
+            }else if(listaId[i]==0 && listaId[i+1]){
+                idGanador=0;
+            }
+            const [result] = await conn.query(sql, [info.idllave, listaId[i], listaId[i + 1], 0,idGanador]);
             await conn.commit();
         }
+        await procesarLlave({'idllave':info.idllave,'nivel':0})
         return { "ok": "generado" }
     } catch (error) {
         console.log(error);
@@ -494,7 +537,6 @@ export const generateLLaves = async (info) => {
         console.log(info);
         conn = await pool.getConnection();
         const [result] = await conn.query(sql, [info.idCampeonato, info.tipo])
-        console.log(result)
         for (var grado of result) {
             for (var cat of info.categorias) {
                 var subcategorias = cat.SUBCATEGORIA;
@@ -679,31 +721,77 @@ export const obtenerLlaveRompimineto = async (info) => {
 }
 
 export const obtenerLlaves = async (info) => {
-    var sql = 'select * from (SELECT lv.idllave,lv.fecha,lv.tipo,lv.idgrado,lv.genero,lv.idcategoria,lv.idsubcategoria,lv.idcampeonato,lv.estado,lv.area, ' +
+    var sql0 = 'select * from (SELECT lv.idllave,lv.fecha,lv.tipo,lv.idgrado,lv.genero,lv.idcategoria,lv.idsubcategoria,lv.idcampeonato,lv.estado,lv.area, ' +
         'gr.nombre as nombregrado,cat.nombre as nombrecategoria,scat.nombre as nombresubcategoria,cat.edadini,cat.edadfin,scat.pesoini,scat.pesofin ' +
         'FROM llave lv INNER JOIN grado gr on gr.idgrado=lv.idgrado ' +
         'INNER JOIN categoria cat on cat.idcategoria=lv.idcategoria ' +
         'INNER JOIN subcategoria scat on scat.idsubcategoria=lv.idsubcategoria ' +
-        'WHERE lv.tipo=? and lv.idcampeonato=? and lv.estado="A" ' +
-        'UNION SELECT idllave,fecha,tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato,estado,0,"EXHIBICIÓN","EXHIBICIÓN","EXHIBICIÓN",1,1,1,1 FROM llave where idgrado=-1 and tipo=? and idcampeonato=? and estado="A" )res order by res.genero ;';
-    var sql2 = 'SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,res.nropelea,'+
-        'res.idganador,res.idperdedor,res.nombres,res.apellidos,res.clubuno, ' +
-        'res.idcinturon,res.cinturonuno,cm.idcinturon as idcinturondos,(select cin.nombre from cinturon cin where cin.idcinturon=cm.idcinturon)as cinturondos, ' +
-        'cm.nombres as nombres2,cm.apellidos as apellidos2,(select cl.nombre from club cl where cl.idclub=cm.idclub) as clubdos FROM ' +
-        '(SELECT p.idpelea,p.idpeleapadre,p.idllave,p.idcompetidor1,p.idcompetidor2,p.nropelea,p.idganador,p.idperdedor,c.nombres,c.apellidos,c.idcinturon, ' +
-        '(select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturonuno, ' +
-        '(select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno ' +
-        'FROM pelea p inner join (select * from competidor union select 0,"BYE",null,null,null,null,null,null,null,null,null,null,"A",null,null,null) c on c.idcompetidor=p.idcompetidor1) res ' +
-        'INNER JOIN (select * from competidor union select 0,"BYE",null,null,null,null,null,null,null,null,null,null,"A",null,null,null) cm on cm.idcompetidor=res.idcompetidor2 where res.idllave=? order by res.idpelea';
+        'WHERE lv.tipo=? and lv.idcampeonato=? and lv.estado="A" and cat.idcategoria=? ' +
+        'UNION SELECT idllave,fecha,tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato,estado,0,"EXHIBICIÓN","EXHIBICIÓN","EXHIBICIÓN",1,1,1,1 FROM llave where idgrado=-1 and tipo=? and idcampeonato=? and estado="A" )res order by res.idllave,res.genero ;';
+    var sql =`SELECT lv.idllave,lv.fecha,lv.tipo,lv.genero,lv.idcategoria,lv.idsubcategoria,lv.idgrado,
+        lv.estado,lv.area,cat.nombre AS nombrecategoria,cat.edadini,cat.edadfin,grad.nombre AS nombregrado,
+        subcat.nombre AS nombresubcategoria,subcat.pesoini,subcat.pesofin
+        FROM tkdb.llave lv 
+        INNER JOIN 
+        (SELECT c.* from tkdb.categoria c WHERE estado='A' 
+            UNION SELECT -1,'EXHIBICIÓN',1,1,?,'M','A'
+            UNION SELECT -1,'EXHIBICIÓN',1,1,?,'F','A') cat
+        ON lv.idcategoria=cat.idcategoria and lv.genero=cat.genero
+        LEFT JOIN 
+        (SELECT -1 AS idgrado,'MANUAL' AS nombre,'C'AS tipo,? AS idcampeonato,'A' AS estado UNION
+        SELECT gr.* FROM tkdb.grado gr WHERE gr.estado!='E') grad
+        ON grad.idgrado=lv.idgrado
+        LEFT JOIN 
+        (SELECT -1 AS idsubcategoria,-1 AS idcategoria,'EXHIBICIÓN' AS nombre,-1 AS pesoini,
+        -1 AS pesofin UNION SELECT subc.* FROM tkdb.subcategoria subc) subcat
+        ON subcat.idsubcategoria=lv.idsubcategoria
+        WHERE lv.estado='A' and lv.idcampeonato=? AND (?=-2 OR lv.idcategoria=?) AND lv.tipo=?;`
+    var sql4 = `SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,
+        res.nropelea,res.idganador,res.idperdedor,res.nombres,res.apellidos,res.clubuno,res.tipo,
+        cm.nombres as nombres2,cm.apellidos as apellidos2,cm.idclub as idclubdos,res.idclubuno,
+		  (select cl.nombre from club cl where cl.idclub=cm.idclub) as clubdos,
+        cm.peso as pesodos,cm.edad as edaddos,res.edaduno,res.pesouno,cm.cinturondos,res.cinturonuno
+        FROM 
+        (SELECT p.idpelea,p.idpeleapadre,p.idllave,p.idcompetidor1,
+		  	p.idcompetidor2,p.nropelea,p.idganador,p.idperdedor,p.tipo,c.nombres,c.apellidos, 
+        (select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno,c.idclub as idclubuno,
+		  c.edad AS edaduno,c.peso AS pesouno,c.cinturonuno
+        FROM pelea p left join (SELECT c.*,cnt.nombre AS cinturonuno FROM tkdb.competidor c 
+        INNER JOIN tkdb.cinturon cnt ON cnt.idcinturon=c.idcinturon
+		  where idcampeonato=? and estado='A' 
+        UNION SELECT 0, 'SIN OPONENTE', NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL, NULL, NULL, 'A', NULL, NULL, NULL, NULL,NULL) c 
+			on c.idcompetidor=p.idcompetidor1) res
+        INNER JOIN (SELECT c.*,cnt.nombre AS cinturondos FROM tkdb.competidor c INNER JOIN tkdb.cinturon cnt ON cnt.idcinturon=c.idcinturon
+		  where idcampeonato=? and estado='A'
+        UNION SELECT 0, 'SIN OPONENTE', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'A', NULL, NULL, NULL, NULL,NULL) cm 
+        on cm.idcompetidor=res.idcompetidor2 WHERE res.idllave=? order by res.idpelea;`
+    var sql2 = `select res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,res.nropelea,res.idganador,
+        res.idperdedor,res.nombres,res.edad as edaduno,res.peso as pesouno,res.apellidos,res.clubuno,res.cinturonuno, 
+        c.nombres as nombres2,c.apellidos as apellidos2,(select cl.nombre from club cl where cl.idclub=c.idclub) as clubdos,
+        (select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturondos,c.idclub AS idclubdos, 
+        c.peso as pesodos,c.edad as edaddos,res.tipo,res.idclubuno
+        from(select p.idpelea,p.idpeleapadre,p.idllave,p.idcompetidor1,p.idcompetidor2,p.nropelea,p.idganador,p.idperdedor,p.tipo,c.nombres,c.apellidos, 
+        (select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno,c.edad,c.peso,genero,c.idclub AS idclubuno, 
+        (select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturonuno 
+        from pelea p inner join competidorsinpelea c on p.idcompetidor1=c.idcompetidor) res inner join 
+		(select * from competidorsinpelea union select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null) c on res.idcompetidor2=c.idcompetidor 
+        where res.idllave=? order by res.idpelea;`;
     var conn;
     try {
+        console.log(info)
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql, [info.tipo, info.idCampeonato, info.tipo, info.idCampeonato]);
-        console.log(result,info)
+        //const [result] = await conn.query(sql, [info.tipo, info.idCampeonato,info.idCategoria, info.tipo, info.idCampeonato]);
+        const [result] = await conn.query(sql, [info.idCampeonato, info.idCampeonato,
+            info.idCampeonato,info.idCampeonato,info.idCategoria,info.idCategoria, info.tipo]);
         var resultado = []
         for (var llaves of result) {
-            const [result] = await conn.query(sql2, [llaves.idllave])
-            resultado.push({ ...llaves, "PELEAS": result })
+            if(llaves.idcategoria==-1){
+                const [result] = await conn.query(sql2, [llaves.idllave]);
+                resultado.push({ ...llaves, "PELEAS": result })
+            }else{
+                const [result] = await conn.query(sql4, [info.idCampeonato,info.idCampeonato,llaves.idllave])   
+                resultado.push({ ...llaves, "PELEAS": result })
+            }
         }
         return { "ok": resultado }
     } catch (error) {
@@ -911,7 +999,6 @@ export const eliminarLlavesGeneradas = async(info)=>{
     }
 }
 export const eliminarLlaveManual = async(info)=>{
-    console.log(info);
     var conn;
     var sql = "update llave set estado='E' where idcampeonato=? and idllave=?;"
     var sql2 = "update competidorsinpelea set estado='A' where idcampeonato=? and tipo=? and idcompetidor=?;"
@@ -923,6 +1010,38 @@ export const eliminarLlaveManual = async(info)=>{
         }
         await conn.commit();
         return {'ok':"Eliminacion Correcta"}
+    } catch (error) {
+        console.log(error);
+        return {"error":error.message}
+    } finally {
+        if (conn) {await conn.release()}
+    }
+}
+export const addSeguimientoPelea = async(info)=>{
+    var conn;
+    var sql = `INSERT INTO tkdb.pelea_seguimiento (idpelea,puntouno,faltasuno,puntodos,faltasdos,numround)
+        VALUES (?,?,?,?,?,?);`
+    try {
+        conn = await pool.getConnection();
+        await conn.query(sql,[info.idpelea,info.puntoA,info.faltaA,
+            info.puntoR,info.faltaR,info.round]);
+        await conn.commit();
+        return {'ok':"Guardado ..."}
+    } catch (error) {
+        console.log(error);
+        await conn.rollback();
+        return {"error":error.message}
+    } finally {
+        if (conn) {await conn.release()}
+    }
+}
+export const getSeguimientoPelea = async(info)=>{
+    var conn;
+    var sql = `SELECT * FROM tkdb.pelea_seguimiento WHERE idpelea=?;`
+    try {
+        conn = await pool.getConnection();
+        const [result] = await conn.query(sql,[info.idpelea]);
+        return {'ok':result}
     } catch (error) {
         console.log(error);
         return {"error":error.message}

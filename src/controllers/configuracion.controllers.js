@@ -87,11 +87,15 @@ export const getConfiCategoria = async (info) => {
     }
 }
 export const getConfiCategoriaUnido = async (info) => {
+    var sql = `SELECT * FROM categoria where estado="A" and idcampeonato=? 
+        union select -1,'Exibición',0,0,?,'F','A'
+        union select -1,'Exibición',0,0,?,'M','A'
+        order by genero,edadIni ;`
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query('SELECT * FROM categoria where estado="A" and idcampeonato=? order by genero,edadIni ;',
-            [info.idcampeonato]);
+        const [result] = await conn.query(sql,
+            [info.idcampeonato,info.idcampeonato,info.idcampeonato]);
         var information = []
         for (var categoria of result) {
             const [result] = await conn.query('SELECT * FROM subcategoria where idcategoria=? order by pesoini;', [categoria.idcategoria])

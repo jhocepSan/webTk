@@ -9,23 +9,23 @@ function VistaMandos(props) {
         //      'b': puntosCabeza, 'B': puntosCabezaGiro, 'E': puntosPunio, 'a': puntosPeto, 'A': puntosPetoGiro
         if (valor == 'd' || valor == 'b') {
             return (
-                <button className={`btn btn-sm fs-4 ${valor == 'd' ? 'btn-primary' : 'btn-danger'} `}>🤕</button>
+                <button className={` m-0 p-0 btn btn-sm fs-4 ${valor == 'd' ? 'btn-primary' : 'btn-danger'} `}>🤕</button>
             )
         } else if (valor == 'D' || valor == 'B') {
             return (
-                <button className={`btn btn-sm fs-4 ${valor == 'D' ? 'btn-primary' : 'btn-danger'}`}>🤯</button>
+                <button className={`m-0 p-0  btn btn-sm fs-4 ${valor == 'D' ? 'btn-primary' : 'btn-danger'}`}>🤯</button>
             )
         } else if (valor == 'P' || valor == 'E') {
             return (
-                <button className={`btn btn-sm fs-4 ${valor == 'P' ? 'btn-primary' : 'btn-danger'}`}>✊</button>
+                <button className={`m-0 p-0  btn btn-sm fs-4 ${valor == 'P' ? 'btn-primary' : 'btn-danger'}`}>✊</button>
             )
         } else if (valor == 'c' || valor == 'a') {
             return (
-                <button className={`btn btn-sm fs-4 ${valor == 'c' ? 'btn-primary' : 'btn-danger'}`}>🚶</button>
+                <button className={`m-0 p-0 btn btn-sm fs-4 ${valor == 'c' ? 'btn-primary' : 'btn-danger'}`}>🚶</button>
             )
         } else if (valor == 'C' || valor == 'A') {
             return (
-                <button className={`btn btn-sm fs-4 ${valor == 'C' ? 'btn-primary' : 'btn-danger'}`}>🤸</button>
+                <button className={`m-0 p-0  btn btn-sm fs-4 ${valor == 'C' ? 'btn-primary' : 'btn-danger'}`}>🤸</button>
             )
         }
     }
@@ -81,9 +81,16 @@ function VistaMandos(props) {
                     <tbody>
                         {lecturas.map((item, index) => {
                             return (
-                                <tr key={index}>
+                                <tr key={index} className='m-0 p-0'>
                                     {cantJueces.map((i, j) => {
-                                        return (<td scope="col" key={j}>{item[j] != undefined ? getDibujo(item[j].dato) : <i className="fa-solid fa-plug-circle-xmark text-danger fa-2xl"></i>}</td>)
+                                        return (
+                                            <td scope="col m-0 p-0" key={j}>
+                                                {item[j] != undefined ? getDibujo(item[j].dato) : <div className='m-0 p-0 my-auto'><i className="fa-solid fa-plug-circle-xmark text-danger fa-2xl"></i></div>}
+                                                {item[j] != undefined &&<>
+                                                    <div className='text-dark lh-1' style={{fontSize:'9px'}}>{item[j].nombres}</div>
+                                                    <div className='text-dark lh-1' style={{fontSize:'9px'}}>{item[j].nameclub}</div>
+                                                </>}
+                                            </td>)
                                     })}
                                 </tr>
                             )

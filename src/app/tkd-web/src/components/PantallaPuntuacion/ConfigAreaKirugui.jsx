@@ -66,7 +66,7 @@ function ConfigAreaKirugui() {
                         </div>
                     </div>
                 </div>}
-            {pagina==1&&<PrincipalKirugui area={idArea}/>}
+            {pagina==1&&<PrincipalKirugui area={idArea} setPagina={setPagina}/>}
         </>
     )
 }

@@ -2,9 +2,12 @@ import { pool } from '../utils/connection.js'
 
 export const getPuntosMando = async (info) => {
     var conn;
+    var sql = `SELECT md.*,ur.correo,ur.nombres,(select abreviado from tkdb.club WHERE idclub=ur.idclub)AS nameclub
+        FROM tkdb.mandopunto md INNER JOIN tkdb.usuario ur ON md.idusuario=ur.idusuario
+        WHERE md.sector=? and md.estado="A" and md.tipoalbitro="C" order by md.id;`
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query('SELECT * FROM mandopunto WHERE sector=? and estado="A" and tipoalbitro="C" order by id;', [info.sector]);
+        const [result] = await conn.query(sql, [info.sector]);
         //await conn.query('UPDATE mandopunto SET dato="" WHERE sector=?;',[info.sector])
         return { "ok": result }
     } catch (error) {

@@ -6,7 +6,8 @@ import {addEditCompetidor,getCompetidores,generateLLaves,getCompetidorSinPelea,
     obtenerLlaveRompimineto,getInformacionRompimiento,generarLlavePoomse,
     generarLlaveRompimiento,addEditEquipo,deleteEquipo,getEquipoDemostration,
     guardarRompimientoPuntos,generarLlaveRompimientoFestival,setPosition,cambiarAreaLlave,eliminarLlaveManual,
-    obtenerDatosPuntuadosR,eliminarPuntuacion,eliminarLlavesGeneradas} from '../controllers/competidor.controllers.js'
+    obtenerDatosPuntuadosR,eliminarPuntuacion,eliminarLlavesGeneradas,
+    addSeguimientoPelea,getSeguimientoPelea} from '../controllers/competidor.controllers.js'
 const router = Router();
 
 router.post('/addEditCompetidor',async(req,res)=>{
@@ -248,6 +249,22 @@ router.post('/eliminarLlavesGeneradas',async(req,res)=>{
 })
 router.post('/eliminarLlaveManual',async(req,res)=>{
     const result = await eliminarLlaveManual(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
+router.post('/addSeguimientoPelea',async(req,res)=>{
+    const result = await addSeguimientoPelea(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
+router.post('/getSeguimientoPelea',async(req,res)=>{
+    const result = await getSeguimientoPelea(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

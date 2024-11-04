@@ -61,7 +61,7 @@ function RelojKirugui(props) {
         // Configurar el temporizador al montar el componente
         const timeoutId = setTimeout(() => {
             calcularReloj();
-        }, 1000);
+        }, 1100);
 
         // Limpiar el temporizador al desmontar el componente
         return () => {
@@ -72,7 +72,7 @@ function RelojKirugui(props) {
         <div className={`${tipo == 'r' ? 'reloj-digital btn-group btn-group-sm ' : 'reloj-digitaP my-auto'} text-center w-100 my-auto`} style={{ borderRadius: '15px' }}>
             {tipo == 'r' && <button className='btn btn-sm mx-auto m-0 p-0 text-light' id='btnSubMin' onClick={() => { modificarReloj(segundo -1);}}>
                 <i className="fa-solid fa-circle-minus fa-2xl"></i></button>}
-            <div className='text-center text-light fw-bold m-0 p-0 lh-1'>{tiempo}</div>
+            <div className='text-center text-light fw-bold m-0 p-0 lh-1 my-auto'>{tiempo}</div>
             {tipo == 'r' && <button className='btn btn-sm mx-auto m-0 p-0 text-light' id='btnSumMin' onClick={() => { modificarReloj(segundo + 1);}}>
                 <i className="fa-solid fa-circle-plus fa-2xl"></i></button>}
         </div>

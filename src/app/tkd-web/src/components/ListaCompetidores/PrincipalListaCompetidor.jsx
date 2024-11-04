@@ -206,10 +206,14 @@ function PrincipalListaCompetidor() {
                 .then(res => res.json())
                 .then(data => {
                     setCargador(false);
-                    if (data.ok) {
-                        obtenerLLaves();
-                        comprobarEstado(data.ok);
-                        setListaCompetidores(data.ok);
+                    if (data.ok.lista) {
+                        if(data.ok.hayLlave[0].numLLaves!=0){
+                            setHayLlaves(true);
+                        }else{
+                            setHayLlaves(false);
+                        }
+                        comprobarEstado(data.ok.lista);
+                        setListaCompetidores(data.ok.lista);
                         setBuscado(true);
                     } else {
                         MsgUtils.msgError(data.error);
@@ -262,6 +266,7 @@ function PrincipalListaCompetidor() {
                                 buscarCompetidores();
                                 MsgUtils.msgCorrecto(data.ok);
                             } else {
+                                setCargador(false);
                                 MsgUtils.msgError(data.error);
                             }
                         })
@@ -564,10 +569,10 @@ function PrincipalListaCompetidor() {
                     {hayLlaves && tipo !== 'D' && <div className='col' style={{ maxWidth: '110px', minWidth: '110px' }}>
                         <button className='btn btn-sm btn-primary letraBtn w-100' 
                             onClick={() => { 
-                                //setVentana(1);
-                                setTipoM('L'); 
+                                setVentana(1);
+                                /*setTipoM('L'); 
                                 setTituloModal('Llaves Generadas');
-                                setShowModal(true);
+                                setShowModal(true);*/
                             }}>
                             <i className="fa-solid fa-network-wired"></i> Llaves
                         </button>
@@ -715,7 +720,8 @@ function PrincipalListaCompetidor() {
                         </table>
                     </div>
                 </>}
-            {ventana==1&&<AdminLlaves llaves={listaLlaves} idCampeonato={idCampeonato} tipo={tipo}/>}
+            {ventana==1&&<AdminLlaves setVentana={setVentana} idCampeonato={idCampeonato} 
+                tipo={tipo} tipoL={'E'} setCargador={setCargador} collback={()=>{}}/>}
             <Modal show={showModal} onHide={() => setShowModal(false)}
                 size={'xl'}
                 aria-labelledby="contained-modal-title-vcenter"

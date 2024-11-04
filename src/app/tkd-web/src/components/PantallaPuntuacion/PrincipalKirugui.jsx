@@ -11,9 +11,11 @@ import VisorFaltas from '../GamePad/VisorFaltas';
 import Modal from 'react-bootstrap/Modal';
 import MsgUtils from '../utils/MsgUtils';
 import EstadisticaPelea from '../GamePad/EstadisticaPelea';
+import AdminLlaves from '../ListaCompetidores/AdminLlaves';
+import LlavesConsultas from '../ConsultasApi/LlavesConsultas';
 
 function PrincipalKirugui(props) {
-    const {area} = props;
+    const { area, setPagina } = props;
     const navigate = useNavigate();
     const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
     const [activarLectura, setActivarLectura] = useState(false);
@@ -33,14 +35,20 @@ function PrincipalKirugui(props) {
         'puntoR': 0, 'faltaR': 0
     });
     const [areas, setAreas] = useState([]);
-    const [idArea,setIdArea] = useState(area);
+    const [idArea, setIdArea] = useState(area);
     const [msgModal, setMsgModal] = useState({});
     const [resultPre, setResultPre] = useState([]);
     const [mandoLec, setMandoLec] = useState([]);
+    const [ventana, setVentana] = useState(0);
+    const [selectPelea, setSelectPelea] = useState(null);
     const { isLoading, data, isError, error } = useQuery(
         {
             queryKey: ['mandos'],
-            queryFn: () => getMandosPuntuados({ sector: area, cont: localStorage.getItem('contAux') != undefined ? 0 : localStorage.getItem('contAux') }),
+            queryFn: () => getMandosPuntuados(
+                {
+                    sector: area,
+                    cont: localStorage.getItem('contAux') != undefined ? 0 : localStorage.getItem('contAux')
+                }),
             refetchInterval: activarLectura ? frecLectura : false
         }
     )
@@ -60,9 +68,10 @@ function PrincipalKirugui(props) {
             'puntoR': 0, 'faltaR': 0
         })
         setResultPre([]);
+        setSelectPelea(null);
         localStorage.setItem('doblePant', JSON.stringify({
             'isPlay': false, 'round': 1, 'reset': true, 'puntoA': 0, 'faltaA': 0,
-            'puntoR': 0, 'faltaR': 0, 'nombreA': '', 'nombreR': '', 'gano': '','area':idArea
+            'puntoR': 0, 'faltaR': 0, 'nombreA': '', 'nombreR': '', 'gano': '', 'area': idArea
         }))
     }
     const getClubes = async () => {
@@ -167,8 +176,11 @@ function PrincipalKirugui(props) {
         }
     }
     function resultadoFinal() {
-        setResultPre([])
-        setShowModal(false);
+        console.log(msgModal)
+        console.log(resultPre)
+        console.log(puntoJuego)
+        /*setResultPre([])
+        setShowModal(false);*/
         //document.getElementById('btnReset').click();
     }
     function functionContarPunto(lista) {
@@ -214,6 +226,8 @@ function PrincipalKirugui(props) {
                                 localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': 'R', isPlay: false }));
                             }
                             setPuntoJuego({ ...prePunt })
+                        } else {
+                            setPuntoJuego({ ...prePunt })
                         }
                         recetearValoresDb()
                     } else {
@@ -239,55 +253,65 @@ function PrincipalKirugui(props) {
             })
             .catch(error => MsgUtils.msgError(error));
     }
-    function guardarCombate() {
-        console.log("sumatoria dde rondas")
-        if (parseInt(configure.numRound) == puntoJuego.round) {
-            setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }])
-            var datos = [...resultPre, { ...puntoJuego, 'gano': tipoM }]
-            console.log(datos)
-            if (configure.enableMaxPoint) {
-                var sumaA = datos.map(item => parseInt(item.puntoA)).reduce((acumulador, numero) => acumulador + numero, 0);
-                var sumaR = datos.map(item => parseInt(item.puntoA)).reduce((acumulador, numero) => acumulador + numero, 0);
-                setMsgModal({ 'azul': sumaA, 'rojo': sumaR })
-                if (sumaA > sumaR) {
-                    setTipoM('AP');
-                    localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'A', isPlay: false }))
-                } else if (sumaR > sumaA) {
-                    setTipoM('RP');
-                    localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'R', isPlay: false }))
+    const guardarCombate = async () => {
+        try {
+            console.log(puntoJuego);
+            var result = await LlavesConsultas.addSeguimientoPelea({ ...puntoJuego, 'idpelea': selectPelea.idpelea });
+            if (result.ok) {
+                if (parseInt(configure.numRound) == puntoJuego.round) {
+                    setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }])
+                    var datos = [...resultPre, { ...puntoJuego, 'gano': tipoM }]
+                    console.log(datos)
+                    if (configure.enableMaxPoint) {
+                        var sumaA = datos.map(item => parseInt(item.puntoA)).reduce((acumulador, numero) => acumulador + numero, 0);
+                        var sumaR = datos.map(item => parseInt(item.puntoA)).reduce((acumulador, numero) => acumulador + numero, 0);
+                        setMsgModal({ 'azul': sumaA, 'rojo': sumaR })
+                        if (sumaA > sumaR) {
+                            setTipoM('AP');
+                            localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'A', isPlay: false }))
+                        } else if (sumaR > sumaA) {
+                            setTipoM('RP');
+                            localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'R', isPlay: false }))
+                        } else {
+                            setTipoM('EP');
+                        }
+                        //setShowModal(true);
+                    } else if (configure.enableMaxRound) {
+                        var roundA = datos.filter((item) => item.gano == 'A');
+                        var roundR = datos.filter((item) => item.gano == 'R');
+                        setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length })
+                        if (roundA.length > roundR.length) {
+                            setTipoM('AR');
+                        } else if (roundR.length > roundA.length) {
+                            setTipoM('RR');
+                        } else {
+                            setTipoM('ER');
+                        }
+                        //setShowModal(true);
+                    }
                 } else {
-                    setTipoM('EP');
+                    console.log("esta porocesando")
+                    if (configure.enableMaxRound == true) {
+                        setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }]);
+                        setPuntoJuego({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true });
+                        setShowModal(false);
+                        localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true }))
+                    }
+                    if (configure.enableMaxPoint == true) {
+                        console.log("esta porocesando maximo puntos")
+                        setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }]);
+                        setPuntoJuego({ ...puntoJuego, 'round': puntoJuego.round + 1, 'isPlay': false, 'newRound': true })
+                        setShowModal(false);
+                        localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, 'round': puntoJuego.round + 1, 'isPlay': false, 'newRound': true }))
+                    }
                 }
-                //setShowModal(true);
-            } else if (configure.enableMaxRound) {
-                var roundA = datos.filter((item) => item.gano == 'A');
-                var roundR = datos.filter((item) => item.gano == 'R');
-                setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length })
-                if (roundA.length > roundR.length) {
-                    setTipoM('AR');
-                } else if (roundR.length > roundA.length) {
-                    setTipoM('RR');
-                } else {
-                    setTipoM('ER');
-                }
-                //setShowModal(true);
+            } else {
+                MsgUtils.msgError(result.error);
             }
-        } else {
-            console.log("esta porocesando")
-            if (configure.enableMaxRound == true) {
-                setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }]);
-                setPuntoJuego({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true });
-                setShowModal(false);
-                localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true }))
-            }
-            if (configure.enableMaxPoint == true) {
-                console.log("esta porocesando maximo puntos")
-                setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }]);
-                setPuntoJuego({ ...puntoJuego, 'round': puntoJuego.round + 1, 'isPlay': false, 'newRound': true })
-                setShowModal(false);
-                localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, 'round': puntoJuego.round + 1, 'isPlay': false, 'newRound': true }))
-            }
+        } catch (error) {
+            MsgUtils.msgError(error.message);
         }
+
     }
     function Sonido(nota) {
         var Sonidos = [261, 277, 293, 311, 329, 349, 369, 392, 415, 440, 466, 493];
@@ -300,15 +324,36 @@ function PrincipalKirugui(props) {
         osc.start();
         osc.stop(context.currentTime + .5);
     }
-    function ejecutarJuego(valor) {
-        if (valor) {
-            Sonido(11);
+    function elegirCompetidor(pelea) {
+        setSelectPelea(pelea);
+        if (pelea.idcompetidor1 != 0) {
+            setNombreA(pelea.nombres)
+            setIdClubA(pelea.idclubuno)
         } else {
-            Sonido(5);
+            setNombreA('')
+            setIdClubA(-1)
         }
-        localStorage.setItem('contAux', 0);
-        setPuntoJuego({ ...puntoJuego, isPlay: valor, reset: false, 'newRound': false })
-        localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, isPlay: valor, reset: false, nombreA, nombreR, 'gano': '' }))
+        if (pelea.idcompetidor2 != 0) {
+            setNombreR(pelea.nombres2)
+            setIdClubR(pelea.idclubdos)
+        } else {
+            setNombreR('');
+            setIdClubR(-1)
+        }
+    }
+    function ejecutarJuego(valor) {
+        if (selectPelea != null) {
+            if (valor) {
+                Sonido(11);
+            } else {
+                Sonido(5);
+            }
+            localStorage.setItem('contAux', 0);
+            setPuntoJuego({ ...puntoJuego, isPlay: valor, reset: false, 'newRound': false })
+            localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, isPlay: valor, reset: false, nombreA, nombreR, 'gano': '' }))
+        } else {
+            MsgUtils.msgError("Elija una pelea antes de iniciar ...")
+        }
     }
     function getFaltaAcumulada(color) {
         var cont = 0;
@@ -401,75 +446,84 @@ function PrincipalKirugui(props) {
             {isError && <div>error: {error.message}</div>}
             {isError == false &&
                 <>
-                    <div className='container-fluid py-1'>
-                        <div className='row row-cols gx-1 mb-1' style={{ height: '75%' }}>
-                            <div className='col' style={{ maxWidth: '20%', minWidth: '20%' }}>
-                                <VistaMandos datos={data} setActivarLectura={setActivarLectura} activarLectura={activarLectura}
-                                    configure={configure.numMandos != undefined ? configure : null} collback={lecturadeDatos}
+                    <div className='container-fluid py-2'>
+                        <div className='row row-cols-1 row-cols-sm-1 row-cols-md-2 gx-1 mb-1' style={{ height: '75%' }}>
+                            <div className='col col-sm-12 col-md-2'>
+                                <VistaMandos datos={data} setActivarLectura={setActivarLectura}
+                                    activarLectura={activarLectura}
+                                    configure={configure.numMandos != undefined ? configure : null}
+                                    collback={lecturadeDatos}
                                     puntoJuego={puntoJuego} showStadistic={showStadistic} />
                             </div>
-                            <div className='col' style={{ maxWidth: '80%', minWidth: '80%' }}>
+                            <div className='col col-sm-12 col-md-10'>
                                 <div className='container-fluid fondoControles '>
-                                    <div className="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                                        <Link className='btn btn-sm botonMenu my-auto' data-bs-toggle="tooltip"
-                                            data-bs-placement="bottom" title="Abrir pantalla extendida"
-                                            onClick={() => localStorage.setItem('doblePant', JSON.stringify({
-                                                'isPlay': false, 'round': 1, 'reset': false,
-                                                'puntoA': 0, 'faltaA': 0, 'gano': '',
-                                                'puntoR': 0, 'faltaR': 0, nombreA, nombreR,'area':idArea
-                                            }))}
-                                            to={'/scoreDobleK'} target='blanck'>
-                                            <i className="fa-brands fa-windows fa-xl"></i>
-                                        </Link>
-                                        <button type="button" className="btn mx-1 btn-sm botonMenu"
-                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Iniciar Competencia" id='buttonPlay'
-                                            onClick={() => ejecutarJuego(!puntoJuego.isPlay)}>
-                                            <span className='fs-2 fh-1'>{puntoJuego.isPlay ? '⌚' : '⏵'}</span>(P)
-                                        </button>
+                                    <div className="row row-cols g-0">
                                         <button type="button" className="btn btn-sm mx-1 btn-sm botonMenu d-none"
                                             id='buttonFinal'
                                             data-bs-toggle="tooltip" data-bs-placement="bottom" title="Pausar Competencia"
                                             onClick={() => calcularResultado()}>
                                             <i className="fa-solid fa-circle-pause fa-xl"></i>
                                         </button>
-                                        <div className='text-center text-light tituloMenu fw-bold lh-1'
-                                            style={{ fontSize: '33px', width: '290px' }}>
-                                            Round {puntoJuego.round}<br></br>AREA {idArea==0?'?':idArea}
+                                        <div className='col my-auto' style={{ minWidth: '40px', maxWidth: '40px' }}>
+                                            <Link className='btn btn-sm botonMenu my-auto mx-auto'
+                                                title="Abrir pantalla extendida"
+                                                onClick={() => localStorage.setItem('doblePant', JSON.stringify({
+                                                    'isPlay': false, 'round': 1, 'reset': false,
+                                                    'puntoA': 0, 'faltaA': 0, 'gano': '',
+                                                    'puntoR': 0, 'faltaR': 0, nombreA, nombreR, 'area': idArea
+                                                }))}
+                                                to={'/scoreDobleK'} target='blanck'>
+                                                <i className="fa-brands fa-windows fa-2xl"></i>
+                                            </Link>
                                         </div>
-                                        <div className='text-center mx-1' style={{ fontSize: '45px', width: '230px' }} >
+                                        <div className='col my-auto' style={{ minWidth: '65px', maxWidth: '65px' }}>
+                                            <button type="button" className="btn btn-sm botonMenu m-0 p-0"
+                                                title="Iniciar Competencia" id='buttonPlay'
+                                                onClick={() => ejecutarJuego(!puntoJuego.isPlay)}>
+                                                <span className='fh-1' style={{ fontSize: '34px' }}>{puntoJuego.isPlay ? '⌚' : '⏵'}</span>(P)
+                                            </button>
+                                        </div>
+                                        <div className='col my-auto' style={{ minWidth: '70px', maxWidth: '70px' }}>
+                                            <button type="button" className="btn mx-1 btn-sm botonMenu" id='btnReset'
+                                                title="Recetear valores iniciales"
+                                                onClick={() => recetearValores()}>
+                                                <i className="fa-solid fa-repeat fa-2xl"></i>(.)</button>
+                                        </div>
+                                        <div className='text-center text-light tituloMenu fw-bold lh-1'
+                                            style={{ fontSize: '33px', width: '180px' }}>
+                                            Round {puntoJuego.round}<br></br>AREA {idArea == 0 ? '?' : idArea}
+                                        </div>
+                                        <div className='text-center my-auto mx-1 mx-auto' style={{ fontSize: '45px', width: '230px' }} >
                                             <RelojKirugui valor={puntoJuego} conf={configure} tipo='r' collback={() => ''} doble={false} />
                                         </div>
-                                        <div className='text-center mx-1' style={{ fontSize: '45px', width: '230px' }} >
-                                            {puntoJuego.isPlay == false && <RelojKirugui valor={puntoJuego} conf={configure} tipo='s' collback={() => ''} doble={false} />}
+                                        <div className='text-center my-auto mx-1 mx-auto' style={{ fontSize: '45px', width: '230px' }} >
+                                            {puntoJuego.isPlay == false &&
+                                                <RelojKirugui valor={puntoJuego} conf={configure} tipo='s' collback={() => ''} doble={false} />}
                                         </div>
-                                        <button type="button" className="btn mx-1 btn-sm botonMenu" id='btnReset'
-                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Recetear valores iniciales"
-                                            onClick={() => recetearValores()}>
-                                            <i className="fa-solid fa-repeat fa-xl"></i>(.)</button>
                                     </div>
                                 </div>
                                 <div className='container-fluid'>
-                                    <div className='row row-cols-2 gx-0'>
-                                        <div className='col bg-primary bg-gradient col-6'>
-                                            <div className='w-100 p-2'>
-                                                <h1 className='text-start tituloMenu text-light fh-1' style={{ fontSize: '30px' }}>
+                                    <div className='row row-cols-1 row-cols-sm-2 row-cols-md-2 gx-0'>
+                                        <div className='col bg-primary bg-gradient col-md-6'>
+                                            <div className='w-100 p-2 lh-1'>
+                                                <h1 className='text-start tituloMenu text-light lh-1' style={{ fontSize: '30px' }}>
                                                     {nombreA != '' ? nombreA : 'TKD AZUL'}
                                                 </h1>
                                                 {idClubA != -1 &&
-                                                    <h4 className='text-start tituloMenu text-light fh-1'>
+                                                    <h4 className='text-start tituloMenu text-light lh-1'>
                                                         {getClubesNombre(idClubA)}
                                                     </h4>}
                                             </div>
                                             <VisorPunto valor={puntoJuego} tipo='A' />
                                             <VisorFaltas valor={puntoJuego} tipo='A' resultPre={getFaltaAcumulada('A')} />
                                         </div>
-                                        <div className='col bg-danger bg-gradient col-6'>
-                                            <div className='w-100 p-2'>
-                                                <h1 className='text-end tituloMenu text-light' style={{ fontSize: '30px' }}>
+                                        <div className='col bg-danger bg-gradient col-md-6'>
+                                            <div className='w-100 p-2 lh-1'>
+                                                <h1 className='text-end tituloMenu text-light lh-1' style={{ fontSize: '30px' }}>
                                                     {nombreR != '' ? nombreR : 'TKD ROJO'}
                                                 </h1>
                                                 {idClubR != -1 &&
-                                                    <h4 className='text-end tituloMenu text-light'>
+                                                    <h4 className='text-end tituloMenu text-light lh-1'>
                                                         {getClubesNombre(idClubR)}
                                                     </h4>}
                                             </div>
@@ -480,25 +534,27 @@ function PrincipalKirugui(props) {
                                 </div>
                             </div>
                         </div>
-                        <div className='container-fluid fondoControles'>
-                            <div className='row row-cols-2 g-0'>
-                                <div className='col text-center bg-primary'>
-                                    <div className='container-fluid'>
+                        <div className='container-fluid'>
+                            <div className='row row-cols-1 row-cols-sm-1 row-cols-md-2 g-1'>
+                                <div className='col text-center bg-primary '>
+                                    <div className='container-fluid py-2'>
                                         <div className='row row-cols-3 g-0'>
                                             <div className='col'>
-                                                <div className='text-light'>
+                                                <div className='text-light lh-1'>
                                                     Derrota por
                                                 </div>
                                                 <div className='container-fluid'>
                                                     <div className="btn-group btn-group-sm">
-                                                        <button className='btn btn-sm btnScore text-light'
-                                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrotado por el Oponente">
+                                                        <button className='btn btn-sm btnScore text-light m-0 p-0 '
+                                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrota por nocaut">
                                                             <i className="fa-solid fa-skull-crossbones fa-2xl"></i>
                                                         </button>
-                                                        <button className='btn btn-sm btnScore text-info' onClick={() => declararGanador(puntoJuego.puntoA + 1, 'A')}>
+                                                        <button className='btn btn-sm btnScore text-info m-0 p-0 mx-2'
+                                                            title='declarar ganador'
+                                                            onClick={() => declararGanador(puntoJuego.puntoA + 1, 'A')}>
                                                             <i className="fa-solid fa-trophy fa-2xl"></i>
                                                         </button>
-                                                        <button className='btn btn-sm btnScore text-warning'
+                                                        <button className='btn btn-sm btnScore text-warning m-0 p-0'
                                                             data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrotado por el GAM-JEON">
                                                             <i className="fa-solid fa-diamond fa-2xl"></i>
                                                         </button>
@@ -506,30 +562,30 @@ function PrincipalKirugui(props) {
                                                 </div>
                                             </div>
                                             <div className='col'>
-                                                <div className='text-light'>
+                                                <div className='text-light lh-1'>
                                                     Gam-jeom
                                                 </div>
                                                 <div className='container-fluid'>
                                                     <div className="btn-group btn-group-sm">
-                                                        <button className='btn btn-sm btnScore' id='faltaA' onClick={() => procesarFalta(true, 1)}>
+                                                        <button className='btn btn-sm btnScore m-0 p-0 ' id='faltaA' onClick={() => procesarFalta(true, 1)}>
                                                             <i className="fa-solid fa-circle-plus fa-2xl"></i>(F)
                                                         </button>
-                                                        <button className='btn btn-sm btnScore' id='faltaAR' onClick={() => procesarFalta(true, -1)}>
+                                                        <button className='btn btn-sm btnScore m-0 p-0' id='faltaAR' onClick={() => procesarFalta(true, -1)}>
                                                             <i className="fa-solid fa-circle-minus fa-2xl"></i>(f)
                                                         </button>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className='col'>
-                                                <div className='text-light'>
+                                                <div className='text-light lh-1'>
                                                     Punto
                                                 </div>
                                                 <div className='container-fluid'>
                                                     <div className="btn-group btn-group-sm">
-                                                        <button className='btn btn-sm btnScore' id='puntoAP' onClick={() => procesarPunto(true, 1)}>
+                                                        <button className='btn btn-sm btnScore m-0 p-0' id='puntoAP' onClick={() => procesarPunto(true, 1)}>
                                                             <i className="fa-solid fa-circle-plus fa-2xl"></i>(A)
                                                         </button>
-                                                        <button className='btn btn-sm btnScore' id='puntoAN' onClick={() => procesarPunto(true, -1)}>
+                                                        <button className='btn btn-sm btnScore m-0 p-0' id='puntoAN' onClick={() => procesarPunto(true, -1)}>
                                                             <i className="fa-solid fa-circle-minus fa-2xl"></i>(a)
                                                         </button>
                                                     </div>
@@ -539,53 +595,56 @@ function PrincipalKirugui(props) {
                                     </div>
                                 </div>
                                 <div className='col text-center bg-danger'>
-                                    <div className='container-fluid'>
+                                    <div className='container-fluid py-2'>
                                         <div className='row row-cols-3 g-0'>
                                             <div className='col'>
-                                                <div className='text-light'>
+                                                <div className='text-light lh-1'>
                                                     Punto
                                                 </div>
                                                 <div className='container-fluid'>
                                                     <div className="btn-group btn-group-sm">
-                                                        <button className='btn btn-sm btnScore' id='puntoRP' onClick={() => procesarPunto(false, 1)}>
+                                                        <button className='btn btn-sm btnScore m-0 p-0' id='puntoRP' onClick={() => procesarPunto(false, 1)}>
                                                             <i className="fa-solid fa-circle-plus fa-2xl"></i>(R)
                                                         </button>
-                                                        <button className='btn btn-sm btnScore' id='puntoRN' onClick={() => procesarPunto(false, -1)}>
+                                                        <button className='btn btn-sm btnScore m-0 p-0' id='puntoRN' onClick={() => procesarPunto(false, -1)}>
                                                             <i className="fa-solid fa-circle-minus fa-2xl"></i>(r)
                                                         </button>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className='col'>
-                                                <div className='text-light'>
+                                                <div className='text-light lh-1'>
                                                     Gam-jeom
                                                 </div>
                                                 <div className='container-fluid'>
                                                     <div className="btn-group btn-group-sm">
-                                                        <button className='btn btn-sm btnScore' id='faltaR' onClick={() => procesarFalta(false, 1)}>
+                                                        <button className='btn btn-sm btnScore m-0 p-0' id='faltaR' onClick={() => procesarFalta(false, 1)}>
                                                             <i className="fa-solid fa-circle-plus fa-2xl"></i>(Q)
                                                         </button>
-                                                        <button className='btn btn-sm btnScore' id='faltaRR' onClick={() => procesarFalta(false, -1)}>
+                                                        <button className='btn btn-sm btnScore m-0 p-0' id='faltaRR' onClick={() => procesarFalta(false, -1)}>
                                                             <i className="fa-solid fa-circle-minus fa-2xl"></i>(q)
                                                         </button>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className='col'>
-                                                <div className='text-light'>
+                                                <div className='text-light lh-1'>
                                                     Derrota Por
                                                 </div>
                                                 <div className='container-fluid'>
                                                     <div className="btn-group btn-group-sm">
-                                                        <button className='btn btn-sm btnScore text-warning'
+                                                        <button className='btn btn-sm btnScore text-warning m-0 p-0'
                                                             data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrotado por GAM-JEON">
                                                             <i className="fa-solid fa-diamond fa-2xl"></i>
                                                         </button>
-                                                        <button className='btn btn-sm btnScore text-info' onClick={() => declararGanador(puntoJuego.puntoR + 1, 'R')}>
+                                                        <button className='btn btn-sm btnScore text-info m-0 p-0 mx-2'
+                                                            title='Declarar ganador'
+                                                            onClick={() => declararGanador(puntoJuego.puntoR + 1, 'R')}>
                                                             <i className="fa-solid fa-trophy fa-2xl"></i>
                                                         </button>
-                                                        <button className='btn btn-sm btnScore text-light'
-                                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrotado por el Oponente">
+                                                        <button className='btn btn-sm btnScore text-light m-0 p-0'
+                                                            data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                                            title="Derrotado por nocaut">
                                                             <i className="fa-solid fa-skull-crossbones fa-2xl"></i>
                                                         </button>
                                                     </div>
@@ -599,15 +658,35 @@ function PrincipalKirugui(props) {
                     </div>
                     <div className='container-fluid bg-dark bg-gradient py-1'>
                         <div className='row row-cols gx-1'>
-                            <div className='col' style={{minWidth:'100px',maxWidth:'100px'}}>
-                                <button className='btn btn-sm w-100 btn-success'><i className="fa-solid fa-magnifying-glass"></i> CARGAR</button>
+                            <div className='col' style={{ minWidth: '100px', maxWidth: '100px' }}>
+                                {ventana == 0 && <button className='btn btn-sm w-100 btn-success'
+                                    title='Mostrar LLaves' onClick={() => setVentana(1)}
+                                ><i className="fa-solid fa-magnifying-glass"></i> Llaves</button>}
+                                {ventana == 1 && <button className='btn btn-sm w-100 btn-success'
+                                    title='Esconder LLaves' onClick={() => setVentana(0)}
+                                ><i className="fa-solid fa-magnifying-glass"></i> Esconder</button>}
+                            </div>
+                            <div className='col' style={{ minWidth: '100px', maxWidth: '100px' }}>
+                                <button className='btn btn-secondary btn-sm w-100'
+                                    title='salir de la pantalla puntuación'
+                                    onClick={() => setPagina(0)}>
+                                    <i className="fa-solid fa-circle-chevron-left fa-xl"></i> Salir
+                                </button>
                             </div>
                         </div>
                     </div>
+                    {ventana == 1 &&
+                        <div className='overflow-auto' style={{ height: '400px' }}>
+                            <AdminLlaves setVentana={setVentana}
+                                idCampeonato={campeonato.idcampeonato}
+                                tipo={'C'} tipoL={'O'} setCargador={() => { }}
+                                area={area} collback={(dato) => elegirCompetidor(dato)} />
+                        </div>
+                    }
                 </>
             }
             <Modal show={showModal} onHide={() => setShowModal(false)}
-                size={`${tipoM == 'S' ? 'lm' : 'xl'}`} centered
+                size={`${tipoM == 'S' ? 'lm' : 'xl'}`} 
                 backdrop="static"
                 aria-labelledby="contained-modal-title-vcenter"
                 contentClassName={`${(tipoM == 'A' || tipoM == 'AP' || tipoM == 'AR') ? 'bg-primary' : (tipoM == 'R' || tipoM == 'RP' || tipoM == 'RR') ? 'bg-danger' : 'bg-dark'} bg-gradient`}>
@@ -627,7 +706,8 @@ function PrincipalKirugui(props) {
                     <Modal.Body>
                         {tipoM != 'S' && <div className='container-fluid bg-transparent'>
                             <div className='row row-cols-2 gx-2' >
-                                <div className='col text-primary fw-bold tituloMenu text-center ' style={{ fontSize: '90px' }}>
+                                <div className='col text-primary fw-bold tituloMenu text-center ' 
+                                    style={{ fontSize: '90px' }}>
                                     <div className='bg-light'>{msgModal.azul}</div>
                                 </div>
                                 <div className='col text-danger fw-bold tituloMenu text-center' style={{ fontSize: '90px' }}>
@@ -645,7 +725,7 @@ function PrincipalKirugui(props) {
                         </button>}
                     {tipoM != 'S' && tipoM !== 'A' && tipoM !== 'R' && tipoM !== 'EM' &&
                         <button className='btn btn-sm btn-info' onClick={() => { resultadoFinal(); }}>
-                            <i className="fa-solid fa-thumbs-up fa-2xl"></i>Aceptar
+                            <i className="fa-solid fa-thumbs-up fa-2xl"></i> Aceptar
                         </button>}
                 </Modal.Footer>
             </Modal>
