@@ -10,6 +10,7 @@ import UtilsCargador from '../utils/UtilsCargador'
 import { server } from '../utils/MsgUtils';
 import MsgDialogo from '../utils/MsgDialogo';
 import imgTK from '../../assets/tkd.png'
+import UtilsExport from '../utils/UtilsExport';
 
 function PrincipalListaFestivales() {
     const tableRef = useRef(null);
@@ -40,7 +41,18 @@ function PrincipalListaFestivales() {
             return false
         }
     }
-    function generarTargetaComp() {
+    const generarTargetaComp=async()=>{
+        setCargador(true);
+        try {
+            await UtilsExport.exportarTargetaCompetidor(listaCompetidores,tipo);
+        } catch (error) {
+            console.log(error.message);
+            MsgUtils.msgError(error.message);
+        }finally{
+            setCargador(false);
+        }
+    }
+    function sgenerarTargetaComp() {
         var cmpSelect = JSON.parse(localStorage.getItem('campeonato'));
         var subtitulo = '';
         if (tipo == 'C') {

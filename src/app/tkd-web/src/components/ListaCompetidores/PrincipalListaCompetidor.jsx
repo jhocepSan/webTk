@@ -17,6 +17,7 @@ import PrincipalLlavePoomse from './PrincipalLlavePoomse';
 import UtilsBuffer from '../utils/UtilsBuffer';
 import imgTK from '../../assets/tkd.png'
 import AdminLlaves from './AdminLlaves';
+import UtilsExport from '../utils/UtilsExport';
 
 function PrincipalListaCompetidor() {
     const navigate = useNavigate();
@@ -375,7 +376,16 @@ function PrincipalListaCompetidor() {
             })
             .catch(error => MsgUtils.msgError(error));
     }
-    function generarTargetaComp() {
+    const generarTargetaComp = async()=>{
+        try {
+            await UtilsExport.exportarTargetaCompetidor(listaCompetidores,tipo);
+        } catch (error) {
+            console.log(error.message);
+        }finally{
+            setCargador(false);
+        }
+    }
+    function sgenerarTargetaComp() {
         var cmpSelect = JSON.parse(localStorage.getItem('campeonato'));
         var subtitulo = '';
         if (tipo == 'C') {
@@ -636,7 +646,11 @@ function PrincipalListaCompetidor() {
                                 <i className="fa-solid fa-file-pdf"></i> Generar Pdf</button>
                         </div>
                         <div className='col' style={{ maxWidth: '140px', minWidth: '140px' }}>
-                            <button className='btn btn-sm btn-info w-100' onClick={() => {setCargador(true);generarTargetaComp()}}>
+                            <button className='btn btn-sm btn-info w-100' 
+                                onClick={() => {
+                                    setCargador(true);
+                                    generarTargetaComp();
+                                }}>
                                 <i className="fa-solid fa-address-card"></i> Generar Tarjeta</button>
                         </div>
                     </div>
