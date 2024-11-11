@@ -69,7 +69,7 @@ function VistaMandos(props) {
                     </button>
                 </div>
             </div>
-            <div className='table-responsive conainer-fluid' style={{ maxHeight: '63vh' }}>
+            <div className='table-responsive conainer-fluid' style={{ maxHeight: '58vh' }}>
                 <table className="table table-sm table-bordered bg-light text-center">
                     <thead>
                         <tr>

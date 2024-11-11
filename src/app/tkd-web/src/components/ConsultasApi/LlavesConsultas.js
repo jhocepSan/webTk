@@ -69,6 +69,18 @@ async function addSeguimientoPelea(params){
     })
     return result.json()
 }
+async function procesarLlavePelea(params) {
+    var result = await fetch(`${server}/competidor/saveFinalResultPelea`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json;charset=utf-8',
+        },
+        body: JSON.stringify({...params})
+    })
+    return result.json()
+}
 export default {obtenerLlaves,cambiarNumeroPelea,
     cambiarAreaLlave,eliminarLlaves,
-    eliminarLlaveManual,addSeguimientoPelea}
+    eliminarLlaveManual,addSeguimientoPelea,
+    procesarLlavePelea}

@@ -42,7 +42,7 @@ function PrincipalListaCompetidor() {
     const [listaClubs, setListaClubs] = useState([]);
     const [idClub, setIdClub] = useState(0);
     const [listaTiposCam, setListaTiposCam] = useState([]);
-    const [ventana,setVentana] = useState(0);
+    const [ventana, setVentana] = useState(0);
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
 
     function handleDownloadExcel() {
@@ -208,9 +208,9 @@ function PrincipalListaCompetidor() {
                 .then(data => {
                     setCargador(false);
                     if (data.ok.lista) {
-                        if(data.ok.hayLlave[0].numLLaves!=0){
+                        if (data.ok.hayLlave[0].numLLaves != 0) {
                             setHayLlaves(true);
-                        }else{
+                        } else {
                             setHayLlaves(false);
                         }
                         comprobarEstado(data.ok.lista);
@@ -376,12 +376,12 @@ function PrincipalListaCompetidor() {
             })
             .catch(error => MsgUtils.msgError(error));
     }
-    const generarTargetaComp = async()=>{
+    const generarTargetaComp = async () => {
         try {
-            await UtilsExport.exportarTargetaCompetidor(listaCompetidores,tipo);
+            await UtilsExport.exportarTargetaCompetidor(listaCompetidores, tipo);
         } catch (error) {
             console.log(error.message);
-        }finally{
+        } finally {
             setCargador(false);
         }
     }
@@ -430,14 +430,14 @@ function PrincipalListaCompetidor() {
                 y += 3;
                 doc.setFontSize(9);
                 doc.setTextColor(0, 0, 255);
-                doc.setFont('arial','bold');
-                doc.text('ASOCIACIÓN TRADICIONAL DE CLUBES DE', x + 6, y+2);
+                doc.setFont('arial', 'bold');
+                doc.text('ASOCIACIÓN TRADICIONAL DE CLUBES DE', x + 6, y + 2);
                 doc.text('TAEKWONDO COCHABAMBA', x + 12, y + 6);
                 doc.setTextColor(250, 193, 41);
                 doc.setFontSize(12);
                 doc.text('Tarjeta de competencia', x + 4, y + 13);
                 doc.setFontSize(9);
-                doc.setFont('arial','');
+                doc.setFont('arial', '');
                 doc.setTextColor(0, 0, 0);
                 doc.text('Nombre.- ' + est.nombres + ' ' + est.apellidos, x + 3, y + 20);
                 doc.text('Club.- ' + est.club, x + 3, y + 24);
@@ -446,7 +446,7 @@ function PrincipalListaCompetidor() {
                 doc.text('Categoria.- ' + est.nombrecategoria, x + 3, y + 36);
                 doc.setFontSize(13);
                 doc.setTextColor(0, 0, 255);
-                doc.setFont('arial','bold');
+                doc.setFont('arial', 'bold');
                 doc.text(subtitulo, x + 34, y + 42);
                 doc.setTextColor(0, 0, 0);
                 doc.setDrawColor(0, 0, 0);
@@ -454,7 +454,7 @@ function PrincipalListaCompetidor() {
                 doc.setFontSize(10);
                 doc.line(x + 60, y + 34, x + 84, y + 34, 'FD')
                 doc.text('Puesto', x + 68, y + 38);
-                doc.addImage(imgTK, 'JPEG', x +71, y+2 , 14, 14);
+                doc.addImage(imgTK, 'JPEG', x + 71, y + 2, 14, 14);
                 y += 47
                 if (numCard < 3) {
                     numCard += 1
@@ -475,7 +475,7 @@ function PrincipalListaCompetidor() {
         doc.save(cmpSelect.nombre.replace(' ', '') + subtitulo + 'Tarjetas.pdf');
         setCargador(false);
     }
-    function eventoLlave(){
+    function eventoLlave() {
         setShowModal(false);
         document.getElementById('btnBuscarLista').click();
     }
@@ -524,72 +524,83 @@ function PrincipalListaCompetidor() {
         <>
             <Header />
             <UtilsCargador show={cargador} />
-            {ventana==0&&
-            <div className='container-fluid bg-dark bg-gradient py-2'>
-                <div className='row g-2'>
-                    <div className='col-12 col-md-3 my-auto'>
-                        <div className='text-light letraMontserratr'>
-                            Competidores Camp. {tituloo}
+            {ventana == 0 &&
+                <div className='container-fluid bg-dark bg-gradient py-2'>
+                    <div className='row g-2'>
+                        <div className='col-12 col-md-3 my-auto'>
+                            <div className='text-light letraMontserratr'>
+                                Competidores Camp. {tituloo}
+                            </div>
                         </div>
-                    </div>
-                    <div className='col' style={{ maxWidth: '120px', minWidth: '120px' }}>
-                        <select className="form-select form-select-sm btn-secondary letraBtn" value={tipo}
-                            onChange={(e) => { setTipo(e.target.value); setBuscado(false); }}>
-                            <option value=''>Tipo (Ninguno)</option>
-                            <option value="C">Combate</option>
-                            <option value="P">Poomse</option>
-                            <option value="D">Demostraciones</option>
-                            <option value="R">Rompimiento</option>
-                        </select>
-                    </div>
-                    {tipo != 'D' && <div className='col' style={{ maxWidth: '100px', minWidth: '100px' }}>
-                        <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
-                            value={genero} onChange={(e) => { setGenero(e.target.value); setBuscado(false); listaTiposCam.length == 0 ? obtenerTiposCampeonato() : '' }}>
-                            <option value={''}>Genero</option>
-                            <option value={'M'}>Masculino</option>
-                            <option value={'F'}>Femenino</option>
-                        </select>
-                    </div>}
-                    {tipo != 'D' && <div className='col' style={{ maxWidth: '130px', minWidth: '130px' }}>
-                        <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
-                            value={idClub} onChange={(e) => { setIdClub(e.target.value) }}>
-                            <option value={0}>Club?(Todos)</option>
-                            {listaClubs.map((item, index) => {
-                                return (
-                                    <option value={item.idclub} key={index}>{item.nombre}</option>
-                                )
-                            })}
-                        </select>
-                    </div>}
-                    <div className='col' style={{ maxWidth: '100px', minWidth: '100px' }}>
-                        <button className='btn btn-sm btn-success letraBtn w-100' 
-                            id='btnBuscarLista'
-                            onClick={() => buscarCompetidores()}>
-                            <i className="fa-solid fa-spinner "></i> Buscar
-                        </button>
-                    </div>
-                    {hayLlaves === false && listaCompetidores.length !== 0 && tipo !== 'D' &&
+                        <div className='col' style={{ maxWidth: '120px', minWidth: '120px' }}>
+                            <select className="form-select form-select-sm btn-secondary letraBtn" value={tipo}
+                                onChange={(e) => { setTipo(e.target.value); setBuscado(false); }}>
+                                <option value=''>Tipo (Ninguno)</option>
+                                <option value="C">Combate</option>
+                                <option value="P">Poomse</option>
+                                <option value="D">Demostraciones</option>
+                                <option value="R">Rompimiento</option>
+                            </select>
+                        </div>
+                        {tipo != 'D' && <div className='col' style={{ maxWidth: '100px', minWidth: '100px' }}>
+                            <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
+                                value={genero} onChange={(e) => { setGenero(e.target.value); setBuscado(false); listaTiposCam.length == 0 ? obtenerTiposCampeonato() : '' }}>
+                                <option value={''}>Genero</option>
+                                <option value={'M'}>Masculino</option>
+                                <option value={'F'}>Femenino</option>
+                            </select>
+                        </div>}
+                        {tipo != 'D' && <div className='col' style={{ maxWidth: '130px', minWidth: '130px' }}>
+                            <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
+                                value={idClub} onChange={(e) => { setIdClub(e.target.value) }}>
+                                <option value={0}>Club?(Todos)</option>
+                                {listaClubs.map((item, index) => {
+                                    return (
+                                        <option value={item.idclub} key={index}>{item.nombre}</option>
+                                    )
+                                })}
+                            </select>
+                        </div>}
                         <div className='col' style={{ maxWidth: '100px', minWidth: '100px' }}>
-                            <button className='btn btn-sm btn-warning letraBtn w-100'
-                                disabled={noValido}
-                                onClick={() => GenerarLlaves()}>
-                                <i className="fa-solid fa-network-wired"></i> Crear
+                            <button className='btn btn-sm btn-success letraBtn w-100'
+                                id='btnBuscarLista'
+                                onClick={() => buscarCompetidores()}>
+                                <i className="fa-solid fa-spinner "></i> Buscar
+                            </button>
+                        </div>
+                        {hayLlaves === false && listaCompetidores.length !== 0 && tipo !== 'D' &&
+                            <div className='col' style={{ maxWidth: '100px', minWidth: '100px' }}>
+                                <button className='btn btn-sm btn-warning letraBtn w-100'
+                                    disabled={noValido}
+                                    onClick={() => GenerarLlaves()}>
+                                    <i className="fa-solid fa-network-wired"></i> Crear
+                                </button>
+                            </div>}
+                        {hayLlaves && tipo !== 'D' && <div className='col' style={{ maxWidth: '110px', minWidth: '110px' }}>
+                            <button className='btn btn-sm btn-primary letraBtn w-100'
+                                onClick={() => {
+                                    if (tipo == 'C') {
+                                        setVentana(1);
+                                    } else {
+                                        obtenerLLaves();
+                                        setTipoM('L');
+                                        setTituloModal('Llaves Generadas');
+                                        setShowModal(true);
+                                    }
+                                }}>
+                                <i className="fa-solid fa-network-wired"></i> Llaves
                             </button>
                         </div>}
-                    {hayLlaves && tipo !== 'D' && <div className='col' style={{ maxWidth: '110px', minWidth: '110px' }}>
-                        <button className='btn btn-sm btn-primary letraBtn w-100' 
-                            onClick={() => { 
-                                setVentana(1);
-                                /*setTipoM('L'); 
-                                setTituloModal('Llaves Generadas');
-                                setShowModal(true);*/
-                            }}>
-                            <i className="fa-solid fa-network-wired"></i> Llaves
-                        </button>
-                    </div>}
-                </div>
-            </div>}
-            {buscado && listaCompetidores.length !== 0 && tipo != 'D' && ventana==0&&<>
+                        <div className='col d-none' style={{ maxWidth: '150px', minWidth: '150px' }}>
+                            <button className='btn btn-sm btn-light letraBtn w-100'
+                                title='Lista total de Estudiantes incritos por club '
+                                onClick={() => {}}>
+                                <i className="fa-solid fa-list-check"></i> Lista Inscritos
+                            </button>
+                        </div>
+                    </div>
+                </div>}
+            {buscado && listaCompetidores.length !== 0 && tipo != 'D' && ventana == 0 && <>
                 <div className='container-fluid colorFiltro bg-gradient py-1'>
                     <div className='row g-1'>
                         <div className='col my-auto' style={{ maxWidth: '90px', minWidth: '90px' }}>
@@ -646,7 +657,7 @@ function PrincipalListaCompetidor() {
                                 <i className="fa-solid fa-file-pdf"></i> Generar Pdf</button>
                         </div>
                         <div className='col' style={{ maxWidth: '140px', minWidth: '140px' }}>
-                            <button className='btn btn-sm btn-info w-100' 
+                            <button className='btn btn-sm btn-info w-100'
                                 onClick={() => {
                                     setCargador(true);
                                     generarTargetaComp();
@@ -678,7 +689,7 @@ function PrincipalListaCompetidor() {
                                         <td className='col-3 col-md-2'>
                                             <div className='container-fluid p-0 m-0' style={{ fontSize: '16px' }}>
                                                 <div className='letraMontserratr'>{'Edad: ' + item.edad + ' años'}</div>
-                                                <div className='letraMontserratr'>{'Peso: ' + item.peso + ' kg'}</div>
+                                                <div className='letraMontserratr'>{'Peso: ' + item.peso + ' kg '}</div>
                                                 <div className='letraMontserratr'>{'Altura: ' + item.altura + ' m'}</div>
                                             </div>
                                         </td>
@@ -709,7 +720,7 @@ function PrincipalListaCompetidor() {
                         </tbody>
                     </table>
                 </div></>}
-            {buscado && listaCompetidores.length !== 0 && tipo == 'D' &&ventana==0&&
+            {buscado && listaCompetidores.length !== 0 && tipo == 'D' && ventana == 0 &&
                 <>
                     <div className='container-fluid text-danger w-100 bg-light text-center fw-bold '>
                         Numero Equipos {listaCompetidores.length}
@@ -734,8 +745,8 @@ function PrincipalListaCompetidor() {
                         </table>
                     </div>
                 </>}
-            {ventana==1&&<AdminLlaves setVentana={setVentana} idCampeonato={idCampeonato} 
-                tipo={tipo} tipoL={'E'} setCargador={setCargador} collback={()=>{}}/>}
+            {ventana == 1 && <AdminLlaves setVentana={setVentana} idCampeonato={idCampeonato}
+                tipo={tipo} tipoL={'E'} setCargador={setCargador} collback={() => { }} />}
             <Modal show={showModal} onHide={() => setShowModal(false)}
                 size={'xl'}
                 aria-labelledby="contained-modal-title-vcenter"
@@ -748,7 +759,7 @@ function PrincipalListaCompetidor() {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsPrefix='modal-body'>
-                    {tipoM === 'L' && tipo == 'C' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipoL={'E'} callback={() => eventoLlave()} setCargador={setCargador} tipoComp={tipo}/>}
+                    {tipoM === 'L' && tipo == 'C' && <PrincipalLlaves idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipoL={'E'} callback={() => eventoLlave()} setCargador={setCargador} tipoComp={tipo} />}
                     {tipoM === 'P' && <CompetidoresPdf categorias={categorias} listaCompetidores={listaCompetidores} campeonato={tituloo} tipo={tipo} idcampeonato={idCampeonato} listaTiposCam={listaTiposCam} />}
                     {tipoM === 'L' && tipo === 'R' && <PrincipalLlaveRom categorias={categorias} idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipo={tipo} tipoL={'E'} />}
                     {tipoM === 'L' && tipo === 'P' && <PrincipalLlavePoomse categorias={categorias} idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipo={tipo} tipoL={'E'} />}

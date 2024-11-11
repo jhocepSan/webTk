@@ -7,16 +7,17 @@ import UtilsDate from '../utils/UtilsDate';
 import ImgUser from '../../assets/user.png';
 import MsgDialogo from '../utils/MsgDialogo';
 import UtilsExport from '../utils/UtilsExport';
+import UtilsBuffer from '../utils/UtilsBuffer';
 
 function AdminLlaves(props) {
-    const { idCampeonato, tipo, setVentana, tipoL,setCargador,area,collback} = props;
+    const { idCampeonato, tipo, setVentana, tipoL, setCargador, area, collback } = props;
     const [listaLlaves, setListaLlaves] = useState([]);
     const [categorias, setCategorias] = useState([]);
     const [idCategoria, setIdCategoria] = useState(null);
     const [areas, setAreas] = useState([]);
     const [actualizar, setActualizar] = useState(false);
     const [genero, setGenero] = useState('');
-    const [showModal,setShowModal] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const obtenerLlaves = async (categoria) => {
         try {
             setCargador(true);
@@ -26,10 +27,10 @@ function AdminLlaves(props) {
             var llaves = await LlavesConsultas.obtenerLlaves(
                 { idCampeonato, tipo, 'genero': 'M', 'idCategoria': parseInt(datos[0]) });
             if (llaves.ok) {
-                if(area==undefined){
+                if (area == undefined) {
                     setListaLlaves(llaves.ok);
-                }else{
-                    var filtroLista = llaves.ok.filter(item=>item.area==area)
+                } else {
+                    var filtroLista = llaves.ok.filter(item => item.area == area)
                     setListaLlaves(filtroLista);
                 }
             } else {
@@ -37,7 +38,7 @@ function AdminLlaves(props) {
             }
         } catch (error) {
             MsgUtils.msgError(error.message)
-        }finally{
+        } finally {
             setCargador(false);
         }
     }
@@ -78,30 +79,57 @@ function AdminLlaves(props) {
             MsgUtils.msgError(error.message);
         }
     }
-    const eliminarLLaves = async()=>{
+    const eliminarLLaves = async () => {
         try {
-            var eliminaLlave = await LlavesConsultas.eliminarLlaves( {'idcampeonato': idCampeonato, 'tipo': tipo} )
-            if(eliminaLlave.ok){
+            var eliminaLlave = await LlavesConsultas.eliminarLlaves({ 'idcampeonato': idCampeonato, 'tipo': tipo })
+            if (eliminaLlave.ok) {
                 MsgUtils.msgCorrecto(eliminaLlave.ok)
-            }else{
+            } else {
                 MsgUtils.msgError(eliminaLlave.error);
             }
         } catch (error) {
             MsgUtils.msgError(error.message)
         }
     }
-    const eliminarLLaveManual = async(valor)=>{
+    const eliminarLLaveManual = async (valor) => {
         try {
             console.log(valor);
-            var idCompetidores =[]
-            valor.PELEAS.map(item=>{idCompetidores.push(item.idcompetidor1);idCompetidores.push(item.idcompetidor2)})
+            var idCompetidores = []
+            valor.PELEAS.map(item => { idCompetidores.push(item.idcompetidor1); idCompetidores.push(item.idcompetidor2) })
             var result = await LlavesConsultas.eliminarLlaveManual(
-                { 'idllave':valor.idllave,'idCompetidor':idCompetidores,'idcampeonato':idCampeonato,'tipo': tipo});
-            if (result.ok){
+                { 'idllave': valor.idllave, 'idCompetidor': idCompetidores, 'idcampeonato': idCampeonato, 'tipo': tipo });
+            if (result.ok) {
                 MsgUtils.msgCorrecto(result.ok);
                 setActualizar(!actualizar);
-            }else{  
+            } else {
                 MsgUtils.msgError(result.error);
+            }
+        } catch (error) {
+            MsgUtils.msgError(error.message);
+        }
+    }
+    const obtenerConfigKirugui = async () => {
+        try {
+            var conf = JSON.parse(localStorage.getItem('kirugui'));
+            if (conf != undefined) {
+                var listaAr = []
+                for (var i = 0; i < parseInt(conf.cantAreas); i++) {
+                    listaAr.push({ 'id': i + 1, 'nombre': 'Area ' + (i + 1) })
+                }
+                setAreas(listaAr);
+            } else {
+                var configAreaK = await ConfigConsultas.getConfigArea({ 'idConf': 1 });
+                if (configAreaK.ok) {
+                    var datos= JSON.parse(UtilsBuffer.getText(configAreaK.ok[0].config))
+                    var listaAr = []
+                    for (var i = 0; i < parseInt(datos.cantAreas); i++) {
+                        listaAr.push({ 'id': i + 1, 'nombre': 'Area ' + (i + 1) })
+                    }
+                    localStorage.setItem('kirugui',JSON.stringify(datos))
+                    setAreas(listaAr);
+                } else {
+                    MsgUtils.msgError(configAreaK.error);
+                }
             }
         } catch (error) {
             MsgUtils.msgError(error.message);
@@ -109,32 +137,23 @@ function AdminLlaves(props) {
     }
     useEffect(() => {
         obtenerCategorias();
-        var conf = JSON.parse(localStorage.getItem('kirugui'));
-        if (conf != undefined) {
-            var listaAr = []
-            for (var i = 0; i < parseInt(conf.cantAreas); i++) {
-                listaAr.push({ 'id': i + 1, 'nombre': 'Area ' + (i + 1) })
-            }
-            setAreas(listaAr);
-        } else {
-            MsgUtils.msgError("Configuracion de KIRUGUI no existe...");
-        }
+        obtenerConfigKirugui();
     }, [])
-    const exportPDF = async()=>{
+    const exportPDF = async () => {
         try {
             setCargador(true);
             var llaves = await LlavesConsultas.obtenerLlaves(
                 { idCampeonato, tipo, 'genero': 'M', 'idCategoria': -2 });
-                console.log(llaves)
+            console.log(llaves)
             if (llaves.ok) {
-                await UtilsExport.exportarLlaves(categorias,llaves.ok);
+                await UtilsExport.exportarLlaves(categorias, llaves.ok);
                 MsgUtils.msgCorrecto("Llaves descargadas")
             } else {
                 MsgUtils.msgError(llaves.error);
             }
         } catch (error) {
             MsgUtils.msgError(error.message);
-        }finally{
+        } finally {
             setCargador(false);
         }
     }
@@ -146,25 +165,25 @@ function AdminLlaves(props) {
     return (
         <>
             <div className='bg-dark bg-gradient py-1 container-fluid'>
-                {tipoL=='E'&&<div className='row row-cols gx-1'>
+                {tipoL == 'E' && <div className='row row-cols gx-1'>
                     <div className='col text-light fw-bold text-center'>
                         Administrador - Cantidad Llaves {listaLlaves.length}
                     </div>
-                    <div className='col' style={{minWidth:'80px',maxWidth:'100px'}}>
-                        <button className='btn btn-sm letraBtn btn-success w-100' 
-                        title='Exportar llaves a PDF'
-                        onClick={()=>exportPDF()}>
+                    <div className='col' style={{ minWidth: '80px', maxWidth: '100px' }}>
+                        <button className='btn btn-sm letraBtn btn-success w-100'
+                            title='Exportar llaves a PDF'
+                            onClick={() => exportPDF()}>
                             <i className="fa-solid fa-file-pdf fa-xl"></i> PDF
                         </button>
                     </div>
-                    <div className='col' style={{minWidth:'80px',maxWidth:'100px'}}>
+                    <div className='col' style={{ minWidth: '80px', maxWidth: '100px' }}>
                         <button className='btn btn-sm btn-danger w-100'
                             title='Eliminar Llaves del Campeonato'
-                            onClick={()=>setShowModal(true)}>
+                            onClick={() => setShowModal(true)}>
                             <i className="fa-solid fa-trash-can fa-xl"></i> Eliminar
                         </button>
                     </div>
-                    <div className='col' style={{minWidth:'40px',maxWidth:'40px'}}>
+                    <div className='col' style={{ minWidth: '40px', maxWidth: '40px' }}>
                         <button className='btn btn-sm btn-transparent text-danger w-100'
                             title='Salir del administrador de llaves'
                             onClick={() => setVentana(0)}>
@@ -215,7 +234,7 @@ function AdminLlaves(props) {
                                         </div>
                                         <div className='col lh-1' style={{ minWidth: '120px', maxWidth: '120px' }}>
                                             <label className="form-label tituloHeader" style={{ fontSize: '20px' }}>Area</label>
-                                            {tipoL == 'E' && <select className="form-select form-select-sm text-light" 
+                                            {tipoL == 'E' && <select className="form-select form-select-sm text-light"
                                                 title='Cambiar Area de la llave'
                                                 style={{ background: '#1B8DFF' }}
                                                 value={(item.area == undefined || item.area == null) ? 0 : item.area}
@@ -227,17 +246,17 @@ function AdminLlaves(props) {
                                                     )
                                                 })}
                                             </select>}
-                                            {tipoL=='O'&&
-                                            <div className='fw-bold' style={{fontSize:'24px'}}>{item.area==null?'':item.area}</div>}
+                                            {tipoL == 'O' &&
+                                                <div className='fw-bold' style={{ fontSize: '24px' }}>{item.area == null ? '' : item.area}</div>}
                                         </div>
-                                        {item.idcategoria==-1&&
-                                        <div className='col my-auto' style={{minWidth:'120px',maxWidth:'120px'}}>
-                                            <button className='btn btn-danger btn-sm'
-                                            title='Eliminar esta llave'
-                                                 onClick={()=>eliminarLLaveManual(item)}>
-                                                <i className="fa-solid fa-trash"></i> Eliminar Llave
-                                            </button>
-                                        </div>
+                                        {item.idcategoria == -1 &&
+                                            <div className='col my-auto' style={{ minWidth: '120px', maxWidth: '120px' }}>
+                                                <button className='btn btn-danger btn-sm'
+                                                    title='Eliminar esta llave'
+                                                    onClick={() => eliminarLLaveManual(item)}>
+                                                    <i className="fa-solid fa-trash"></i> Eliminar Llave
+                                                </button>
+                                            </div>
                                         }
                                     </div>
                                 </div>
@@ -255,18 +274,18 @@ function AdminLlaves(props) {
                                                                         <div className="userHeader text-light lh-sm" style={{ fontSize: '20px' }}>{itemm.nombres}</div>
                                                                         <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos}</div>
                                                                         <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubuno}</div>
-                                                                        <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaduno}</div>
+                                                                        <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaduno} Grado: {itemm.cinturonuno}</div>
                                                                         <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesouno}</div>
                                                                     </div>
                                                                 </div>
                                                                 <div className='row row-cols-2 g-0'>
                                                                     <div className='col-4 my-auto'>
-                                                                        {tipoL == 'O' && 
-                                                                        <button className='btn btn-sm btn-dark letraNumPelea w-100' 
-                                                                            title='Elegir Pelea'
-                                                                            onClick={() => collback(itemm)}>
-                                                                            {itemm.nropelea}
-                                                                        </button>}
+                                                                        {tipoL == 'O' &&
+                                                                            <button className='btn btn-sm btn-dark letraNumPelea w-100'
+                                                                                title='Elegir Pelea'
+                                                                                onClick={() => collback(itemm)}>
+                                                                                {itemm.nropelea}
+                                                                            </button>}
                                                                         {tipoL == 'E' &&
                                                                             <input className="form-control form-control-lg text-light bg-secondary"
                                                                                 type="number" placeholder="#"
@@ -283,7 +302,7 @@ function AdminLlaves(props) {
                                                                         <div className="userHeader text-light lh-sm" style={{ fontSize: '20px' }}>{itemm.nombres2}</div>
                                                                         <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos2}</div>
                                                                         <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubdos}</div>
-                                                                        <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaddos}</div>
+                                                                        <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaddos} Grado: {itemm.cinturondos}</div>
                                                                         <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesodos}</div>
                                                                     </div>
                                                                 </div>
@@ -306,18 +325,18 @@ function AdminLlaves(props) {
                                                                     <div className="userHeader text-light lh-sm" style={{ fontSize: '20px' }}>{itemm.nombres}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubuno}</div>
-                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaduno}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaduno} Grado: {itemm.cinturonuno}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesouno}</div>
                                                                 </div>
                                                             </div>
                                                             <div className='row row-cols-2 g-0'>
                                                                 <div className='col-4 my-auto'>
-                                                                    {tipoL == 'O' && 
-                                                                    <button className='btn btn-sm btn-dark letraNumPelea w-100' 
-                                                                        title='Elegir pelea'
-                                                                        onClick={() => collback(itemm)}>
-                                                                        {itemm.nropelea}
-                                                                    </button>}
+                                                                    {tipoL == 'O' &&
+                                                                        <button className='btn btn-sm btn-dark letraNumPelea w-100'
+                                                                            title='Elegir pelea'
+                                                                            onClick={() => collback(itemm)}>
+                                                                            {itemm.nropelea}
+                                                                        </button>}
                                                                     {tipoL == 'E' &&
                                                                         <input className="form-control form-control-lg text-light bg-secondary"
                                                                             type="number" placeholder="#"
@@ -334,7 +353,57 @@ function AdminLlaves(props) {
                                                                     <div className="userHeader text-light lh-sm" style={{ fontSize: '20px' }}>{itemm.nombres2}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos2}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubdos}</div>
-                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaddos}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaddos} Grado: {itemm.cinturondos}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesodos}</div>
+                                                                </div>
+                                                            </div>
+                                                            <hr style={{ border: "25px", background: "#f6f6f" }} className=''></hr>
+                                                        </div>
+                                                    )
+                                                }
+                                            })}
+                                        </div>
+                                        <div className='col' style={{ minWidth: '340px', maxWidth: '340px' }}>
+                                            {item.PELEAS.map((itemm, indexx) => {
+                                                if (itemm.tipo == 2) {
+                                                    return (
+                                                        <div className='container-fluid'>
+                                                            <div style={{ height: '80px' }}></div>
+                                                            <div className="navbar-brand card flex-row bg-primary m-0 p-0 " >
+                                                                <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
+                                                                <div className='ps-2 my-auto d-none d-sm-inline'>
+                                                                    <div className="userHeader text-light lh-sm" style={{ fontSize: '20px' }}>{itemm.nombres}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubuno}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaduno} Grado: {itemm.cinturonuno}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesouno}</div>
+                                                                </div>
+                                                            </div>
+                                                            <div className='row row-cols-2 g-0'>
+                                                                <div className='col-4 my-auto'>
+                                                                    {tipoL == 'O' &&
+                                                                        <button className='btn btn-sm btn-dark letraNumPelea w-100'
+                                                                            title='Elegir pelea'
+                                                                            onClick={() => collback(itemm)}>
+                                                                            {itemm.nropelea}
+                                                                        </button>}
+                                                                    {tipoL == 'E' &&
+                                                                        <input className="form-control form-control-lg text-light bg-secondary"
+                                                                            type="number" placeholder="#"
+                                                                            value={itemm.nropelea} onChange={(e) => cambiarValor(itemm, e.target.value, index, indexx)}>
+                                                                        </input>}
+                                                                </div>
+                                                                <div className='col-8 my-auto'>
+                                                                    #PELEA<hr style={{ border: "15px", background: "#f6f6f" }} className='m-0 p-0'></hr>
+                                                                </div>
+                                                            </div>
+                                                            <div className="navbar-brand card flex-row bg-danger m-0 p-0 " >
+                                                                <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
+                                                                <div className='ps-2 my-auto d-none d-sm-inline'>
+                                                                    <div className="userHeader text-light lh-sm" style={{ fontSize: '20px' }}>{itemm.nombres2}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos2}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubdos}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaddos} Grado: {itemm.cinturondos}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesodos}</div>
                                                                 </div>
                                                             </div>
@@ -351,8 +420,8 @@ function AdminLlaves(props) {
                     }
                 })}
             </div>
-            <MsgDialogo show={showModal} msg='Seguro de eliminar las llaves generadas' 
-                okFunction={() => { setShowModal(false); eliminarLLaves(); }} 
+            <MsgDialogo show={showModal} msg='Seguro de eliminar las llaves generadas'
+                okFunction={() => { setShowModal(false); eliminarLLaves(); }}
                 notFunction={() => setShowModal(false)} />
         </>
     )

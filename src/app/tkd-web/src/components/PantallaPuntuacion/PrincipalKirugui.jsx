@@ -69,6 +69,7 @@ function PrincipalKirugui(props) {
         })
         setResultPre([]);
         setSelectPelea(null);
+        setMsgModal({});
         localStorage.setItem('doblePant', JSON.stringify({
             'isPlay': false, 'round': 1, 'reset': true, 'puntoA': 0, 'faltaA': 0,
             'puntoR': 0, 'faltaR': 0, 'nombreA': '', 'nombreR': '', 'gano': '', 'area': idArea
@@ -175,13 +176,34 @@ function PrincipalKirugui(props) {
             localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, puntoA: punto, nombreA, nombreR, 'gano': 'R' }))
         }
     }
-    function resultadoFinal() {
+    const resultadoFinal = async () => {
         console.log(msgModal)
         console.log(resultPre)
         console.log(puntoJuego)
-        /*setResultPre([])
-        setShowModal(false);*/
-        //document.getElementById('btnReset').click();
+        console.log(selectPelea)
+        var idganador, idperdedor;
+        try {
+            if (msgModal.azul > msgModal.rojo) {
+                idganador = selectPelea.idcompetidor1;
+                idperdedor = selectPelea.idcompetidor2;
+            } else {
+                idganador = selectPelea.idcompetidor2;
+                idperdedor = selectPelea.idcompetidor1;
+            }
+            var result = await LlavesConsultas.procesarLlavePelea({
+                idganador, idperdedor, 'nivel': selectPelea.tipo, 'idpelea': selectPelea.idpelea, 'idllave': selectPelea.idllave
+            });
+            if (result.ok) {
+                MsgUtils.msgCorrecto(result.ok);
+                setResultPre([])
+                setShowModal(false);
+                document.getElementById('btnReset').click();
+            } else {
+                MsgUtils.msgError(result.error)
+            }
+        } catch (error) {
+            MsgUtils.msgError(error.message);
+        }
     }
     function functionContarPunto(lista) {
         let conteo = {}
@@ -219,11 +241,11 @@ function PrincipalKirugui(props) {
                             if ((prePunt.puntoA - prePunt.puntoR) > parseInt(configure.diffPuntos)) {
                                 hayGanador('A');
                                 setPuntoJuego({ ...prePunt, isPlay: false });
-                                localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': 'A', isPlay: false }));
+                                localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': 'A', isPlay: false ,'reset':true}));
                             } else if ((prePunt.puntoR - prePunt.puntoA) > parseInt(configure.diffPuntos)) {
                                 setPuntoJuego({ ...prePunt, isPlay: false })
                                 hayGanador('R');
-                                localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': 'R', isPlay: false }));
+                                localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': 'R', isPlay: false,'reset':true }));
                             }
                             setPuntoJuego({ ...prePunt })
                         } else {
@@ -255,13 +277,11 @@ function PrincipalKirugui(props) {
     }
     const guardarCombate = async () => {
         try {
-            console.log(puntoJuego);
             var result = await LlavesConsultas.addSeguimientoPelea({ ...puntoJuego, 'idpelea': selectPelea.idpelea });
             if (result.ok) {
+                setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }])
+                var datos = [...resultPre, { ...puntoJuego, 'gano': tipoM }]
                 if (parseInt(configure.numRound) == puntoJuego.round) {
-                    setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }])
-                    var datos = [...resultPre, { ...puntoJuego, 'gano': tipoM }]
-                    console.log(datos)
                     if (configure.enableMaxPoint) {
                         var sumaA = datos.map(item => parseInt(item.puntoA)).reduce((acumulador, numero) => acumulador + numero, 0);
                         var sumaR = datos.map(item => parseInt(item.puntoA)).reduce((acumulador, numero) => acumulador + numero, 0);
@@ -290,16 +310,26 @@ function PrincipalKirugui(props) {
                         //setShowModal(true);
                     }
                 } else {
-                    console.log("esta porocesando")
                     if (configure.enableMaxRound == true) {
-                        setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }]);
+                        var roundA = datos.filter((item) => item.gano == 'A');
+                        var roundR = datos.filter((item) => item.gano == 'R');
                         setPuntoJuego({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true });
-                        setShowModal(false);
                         localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true }))
+                        if ((parseInt(configure.numRound) - roundA.length) == 1) {
+                            localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true,'reset':true }))
+                            setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length })
+                            setTipoM('AR');
+                        } else if ((parseInt(configure.numRound) - roundR.length) == 1) {
+                            localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true,'reset':true }))
+                            setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length })
+                            setTipoM('RR');
+                        } else {
+                            setShowModal(false);
+                        }
                     }
                     if (configure.enableMaxPoint == true) {
                         console.log("esta porocesando maximo puntos")
-                        setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }]);
+                        //setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }]);
                         setPuntoJuego({ ...puntoJuego, 'round': puntoJuego.round + 1, 'isPlay': false, 'newRound': true })
                         setShowModal(false);
                         localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, 'round': puntoJuego.round + 1, 'isPlay': false, 'newRound': true }))
@@ -340,6 +370,10 @@ function PrincipalKirugui(props) {
             setNombreR('');
             setIdClubR(-1)
         }
+    }
+    function getRoundWin(color) {
+        var roundA = resultPre.filter((item) => item.gano == color);
+        return roundA.length
     }
     function ejecutarJuego(valor) {
         if (selectPelea != null) {
@@ -449,6 +483,14 @@ function PrincipalKirugui(props) {
                     <div className='container-fluid py-2'>
                         <div className='row row-cols-1 row-cols-sm-1 row-cols-md-2 gx-1 mb-1' style={{ height: '75%' }}>
                             <div className='col col-sm-12 col-md-2'>
+                                {selectPelea != null &&
+                                    <div className='fw-bold text-light text-center bg-dark' style={{ fontSize: '29px' }}>
+                                        Pelea #{selectPelea.nropelea}
+                                    </div>}
+                                <div className='bg-light lh-sm fw-bold text-center' style={{fontSize:'18px'}}>
+                                    <div className='text-danger'>Rojo GANO {getRoundWin('R')} round</div>
+                                    <div className='text-primary'>Azul GANO {getRoundWin('A')} round</div>
+                                </div>
                                 <VistaMandos datos={data} setActivarLectura={setActivarLectura}
                                     activarLectura={activarLectura}
                                     configure={configure.numMandos != undefined ? configure : null}
@@ -686,7 +728,7 @@ function PrincipalKirugui(props) {
                 </>
             }
             <Modal show={showModal} onHide={() => setShowModal(false)}
-                size={`${tipoM == 'S' ? 'lm' : 'xl'}`} 
+                size={`${tipoM == 'S' ? 'lm' : 'xl'}`}
                 backdrop="static"
                 aria-labelledby="contained-modal-title-vcenter"
                 contentClassName={`${(tipoM == 'A' || tipoM == 'AP' || tipoM == 'AR') ? 'bg-primary' : (tipoM == 'R' || tipoM == 'RP' || tipoM == 'RR') ? 'bg-danger' : 'bg-dark'} bg-gradient`}>
@@ -706,7 +748,7 @@ function PrincipalKirugui(props) {
                     <Modal.Body>
                         {tipoM != 'S' && <div className='container-fluid bg-transparent'>
                             <div className='row row-cols-2 gx-2' >
-                                <div className='col text-primary fw-bold tituloMenu text-center ' 
+                                <div className='col text-primary fw-bold tituloMenu text-center '
                                     style={{ fontSize: '90px' }}>
                                     <div className='bg-light'>{msgModal.azul}</div>
                                 </div>

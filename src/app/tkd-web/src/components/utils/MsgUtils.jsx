@@ -1,6 +1,6 @@
 import {toast} from 'react-toastify'
 export const server= "http://localhost:4005"
-export const serverio = "http://localhost:4005"
+export const serverio = ""
 function msgError(mensaje){
     toast.error(mensaje, {
         position: "bottom-right",

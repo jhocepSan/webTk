@@ -18,9 +18,15 @@ function PrincipalLlavePoomse(props) {
                 listaAux.push({ 'GRADO': gra, 'COMPETIDORES': aux })
             }
         }
-        console.log(listaAux);
         setListaFiltrada(listaAux);
     }
+    useEffect(()=>{
+        if(grados.length!=0){
+            setListaFiltrada([]);
+            console.log(selectItem);
+            verLlavesCategoriaOficial(grados)
+        }
+    },[genero])
     useEffect(() => {
         console.log(idcampeonato, tipo)
         if (grados.length == 0) {
@@ -44,14 +50,14 @@ function PrincipalLlavePoomse(props) {
                 })
                 .catch(error => MsgUtils.msgError(error));
         }
-    }, [llaves])
+    }, [])
     return (
         <div>
             <div className=' mb-2'>
                 <div className='btn-group btn-group-sm mb-2'>
                     {categorias.map((item, index) => {
                         return (
-                            <button className={`btn btn-sm letraBtn ${selectItem.idcategoria === item.idcategoria ? 'botonLlave' : item.genero == 'M' ? 'botonMasc' : 'botonFeme'}`}
+                            <button className={`lh-1 btn btn-sm letraBtn ${selectItem.idcategoria === item.idcategoria ? 'botonLlave' : item.genero == 'M' ? 'botonMasc' : 'botonFeme'}`}
                                 onClick={() => verLlavesCategoriaOficial(item)}
                                 key={index} style={{ marginRight: '2px' }}>
                                 {item.nombre} {tipoL == 'A' && <span>{item.genero == 'M' ? 'Masculino' : 'Femenino'}</span>}
@@ -71,7 +77,7 @@ function PrincipalLlavePoomse(props) {
                     {listaFiltrada.map((item, index) => {
                         return (
                             <div key={index}>
-                                <div className='row row-cols g-1' >
+                                <div className='row row-cols g-1 lh-1 bg-gradient bg-warning' >
                                     <div className='col'>
                                         <div className='tituloHeader'>Categoria: <span className='fw-bold'>{selectItem.nombre}</span> {selectItem.genero == 'M' ? 'Masculino' : 'Femenino'}</div>
                                         <div className='tituloHeader'>Grado: <span className='fw-bold'>{item.GRADO.nombre}</span></div>
@@ -87,7 +93,7 @@ function PrincipalLlavePoomse(props) {
                                     </div>}
                                 </div>
                                 <div className='container-fluid' >
-                                    <table className="table">
+                                    <table className="table table-sm table-striped table-hover">
                                         <thead>
                                             <tr>
                                                 <th>Nombre</th>

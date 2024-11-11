@@ -216,6 +216,7 @@ export const getCompetidorClasificadoLista = async (info) => {
             where (res.peso+0.001)>=subcate.pesoini and (res.peso-0.001)<=subcate.pesofin
             order by res.idcompetidor`
     var sql3 = `select count(idllave)as numLLaves from tkdb.llave where idcampeonato=? and tipo=? and genero=? and estado='A';`
+    var sql6 = `SELECT COUNT(idclasificacion) FROM tkdb.clasificacion WHERE idcampeonato=? AND tipo=? AND genero=? AND estado='A';`
     var sql4 = `DROP TEMPORARY TABLE IF EXISTS lista_comp;`
     var sql5 = `CREATE TEMPORARY TABLE lista_comp AS
         SELECT * FROM tkdb.competidor WHERE idcampeonato=?
@@ -226,7 +227,13 @@ export const getCompetidorClasificadoLista = async (info) => {
         conn = await pool.getConnection();
         const [result] = await conn.query(sql,
             [info.idCampeonato, info.tipo, info.genero, info.idClub, info.idClub])
-        const [hayLlave] = await conn.query(sql3,[info.idCampeonato,info.tipo,info.genero])
+        var sqlf=''
+        if (info.tipo=='C'){
+            sqlf=sql3;
+        }else{
+            sqlf=sql6;
+        }
+        const [hayLlave] = await conn.query(sqlf,[info.idCampeonato,info.tipo,info.genero])
         await conn.query(sql4)
         await conn.query(sql5,[info.idCampeonato])
         return { "ok": {'lista':result,'hayLlave':hayLlave} }
@@ -391,13 +398,15 @@ const generarPelea = async (info) => {
         var numCmp = competidores.length;
         var listaId = competidores.map((item)=>item.idcompetidor);
         conn = await pool.getConnection();
-        var nBy = getNumLL(numCmp)-numCmp;
-        for (let i=0 ;i <nBy;i++){
-            if(i%2==0){
-                listaId=[0].concat(listaId);
-            }else{
-                listaId.push(0);
-            }   
+        if(listaId.length!=2){
+            var nBy = getNumLL(numCmp)-numCmp;
+            for (let i=0 ;i <nBy;i++){
+                if(i%2==0){
+                    listaId=[0].concat(listaId);
+                }else{
+                    listaId.push(0);
+                }   
+            }
         }
         for (let i = 0; i < listaId.length; i += 2) {
             var idGanador=null;
@@ -1044,6 +1053,61 @@ export const getSeguimientoPelea = async(info)=>{
         return {'ok':result}
     } catch (error) {
         console.log(error);
+        return {"error":error.message}
+    } finally {
+        if (conn) {await conn.release()}
+    }
+}
+const procesarLlaveAuto =async(info)=>{
+    var sql = `SELECT idpelea,idllave,idganador,tipo FROM tkdb.pelea WHERE idganador is not NULL
+        AND idllave=? AND tipo=? ORDER BY idpelea;`
+    var sql1 = 'INSERT INTO tkdb.pelea (idllave,idcompetidor1,idcompetidor2,nropelea,idganador,tipo) VALUES (?,?,?,?,?,?);'
+    var sql2 = `SELECT * from tkdb.pelea where idllave=? and (idcompetidor1=? or idcompetidor2=?) and tipo=?`
+    var conn;
+    try {
+        conn = await pool.getConnection();
+        var [result]= await conn.query(sql,[info.idllave,info.nivel]);
+        if(result.length>1){
+            for (var i=0 ;i<result.length;i+=2){
+                if(i<result.length-1){
+                    var [hayPelea] = await conn.query(sql2,[info.idllave,result[i].idganador,result[i].idganador,info.nivel+1]);
+                    if (hayPelea.length==0){
+                        var idganador=null;
+                        if(result[i].idganador==0){
+                            idganador=result[i+1].idganador
+                        }else if(result[i+1].idganador==0){
+                            idganador=result[i].idganador
+                        }
+                        await conn.query(sql1,[info.idllave,result[i].idganador,result[i+1].idganador,0,idganador,info.nivel+1])
+                        await conn.commit()
+                    }
+                }
+            }
+        }
+        return {'ok':"okey "}
+    } catch (error) {
+        await conn.rollback()
+        return { "error": error.message }
+    }finally {
+        if (conn) { await conn.release(); }
+    }
+}
+export const saveFinalResultPelea = async (info)=>{
+    var conn;
+    var sql= `UPDATE tkdb.pelea SET idganador=?,idperdedor=? WHERE idpelea=? AND idllave=?;`
+    try {
+        conn = await pool.getConnection();
+        const [result] = await conn.query(sql,[info.idganador,info.idperdedor,info.idpelea,info.idllave]);
+        await conn.commit();
+        var procesado = await procesarLlaveAuto(info);
+        if(procesado.ok){
+            return {'ok':"Correcto"}
+        }else{
+            return procesado
+        }
+    } catch (error) {
+        console.log(error);
+        await conn.rollback();
         return {"error":error.message}
     } finally {
         if (conn) {await conn.release()}

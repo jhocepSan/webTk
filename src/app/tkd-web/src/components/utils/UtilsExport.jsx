@@ -37,7 +37,45 @@ async function exportarLlaves(categorias, listaLLaves) {
                         doc.text(`Area: ${peel.area != null ? peel.area : ''}`, x + 140, y + 20)
                         doc.setFontSize(9);
                         y = y + 25
-                        if (lsPele.length == 2) {
+                        if (lsPele.length == 1) {
+                            for (var cmp of lsPele) {
+                                doc.setTextColor(0, 0, 255);
+                                /*if (cmp.clubdos != null) {
+                                    doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
+                                    doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x, y + 10)
+                                    doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno : ''}`, x, y + 15)
+                                }*/
+                                doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+                                doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
+                                doc.setTextColor(0, 0, 255);
+                                doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x + 85, y + 5)
+                                doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x + 85, y + 10)
+                                doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos : ''}`, x + 85, y + 15)
+                                y = y + 20
+                                doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
+                                doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+                                doc.setFontSize(15);
+                                doc.setTextColor(0, 0, 0);
+                                doc.setFont('arial', 'bold');
+                                doc.text("Pelea #"+cmp.nropelea,x+75,y+30)
+                                doc.setFontSize(9)
+                                y = y + 50
+                                doc.setTextColor(0, 0, 0);
+                                doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+                                doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
+                                y = y + 20
+                                doc.setTextColor(255, 0, 0);
+                                doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x + 85, y + 5)
+                                doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x + 85, y + 10)
+                                doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno : ''}`, x + 85, y + 15)
+                                doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
+                                doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+                                y = y + 50;
+                                doc.setTextColor(0, 0, 0);
+                            }
+                            doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
+                            doc.line(x + 105, y - 85, x + 135, y - 85, 'S');
+                        } else if (lsPele.length == 2) {
                             for (var cmp of lsPele) {
                                 doc.setTextColor(0, 0, 255);
                                 if (cmp.clubdos != null) {
@@ -47,6 +85,11 @@ async function exportarLlaves(categorias, listaLLaves) {
                                 }
                                 doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                                 doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
+                                doc.setFontSize(15);
+                                doc.setTextColor(0, 0, 0);
+                                doc.setFont('arial', 'bold');
+                                doc.text("Pelea #"+cmp.nropelea,x+50,y+20)
+                                doc.setFontSize(9);
                                 if (cmp.clubuno == null) {
                                     doc.setTextColor(0, 0, 255);
                                     doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x + 85, y + 5)
@@ -84,6 +127,11 @@ async function exportarLlaves(categorias, listaLLaves) {
                                 }
                                 doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                                 doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
+                                doc.setFontSize(15);
+                                doc.setTextColor(0, 0, 0);
+                                doc.setFont('arial', 'bold');
+                                doc.text("Pelea #"+cmp.nropelea,x+50,y+20)
+                                doc.setFontSize(9);
                                 if (cmp.clubuno == null) {
                                     doc.setTextColor(0, 0, 255);
                                     doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x + 85, y + 5)
@@ -266,7 +314,7 @@ async function exportarTargetaCompetidor(listaCompetidores, tipo) {
         var doc = new jsPDF(optiones);
         var imageBase64 = await getFondoTargeta('tarjetaUno');
         var imageBasePie = await getFondoTargeta('tarjetaDos');
-        var x = 10, y = 10 ,numCard=0,numPag=1;
+        var x = 10, y = 10, numCard = 0, numPag = 1;
         for (var est of listaCompetidores) {
             console.log(est.nombres)
             doc.addImage(imageBase64, 'PNG', x - 2, y - 2, 70, 65);
@@ -287,18 +335,19 @@ async function exportarTargetaCompetidor(listaCompetidores, tipo) {
             doc.text(est.nombres + ' ' + est.apellidos, x + 1, y + 21);
             doc.text('Club.- ' + est.club, x + 1, y + 25);
             doc.text('Peso/kg.- ' + est.peso, x + 1, y + 29);
-            doc.text('Grado.- ' + est.grado , x + 1, y + 33);
-            doc.text(est.cinturon,x+12,y+36)
+            doc.text('Grado.- ' + est.grado, x + 1, y + 33);
+            doc.text(est.cinturon, x + 12, y + 36)
             doc.text('Categoria.- ' + est.nombrecategoria, x + 1, y + 40);
             doc.setFontSize(8);
             doc.setTextColor(255, 0, 0);
-            doc.text(cmpSelect.nombre,x+1,y+43)
+            doc.text('CAMPEONATO', x + 1, y + 43)
+            doc.text('OPEN CONCORDIA', x + 1, y + 46)
             doc.setTextColor(0, 0, 0);
             doc.setFontSize(12);
             doc.line(x + 25, y + 52, x + 42, y + 52, 'FD')
             doc.setFont('arial', 'bold');
             doc.text('Puesto', x + 25, y + 55);
-            doc.addImage(imageBasePie, 'PNG', x - 2, y +64, 70, 29);
+            doc.addImage(imageBasePie, 'PNG', x - 2, y + 64, 70, 29);
             doc.setFontSize(12);
             doc.line(x + 1, y + 73, x + 15, y + 73, 'FD')
             doc.setFont('arial', 'bold');
@@ -306,39 +355,39 @@ async function exportarTargetaCompetidor(listaCompetidores, tipo) {
             doc.setFontSize(8);
             doc.setTextColor(0, 0, 0);
             doc.setFont('arial', '');
-            doc.text((est.genero=='M'?'(Mujer':'(Varon')+') '+est.nombres, x + 16, y + 67);
-            doc.text( est.apellidos,x+16,y+70)
+            doc.text((est.genero == 'M' ? '(Varon' : '(Mujer') + ') ' + est.nombres, x + 16, y + 67);
+            doc.text(est.apellidos, x + 16, y + 70)
             doc.setFontSize(9);
-            doc.text(est.club+' / kg' + est.peso , x + 16, y + 74);
-            doc.text( est.cinturon+' / '+est.nombrecategoria,x+16,y+77)
+            doc.text(est.club + ' / kg' + est.peso, x + 16, y + 74);
+            doc.text(est.cinturon + ' / ' + est.nombrecategoria, x + 16, y + 77)
             doc.line(x + 1, y + 78, x + 67, y + 78, 'FD')
-            doc.text('|    1ºCombate     |     2ºCombate     |     3ºCombate     |',x+1,y+81)
+            doc.text('|    1ºCombate     |     2ºCombate     |     3ºCombate     |', x + 1, y + 81)
             doc.line(x + 1, y + 83, x + 67, y + 83, 'FD')
-            doc.text('| Gano  |  Perdio  |  Gano  |  Perdio  |  Gano  |  Perdio  |',x+1,y+86)
+            doc.text('| Gano  |  Perdio  |  Gano  |  Perdio  |  Gano  |  Perdio  |', x + 1, y + 86)
             doc.line(x + 1, y + 88, x + 67, y + 88, 'FD')
-            if(numCard<=2){
-                x+=71;
-                y=10;
-            }else if(numCard==3){
-                x=10;
-                y=108;
-            }else if(numCard>=4){
-                x+=71;
-                y=108;
+            if (numCard <= 2) {
+                x += 71;
+                y = 10;
+            } else if (numCard == 3) {
+                x = 10;
+                y = 108;
+            } else if (numCard >= 4) {
+                x += 71;
+                y = 108;
             }
-            if(numCard==7){
-                x=10;
-                y=10;
-                numPag+=1
-                numCard=0;
+            if (numCard == 7) {
+                x = 10;
+                y = 10;
+                numPag += 1
+                numCard = 0;
                 doc.addPage();
                 doc.setPage(numPag);
-            }else{
-                numCard+=1;
+            } else {
+                numCard += 1;
             }
         }
         var fechaDescarga = new Date()
-        doc.save(`Tarjetas${subtitulo}-${fechaDescarga.toISOString().substring(0,10)}.pdf`);
+        doc.save(`Tarjetas${subtitulo}-${fechaDescarga.toISOString().substring(0, 10)}.pdf`);
     } catch (error) {
         console.log(error)
     }

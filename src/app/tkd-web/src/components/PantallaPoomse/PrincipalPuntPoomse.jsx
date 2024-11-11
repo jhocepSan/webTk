@@ -17,7 +17,6 @@ function PrincipalPuntPoomse() {
   const [tipom, setTipoM] = useState('');
   const [runPlay, setRunPlay] = useState(false);
   const [categorias, setCategorias] = useState([]);
-  const [listaElegida, setListaElegida] = useState([]);
   const [competidores, setCompetidores] = useState([]);
   const [selectItem, setSelectItem] = useState(null);
   const [puntuacion, setPuntuacion] = useState(0);
@@ -25,6 +24,7 @@ function PrincipalPuntPoomse() {
   const [segundo, setSegundo] = useState(0);
   const [sectorLectura, setSectorLectura] = useState(0);
   const [puntoLeido, setPuntoLeido] = useState([]);
+  const [actualizar,setActualizar] = useState(false);
   function elegirCompetidor(dato) {
     console.log(dato);
     setSelectComp(dato.competidor)
@@ -74,14 +74,17 @@ function PrincipalPuntPoomse() {
   function selectCompetidor(dato) {
     setSelectComp(dato);
   }
-  const recetearValores = async () => {
+  const recetearValores = async (tipo) => {
     await limpiarLecturasPoomse({ 'sector': sectorLectura })
-    await setPuntuacionPoomse({ 'puntuacion': puntuacion, 'idclasificacion': selectComp.idclasificacion })
-    await savePuntuacionPoomse({ 'puntosLeidos': puntoLeido, 'infoCompetidor': selectComp, 'puntuacion': puntuacion })
-    getInformacionPoomse()
+    if(tipo==1){
+      await setPuntuacionPoomse({ 'puntuacion': puntuacion, 'idclasificacion': selectComp.idclasificacion })
+      await savePuntuacionPoomse({ 'puntosLeidos': puntoLeido, 'infoCompetidor': selectComp, 'puntuacion': puntuacion })
+      getInformacionPoomse();
+      setActualizar(!actualizar);
+    }
     setPuntuacion(0);
     //setShowResultado(false);
-    setRunPlay(false);
+    //setRunPlay(false);
   }
   function sacarPromedio(lista) {
     var sumatoria = lista.reduce(function (acumulador, siguienteValor) {
@@ -89,7 +92,6 @@ function PrincipalPuntPoomse() {
     }, 0);
     return sumatoria / lista.length
   }
-
   const obtenerDatosPunto = async () => {
     if (runPlay == true) {
       var datos = await getPuntosPoomse({ 'sector': sectorLectura })
@@ -187,7 +189,7 @@ function PrincipalPuntPoomse() {
           <i className="fa-solid fa-network-wired fa-2xl"></i></button>
         <button type="button" className="btn mx-1 btn-sm botonMenu"
           data-bs-toggle="tooltip" data-bs-placement="bottom" title="Recetear valores iniciales"
-          onClick={() => console.log("")}>
+          onClick={() => recetearValores(0)}>
           <i className="fa-solid fa-repeat fa-2xl"></i></button>
         {runPlay === true && <button type="button" className="btn mx-1 btn-sm botonMenu"
           data-bs-toggle="tooltip" data-bs-placement="bottom" title="Pausar Competencia"
@@ -277,7 +279,7 @@ function PrincipalPuntPoomse() {
               <div className='card-header '>
                 {selectItem !== null &&
                   <div className='row row-cols-2 g-1'>
-                    <div className='col'>
+                    <div className='col lh-1'>
                       <div className="letrasContenido text-light fw-bold">{selectItem.categoria}</div>
                       <div className="letrasContenido text-light fw-bold">{selectItem.nombre}</div>
                     </div>
@@ -287,16 +289,16 @@ function PrincipalPuntPoomse() {
                   </div>}
               </div>
               <div className='card-body bg-light'>
-                <div className='puntuacionTextE text-dark text-center'>{puntuacion}</div>
+                <div className='puntuacionTextE text-dark text-center lh-1'>{puntuacion}</div>
               </div>
-              <div className='card-footer'>
+              <div className='card-footer lh-1'>
                 <div className="letrasContenido text-light fw-bold">{selectComp.nombres + ' ' + selectComp.apellidos}</div>
                 <div className="letrasContenido text-light fw-bold">{selectComp.club}</div>
                 <div className="input-group mb-3">
                   <span className="input-group-text" >Puntos Manual</span>
                   <input type="number" className="form-control form-control-sm" placeholder="Puntuación"
                     onChange={(e) => setPuntuacion(e.target.value)} />
-                  <button className='btn btn-success btn-sm' onClick={() => recetearValores()}>
+                  <button className='btn btn-success btn-sm' onClick={() => recetearValores(1)}>
                     Guardar Puntuación
                   </button>
                 </div>
@@ -308,7 +310,7 @@ function PrincipalPuntPoomse() {
       {showModal &&
         <div className='bg-dark bg-gradient py-1' style={{ height: '45vh' }}>
           <PrincipalLlavePoomse categorias={categorias} idcampeonato={campeonato.idcampeonato}
-            genero={''} llaves={competidores} tipo={'P'} tipoL={'A'} collback={elegirCompetidor} />
+            genero={actualizar} llaves={competidores} tipo={'P'} tipoL={'A'} collback={elegirCompetidor} />
         </div>
       }
       <Modal show={showResultado} onHide={() => setShowResultado(false)}
@@ -322,7 +324,7 @@ function PrincipalPuntPoomse() {
           </Modal.Title>
         </Modal.Header>
         <Modal.Footer>
-          <button className='btn btn-success' onClick={() => recetearValores()}>Aceptar</button>
+          <button className='btn btn-success' onClick={() => recetearValores(1)}>Aceptar</button>
         </Modal.Footer>
       </Modal>
     </div>

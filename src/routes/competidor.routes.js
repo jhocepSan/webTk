@@ -7,7 +7,7 @@ import {addEditCompetidor,getCompetidores,generateLLaves,getCompetidorSinPelea,
     generarLlaveRompimiento,addEditEquipo,deleteEquipo,getEquipoDemostration,
     guardarRompimientoPuntos,generarLlaveRompimientoFestival,setPosition,cambiarAreaLlave,eliminarLlaveManual,
     obtenerDatosPuntuadosR,eliminarPuntuacion,eliminarLlavesGeneradas,
-    addSeguimientoPelea,getSeguimientoPelea} from '../controllers/competidor.controllers.js'
+    addSeguimientoPelea,getSeguimientoPelea,saveFinalResultPelea} from '../controllers/competidor.controllers.js'
 const router = Router();
 
 router.post('/addEditCompetidor',async(req,res)=>{
@@ -265,6 +265,14 @@ router.post('/addSeguimientoPelea',async(req,res)=>{
 })
 router.post('/getSeguimientoPelea',async(req,res)=>{
     const result = await getSeguimientoPelea(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
+router.post('/saveFinalResultPelea',async(req,res)=>{
+    const result = await saveFinalResultPelea(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{
