@@ -225,7 +225,11 @@ function PrincipalListaSinPelea() {
                         MsgUtils.msgError(data.error);
                     }
                 })
-                .catch(error => MsgUtils.msgError(error));
+                .catch(error => MsgUtils.msgError(error))
+                .finally(()=>{
+                    setCargador(false);
+                })
+                
         } else {
             MsgUtils.msgError("Elija el tipo y genero por favor")
         }
@@ -282,6 +286,7 @@ function PrincipalListaSinPelea() {
             .catch(error => MsgUtils.msgError(error));
     }
     function cambiarEstadoC(dato) {
+        setCargador(true);
         fetch(`${server}/competidor/deleteCompetidorSP`, {
             method: 'POST',
             headers: {
@@ -293,7 +298,7 @@ function PrincipalListaSinPelea() {
             .then(res => res.json())
             .then(data => {
                 if (data.ok) {
-                    setActualizar(!actualizar);
+                    buscarCompetidores()
                 } else {
                     MsgUtils.msgError(data.error);
                 }

@@ -55,11 +55,12 @@ function AdminLlaves(props) {
         }
     }
     const cambiarNumPelea = async (dato, valor) => {
-        setListaLlaves([]);
+        //setListaLlaves([]);
         try {
             var changePelea = await LlavesConsultas.cambiarNumeroPelea({ 'nropelea': valor, 'idpelea': dato.idpelea });
             if (changePelea.ok) {
-                setActualizar(!actualizar)
+                //setActualizar(!actualizar)
+                MsgUtils.msgCorrecto(changePelea.ok);
             } else {
                 MsgUtils.msgError(changePelea.error);
             }
@@ -120,12 +121,12 @@ function AdminLlaves(props) {
             } else {
                 var configAreaK = await ConfigConsultas.getConfigArea({ 'idConf': 1 });
                 if (configAreaK.ok) {
-                    var datos= JSON.parse(UtilsBuffer.getText(configAreaK.ok[0].config))
+                    var datos = JSON.parse(UtilsBuffer.getText(configAreaK.ok[0].config))
                     var listaAr = []
                     for (var i = 0; i < parseInt(datos.cantAreas); i++) {
                         listaAr.push({ 'id': i + 1, 'nombre': 'Area ' + (i + 1) })
                     }
-                    localStorage.setItem('kirugui',JSON.stringify(datos))
+                    localStorage.setItem('kirugui', JSON.stringify(datos))
                     setAreas(listaAr);
                 } else {
                     MsgUtils.msgError(configAreaK.error);
@@ -266,49 +267,56 @@ function AdminLlaves(props) {
                                             {item.PELEAS.map((itemm, indexx) => {
                                                 if (itemm.tipo == 0) {
                                                     return (
-                                                        <>
-                                                            <div className='container-fluid' key={indexx}>
-                                                                <div className="navbar-brand card flex-row bg-primary m-0 p-0 " >
-                                                                    <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
-                                                                    <div className='ps-2 my-auto d-none d-sm-inline'>
-                                                                        <div className="userHeader text-light lh-sm" style={{ fontSize: '20px' }}>{itemm.nombres}</div>
-                                                                        <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos}</div>
-                                                                        <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubuno}</div>
-                                                                        <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaduno} Grado: {itemm.cinturonuno}</div>
-                                                                        <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesouno}</div>
-                                                                    </div>
+                                                        <div className='container-fluid' key={indexx}>
+                                                            <div className="navbar-brand card flex-row bg-primary m-0 p-0 " >
+                                                                <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
+                                                                <div className='ps-2 my-auto d-none d-sm-inline'>
+                                                                    <div className="userHeader text-light lh-sm" style={{ fontSize: '20px' }}>{itemm.nombres}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubuno}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaduno} Grado: {itemm.cinturonuno}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesouno}</div>
                                                                 </div>
-                                                                <div className='row row-cols-2 g-0'>
-                                                                    <div className='col-4 my-auto'>
-                                                                        {tipoL == 'O' &&
-                                                                            <button className='btn btn-sm btn-dark letraNumPelea w-100'
-                                                                                title='Elegir Pelea'
-                                                                                onClick={() => collback(itemm)}>
-                                                                                {itemm.nropelea}
-                                                                            </button>}
-                                                                        {tipoL == 'E' &&
-                                                                            <input className="form-control form-control-lg text-light bg-secondary"
-                                                                                type="number" placeholder="#"
-                                                                                value={itemm.nropelea} onChange={(e) => cambiarNumPelea(itemm, e.target.value)}>
-                                                                            </input>}
-                                                                    </div>
-                                                                    <div className='col-8 my-auto'>
-                                                                        #PELEA<hr style={{ border: "15px", background: "#f6f6f" }} className='m-0 p-0'></hr>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="navbar-brand card flex-row bg-danger m-0 p-0 " >
-                                                                    <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
-                                                                    <div className='ps-2 my-auto d-none d-sm-inline'>
-                                                                        <div className="userHeader text-light lh-sm" style={{ fontSize: '20px' }}>{itemm.nombres2}</div>
-                                                                        <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos2}</div>
-                                                                        <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubdos}</div>
-                                                                        <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaddos} Grado: {itemm.cinturondos}</div>
-                                                                        <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesodos}</div>
-                                                                    </div>
-                                                                </div>
-                                                                <hr style={{ border: "25px", background: "#f6f6f" }} className=''></hr>
                                                             </div>
-                                                        </>
+                                                            <div className='row row-cols-2 g-0'>
+                                                                <div className='col-4 my-auto'>
+                                                                    {tipoL == 'O' &&
+                                                                        <button className='btn btn-sm btn-dark letraNumPelea w-100'
+                                                                            title='Elegir Pelea'
+                                                                            onClick={() => collback(itemm)}>
+                                                                            {itemm.nropelea}
+                                                                        </button>}
+                                                                    {tipoL == 'E' &&
+                                                                        <>
+                                                                            <input className="form-control form-control-lg text-light bg-secondary"
+                                                                                type="number" placeholder="#" id={`pelea${itemm.idpelea}`}
+                                                                                defaultValue={itemm.nropelea}>
+                                                                            </input>
+                                                                            <button className='btn btn-success'
+                                                                                onClick={() => {
+                                                                                    console.log(document.getElementById(`pelea${itemm.idpelea}`).value)
+                                                                                    cambiarNumPelea(itemm, document.getElementById(`pelea${itemm.idpelea}`).value);
+                                                                                }}
+                                                                            >Guardar</button>
+                                                                        </>
+                                                                    }
+                                                                </div>
+                                                                <div className='col-8 my-auto'>
+                                                                    #PELEA<hr style={{ border: "15px", background: "#f6f6f" }} className='m-0 p-0'></hr>
+                                                                </div>
+                                                            </div>
+                                                            <div className="navbar-brand card flex-row bg-danger m-0 p-0 " >
+                                                                <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
+                                                                <div className='ps-2 my-auto d-none d-sm-inline'>
+                                                                    <div className="userHeader text-light lh-sm" style={{ fontSize: '20px' }}>{itemm.nombres2}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos2}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubdos}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaddos} Grado: {itemm.cinturondos}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesodos}</div>
+                                                                </div>
+                                                            </div>
+                                                            <hr style={{ border: "25px", background: "#f6f6f" }} className=''></hr>
+                                                        </div>
                                                     )
                                                 }
                                             })}
@@ -338,10 +346,19 @@ function AdminLlaves(props) {
                                                                             {itemm.nropelea}
                                                                         </button>}
                                                                     {tipoL == 'E' &&
-                                                                        <input className="form-control form-control-lg text-light bg-secondary"
-                                                                            type="number" placeholder="#"
-                                                                            value={itemm.nropelea} onChange={(e) => cambiarValor(itemm, e.target.value, index, indexx)}>
-                                                                        </input>}
+                                                                        <>
+                                                                            <input className="form-control form-control-lg text-light bg-secondary"
+                                                                                type="number" placeholder="#" id={`pelea${itemm.idpelea}`}
+                                                                                defaultValue={itemm.nropelea}>
+                                                                            </input>
+                                                                            <button className='btn btn-success'
+                                                                                onClick={() => {
+                                                                                    console.log(document.getElementById(`pelea${itemm.idpelea}`).value)
+                                                                                    cambiarNumPelea(itemm, document.getElementById(`pelea${itemm.idpelea}`).value);
+                                                                                }}
+                                                                            >Guardar</button>
+                                                                        </>
+                                                                    }
                                                                 </div>
                                                                 <div className='col-8 my-auto'>
                                                                     #PELEA<hr style={{ border: "15px", background: "#f6f6f" }} className='m-0 p-0'></hr>
@@ -388,10 +405,18 @@ function AdminLlaves(props) {
                                                                             {itemm.nropelea}
                                                                         </button>}
                                                                     {tipoL == 'E' &&
-                                                                        <input className="form-control form-control-lg text-light bg-secondary"
-                                                                            type="number" placeholder="#"
-                                                                            value={itemm.nropelea} onChange={(e) => cambiarValor(itemm, e.target.value, index, indexx)}>
-                                                                        </input>}
+                                                                        <>
+                                                                            <input className="form-control form-control-lg text-light bg-secondary"
+                                                                                type="number" placeholder="#" id={`pelea${itemm.idpelea}`}
+                                                                                defaultValue={itemm.nropelea}>
+                                                                            </input>
+                                                                            <button className='btn btn-success'
+                                                                                onClick={() => {
+                                                                                    console.log(document.getElementById(`pelea${itemm.idpelea}`).value)
+                                                                                    cambiarNumPelea(itemm, document.getElementById(`pelea${itemm.idpelea}`).value);
+                                                                                }}
+                                                                            >Guardar</button>
+                                                                        </>}
                                                                 </div>
                                                                 <div className='col-8 my-auto'>
                                                                     #PELEA<hr style={{ border: "15px", background: "#f6f6f" }} className='m-0 p-0'></hr>

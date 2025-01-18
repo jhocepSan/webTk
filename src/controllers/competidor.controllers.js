@@ -754,7 +754,7 @@ export const obtenerLlaves = async (info) => {
         (SELECT -1 AS idsubcategoria,-1 AS idcategoria,'EXHIBICIÓN' AS nombre,-1 AS pesoini,
         -1 AS pesofin UNION SELECT subc.* FROM tkdb.subcategoria subc) subcat
         ON subcat.idsubcategoria=lv.idsubcategoria
-        WHERE lv.estado='A' and lv.idcampeonato=? AND (?=-2 OR lv.idcategoria=?) AND lv.tipo=?;`
+        WHERE lv.estado='A' and lv.idcampeonato=? AND (?=-2 OR lv.idcategoria=?) AND lv.tipo=? ORDER BY lv.area;`
     var sql4 = `SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,
         res.nropelea,res.idganador,res.idperdedor,res.nombres,res.apellidos,res.clubuno,res.tipo,
         cm.nombres as nombres2,cm.apellidos as apellidos2,cm.idclub as idclubdos,res.idclubuno,

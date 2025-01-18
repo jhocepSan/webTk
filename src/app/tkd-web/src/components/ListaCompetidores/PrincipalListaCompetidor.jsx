@@ -208,6 +208,7 @@ function PrincipalListaCompetidor() {
                 .then(data => {
                     setCargador(false);
                     if (data.ok.lista) {
+                        console.log(data.ok.lista)
                         if (data.ok.hayLlave[0].numLLaves != 0) {
                             setHayLlaves(true);
                         } else {
