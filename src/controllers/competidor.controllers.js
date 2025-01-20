@@ -215,11 +215,11 @@ export const getCompetidorClasificadoLista = async (info) => {
             and (c.idclub=? or ?=0) )res left join subcategoria subcate on res.idcategoria=subcate.idcategoria
             where (res.peso+0.001)>=subcate.pesoini and (res.peso-0.001)<=subcate.pesofin
             order by res.idcompetidor`
-    var sql3 = `select count(idllave)as numLLaves from tkdb.llave where idcampeonato=? and tipo=? and genero=? and estado='A';`
-    var sql6 = `SELECT COUNT(idclasificacion) FROM tkdb.clasificacion WHERE idcampeonato=? AND tipo=? AND genero=? AND estado='A';`
+    var sql3 = `select count(idllave)as numLLaves from llave where idcampeonato=? and tipo=? and genero=? and estado='A';`
+    var sql6 = `SELECT COUNT(idclasificacion) FROM clasificacion WHERE idcampeonato=? AND tipo=? AND genero=? AND estado='A';`
     var sql4 = `DROP TEMPORARY TABLE IF EXISTS lista_comp;`
     var sql5 = `CREATE TEMPORARY TABLE lista_comp AS
-        SELECT * FROM tkdb.competidor WHERE idcampeonato=?
+        SELECT * FROM competidor WHERE idcampeonato=?
         UNION 
         SELECT 0, 'SIN OPONENTE', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'A', NULL, NULL, NULL, NULL;`
     var conn;
@@ -367,9 +367,9 @@ function getNumLL(numC){
     }
 }
 const procesarLlave =async(info)=>{
-    var sql = `SELECT idpelea,idllave,idganador,tipo FROM tkdb.pelea WHERE idganador is not NULL
+    var sql = `SELECT idpelea,idllave,idganador,tipo FROM pelea WHERE idganador is not NULL
         AND idllave=? AND tipo=? ORDER BY idpelea;`
-    var sql1 = 'INSERT INTO tkdb.pelea (idllave,idcompetidor1,idcompetidor2,nropelea,idganador,tipo) VALUES (?,?,?,?,?,?);'
+    var sql1 = 'INSERT INTO pelea (idllave,idcompetidor1,idcompetidor2,nropelea,idganador,tipo) VALUES (?,?,?,?,?,?);'
     var conn;
     try {
         conn = await pool.getConnection();
@@ -740,19 +740,19 @@ export const obtenerLlaves = async (info) => {
     var sql =`SELECT lv.idllave,lv.fecha,lv.tipo,lv.genero,lv.idcategoria,lv.idsubcategoria,lv.idgrado,
         lv.estado,lv.area,cat.nombre AS nombrecategoria,cat.edadini,cat.edadfin,grad.nombre AS nombregrado,
         subcat.nombre AS nombresubcategoria,subcat.pesoini,subcat.pesofin
-        FROM tkdb.llave lv 
+        FROM llave lv 
         INNER JOIN 
-        (SELECT c.* from tkdb.categoria c WHERE estado='A' 
+        (SELECT c.* from categoria c WHERE estado='A' 
             UNION SELECT -1,'EXHIBICIÓN',1,1,?,'M','A'
             UNION SELECT -1,'EXHIBICIÓN',1,1,?,'F','A') cat
         ON lv.idcategoria=cat.idcategoria and lv.genero=cat.genero
         LEFT JOIN 
         (SELECT -1 AS idgrado,'MANUAL' AS nombre,'C'AS tipo,? AS idcampeonato,'A' AS estado UNION
-        SELECT gr.* FROM tkdb.grado gr WHERE gr.estado!='E') grad
+        SELECT gr.* FROM grado gr WHERE gr.estado!='E') grad
         ON grad.idgrado=lv.idgrado
         LEFT JOIN 
         (SELECT -1 AS idsubcategoria,-1 AS idcategoria,'EXHIBICIÓN' AS nombre,-1 AS pesoini,
-        -1 AS pesofin UNION SELECT subc.* FROM tkdb.subcategoria subc) subcat
+        -1 AS pesofin UNION SELECT subc.* FROM subcategoria subc) subcat
         ON subcat.idsubcategoria=lv.idsubcategoria
         WHERE lv.estado='A' and lv.idcampeonato=? AND (?=-2 OR lv.idcategoria=?) AND lv.tipo=? ORDER BY lv.area;`
     var sql4 = `SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,
@@ -765,12 +765,12 @@ export const obtenerLlaves = async (info) => {
 		  	p.idcompetidor2,p.nropelea,p.idganador,p.idperdedor,p.tipo,c.nombres,c.apellidos, 
         (select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno,c.idclub as idclubuno,
 		  c.edad AS edaduno,c.peso AS pesouno,c.cinturonuno
-        FROM pelea p left join (SELECT c.*,cnt.nombre AS cinturonuno FROM tkdb.competidor c 
-        INNER JOIN tkdb.cinturon cnt ON cnt.idcinturon=c.idcinturon
+        FROM pelea p left join (SELECT c.*,cnt.nombre AS cinturonuno FROM competidor c 
+        INNER JOIN cinturon cnt ON cnt.idcinturon=c.idcinturon
 		  where idcampeonato=? and estado='A' 
         UNION SELECT 0, 'SIN OPONENTE', NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL, NULL, NULL, 'A', NULL, NULL, NULL, NULL,NULL) c 
 			on c.idcompetidor=p.idcompetidor1) res
-        INNER JOIN (SELECT c.*,cnt.nombre AS cinturondos FROM tkdb.competidor c INNER JOIN tkdb.cinturon cnt ON cnt.idcinturon=c.idcinturon
+        INNER JOIN (SELECT c.*,cnt.nombre AS cinturondos FROM competidor c INNER JOIN cinturon cnt ON cnt.idcinturon=c.idcinturon
 		  where idcampeonato=? and estado='A'
         UNION SELECT 0, 'SIN OPONENTE', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'A', NULL, NULL, NULL, NULL,NULL) cm 
         on cm.idcompetidor=res.idcompetidor2 WHERE res.idllave=? order by res.idpelea;`
@@ -1028,7 +1028,7 @@ export const eliminarLlaveManual = async(info)=>{
 }
 export const addSeguimientoPelea = async(info)=>{
     var conn;
-    var sql = `INSERT INTO tkdb.pelea_seguimiento (idpelea,puntouno,faltasuno,puntodos,faltasdos,numround)
+    var sql = `INSERT INTO pelea_seguimiento (idpelea,puntouno,faltasuno,puntodos,faltasdos,numround)
         VALUES (?,?,?,?,?,?);`
     try {
         conn = await pool.getConnection();
@@ -1046,7 +1046,7 @@ export const addSeguimientoPelea = async(info)=>{
 }
 export const getSeguimientoPelea = async(info)=>{
     var conn;
-    var sql = `SELECT * FROM tkdb.pelea_seguimiento WHERE idpelea=?;`
+    var sql = `SELECT * FROM pelea_seguimiento WHERE idpelea=?;`
     try {
         conn = await pool.getConnection();
         const [result] = await conn.query(sql,[info.idpelea]);
@@ -1059,10 +1059,10 @@ export const getSeguimientoPelea = async(info)=>{
     }
 }
 const procesarLlaveAuto =async(info)=>{
-    var sql = `SELECT idpelea,idllave,idganador,tipo FROM tkdb.pelea WHERE idganador is not NULL
+    var sql = `SELECT idpelea,idllave,idganador,tipo FROM pelea WHERE idganador is not NULL
         AND idllave=? AND tipo=? ORDER BY idpelea;`
-    var sql1 = 'INSERT INTO tkdb.pelea (idllave,idcompetidor1,idcompetidor2,nropelea,idganador,tipo) VALUES (?,?,?,?,?,?);'
-    var sql2 = `SELECT * from tkdb.pelea where idllave=? and (idcompetidor1=? or idcompetidor2=?) and tipo=?`
+    var sql1 = 'INSERT INTO pelea (idllave,idcompetidor1,idcompetidor2,nropelea,idganador,tipo) VALUES (?,?,?,?,?,?);'
+    var sql2 = `SELECT * from pelea where idllave=? and (idcompetidor1=? or idcompetidor2=?) and tipo=?`
     var conn;
     try {
         conn = await pool.getConnection();
@@ -1094,7 +1094,7 @@ const procesarLlaveAuto =async(info)=>{
 }
 export const saveFinalResultPelea = async (info)=>{
     var conn;
-    var sql= `UPDATE tkdb.pelea SET idganador=?,idperdedor=? WHERE idpelea=? AND idllave=?;`
+    var sql= `UPDATE pelea SET idganador=?,idperdedor=? WHERE idpelea=? AND idllave=?;`
     try {
         conn = await pool.getConnection();
         const [result] = await conn.query(sql,[info.idganador,info.idperdedor,info.idpelea,info.idllave]);

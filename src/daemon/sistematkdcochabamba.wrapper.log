@@ -860,3 +860,21 @@ Stacktrace:   at System.Management.ManagementScope._Clone(ManagementScope scope,
 2024-10-12 08:32:30 - Send SIGINT 4468
 2024-10-12 08:32:30 - SIGINT to 4468 failed - Killing as fallback
 2024-10-12 08:32:30 - Finished sistematkdcochabamba.exe
+2024-10-16 13:32:51 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 D:\tekondo\TekwondoWeb\node_modules\node-windows\lib\wrapper.js --file D:\tekondo\TekwondoWeb\src\index.js --scriptoptions= --log "Sistema TKD Cochabamba wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2024-10-16 13:32:52 - Started 5420
+2024-10-16 17:12:58 - Starting C:\Program Files\nodejs\node.exe  --harmony --max_old_space_size=4096 D:\tekondo\TekwondoWeb\node_modules\node-windows\lib\wrapper.js --file D:\tekondo\TekwondoWeb\src\index.js --scriptoptions= --log "Sistema TKD Cochabamba wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2024-10-16 17:12:59 - Started 5236
+2024-10-22 16:30:45 - Stopping sistematkdcochabamba.exe
+2024-10-22 16:30:45 - ProcessKill 5236
+2024-10-22 16:30:45 - Found child process: 5292 Name: conhost.exe
+2024-10-22 16:30:45 - Found child process: 6072 Name: node.exe
+2024-10-22 16:30:45 - Stopping process 5292
+2024-10-22 16:30:45 - Send SIGINT 5292
+2024-10-22 16:30:46 - SIGINT to 5292 failed - Killing as fallback
+2024-10-22 16:30:46 - Stopping process 6072
+2024-10-22 16:30:46 - Send SIGINT 6072
+2024-10-22 16:30:46 - SIGINT to 6072 failed - Killing as fallback
+2024-10-22 16:30:46 - Stopping process 5236
+2024-10-22 16:30:46 - Send SIGINT 5236
+2024-10-22 16:30:46 - SIGINT to 5236 failed - Killing as fallback
+2024-10-22 16:30:46 - Finished sistematkdcochabamba.exe

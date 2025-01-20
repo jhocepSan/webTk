@@ -2,8 +2,8 @@ import { pool } from '../utils/connection.js'
 
 export const getPuntosMando = async (info) => {
     var conn;
-    var sql = `SELECT md.*,ur.correo,ur.nombres,(select abreviado from tkdb.club WHERE idclub=ur.idclub)AS nameclub
-        FROM tkdb.mandopunto md INNER JOIN tkdb.usuario ur ON md.idusuario=ur.idusuario
+    var sql = `SELECT md.*,ur.correo,ur.nombres,(select abreviado from club WHERE idclub=ur.idclub)AS nameclub
+        FROM mandopunto md INNER JOIN usuario ur ON md.idusuario=ur.idusuario
         WHERE md.sector=? and md.estado="A" and md.tipoalbitro="C" order by md.id;`
     try {
         conn = await pool.getConnection();
