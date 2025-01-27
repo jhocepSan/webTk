@@ -56,7 +56,7 @@ async function exportarLlaves(categorias, listaLLavesi) {
                                     doc.setTextColor(0, 0, 255);
                                     doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x + 85, y + 5)
                                     doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x + 85, y + 10)
-                                    doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos : ''}`, x + 85, y + 15)
+                                    doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x + 85, y + 15)
                                     y = y + 20
                                     doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
@@ -73,7 +73,7 @@ async function exportarLlaves(categorias, listaLLavesi) {
                                     doc.setTextColor(255, 0, 0);
                                     doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x + 85, y + 5)
                                     doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x + 85, y + 10)
-                                    doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno : ''}`, x + 85, y + 15)
+                                    doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno : ''}`, x + 85, y + 15)
                                     doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                                     y = y + 50;
@@ -87,7 +87,7 @@ async function exportarLlaves(categorias, listaLLavesi) {
                                     if (cmp.clubdos != null) {
                                         doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
                                         doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x, y + 10)
-                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno : ''}`, x, y + 15)
+                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno : ''}`, x, y + 15)
                                     }
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                                     doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
@@ -100,20 +100,20 @@ async function exportarLlaves(categorias, listaLLavesi) {
                                         doc.setTextColor(0, 0, 255);
                                         doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x + 85, y + 5)
                                         doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x + 85, y + 10)
-                                        doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos : ''}`, x + 85, y + 15)
+                                        doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x + 85, y + 15)
                                     }
                                     y = y + 20
                                     if (cmp.clubdos == null) {
                                         doc.setTextColor(255, 0, 0);
                                         doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x + 85, y + 5)
                                         doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x + 85, y + 10)
-                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno : ''}`, x + 85, y + 15)
+                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno : ''}`, x + 85, y + 15)
                                     }
                                     if (cmp.clubuno != null) {
                                         doc.setTextColor(255, 0, 0);
                                         doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
                                         doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x, y + 10)
-                                        doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos : ''}`, x, y + 15)
+                                        doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x, y + 15)
                                     }
                                     doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
@@ -129,7 +129,7 @@ async function exportarLlaves(categorias, listaLLavesi) {
                                     if (cmp.clubdos != null) {
                                         doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
                                         doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x, y + 10)
-                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno : ''}`, x, y + 15)
+                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno: ''}`, x, y + 15)
                                     }
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                                     doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
@@ -142,20 +142,20 @@ async function exportarLlaves(categorias, listaLLavesi) {
                                         doc.setTextColor(0, 0, 255);
                                         doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x + 85, y + 5)
                                         doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x + 85, y + 10)
-                                        doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos : ''}`, x + 85, y + 15)
+                                        doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x + 85, y + 15)
                                     }
                                     y = y + 20
                                     if (cmp.clubdos == null) {
                                         doc.setTextColor(255, 0, 0);
                                         doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x + 85, y + 5)
                                         doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x + 85, y + 10)
-                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno : ''}`, x + 85, y + 15)
+                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno : ''}`, x + 85, y + 15)
                                     }
                                     if (cmp.clubuno != null) {
                                         doc.setTextColor(255, 0, 0);
                                         doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
                                         doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x, y + 10)
-                                        doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos : ''}`, x, y + 15)
+                                        doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x, y + 15)
                                     }
                                     doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
@@ -207,7 +207,7 @@ async function exportarLlaves(categorias, listaLLavesi) {
                         if (cmp.clubdos != null) {
                             doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
                             doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x, y + 10)
-                            doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno : ''}`, x, y + 15)
+                            doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno : ''}`, x, y + 15)
                         }
                         doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                         doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
@@ -221,7 +221,7 @@ async function exportarLlaves(categorias, listaLLavesi) {
                             doc.setTextColor(0, 0, 255);
                             doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x + 85, y + 5)
                             doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x + 85, y + 10)
-                            doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos : ''}`, x + 85, y + 15)
+                            doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x + 85, y + 15)
                         }
 
                         y = y + 20
@@ -229,13 +229,13 @@ async function exportarLlaves(categorias, listaLLavesi) {
                             doc.setTextColor(255, 0, 0);
                             doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x + 85, y + 5)
                             doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x + 85, y + 10)
-                            doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno : ''}`, x + 85, y + 15)
+                            doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno : ''}`, x + 85, y + 15)
                         }
                         if (cmp.clubuno != null) {
                             doc.setTextColor(255, 0, 0);
                             doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
                             doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x, y + 10)
-                            doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos : ''}`, x, y + 15)
+                            doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x, y + 15)
                         }
                         doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                         doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
@@ -268,7 +268,7 @@ async function exportarLlaves(categorias, listaLLavesi) {
                     doc.text(`${comp.nombres} (${comp.clubuno !== null ? comp.clubuno : '-'})`, x, y + 5)
                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                     doc.text(`${comp.apellidos !== null ? comp.apellidos + ' Grado:' + comp.cinturonuno : ''}`, x, y + 10)
-                    doc.text(`${comp.edaduno !== null ? 'Edad: ' + comp.edaduno + ' Peso:' + comp.pesouno : ''}`, x, y + 15)
+                    doc.text(`${comp.edaduno !== null ? 'Edad: ' + comp.edaduno + ' Peso:' + comp.pesouno+' Altura:'+ comp.alturauno : ''}`, x, y + 15)
                     doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
                     doc.setFontSize(15);
                     doc.setTextColor(0, 0, 0);
@@ -281,7 +281,7 @@ async function exportarLlaves(categorias, listaLLavesi) {
                     doc.text(`${comp.nombres2} (${comp.clubdos !== null ? comp.clubdos : '-'})`, x, y + 5)
                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                     doc.text(`${comp.apellidos2 !== null ? comp.apellidos2 + ' Grado:' + comp.cinturondos : ''}`, x, y + 10)
-                    doc.text(`${comp.edaddos !== null ? 'Edad: ' + comp.edaddos + ' Peso:' + comp.pesodos : ''}`, x, y + 15)
+                    doc.text(`${comp.edaddos !== null ? 'Edad: ' + comp.edaddos + ' Peso:' + comp.pesodos+' Altura:'+ comp.alturados : ''}`, x, y + 15)
                     doc.setTextColor(0, 0, 0);
                     y = y + 50
                     nbp += 1;
@@ -358,8 +358,8 @@ async function exportarTargetaCompetidor(listaCompetidores, tipo) {
             doc.text('Categoria.- ' + est.nombrecategoria, x + 1, y + 40);
             doc.setFontSize(8);
             doc.setTextColor(255, 0, 0);
-            doc.text('CAMPEONATO', x + 1, y + 43)
-            doc.text('OPEN CONCORDIA', x + 1, y + 46)
+            doc.text(cmpSelect.nombre, x + 1, y + 43)
+            //doc.text(, x + 1, y + 46)
             doc.setTextColor(0, 0, 0);
             doc.setFontSize(12);
             doc.line(x + 25, y + 52, x + 42, y + 52, 'FD')

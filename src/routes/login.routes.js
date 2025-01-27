@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { agregarUsuario, iniciarSession, crearCampeonato, recuperarCuenta,getIpServidor } from '../controllers/login.controllers.js'
+import { agregarUsuario, iniciarSession,iniciarSessionMando, crearCampeonato, recuperarCuenta,getIpServidor } from '../controllers/login.controllers.js'
 const router = Router();
 
 
@@ -12,6 +12,16 @@ router.post('/iniciarSession', async (req, res) => {
         res.status(404).json(result);
     }
 });
+
+router.post('/iniciarSessionMando',async(req,res)=>{
+    const { correo, password } = req.body;
+    const result = await iniciarSessionMando({ correo, password })
+    if (result.ok) {
+        res.status(200).json(result);
+    } else {
+        res.status(404).json(result);
+    }
+})
 
 router.post('/createUser', async (req, res) => {
     const { info } = req.body;

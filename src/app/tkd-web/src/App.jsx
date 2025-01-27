@@ -22,6 +22,7 @@ import ScorePoomse from "./components/Puntuacion/ScorePoomse";
 import PrincipalPuntuacionPrevia from "./components/PuntuacionPrevias/PrincipalPuntuacionPrevia";
 import PrincipalPantallaDemo from "./components/PantallaDemostracion/PrincipalPantallaDemo";
 import ConfigAreaKirugui from "./components/PantallaPuntuacion/ConfigAreaKirugui";
+import PruebaSocket from "./PruebaSocket";
 function App() {
   return (
     <ContextAplicacion>
@@ -47,6 +48,7 @@ function App() {
           <Route path='/gamePoomse' element={<PrincipalPuntPoomse/>}/>
           <Route path='/gameRompim' element={<PrincipalPuntRompi/>}/>
           <Route path='/nuevaPantallaK' element={<ConfigAreaKirugui/>}/>
+          <Route path='/socketCliente' element={<PruebaSocket/>}/>
         </Routes>
         <ToastContainer
           position="bottom-right"

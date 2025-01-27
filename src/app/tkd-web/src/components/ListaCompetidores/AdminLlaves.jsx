@@ -275,7 +275,7 @@ function AdminLlaves(props) {
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubuno}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaduno} Grado: {itemm.cinturonuno}</div>
-                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesouno}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesouno} Altura: {itemm.alturauno}</div>
                                                                 </div>
                                                             </div>
                                                             <div className='row row-cols-2 g-0'>
@@ -312,7 +312,7 @@ function AdminLlaves(props) {
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos2}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubdos}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaddos} Grado: {itemm.cinturondos}</div>
-                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesodos}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesodos} Altura: {itemm.alturados}</div>
                                                                 </div>
                                                             </div>
                                                             <hr style={{ border: "25px", background: "#f6f6f" }} className=''></hr>
@@ -334,7 +334,7 @@ function AdminLlaves(props) {
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubuno}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaduno} Grado: {itemm.cinturonuno}</div>
-                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesouno}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesouno} Altura:{itemm.alturauno}</div>
                                                                 </div>
                                                             </div>
                                                             <div className='row row-cols-2 g-0'>
@@ -371,7 +371,7 @@ function AdminLlaves(props) {
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos2}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubdos}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaddos} Grado: {itemm.cinturondos}</div>
-                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesodos}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesodos} Altura: {itemm.alturados}</div>
                                                                 </div>
                                                             </div>
                                                             <hr style={{ border: "25px", background: "#f6f6f" }} className=''></hr>
@@ -393,7 +393,7 @@ function AdminLlaves(props) {
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubuno}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaduno} Grado: {itemm.cinturonuno}</div>
-                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesouno}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesouno} Altura: {itemm.alturauno}</div>
                                                                 </div>
                                                             </div>
                                                             <div className='row row-cols-2 g-0'>
@@ -429,7 +429,7 @@ function AdminLlaves(props) {
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.apellidos2}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>{itemm.clubdos}</div>
                                                                     <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Edad: {itemm.edaddos} Grado: {itemm.cinturondos}</div>
-                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesodos}</div>
+                                                                    <div className='userHeader text-light lh-sm' style={{ fontSize: '20px' }}>Peso: {itemm.pesodos} Altura:{itemm.alturados}</div>
                                                                 </div>
                                                             </div>
                                                             <hr style={{ border: "25px", background: "#f6f6f" }} className=''></hr>

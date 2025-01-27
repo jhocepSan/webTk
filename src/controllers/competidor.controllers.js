@@ -757,14 +757,14 @@ export const obtenerLlaves = async (info) => {
         WHERE lv.estado='A' and lv.idcampeonato=? AND (?=-2 OR lv.idcategoria=?) AND lv.tipo=? ORDER BY lv.area;`
     var sql4 = `SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,
         res.nropelea,res.idganador,res.idperdedor,res.nombres,res.apellidos,res.clubuno,res.tipo,
-        cm.nombres as nombres2,cm.apellidos as apellidos2,cm.idclub as idclubdos,res.idclubuno,
-		  (select cl.nombre from club cl where cl.idclub=cm.idclub) as clubdos,
+        cm.nombres as nombres2,cm.apellidos as apellidos2,cm.idclub as idclubdos,cm.altura as alturados,res.idclubuno,
+		  (select cl.nombre from club cl where cl.idclub=cm.idclub) as clubdos,res.alturauno,
         cm.peso as pesodos,cm.edad as edaddos,res.edaduno,res.pesouno,cm.cinturondos,res.cinturonuno
         FROM 
         (SELECT p.idpelea,p.idpeleapadre,p.idllave,p.idcompetidor1,
 		  	p.idcompetidor2,p.nropelea,p.idganador,p.idperdedor,p.tipo,c.nombres,c.apellidos, 
         (select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno,c.idclub as idclubuno,
-		  c.edad AS edaduno,c.peso AS pesouno,c.cinturonuno
+		  c.edad AS edaduno,c.peso AS pesouno,c.cinturonuno,c.altura as alturauno
         FROM pelea p left join (SELECT c.*,cnt.nombre AS cinturonuno FROM competidor c 
         INNER JOIN cinturon cnt ON cnt.idcinturon=c.idcinturon
 		  where idcampeonato=? and estado='A' 
@@ -778,10 +778,10 @@ export const obtenerLlaves = async (info) => {
         res.idperdedor,res.nombres,res.edad as edaduno,res.peso as pesouno,res.apellidos,res.clubuno,res.cinturonuno, 
         c.nombres as nombres2,c.apellidos as apellidos2,(select cl.nombre from club cl where cl.idclub=c.idclub) as clubdos,
         (select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturondos,c.idclub AS idclubdos, 
-        c.peso as pesodos,c.edad as edaddos,res.tipo,res.idclubuno
+        c.peso as pesodos,c.edad as edaddos,c.altura as alturados,res.tipo,res.idclubuno,res.alturauno
         from(select p.idpelea,p.idpeleapadre,p.idllave,p.idcompetidor1,p.idcompetidor2,p.nropelea,p.idganador,p.idperdedor,p.tipo,c.nombres,c.apellidos, 
         (select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno,c.edad,c.peso,genero,c.idclub AS idclubuno, 
-        (select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturonuno 
+        (select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturonuno,c.altura as alturauno
         from pelea p inner join competidorsinpelea c on p.idcompetidor1=c.idcompetidor) res inner join 
 		(select * from competidorsinpelea union select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null) c on res.idcompetidor2=c.idcompetidor 
         where res.idllave=? order by res.idpelea;`;
