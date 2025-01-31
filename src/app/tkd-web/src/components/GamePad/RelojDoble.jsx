@@ -5,6 +5,7 @@ function RelojDoble(props) {
     const [segundo,setSegundo]=useState(0);
     const [tiempo,setTiempo] = useState('00:00')
     function calcularReloj() { 
+        console.log("dato")
         if(doble){collback()}
         if(valor.reset&&tipo=='r'){setSegundo(0);setTiempo('00:00')}
         if(valor.isPlay&&tipo=='r'){
@@ -28,7 +29,7 @@ function RelojDoble(props) {
             var conversion=seco+':'+aux
             setTiempo(conversion);
             if(sec>0){
-                setSegundo(segundo+0.5);
+                setSegundo(segundo+1);
             }else{
                 setSegundo(segundo-10);
             }
@@ -39,7 +40,7 @@ function RelojDoble(props) {
         // Configurar el temporizador al montar el componente
         const timeoutId = setTimeout(() => {
             calcularReloj();
-        }, 500);
+        }, 1100);
 
         // Limpiar el temporizador al desmontar el componente
         return () => {
