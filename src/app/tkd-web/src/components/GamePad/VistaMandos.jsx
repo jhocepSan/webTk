@@ -60,7 +60,7 @@ function VistaMandos(props) {
                     }else{
                         datoFinal=[...datosm,lastJsonMessage].sort((a, b) => a.id - b.id)
                     }
-                    if(datoFinal.length==parseInt(configure.numMandos)-1){
+                    if(datoFinal.length==parseInt(configure.numMandos)){
                         collback(datoFinal.map(item=>item.dato));
                         setLecturas([...lecturas,datoFinal]);
                         setMandos([]);
