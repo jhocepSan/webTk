@@ -41,7 +41,7 @@ function PrincipalKirugui(props) {
     const [mandoLec, setMandoLec] = useState([]);
     const [ventana, setVentana] = useState(0);
     const [selectPelea, setSelectPelea] = useState(null);
-    const { isLoading, data, isError, error } = useQuery(
+    /*const { isLoading, data, isError, error } = useQuery(
         {
             queryKey: ['mandos'],
             queryFn: () => getMandosPuntuados(
@@ -51,7 +51,7 @@ function PrincipalKirugui(props) {
                 }),
             refetchInterval: activarLectura ? frecLectura : false
         }
-    )
+    )*/
     function hayGanador(color) {
         Sonido(5);
         setTipoM(color);
@@ -241,11 +241,11 @@ function PrincipalKirugui(props) {
                             if ((prePunt.puntoA - prePunt.puntoR) > parseInt(configure.diffPuntos)) {
                                 hayGanador('A');
                                 setPuntoJuego({ ...prePunt, isPlay: false });
-                                localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': 'A', isPlay: false ,'reset':true}));
+                                localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': 'A', isPlay: false, 'reset': true }));
                             } else if ((prePunt.puntoR - prePunt.puntoA) > parseInt(configure.diffPuntos)) {
                                 setPuntoJuego({ ...prePunt, isPlay: false })
                                 hayGanador('R');
-                                localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': 'R', isPlay: false,'reset':true }));
+                                localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': 'R', isPlay: false, 'reset': true }));
                             }
                             setPuntoJuego({ ...prePunt })
                         } else {
@@ -316,11 +316,11 @@ function PrincipalKirugui(props) {
                         setPuntoJuego({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true });
                         localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true }))
                         if ((parseInt(configure.numRound) - roundA.length) == 1) {
-                            localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true,'reset':true }))
+                            localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true, 'reset': true }))
                             setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length })
                             setTipoM('AR');
                         } else if ((parseInt(configure.numRound) - roundR.length) == 1) {
-                            localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true,'reset':true }))
+                            localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true, 'reset': true }))
                             setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length })
                             setTipoM('RR');
                         } else {
@@ -476,221 +476,215 @@ function PrincipalKirugui(props) {
 
     return (
         <div>
-            {isLoading && <div>Cargando ...</div>}
-            {isError && <div>error: {error.message}</div>}
-            {isError == false &&
-                <>
-                    <div className='container-fluid py-2'>
-                        <div className='row row-cols-1 row-cols-sm-1 row-cols-md-2 gx-1 mb-1' style={{ height: '75%' }}>
-                            <div className='col col-sm-12 col-md-2'>
-                                {selectPelea != null &&
-                                    <div className='fw-bold text-light text-center bg-dark' style={{ fontSize: '29px' }}>
-                                        Pelea #{selectPelea.nropelea}
-                                    </div>}
-                                <div className='bg-light lh-sm fw-bold text-center' style={{fontSize:'18px'}}>
-                                    <div className='text-danger'>Rojo GANO {getRoundWin('R')} round</div>
-                                    <div className='text-primary'>Azul GANO {getRoundWin('A')} round</div>
+            <div className='container-fluid py-2'>
+                <div className='row row-cols-1 row-cols-sm-1 row-cols-md-2 gx-1 mb-1' style={{ height: '75%' }}>
+                    <div className='col col-sm-12 col-md-2'>
+                        {selectPelea != null &&
+                            <div className='fw-bold text-light text-center bg-dark' style={{ fontSize: '29px' }}>
+                                Pelea #{selectPelea.nropelea}
+                            </div>}
+                        <div className='bg-light lh-sm fw-bold text-center' style={{ fontSize: '18px' }}>
+                            <div className='text-danger'>Rojo GANO {getRoundWin('R')} round</div>
+                            <div className='text-primary'>Azul GANO {getRoundWin('A')} round</div>
+                        </div>
+                        <VistaMandos datos={null} setActivarLectura={setActivarLectura}
+                            activarLectura={activarLectura}
+                            configure={configure.numMandos != undefined ? configure : null}
+                            collback={lecturadeDatos}
+                            puntoJuego={puntoJuego} showStadistic={showStadistic} areaname={area} />
+                    </div>
+                    <div className='col col-sm-12 col-md-10'>
+                        <div className='container-fluid fondoControles '>
+                            <div className="row row-cols g-0">
+                                <button type="button" className="btn btn-sm mx-1 btn-sm botonMenu d-none"
+                                    id='buttonFinal'
+                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Pausar Competencia"
+                                    onClick={() => calcularResultado()}>
+                                    <i className="fa-solid fa-circle-pause fa-xl"></i>
+                                </button>
+                                <div className='col my-auto' style={{ minWidth: '40px', maxWidth: '40px' }}>
+                                    <Link className='btn btn-sm botonMenu my-auto mx-auto'
+                                        title="Abrir pantalla extendida"
+                                        onClick={() => localStorage.setItem('doblePant', JSON.stringify({
+                                            'isPlay': false, 'round': 1, 'reset': false,
+                                            'puntoA': 0, 'faltaA': 0, 'gano': '',
+                                            'puntoR': 0, 'faltaR': 0, nombreA, nombreR, 'area': idArea
+                                        }))}
+                                        to={'/scoreDobleK'} target='blanck'>
+                                        <i className="fa-brands fa-windows fa-2xl"></i>
+                                    </Link>
                                 </div>
-                                <VistaMandos datos={data} setActivarLectura={setActivarLectura}
-                                    activarLectura={activarLectura}
-                                    configure={configure.numMandos != undefined ? configure : null}
-                                    collback={lecturadeDatos}
-                                    puntoJuego={puntoJuego} showStadistic={showStadistic} />
-                            </div>
-                            <div className='col col-sm-12 col-md-10'>
-                                <div className='container-fluid fondoControles '>
-                                    <div className="row row-cols g-0">
-                                        <button type="button" className="btn btn-sm mx-1 btn-sm botonMenu d-none"
-                                            id='buttonFinal'
-                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Pausar Competencia"
-                                            onClick={() => calcularResultado()}>
-                                            <i className="fa-solid fa-circle-pause fa-xl"></i>
-                                        </button>
-                                        <div className='col my-auto' style={{ minWidth: '40px', maxWidth: '40px' }}>
-                                            <Link className='btn btn-sm botonMenu my-auto mx-auto'
-                                                title="Abrir pantalla extendida"
-                                                onClick={() => localStorage.setItem('doblePant', JSON.stringify({
-                                                    'isPlay': false, 'round': 1, 'reset': false,
-                                                    'puntoA': 0, 'faltaA': 0, 'gano': '',
-                                                    'puntoR': 0, 'faltaR': 0, nombreA, nombreR, 'area': idArea
-                                                }))}
-                                                to={'/scoreDobleK'} target='blanck'>
-                                                <i className="fa-brands fa-windows fa-2xl"></i>
-                                            </Link>
-                                        </div>
-                                        <div className='col my-auto' style={{ minWidth: '65px', maxWidth: '65px' }}>
-                                            <button type="button" className="btn btn-sm botonMenu m-0 p-0"
-                                                title="Iniciar Competencia" id='buttonPlay'
-                                                onClick={() => ejecutarJuego(!puntoJuego.isPlay)}>
-                                                <span className='fh-1' style={{ fontSize: '34px' }}>{puntoJuego.isPlay ? '⌚' : '⏵'}</span>(P)
-                                            </button>
-                                        </div>
-                                        <div className='col my-auto' style={{ minWidth: '70px', maxWidth: '70px' }}>
-                                            <button type="button" className="btn mx-1 btn-sm botonMenu" id='btnReset'
-                                                title="Recetear valores iniciales"
-                                                onClick={() => recetearValores()}>
-                                                <i className="fa-solid fa-repeat fa-2xl"></i>(.)</button>
-                                        </div>
-                                        <div className='text-center text-light tituloMenu fw-bold lh-1'
-                                            style={{ fontSize: '33px', width: '180px' }}>
-                                            Round {puntoJuego.round}<br></br>AREA {idArea == 0 ? '?' : idArea}
-                                        </div>
-                                        <div className='text-center my-auto mx-1 mx-auto' style={{ fontSize: '45px', width: '230px' }} >
-                                            <RelojKirugui valor={puntoJuego} conf={configure} tipo='r' collback={() => ''} doble={false} />
-                                        </div>
-                                        <div className='text-center my-auto mx-1 mx-auto' style={{ fontSize: '45px', width: '230px' }} >
-                                            {puntoJuego.isPlay == false &&
-                                                <RelojKirugui valor={puntoJuego} conf={configure} tipo='s' collback={() => ''} doble={false} />}
-                                        </div>
-                                    </div>
+                                <div className='col my-auto' style={{ minWidth: '65px', maxWidth: '65px' }}>
+                                    <button type="button" className="btn btn-sm botonMenu m-0 p-0"
+                                        title="Iniciar Competencia" id='buttonPlay'
+                                        onClick={() => ejecutarJuego(!puntoJuego.isPlay)}>
+                                        <span className='fh-1' style={{ fontSize: '34px' }}>{puntoJuego.isPlay ? '⌚' : '⏵'}</span>(P)
+                                    </button>
                                 </div>
-                                <div className='container-fluid'>
-                                    <div className='row row-cols-1 row-cols-sm-2 row-cols-md-2 gx-0'>
-                                        <div className='col bg-primary bg-gradient col-md-6'>
-                                            <div className='w-100 p-2 lh-1'>
-                                                <h1 className='text-start tituloMenu text-light lh-1' style={{ fontSize: '30px' }}>
-                                                    {nombreA != '' ? nombreA : 'TKD AZUL'}
-                                                </h1>
-                                                {idClubA != -1 &&
-                                                    <h4 className='text-start tituloMenu text-light lh-1'>
-                                                        {getClubesNombre(idClubA)}
-                                                    </h4>}
-                                            </div>
-                                            <VisorPunto valor={puntoJuego} tipo='A' />
-                                            <VisorFaltas valor={puntoJuego} tipo='A' resultPre={getFaltaAcumulada('A')} />
-                                        </div>
-                                        <div className='col bg-danger bg-gradient col-md-6'>
-                                            <div className='w-100 p-2 lh-1'>
-                                                <h1 className='text-end tituloMenu text-light lh-1' style={{ fontSize: '30px' }}>
-                                                    {nombreR != '' ? nombreR : 'TKD ROJO'}
-                                                </h1>
-                                                {idClubR != -1 &&
-                                                    <h4 className='text-end tituloMenu text-light lh-1'>
-                                                        {getClubesNombre(idClubR)}
-                                                    </h4>}
-                                            </div>
-                                            <VisorPunto valor={puntoJuego} tipo='R' />
-                                            <VisorFaltas valor={puntoJuego} tipo='R' resultPre={getFaltaAcumulada('R')} />
-                                        </div>
-                                    </div>
+                                <div className='col my-auto' style={{ minWidth: '70px', maxWidth: '70px' }}>
+                                    <button type="button" className="btn mx-1 btn-sm botonMenu" id='btnReset'
+                                        title="Recetear valores iniciales"
+                                        onClick={() => recetearValores()}>
+                                        <i className="fa-solid fa-repeat fa-2xl"></i>(.)</button>
+                                </div>
+                                <div className='text-center text-light tituloMenu fw-bold lh-1'
+                                    style={{ fontSize: '33px', width: '180px' }}>
+                                    Round {puntoJuego.round}<br></br>AREA {idArea == 0 ? '?' : idArea}
+                                </div>
+                                <div className='text-center my-auto mx-1 mx-auto' style={{ fontSize: '45px', width: '230px' }} >
+                                    <RelojKirugui valor={puntoJuego} conf={configure} tipo='r' collback={() => ''} doble={false} />
+                                </div>
+                                <div className='text-center my-auto mx-1 mx-auto' style={{ fontSize: '45px', width: '230px' }} >
+                                    {puntoJuego.isPlay == false &&
+                                        <RelojKirugui valor={puntoJuego} conf={configure} tipo='s' collback={() => ''} doble={false} />}
                                 </div>
                             </div>
                         </div>
                         <div className='container-fluid'>
-                            <div className='row row-cols-1 row-cols-sm-1 row-cols-md-2 g-1'>
-                                <div className='col text-center bg-primary '>
-                                    <div className='container-fluid py-2'>
-                                        <div className='row row-cols-3 g-0'>
-                                            <div className='col'>
-                                                <div className='text-light lh-1'>
-                                                    Derrota por
-                                                </div>
-                                                <div className='container-fluid'>
-                                                    <div className="btn-group btn-group-sm">
-                                                        <button className='btn btn-sm btnScore text-light m-0 p-0 '
-                                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrota por nocaut">
-                                                            <i className="fa-solid fa-skull-crossbones fa-2xl"></i>
-                                                        </button>
-                                                        <button className='btn btn-sm btnScore text-info m-0 p-0 mx-2'
-                                                            title='declarar ganador'
-                                                            onClick={() => declararGanador(puntoJuego.puntoA + 1, 'A')}>
-                                                            <i className="fa-solid fa-trophy fa-2xl"></i>
-                                                        </button>
-                                                        <button className='btn btn-sm btnScore text-warning m-0 p-0'
-                                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrotado por el GAM-JEON">
-                                                            <i className="fa-solid fa-diamond fa-2xl"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
+                            <div className='row row-cols-1 row-cols-sm-2 row-cols-md-2 gx-0'>
+                                <div className='col bg-primary bg-gradient col-md-6'>
+                                    <div className='w-100 p-2 lh-1'>
+                                        <h1 className='text-start tituloMenu text-light lh-1' style={{ fontSize: '30px' }}>
+                                            {nombreA != '' ? nombreA : 'TKD AZUL'}
+                                        </h1>
+                                        {idClubA != -1 &&
+                                            <h4 className='text-start tituloMenu text-light lh-1'>
+                                                {getClubesNombre(idClubA)}
+                                            </h4>}
+                                    </div>
+                                    <VisorPunto valor={puntoJuego} tipo='A' />
+                                    <VisorFaltas valor={puntoJuego} tipo='A' resultPre={getFaltaAcumulada('A')} />
+                                </div>
+                                <div className='col bg-danger bg-gradient col-md-6'>
+                                    <div className='w-100 p-2 lh-1'>
+                                        <h1 className='text-end tituloMenu text-light lh-1' style={{ fontSize: '30px' }}>
+                                            {nombreR != '' ? nombreR : 'TKD ROJO'}
+                                        </h1>
+                                        {idClubR != -1 &&
+                                            <h4 className='text-end tituloMenu text-light lh-1'>
+                                                {getClubesNombre(idClubR)}
+                                            </h4>}
+                                    </div>
+                                    <VisorPunto valor={puntoJuego} tipo='R' />
+                                    <VisorFaltas valor={puntoJuego} tipo='R' resultPre={getFaltaAcumulada('R')} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className='container-fluid'>
+                    <div className='row row-cols-1 row-cols-sm-1 row-cols-md-2 g-1'>
+                        <div className='col text-center bg-primary '>
+                            <div className='container-fluid py-2'>
+                                <div className='row row-cols-3 g-0'>
+                                    <div className='col'>
+                                        <div className='text-light lh-1'>
+                                            Derrota por
+                                        </div>
+                                        <div className='container-fluid'>
+                                            <div className="btn-group btn-group-sm">
+                                                <button className='btn btn-sm btnScore text-light m-0 p-0 '
+                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrota por nocaut">
+                                                    <i className="fa-solid fa-skull-crossbones fa-2xl"></i>
+                                                </button>
+                                                <button className='btn btn-sm btnScore text-info m-0 p-0 mx-2'
+                                                    title='declarar ganador'
+                                                    onClick={() => declararGanador(puntoJuego.puntoA + 1, 'A')}>
+                                                    <i className="fa-solid fa-trophy fa-2xl"></i>
+                                                </button>
+                                                <button className='btn btn-sm btnScore text-warning m-0 p-0'
+                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrotado por el GAM-JEON">
+                                                    <i className="fa-solid fa-diamond fa-2xl"></i>
+                                                </button>
                                             </div>
-                                            <div className='col'>
-                                                <div className='text-light lh-1'>
-                                                    Gam-jeom
-                                                </div>
-                                                <div className='container-fluid'>
-                                                    <div className="btn-group btn-group-sm">
-                                                        <button className='btn btn-sm btnScore m-0 p-0 ' id='faltaA' onClick={() => procesarFalta(true, 1)}>
-                                                            <i className="fa-solid fa-circle-plus fa-2xl"></i>(F)
-                                                        </button>
-                                                        <button className='btn btn-sm btnScore m-0 p-0' id='faltaAR' onClick={() => procesarFalta(true, -1)}>
-                                                            <i className="fa-solid fa-circle-minus fa-2xl"></i>(f)
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                        </div>
+                                    </div>
+                                    <div className='col'>
+                                        <div className='text-light lh-1'>
+                                            Gam-jeom
+                                        </div>
+                                        <div className='container-fluid'>
+                                            <div className="btn-group btn-group-sm">
+                                                <button className='btn btn-sm btnScore m-0 p-0 ' id='faltaA' onClick={() => procesarFalta(true, 1)}>
+                                                    <i className="fa-solid fa-circle-plus fa-2xl"></i>(F)
+                                                </button>
+                                                <button className='btn btn-sm btnScore m-0 p-0' id='faltaAR' onClick={() => procesarFalta(true, -1)}>
+                                                    <i className="fa-solid fa-circle-minus fa-2xl"></i>(f)
+                                                </button>
                                             </div>
-                                            <div className='col'>
-                                                <div className='text-light lh-1'>
-                                                    Punto
-                                                </div>
-                                                <div className='container-fluid'>
-                                                    <div className="btn-group btn-group-sm">
-                                                        <button className='btn btn-sm btnScore m-0 p-0' id='puntoAP' onClick={() => procesarPunto(true, 1)}>
-                                                            <i className="fa-solid fa-circle-plus fa-2xl"></i>(A)
-                                                        </button>
-                                                        <button className='btn btn-sm btnScore m-0 p-0' id='puntoAN' onClick={() => procesarPunto(true, -1)}>
-                                                            <i className="fa-solid fa-circle-minus fa-2xl"></i>(a)
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                        </div>
+                                    </div>
+                                    <div className='col'>
+                                        <div className='text-light lh-1'>
+                                            Punto
+                                        </div>
+                                        <div className='container-fluid'>
+                                            <div className="btn-group btn-group-sm">
+                                                <button className='btn btn-sm btnScore m-0 p-0' id='puntoAP' onClick={() => procesarPunto(true, 1)}>
+                                                    <i className="fa-solid fa-circle-plus fa-2xl"></i>(A)
+                                                </button>
+                                                <button className='btn btn-sm btnScore m-0 p-0' id='puntoAN' onClick={() => procesarPunto(true, -1)}>
+                                                    <i className="fa-solid fa-circle-minus fa-2xl"></i>(a)
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className='col text-center bg-danger'>
-                                    <div className='container-fluid py-2'>
-                                        <div className='row row-cols-3 g-0'>
-                                            <div className='col'>
-                                                <div className='text-light lh-1'>
-                                                    Punto
-                                                </div>
-                                                <div className='container-fluid'>
-                                                    <div className="btn-group btn-group-sm">
-                                                        <button className='btn btn-sm btnScore m-0 p-0' id='puntoRP' onClick={() => procesarPunto(false, 1)}>
-                                                            <i className="fa-solid fa-circle-plus fa-2xl"></i>(R)
-                                                        </button>
-                                                        <button className='btn btn-sm btnScore m-0 p-0' id='puntoRN' onClick={() => procesarPunto(false, -1)}>
-                                                            <i className="fa-solid fa-circle-minus fa-2xl"></i>(r)
-                                                        </button>
-                                                    </div>
-                                                </div>
+                            </div>
+                        </div>
+                        <div className='col text-center bg-danger'>
+                            <div className='container-fluid py-2'>
+                                <div className='row row-cols-3 g-0'>
+                                    <div className='col'>
+                                        <div className='text-light lh-1'>
+                                            Punto
+                                        </div>
+                                        <div className='container-fluid'>
+                                            <div className="btn-group btn-group-sm">
+                                                <button className='btn btn-sm btnScore m-0 p-0' id='puntoRP' onClick={() => procesarPunto(false, 1)}>
+                                                    <i className="fa-solid fa-circle-plus fa-2xl"></i>(R)
+                                                </button>
+                                                <button className='btn btn-sm btnScore m-0 p-0' id='puntoRN' onClick={() => procesarPunto(false, -1)}>
+                                                    <i className="fa-solid fa-circle-minus fa-2xl"></i>(r)
+                                                </button>
                                             </div>
-                                            <div className='col'>
-                                                <div className='text-light lh-1'>
-                                                    Gam-jeom
-                                                </div>
-                                                <div className='container-fluid'>
-                                                    <div className="btn-group btn-group-sm">
-                                                        <button className='btn btn-sm btnScore m-0 p-0' id='faltaR' onClick={() => procesarFalta(false, 1)}>
-                                                            <i className="fa-solid fa-circle-plus fa-2xl"></i>(Q)
-                                                        </button>
-                                                        <button className='btn btn-sm btnScore m-0 p-0' id='faltaRR' onClick={() => procesarFalta(false, -1)}>
-                                                            <i className="fa-solid fa-circle-minus fa-2xl"></i>(q)
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                        </div>
+                                    </div>
+                                    <div className='col'>
+                                        <div className='text-light lh-1'>
+                                            Gam-jeom
+                                        </div>
+                                        <div className='container-fluid'>
+                                            <div className="btn-group btn-group-sm">
+                                                <button className='btn btn-sm btnScore m-0 p-0' id='faltaR' onClick={() => procesarFalta(false, 1)}>
+                                                    <i className="fa-solid fa-circle-plus fa-2xl"></i>(Q)
+                                                </button>
+                                                <button className='btn btn-sm btnScore m-0 p-0' id='faltaRR' onClick={() => procesarFalta(false, -1)}>
+                                                    <i className="fa-solid fa-circle-minus fa-2xl"></i>(q)
+                                                </button>
                                             </div>
-                                            <div className='col'>
-                                                <div className='text-light lh-1'>
-                                                    Derrota Por
-                                                </div>
-                                                <div className='container-fluid'>
-                                                    <div className="btn-group btn-group-sm">
-                                                        <button className='btn btn-sm btnScore text-warning m-0 p-0'
-                                                            data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrotado por GAM-JEON">
-                                                            <i className="fa-solid fa-diamond fa-2xl"></i>
-                                                        </button>
-                                                        <button className='btn btn-sm btnScore text-info m-0 p-0 mx-2'
-                                                            title='Declarar ganador'
-                                                            onClick={() => declararGanador(puntoJuego.puntoR + 1, 'R')}>
-                                                            <i className="fa-solid fa-trophy fa-2xl"></i>
-                                                        </button>
-                                                        <button className='btn btn-sm btnScore text-light m-0 p-0'
-                                                            data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                            title="Derrotado por nocaut">
-                                                            <i className="fa-solid fa-skull-crossbones fa-2xl"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                        </div>
+                                    </div>
+                                    <div className='col'>
+                                        <div className='text-light lh-1'>
+                                            Derrota Por
+                                        </div>
+                                        <div className='container-fluid'>
+                                            <div className="btn-group btn-group-sm">
+                                                <button className='btn btn-sm btnScore text-warning m-0 p-0'
+                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrotado por GAM-JEON">
+                                                    <i className="fa-solid fa-diamond fa-2xl"></i>
+                                                </button>
+                                                <button className='btn btn-sm btnScore text-info m-0 p-0 mx-2'
+                                                    title='Declarar ganador'
+                                                    onClick={() => declararGanador(puntoJuego.puntoR + 1, 'R')}>
+                                                    <i className="fa-solid fa-trophy fa-2xl"></i>
+                                                </button>
+                                                <button className='btn btn-sm btnScore text-light m-0 p-0'
+                                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                                    title="Derrotado por nocaut">
+                                                    <i className="fa-solid fa-skull-crossbones fa-2xl"></i>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -698,34 +692,34 @@ function PrincipalKirugui(props) {
                             </div>
                         </div>
                     </div>
-                    <div className='container-fluid bg-dark bg-gradient py-1'>
-                        <div className='row row-cols gx-1'>
-                            <div className='col' style={{ minWidth: '100px', maxWidth: '100px' }}>
-                                {ventana == 0 && <button className='btn btn-sm w-100 btn-success'
-                                    title='Mostrar LLaves' onClick={() => setVentana(1)}
-                                ><i className="fa-solid fa-magnifying-glass"></i> Llaves</button>}
-                                {ventana == 1 && <button className='btn btn-sm w-100 btn-success'
-                                    title='Esconder LLaves' onClick={() => setVentana(0)}
-                                ><i className="fa-solid fa-magnifying-glass"></i> Esconder</button>}
-                            </div>
-                            <div className='col' style={{ minWidth: '100px', maxWidth: '100px' }}>
-                                <button className='btn btn-secondary btn-sm w-100'
-                                    title='salir de la pantalla puntuación'
-                                    onClick={() => setPagina(0)}>
-                                    <i className="fa-solid fa-circle-chevron-left fa-xl"></i> Salir
-                                </button>
-                            </div>
-                        </div>
+                </div>
+            </div>
+            <div className='container-fluid bg-dark bg-gradient py-1'>
+                <div className='row row-cols gx-1'>
+                    <div className='col' style={{ minWidth: '100px', maxWidth: '100px' }}>
+                        {ventana == 0 && <button className='btn btn-sm w-100 btn-success'
+                            title='Mostrar LLaves' onClick={() => setVentana(1)}
+                        ><i className="fa-solid fa-magnifying-glass"></i> Llaves</button>}
+                        {ventana == 1 && <button className='btn btn-sm w-100 btn-success'
+                            title='Esconder LLaves' onClick={() => setVentana(0)}
+                        ><i className="fa-solid fa-magnifying-glass"></i> Esconder</button>}
                     </div>
-                    {ventana == 1 &&
-                        <div className='overflow-auto' style={{ height: '400px' }}>
-                            <AdminLlaves setVentana={setVentana}
-                                idCampeonato={campeonato.idcampeonato}
-                                tipo={'C'} tipoL={'O'} setCargador={() => { }}
-                                area={area} collback={(dato) => elegirCompetidor(dato)} />
-                        </div>
-                    }
-                </>
+                    <div className='col' style={{ minWidth: '100px', maxWidth: '100px' }}>
+                        <button className='btn btn-secondary btn-sm w-100'
+                            title='salir de la pantalla puntuación'
+                            onClick={() => setPagina(0)}>
+                            <i className="fa-solid fa-circle-chevron-left fa-xl"></i> Salir
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {ventana == 1 &&
+                <div className='overflow-auto' style={{ height: '400px' }}>
+                    <AdminLlaves setVentana={setVentana}
+                        idCampeonato={campeonato.idcampeonato}
+                        tipo={'C'} tipoL={'O'} setCargador={() => { }}
+                        area={area} collback={(dato) => elegirCompetidor(dato)} />
+                </div>
             }
             <Modal show={showModal} onHide={() => setShowModal(false)}
                 size={`${tipoM == 'S' ? 'lm' : 'xl'}`}

@@ -62,7 +62,7 @@ function VistaMandos(props) {
                     }
                     if(datoFinal.length==parseInt(configure.numMandos)){
                         collback(datoFinal.map(item=>item.dato));
-                        setLecturas([...lecturas,datoFinal]);
+                        setLecturas([datoFinal,...lecturas]);
                         setMandos([]);
                     }else{
                         setMandos(datoFinal);
