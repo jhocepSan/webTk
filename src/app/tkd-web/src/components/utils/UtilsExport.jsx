@@ -4,7 +4,6 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
 async function exportarLlaves(categorias, listaLLavesi) {
-    console.log("generando")
     var optiones = {
         orientation: 'p',
         unit: 'mm',
@@ -54,9 +53,9 @@ async function exportarLlaves(categorias, listaLLavesi) {
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                                     doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
                                     doc.setTextColor(0, 0, 255);
-                                    doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x + 85, y + 5)
-                                    doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x + 85, y + 10)
-                                    doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x + 85, y + 15)
+                                    doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x + 85, y + 5)
+                                    doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x + 85, y + 10)
+                                    doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno : ''}`, x + 85, y + 15)
                                     y = y + 20
                                     doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
@@ -71,9 +70,9 @@ async function exportarLlaves(categorias, listaLLavesi) {
                                     doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
                                     y = y + 20
                                     doc.setTextColor(255, 0, 0);
-                                    doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x + 85, y + 5)
-                                    doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x + 85, y + 10)
-                                    doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno : ''}`, x + 85, y + 15)
+                                    doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x + 85, y + 5)
+                                    doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x + 85, y + 10)
+                                    doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x + 85, y + 15)
                                     doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                                     y = y + 50;

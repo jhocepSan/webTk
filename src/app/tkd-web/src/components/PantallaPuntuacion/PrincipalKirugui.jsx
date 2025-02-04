@@ -355,6 +355,7 @@ function PrincipalKirugui(props) {
         osc.stop(context.currentTime + .5);
     }
     function elegirCompetidor(pelea) {
+        document.getElementById('botonVistaPuntuado').click();
         setSelectPelea(pelea);
         if (pelea.idcompetidor1 != 0) {
             setNombreA(pelea.nombres)
@@ -476,7 +477,7 @@ function PrincipalKirugui(props) {
 
     return (
         <div>
-            <div className='container-fluid py-2'>
+            <div className='container-fluid py-2' id='PuntoKirugui'>
                 <div className='row row-cols-1 row-cols-sm-1 row-cols-md-2 gx-1 mb-1' style={{ height: '75%' }}>
                     <div className='col col-sm-12 col-md-2'>
                         {selectPelea != null &&

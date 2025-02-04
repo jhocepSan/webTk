@@ -18,6 +18,7 @@ function AdminLlaves(props) {
     const [actualizar, setActualizar] = useState(false);
     const [genero, setGenero] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [numeroPeleas, setNumeroPeleas] = useState([]);
     const obtenerLlaves = async (categoria) => {
         try {
             setCargador(true);
@@ -27,6 +28,13 @@ function AdminLlaves(props) {
             var llaves = await LlavesConsultas.obtenerLlaves(
                 { idCampeonato, tipo, 'genero': 'M', 'idCategoria': parseInt(datos[0]) });
             if (llaves.ok) {
+                var numPeleas = []
+                for (var llav of llaves.ok) {
+                    if (llav.genero == datos[1]) {
+                        numPeleas.push(...llav.PELEAS.map(item => item.nropelea))
+                    }
+                }
+                setNumeroPeleas(numPeleas.sort((a, b) => a - b));
                 if (area == undefined) {
                     setListaLlaves(llaves.ok);
                 } else {
@@ -193,7 +201,8 @@ function AdminLlaves(props) {
                     </div>
                 </div>}
             </div>
-            <div className='bg-dark overflow-auto'>
+            <a className='d-none' href='#PuntoKirugui' id='botonVistaPuntuado'></a>
+            <div className='bg-dark overflow-auto' id="llavesClasificadas">
                 <Nav justify variant="tabs" onSelect={(e) => obtenerLlaves(e)}>
                     {categorias.map((categoria, index) => {
                         return (
@@ -207,6 +216,18 @@ function AdminLlaves(props) {
                     })}
                 </Nav>
             </div>
+            {numeroPeleas.length != 0 &&
+                <div className='btn-group btn-group-sm'>
+                    {numeroPeleas.map((item, index) => {
+                        return (
+                            <a className='btn btn-sm btn-secondary bg-gradient'
+                                href={`#Pelea${item}`}
+                                key={index} onClick={() => console.log(item)}>
+                                {item}
+                            </a>
+                        )
+                    })}
+                </div>}
             <div className='container-fluid'>
                 {listaLlaves.length == 0 && <div className="alert alert-warning">
                     No hay Peleas en esta categoria
@@ -267,7 +288,7 @@ function AdminLlaves(props) {
                                             {item.PELEAS.map((itemm, indexx) => {
                                                 if (itemm.tipo == 0) {
                                                     return (
-                                                        <div className='container-fluid' key={indexx}>
+                                                        <div className='container-fluid' key={indexx} id={`Pelea${itemm.nropelea}`}>
                                                             <div className="navbar-brand card flex-row bg-primary m-0 p-0 " >
                                                                 <img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" />
                                                                 <div className='ps-2 my-auto d-none d-sm-inline'>
@@ -302,7 +323,13 @@ function AdminLlaves(props) {
                                                                     }
                                                                 </div>
                                                                 <div className='col-8 my-auto'>
-                                                                    #PELEA<hr style={{ border: "15px", background: "#f6f6f" }} className='m-0 p-0'></hr>
+                                                                    <div className="input-group input-group-sm">
+                                                                        <div>#PELEA <hr style={{ border: "15px", background: "#f6f6f" }} className='m-0 p-0'></hr></div>
+                                                                        <a className='btn btn-sm btn-dark bg-gradient mx-1'
+                                                                            href='#llavesClasificadas'>
+                                                                            <i className="fa-solid fa-caret-up"></i>
+                                                                        </a>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             <div className="navbar-brand card flex-row bg-danger m-0 p-0 " >

@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react'
 import Modal from 'react-bootstrap/Modal';
 import useWebSocket from 'react-use-websocket'
 function VistaMandos(props) {
-    const { datos, setActivarLectura, activarLectura, configure, collback, puntoJuego, showStadistic,areaname } = props;
+    const { datos, setActivarLectura, activarLectura, configure, collback, puntoJuego, showStadistic, areaname } = props;
     const [lecturas, setLecturas] = useState([]);
     const [cantJueces, setCantJueces] = useState([]);
     const [serverIo, setServerIo] = useState(null);
-    const [showModal,setShowModal] = useState(false);
-    const [entradaTexto,setEntradaTexto] = useState('');
-    const [mandos,setMandos] = useState([])
+    const [showModal, setShowModal] = useState(false);
+    const [entradaTexto, setEntradaTexto] = useState('');
+    const [mandos, setMandos] = useState([])
     const { lastJsonMessage, readyState } = useWebSocket(serverIo, {
         shouldReconnect: () => true,
         enabled: !!serverIo
@@ -38,34 +38,39 @@ function VistaMandos(props) {
             )
         }
     }
-    function guardarServidor(){
-        localStorage.setItem("serverIo",entradaTexto.replace('http://','ws://').replace('https://','wss://'));
-        setServerIo(entradaTexto.replace('http://','ws://').replace('https://','wss://'))
+    function guardarServidor() {
+        localStorage.setItem("serverIo", entradaTexto.replace('http://', 'ws://').replace('https://', 'wss://'));
+        setServerIo(entradaTexto.replace('http://', 'ws://').replace('https://', 'wss://'))
         setShowModal(false);
     }
     useEffect(() => {
         if (serverIo != null) {
             /*collback(datos.ok.map(item=>item.dato));
             setLecturas([datos.ok, ...lecturas]) */
-            if (readyState == 1 && lastJsonMessage!=null) {
-                if(areaname==lastJsonMessage.sector && lastJsonMessage.tipo=='C'){
+            if (readyState == 1 && lastJsonMessage != null) {
+                if (areaname == lastJsonMessage.sector && lastJsonMessage.tipo == 'C') {
                     console.log(lastJsonMessage)
-                    var datosl = mandos.filter(item=>item.id==lastJsonMessage.id)
-                    var datosm = mandos.filter(item=>item.id!=lastJsonMessage.id)
-                    var datoFinal=[]
-                    if(datosl.length!=0){
+                    var datosl = mandos.filter(item => item.id == lastJsonMessage.id)
+                    var datosm = mandos.filter(item => item.id != lastJsonMessage.id)
+                    var datoFinal = []
+                    if (datosl.length != 0) {
                         var datoee = datosl[0]
-                        datoee.dato==lastJsonMessage.dato;
-                        datoFinal=[...datosm,datoee].sort((a, b) => a.id - b.id)
-                    }else{
-                        datoFinal=[...datosm,lastJsonMessage].sort((a, b) => a.id - b.id)
+                        datoee.dato == lastJsonMessage.dato;
+                        datoFinal = [...datosm, datoee].sort((a, b) => a.id - b.id)
+                    } else {
+                        datoFinal = [...datosm, lastJsonMessage].sort((a, b) => a.id - b.id)
                     }
-                    if(datoFinal.length==parseInt(configure.numMandos)){
-                        collback(datoFinal.map(item=>item.dato));
-                        setLecturas([datoFinal,...lecturas]);
+                    if (datoFinal.length == parseInt(configure.numMandos)) {
+                        collback(datoFinal.map(item => item.dato));
+                        setLecturas([datoFinal, ...lecturas]);
                         setMandos([]);
-                    }else{
+                    } else if (datoFinal.length == parseInt(configure.numMandos) - 1) {
+                        collback(datoFinal.map(item => item.dato));
+                        setLecturas([datoFinal, ...lecturas]);
+                        setMandos([]);
+                    } else {
                         setMandos(datoFinal);
+                        setLecturas([datoFinal, ...lecturas])
                     }
                 }
             }
@@ -81,11 +86,11 @@ function VistaMandos(props) {
             setLecturas([])
         }
     }, [configure, puntoJuego])
-    useEffect(()=>{
-        if(serverIo==null){
+    useEffect(() => {
+        if (serverIo == null) {
             setShowModal(true);
         }
-    },[])
+    }, [])
     return (
         <>
             <div className='card bg-dark bg-gradient'>
@@ -144,15 +149,15 @@ function VistaMandos(props) {
                 </Modal.Header>
                 <Modal.Body>
                     <div className="container-fluid ">
-                        <input type="txt" className="form-control form-control-sm" 
-                        id="exampleFormControlInput1" placeholder="http://192.168.1.11:4001"
-                        value={entradaTexto} onChange={(e)=>setEntradaTexto(e.target.value)}
+                        <input type="txt" className="form-control form-control-sm"
+                            id="exampleFormControlInput1" placeholder="http://192.168.1.11:4001"
+                            value={entradaTexto} onChange={(e) => setEntradaTexto(e.target.value)}
                         />
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
                     <button className='btn btn-success btn-sm'
-                        onClick={()=>guardarServidor()}>
+                        onClick={() => guardarServidor()}>
                         Guardar y Conectar
                     </button>
                 </Modal.Footer>

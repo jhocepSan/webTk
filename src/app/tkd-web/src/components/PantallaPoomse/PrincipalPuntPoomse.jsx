@@ -244,23 +244,27 @@ function PrincipalPuntPoomse() {
                     <div className='row row-cols g-1'>
                       {puntoLeido.map((item, index) => {
                         return (
-                          <div className='col text-light' key={index} style={{ maxWidth: '120px', borderRight: 'solid', borderColor: 'white' }} >
+                          <div className='col text-light' key={index} style={{ maxWidth: '110px', borderRight: 'solid', borderColor: 'white' }} >
                             <div className='row row-cols g-1'>
-                              <div className='col'>
+                              <div className='col lh-sm'>
                                 <div className='text-center' style={{ fontSize: '9px' }}>Accuracy</div>
                                 <div className='text-center fw-bold'>{item.poomseaccuracy}</div>
                               </div>
-                              <div className='col'>
+                              <div className='col lh-sm'>
                                 <div className='text-center' style={{ fontSize: '9px' }}>Presentation</div>
                                 <div className='text-center fw-bold'>{item.poomsepresentation}</div>
+                              </div>
+                              <div className='col lh-sm'>
+                                <div className='text-center' style={{ fontSize: '9px' }}>Promedio</div>
+                                <div className='text-center fw-bold'>{(item.poomsepresentation+item.poomseaccuracy).toFixed(1)}</div>
                               </div>
                             </div>
                             <hr style={{ margin: '0', padding: '0' }} className='text-light'></hr>
                             <div className='row row-cols g-1'>
-                              <div className='col my-auto mx-auto'>
-                                {item.ruta != null && <img width='30' src={`${server}/adjunto/${item.ruta}`}></img>}
+                              <div className='col my-auto mx-auto' style={{maxWidth:'27px'}}>
+                                {item.ruta != null && <img width='25' src={`${server}/adjunto/${item.ruta}`}></img>}
                               </div>
-                              <div className='col text-start'>
+                              <div className='col text-start lh-sm'>
                                 <div className='text-center fw-bold' style={{ fontSize: '10px' }}>Albitro: {index + 1}</div>
                                 <div className='text-center fw-bold' style={{ fontSize: '10px' }}>{item.nombres}</div>
                               </div>
