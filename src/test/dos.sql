@@ -18,4 +18,4 @@ ON subcat.idsubcategoria=lv.idsubcategoria
 WHERE lv.idcampeonato=7 AND (-2=-2 or lv.idcategoria=79) AND lv.tipo='C';
 
 SELECT idpelea,idllave,idganador,tipo FROM tkdb.pelea WHERE idganador is not NULL
-        AND idllave=375 AND tipo='C' ORDER BY idpelea;
+        AND idllave=377 AND tipo='C' ORDER BY idpelea;

@@ -9,3 +9,5 @@ SELECT * FROM
         and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as nombrecategoria 
         FROM competidor c WHERE c.idcampeonato=10 and c.tipo='C' and c.estado="A" ) as res 
 		  where res.idcategoria in (select idcategoria from categoria where estado="P") order by res.edad,res.peso;
+		  
+SELECT * FROM pelea WHERE idllave=443;
