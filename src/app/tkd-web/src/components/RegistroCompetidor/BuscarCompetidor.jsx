@@ -16,7 +16,7 @@ function BuscarCompetidor(props) {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json;charset=utf-8',
                 },
-                body: JSON.stringify({ tipo, competidor,club })
+                body: JSON.stringify({ tipo, competidor, club })
             })
                 .then(res => res.json())
                 .then(data => {
@@ -36,7 +36,7 @@ function BuscarCompetidor(props) {
     function agregarCompetidor() {
         if (selectItem) {
             var cpt = JSON.parse(localStorage.getItem('campeonato'));
-            var edad = new Date().getFullYear()-new Date(selectItem.fecha).getFullYear()
+            var edad = new Date().getFullYear() - new Date(selectItem.fecha).getFullYear()
             fetch(`${server}/competidor/addEditCompetidor`, {
                 method: 'POST',
                 headers: {
@@ -44,10 +44,10 @@ function BuscarCompetidor(props) {
                     'Content-Type': 'application/json;charset=utf-8',
                 },
                 body: JSON.stringify({
-                    'idCompetidor':0, 'nombres':selectItem.nombres, 'apellidos':selectItem.apellidos, 'ciUser':selectItem.ci, 
-                    'idClub':selectItem.idclub, 'cinturon':0,
-                    'peso':selectItem.peso, 'altura':selectItem.altura, 'tipos':tipo, 'idCampeonato':cpt.idcampeonato,
-                    'edad':parseInt(edad), 'fecha':new Date(selectItem.fecha).toISOString().substring(0, 10), 'idGrado':0, 'genero':selectItem.genero, 'listaCTipoC':[]
+                    'idCompetidor': 0, 'nombres': selectItem.nombres, 'apellidos': selectItem.apellidos, 'ciUser': selectItem.ci,
+                    'idClub': selectItem.idclub, 'cinturon': 0,
+                    'peso': selectItem.peso, 'altura': selectItem.altura, 'tipos': tipo, 'idCampeonato': cpt.idcampeonato,
+                    'edad': parseInt(edad), 'fecha': new Date(selectItem.fecha).toISOString().substring(0, 10), 'idGrado': 0, 'genero': selectItem.genero, 'listaCTipoC': []
                 })
             })
                 .then(res => res.json())
@@ -67,8 +67,8 @@ function BuscarCompetidor(props) {
     }
     return (
         <div className='card bg-transparent'>
-            <div className='card-header'>
-                <div className="input-group mb-3">
+            <div className='card-header m-0 p-0'>
+                <div className="input-group mb-1">
                     <span className="input-group-text" >Competidor</span>
                     <input type="text" className="form-control"
                         value={competidor}
@@ -77,8 +77,11 @@ function BuscarCompetidor(props) {
                     <button className='btn btn-success' onClick={() => buscarCompetidor()}><i className="fa-solid fa-magnifying-glass"></i> Buscar</button>
                 </div>
             </div>
-            <div className='card-body'>
-                <div className='table-responsive overflow-auto' style={{maxHeight:'400px'}}>
+            <div className='card-body m-0 p-0'>
+                <div className="alert alert-danger m-1 p-0" >
+                    La lista de nombres esta ordenado del campeonato mas actual al antiguo
+                </div>
+                <div className='table-responsive overflow-auto' style={{ maxHeight: '400px' }}>
                     <table className="table table-dark table-hover table-bordered ">
                         <tbody>
                             {listaCompetidor.map((item, index) => {
