@@ -839,20 +839,19 @@ export const obtenerLlavesManuales = async (info) => {
 }
 
 export const buscarCompetidor = async (info) => {
-    var sql = `SELECT * FROM (SELECT *,(select nombre from club where idclub=c.idclub) as club, 
-        (select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, 
-        (SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, 
-        (select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin 
-        and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as idcategoria, 
-        (select cate.nombre from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin 
-        and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as nombrecategoria, 
-        (select subcate.idsubcategoria from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria 
-        where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as idsubcategoria, 
-        (select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria 
-        where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria, 
-        (concat_ws(' ', nombres, apellidos)) as nombrex 
-        FROM competidor c ) as res where res.idcompetidor in (select ress.idcompetidor from (select res.idcompetidor,max(res.idcampeonato) from (select c.*,(concat_ws(' ', c.nombres, c.apellidos)) as nombrex from competidor c ) res where res.nombrex like '%` + info.competidor + `%'
-        group by res.nombrex,res.idclub,res.fecha,res.genero)ress) ORDER BY res.idcampeonato desc`;
+    var sql = 'SELECT * FROM (SELECT *,(select nombre from club where idclub=c.idclub) as club, ' +
+        '(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, ' +
+        '(SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, ' +
+        '(select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin ' +
+        'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as idcategoria, ' +
+        '(select cate.nombre from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin ' +
+        'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as nombrecategoria, ' +
+        '(select subcate.idsubcategoria from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
+        'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as idsubcategoria, ' +
+        '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
+        'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria, ' +
+        "(concat_ws(' ', nombres, apellidos)) as nombrex " +
+        "FROM competidor c ) as res where res.nombrex like '%" + info.competidor + "%' order by res.idcampeonato desc";
     var conn;
     try {
         console.log(sql);
