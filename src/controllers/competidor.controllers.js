@@ -107,7 +107,7 @@ export const getCompetidores = async (info) => {
                 [info.idCampeonato, info.club, info.club,info.tipo, info.genero])
             return { "ok": result }
         } else {
-            const [result] = await conn.query('SELECT * from equipo where idcampeonato=? and (0=? or c.idclub=?) and estado!="E";',
+            const [result] = await conn.query('SELECT * from equipo where idcampeonato=? and (0=? or idclub=?) and estado!="E";',
                 [info.idCampeonato, info.club,info.club])
             return { "ok": result }
         }
