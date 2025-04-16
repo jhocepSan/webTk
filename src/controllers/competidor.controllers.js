@@ -96,7 +96,6 @@ export const getEquipoDemostration = async (info) => {
 export const getCompetidores = async (info) => {
     var conn;
     try {
-        console.log(info);
         conn = await pool.getConnection();
         if (info.tipo != 'D') {
             var sql = `SELECT *,(select nombre from club where idclub=c.idclub) as club,
@@ -110,7 +109,6 @@ export const getCompetidores = async (info) => {
         } else {
             const [result] = await conn.query('SELECT * from equipo where idcampeonato=? and (0=? or c.idclub=?) and estado!="E";',
                 [info.idCampeonato, info.club,info.club])
-            console.log(result)
             return { "ok": result }
         }
     } catch (error) {
