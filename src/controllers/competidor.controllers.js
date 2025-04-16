@@ -82,7 +82,7 @@ export const getEquipoDemostration = async (info) => {
     try {
         console.log(info);
         conn = await pool.getConnection();
-        const [result] = await conn.query('SELECT * from equipo where idcampeonato=? and estado!="E";',
+        const [result] = await conn.query('SELECT * from equipo where idcampeonato=? and estado="A";',
             [info.idCampeonato])
         console.log(result)
         return { "ok": result }
