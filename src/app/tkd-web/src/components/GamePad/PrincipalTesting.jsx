@@ -192,9 +192,11 @@ function PrincipalTesting() {
             var cont = parseInt(localStorage.getItem('contAux'));
             if (cont < parseInt(configure.esperaTime)) {
                 var valores = functionContarPunto(datos)
+                console.log(valores)
                 if (valores[1] != '') {
                     if (valores[0] >= parseInt(configure.maxJueces)) {
                         var prePunt = puntoJuego
+                        console.log(prePunt)
                         if (valores[1] == 'd' || valores[1] == 'D' || valores[1] == 'P' || valores[1] == 'c' || valores[1] == 'C') {
                             prePunt.puntoA = prePunt.puntoA + parseInt(mapPuntos[valores[1]]);
                         } else {

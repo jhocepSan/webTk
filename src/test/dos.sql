@@ -19,3 +19,5 @@ WHERE lv.idcampeonato=7 AND (-2=-2 or lv.idcategoria=79) AND lv.tipo='C';
 
 SELECT idpelea,idllave,idganador,tipo FROM tkdb.pelea WHERE idganador is not NULL
         AND idllave=377 AND tipo='C' ORDER BY idpelea;
+        
+SELECT * FROM llave WHERE idgrado=-1 AND idcampeonato=11 AND estado='A' AND genero='M' AND area=2

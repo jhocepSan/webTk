@@ -261,7 +261,7 @@ export const getCompetidorSinPelea = async (info) => {
         (select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, 
         (SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado
         FROM competidorsinpelea c left join categoria cat on (c.edad>=cat.edadini and c.edad<=cat.edadfin and cat.idcampeonato=c.idcampeonato and c.genero=cat.genero)
-        WHERE c.idcampeonato=? and c.tipo=? and c.genero=?  and c.estado="A" 
+        WHERE c.idcampeonato=? and c.tipo=? and c.genero=?  and (c.estado ="A" or c.estado ="G")
         and (c.idclub=? or ?=0) )res left join subcategoria subcate on res.idcategoria=subcate.idcategoria
         where (res.peso+0.001)>=subcate.pesoini and (res.peso-0.001)<=subcate.pesofin and (res.idcategoria=? or 0=?)
         order by res.idgrado;`;
@@ -843,7 +843,7 @@ export const buscarCompetidor = async (info) => {
         '(select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin ' +
         'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as idcategoria, ' +
         '(select cate.nombre from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin ' +
-        'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as nombrecategoria, ' +
+        'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato limit 1) as nombrecategoria, ' +
         '(select subcate.idsubcategoria from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
         'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as idsubcategoria, ' +
         '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
