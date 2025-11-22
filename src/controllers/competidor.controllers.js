@@ -841,7 +841,7 @@ export const buscarCompetidor = async (info) => {
         '(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, ' +
         '(SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, ' +
         '(select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin ' +
-        'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as idcategoria, ' +
+        'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato limit 1) as idcategoria, ' +
         '(select cate.nombre from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin ' +
         'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato limit 1) as nombrecategoria, ' +
         '(select subcate.idsubcategoria from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
