@@ -46,8 +46,13 @@ export const agregarUsuario = async ({ info }) => {
                 return { "error": "Correo Existente" }
             }
         }else{
-            const [rows] = await conn.query('update usuario set correo=?,nombres=?,apellidos=?,idclub=?,ci=? where idusuario=?', [
-                info.correo, info.nombres, info.apellidos, info.idClub, info.ciUser,info.idUsuario
+            const sql =`update usuario set correo=?,nombres=?,apellidos=?,
+                idclub=?,ci=?,celular=?
+                where idusuario=?`
+            const [rows] = await conn.query(sql, [
+                info.correo, info.nombres, info.apellidos, 
+                info.idClub, info.ciUser,info.celular,
+                info.idUsuario
             ]);
             await conn.commit()
             return {"ok":"Competidor Actualizado"}
@@ -62,9 +67,15 @@ export const agregarUsuario = async ({ info }) => {
 export const iniciarSession = async ({ correo, password }) => {
     var conn;
     var serverIp=getIPAddress();
+    var sql = `
+        SELECT usr.*,clb.nombre AS nombreclub,clb.latitud,clb.longitud,
+        (select ruta from adjunto where idadjunto=usr.foto)as foto 
+        FROM usuario usr INNER JOIN  club clb
+        ON usr.idclub=clb.idclub
+        WHERE usr.correo=? AND usr.estado!="E";`
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query('select *,(select ruta from adjunto where idadjunto=foto)as foto from usuario where correo=? and estado!="E"', [correo.replace(' ', '')]);
+        const [result] = await conn.query(sql, [correo.replace(' ', '')]);
         if (result.length !== 0) {
             if (bycript.compareSync(password.replace(' ', ''), result[0].password)) {
                 return {
@@ -74,8 +85,13 @@ export const iniciarSession = async ({ correo, password }) => {
                         nombres: result[0].nombres,
                         apellido: result[0].apellidos,
                         idclub: result[0].idclub,
+                        nombreclub: result[0].nombreclub,
+                        cedula: result[0].ci,
+                        celular:result[0].celular,
                         tipo: result[0].estado,
                         foto:result[0].foto,
+                        latitud:result[0].latitud,
+                        longitud:result[0].longitud,
                         serverIp
                     }
                 }

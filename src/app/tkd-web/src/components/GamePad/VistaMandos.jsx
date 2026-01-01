@@ -49,13 +49,12 @@ function VistaMandos(props) {
             setLecturas([datos.ok, ...lecturas]) */
             if (readyState == 1 && lastJsonMessage != null) {
                 if (areaname == lastJsonMessage.sector && lastJsonMessage.tipo == 'C') {
-                    console.log(lastJsonMessage)
                     var datosl = mandos.filter(item => item.id == lastJsonMessage.id)
                     var datosm = mandos.filter(item => item.id != lastJsonMessage.id)
                     var datoFinal = []
                     if (datosl.length != 0) {
                         var datoee = datosl[0]
-                        datoee.dato == lastJsonMessage.dato;
+                        datoee.dato = lastJsonMessage.dato;
                         datoFinal = [...datosm, datoee].sort((a, b) => a.id - b.id)
                     } else {
                         datoFinal = [...datosm, lastJsonMessage].sort((a, b) => a.id - b.id)
@@ -108,13 +107,13 @@ function VistaMandos(props) {
                 </div>
                 <div className='table-responsive conainer-fluid' style={{ maxHeight: '58vh' }}>
                     <table className="table table-sm table-bordered bg-light text-center">
-                        <thead>
+                        {false&& <thead>
                             <tr>
                                 {cantJueces.map((i, index) => {
                                     return (<th scope="col" key={index}>{'Mando ' + (index + 1)}</th>)
                                 })}
                             </tr>
-                        </thead>
+                        </thead>}
                         <tbody>
                             {lecturas.map((item, index) => {
                                 return (

@@ -1,5 +1,5 @@
 #envio de datos de mando
-POST http://localhost:4000/mandojuec/enviarDatos
+POST http://localhost:4004/mandojuec/enviarDatos
 content-type: application/json
 
 {

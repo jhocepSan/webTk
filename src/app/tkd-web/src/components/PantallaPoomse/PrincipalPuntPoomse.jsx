@@ -148,7 +148,7 @@ function PrincipalPuntPoomse() {
     // Configurar el temporizador al montar el componente
     const timeoutId = setTimeout(() => {
       obtenerDatosPunto();
-    }, 2000);
+    }, 5000);
 
     // Limpiar el temporizador al desmontar el componente
     return () => {
