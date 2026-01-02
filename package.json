@@ -1,7 +1,7 @@
 {
   "name": "tekwondoweb",
   "version": "1.0.0",
-  "bin":"./src/index.js",
+  "bin": "./src/index.js",
   "description": "Pagina coorporativa de tekwondo cbba_bolivia ",
   "main": "index.js",
   "type": "module",
@@ -18,11 +18,11 @@
     "express": "^4.18.2",
     "express-fileupload": "^1.4.3",
     "morgan": "^1.10.0",
-    "mysql2": "^2.3.3",
+    "mysql2": "^3.16.0",
     "node-windows": "^1.0.0-beta.8",
     "pkg": "^5.8.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.20"
+    "nodemon": "^3.1.11"
   }
 }

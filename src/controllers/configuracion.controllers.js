@@ -388,3 +388,41 @@ export const getConfiAreas = async(info)=>{
         if (conn) { await conn.release(); }
     }
 }
+
+export const getCinturones = async (info)=>{
+    const sql = `select * from cinturones where estado=1 ;`
+    var conn;
+    try {
+        conn = await pool.getConnection();
+        const [result] = await conn.query(sql,[]);
+        return {"ok":result}
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}
+export const editUbicacion = async (info)=>{
+    console.log(info)
+    const sql = `insert into ubicacion(latitud,longitud) values (?,?)`
+    const sql2 = `update ubicacion set latitud=?,longitud=?,direccion=? where idubicacion=?`
+    var conn;
+    var resultado;
+    try {
+        conn = await pool.getConnection();
+        if (info.idubicacion==undefined||info.idubicacion==0){
+            const [result] = await conn.query(sql,[info.lat,info.lng]);
+            resultado = result;
+        }else{
+            const [result] = await conn.query(sql2,[info.latitud,info.longitud,info.direccion,info.idubicacion]);
+            resultado = result;
+        }
+        return {"ok":resultado}
+    } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}

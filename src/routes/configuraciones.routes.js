@@ -2,7 +2,7 @@ import {Router} from 'express';
 import {getGrados,getCategoria,addCategoria,deleteCategoria,addCinturon,deleteGrado,deleteCinturon,cambiarEstadoCategoria,
     addSubCategoria,getSubCategoria,addGrado,getCampeonato,deleteSubcategoria,getConfiCategoria,getConfiCategoriaUnido,
     getTiposCampeonato,addTiposCampeonato,deleteTiposCampeonato,getGradoCompleto,cambiarInscripcion,confiAreasKirugui,
-    getConfiCategoriaFestival,getConfiAreas} from '../controllers/configuracion.controllers.js'
+    getConfiCategoriaFestival,getConfiAreas,getCinturones,editUbicacion} from '../controllers/configuracion.controllers.js'
 const router = Router();
 
 router.post('/getGradoCompleto',async(req,res)=>{
@@ -193,6 +193,22 @@ router.post('/confiAreasKirugui',async(req,res)=>{
 })
 router.post('/getConfiAreas',async(req,res)=>{
     const result = await getConfiAreas(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
+router.get('/getCinturones',async(req,res)=>{
+    const result = await getCinturones(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
+router.post('/editUbicacion',async(req,res)=>{
+    const result = await editUbicacion(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{

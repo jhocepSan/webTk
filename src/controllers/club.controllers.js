@@ -2,9 +2,28 @@ import {pool} from '../utils/connection.js'
 
 export const getListaClub = async ()=>{
     var conn;
+    const sql =`select c.idclub,c.nombre,c.abreviado,ubi.direccion,
+        c.telefono,c.estado,c.puntuado,c.idadjunto,
+        c.idubicacion,ubi.latitud,ubi.longitud,
+        CASE c.estado
+            WHEN 'A' THEN 'Activo'
+        WHEN 'E' THEN 'Eliminado'
+        WHEN 'I' THEN 'Inactivo'
+        WHEN 'P' THEN 'Procesado'
+        ELSE 'Desconocido'
+        END AS name_estado,
+        CASE c.puntuado
+            WHEN 'A' THEN 'Puntuable'
+        WHEN 'I' THEN 'No Puntuable'
+        ELSE 'Desconocido'
+        END AS name_puntuado,
+        (select ruta from adjunto where idadjunto=c.idadjunto)as imagen 
+        from club c left join ubicacion ubi 
+        on ubi.idubicacion=c.idubicacion
+        where c.estado="A";`
     try {
         conn =await pool.getConnection();
-        const [result] = await conn.query('select c.idclub,c.nombre,c.abreviado,c.direccion,c.telefono,c.estado,c.puntuado,c.idadjunto,(select ruta from adjunto where idadjunto=c.idadjunto)as imagen from club c where c.estado="A";')
+        const [result] = await conn.query(sql)
         return {"ok":result}
     } catch (error) {
         console.log(error);
@@ -15,10 +34,29 @@ export const getListaClub = async ()=>{
 }
 
 export const getListaClubPuntuado = async ()=>{
+    var sql = `select c.idclub,c.nombre,c.abreviado,ubi.direccion,
+        c.telefono,c.estado,c.puntuado,c.idadjunto,
+        c.idubicacion,ubi.latitud,ubi.longitud,
+        CASE c.estado
+            WHEN 'A' THEN 'Activo'
+        WHEN 'E' THEN 'Eliminado'
+        WHEN 'I' THEN 'Inactivo'
+        WHEN 'P' THEN 'Procesado'
+        ELSE 'Desconocido'
+        END AS name_estado,
+        CASE c.puntuado
+            WHEN 'A' THEN 'Puntuable'
+        WHEN 'I' THEN 'No Puntuable'
+        ELSE 'Desconocido'
+        END AS name_puntuado,
+        (select ruta from adjunto where idadjunto=c.idadjunto)as imagen 
+        from club c left join ubicacion ubi 
+        on ubi.idubicacion=c.idubicacion
+        where c.estado="A" and c.puntuado="A" order by c.nombre;`
     var conn;
     try {
         conn =await pool.getConnection();
-        const [result] = await conn.query('select c.idclub,c.nombre,c.abreviado,c.direccion,c.telefono,c.estado,c.puntuado,c.idadjunto,(select ruta from adjunto where idadjunto=c.idadjunto)as imagen from club c where c.estado="A" and c.puntuado="A";')
+        const [result] = await conn.query(sql)
         return {"ok":result}
     } catch (error) {
         console.log(error);

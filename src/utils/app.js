@@ -7,6 +7,7 @@ import confRoutes from '../routes/configuraciones.routes.js'
 import userRoutes from '../routes/user.routes.js'
 import competidorRoutes from '../routes/competidor.routes.js'
 import mandoRoutes from '../routes/mando.routes.js'
+import docenteRoutes from '../routes/docente.routes.js'
 import fileupload from 'express-fileupload'
 import {dirname, join} from 'path'
 import {fileURLToPath} from 'url'
@@ -31,6 +32,7 @@ app.use('/config',confRoutes);
 app.use('/usuario',userRoutes);
 app.use('/competidor',competidorRoutes);
 app.use('/mandojuec',mandoRoutes);
+app.use('/docente',docenteRoutes);
 app.use('/adjunto',express.static(join(__dirname,'../public')));
 app.get("*", (req, res) => {
     /*res.sendFile(
