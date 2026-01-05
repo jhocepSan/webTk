@@ -1,5 +1,7 @@
 import { Router } from 'express';
-import { agregarUsuario, iniciarSession,iniciarSessionMando, crearCampeonato, recuperarCuenta,getIpServidor } from '../controllers/login.controllers.js'
+import { agregarUsuario, iniciarSession,iniciarSessionMando,
+    crearCampeonato, recuperarCuenta,getIpServidor,
+    editarperfil } from '../controllers/login.controllers.js'
 const router = Router();
 
 
@@ -26,6 +28,15 @@ router.post('/iniciarSessionMando',async(req,res)=>{
 router.post('/createUser', async (req, res) => {
     const { info } = req.body;
     const result = await agregarUsuario({ info })
+    if (result.ok) {
+        res.status(200).json(result);
+    } else {
+        res.status(404).json(result);
+    }
+});
+
+router.post('/editarperfil', async (req, res) => {
+    const result = await editarperfil(req.body)
     if (result.ok) {
         res.status(200).json(result);
     } else {

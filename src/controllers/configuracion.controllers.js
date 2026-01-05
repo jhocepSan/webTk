@@ -390,13 +390,60 @@ export const getConfiAreas = async(info)=>{
 }
 
 export const getCinturones = async (info)=>{
-    const sql = `select * from cinturones where estado=1 ;`
+    const sql = `select idcinturon,nombre,colores,estado,
+        case estado when 1 THEN 'Activo'
+            when 2 THEN 'Inactivo'
+        when 3 THEN 'Eliminado'
+        else 'Otro' end as name_estado
+        from cinturones where idclub=?;`
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql,[]);
+        const [result] = await conn.query(sql,[info.idclub]);
         return {"ok":result}
     } catch (error) {
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}
+export const addCinturonClub = async(info)=>{
+    const sql = `insert into cinturones (nombre,colores,idclub) values (?,?,?);`
+    const sql1 = `update cinturones set nombre=?,colores=? where idcinturon=?`
+    var conn;
+    let resultado;
+    try {
+        console.log(info)
+        conn = await pool.getConnection();
+        if (info.idcinturon==0){
+            const [result] = await conn.query(sql,[info.nombre,info.colores,info.idclub]);
+            resultado = result;
+        }else{
+            const [result] = await conn.query(sql1,[info.nombre,info.colores,info.idcinturon]);
+            resultado = result;
+        }
+        await conn.commit()
+        return {"ok":resultado}
+    } catch (error) {
+        if (conn) await conn.rollback();
+        console.log(error);
+        return { "error": error.message }
+    } finally {
+        if (conn) { await conn.release(); }
+    }
+}
+export const estadoCinturonClub=async(info)=>{
+    console.log(info);
+    const sql = `update cinturones set estado=? where idcinturon=?;`
+    var conn;
+    try {
+        conn = await pool.getConnection();
+        const [result] = await conn.query(sql,[info.estado,info.id]);
+        await conn.commit()
+        return {"ok":"Modificación correcta"}
+    } catch (error) {
+        if (conn) await conn.rollback();
         console.log(error);
         return { "error": error.message }
     } finally {
@@ -411,8 +458,8 @@ export const editUbicacion = async (info)=>{
     var resultado;
     try {
         conn = await pool.getConnection();
-        if (info.idubicacion==undefined||info.idubicacion==0){
-            const [result] = await conn.query(sql,[info.lat,info.lng]);
+        if (info.idubicacion==undefined||parseInt(info.idubicacion)==0){
+            const [result] = await conn.query(sql,[info.latitud,info.longitud]);
             resultado = result;
         }else{
             const [result] = await conn.query(sql2,[info.latitud,info.longitud,info.direccion,info.idubicacion]);

@@ -2,7 +2,7 @@ import {Router} from 'express';
 import {getGrados,getCategoria,addCategoria,deleteCategoria,addCinturon,deleteGrado,deleteCinturon,cambiarEstadoCategoria,
     addSubCategoria,getSubCategoria,addGrado,getCampeonato,deleteSubcategoria,getConfiCategoria,getConfiCategoriaUnido,
     getTiposCampeonato,addTiposCampeonato,deleteTiposCampeonato,getGradoCompleto,cambiarInscripcion,confiAreasKirugui,
-    getConfiCategoriaFestival,getConfiAreas,getCinturones,editUbicacion} from '../controllers/configuracion.controllers.js'
+    getConfiCategoriaFestival,getConfiAreas,getCinturones,addCinturonClub,editUbicacion,estadoCinturonClub} from '../controllers/configuracion.controllers.js'
 const router = Router();
 
 router.post('/getGradoCompleto',async(req,res)=>{
@@ -199,8 +199,25 @@ router.post('/getConfiAreas',async(req,res)=>{
         res.status(404).json(result);
     }
 })
-router.get('/getCinturones',async(req,res)=>{
+router.post('/getCinturones',async(req,res)=>{
     const result = await getCinturones(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
+router.post('/addCinturonClub',async(req,res)=>{
+    const result = await addCinturonClub(req.body);
+    if(result.ok){
+        res.status(200).json(result);
+    }else{
+        res.status(404).json(result);
+    }
+})
+
+router.post('/estadoCinturonClub',async(req,res)=>{
+    const result = await estadoCinturonClub(req.body);
     if(result.ok){
         res.status(200).json(result);
     }else{
