@@ -43,7 +43,7 @@ function Header(props) {
                             {(userLogin.foto==null||userLogin.foto==undefined)&&<div className='my-auto'><img src={ImgUser} width="38" height="38" className=" my-auto rounded-circle card-img-left" /></div>}
                             <div className='ps-2 my-auto d-none d-sm-inline'>
                                 <div className="userHeader">{JSON.parse(localStorage.getItem('login')).nombres}</div>
-                                <div className='userHeader'>{JSON.parse(localStorage.getItem('login')).apellido}</div>
+                                <div className='userHeader'>{JSON.parse(localStorage.getItem('login')).apellidos}</div>
                             </div>
                             <button className='btn btn-sm btn-transparent text-light' onClick={() => setShowMenu(true)}>
                                 <i className="fa-solid fa-bars fa-xl"></i>
