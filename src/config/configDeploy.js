@@ -1,4 +1,5 @@
 export const PORT = process.env.PORT || 4005
+export const NAME_SERVER = process.env.NAME_SERVER || 'DatosWTK'
 
 export const DB_HOST = process.env.DB_HOST || 'localhost'
 export const DB_USER = process.env.DB_USER || 'root'

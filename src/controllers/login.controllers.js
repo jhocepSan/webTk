@@ -153,13 +153,13 @@ export const iniciarSessionMando = async ({ correo, password }) => {
     var conn;
     try {
         conn = await pool.getConnection();
-        var sql = "select *, " +
-            "(select nombre from campeonato where estado='A' and idcampeonato=res.idcampeonato) as nombrecampeonato " +
-            "from (select *,(select max(idcampeonato) from campeonato where estado='A') as idcampeonato from usuario where correo=? ) as res ;";
+        var sql = `select *, 
+            (select nombre from campeonato where estado='A' and idcampeonato=res.idcampeonato) as nombrecampeonato 
+            from (select *,(select max(idcampeonato) from campeonato where estado='A') as idcampeonato from usuario where correo=? ) as res ;`;
         const [result] = await conn.query(sql, [correo])
         if (result.length !== 0) {
             if (bycript.compareSync(password, result[0].password)) {
-                var info = await getInfoCampeonato(conn, result[0].idcampeonato);
+                //var info = await getInfoCampeonato(conn, result[0].idcampeonato);
                 if (result[0].albitro == 'A') {
                     await habilitarAlbitro(result[0], conn)
                 }
@@ -175,7 +175,7 @@ export const iniciarSessionMando = async ({ correo, password }) => {
                         nombrecampeonato: result[0].nombrecampeonato,
                         albitro: result[0].albitro,
                         estado: result[0].estado,
-                        ...info
+                        tipoalbitro: result[0].tipoalbitro,
                     }
                 }
             }

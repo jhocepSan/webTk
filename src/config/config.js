@@ -1,5 +1,5 @@
 import {DB_HOST,DB_NAME,DB_PASSWORD,
-DB_PORT,DB_USER} from './configDeploy.js'
+DB_PORT,DB_USER,NAME_SERVER} from './configDeploy.js'
 export const configuraciones = {
     CONFIGDBRED:{
         user:'vq7v81dtac95ini7cia5',
@@ -23,5 +23,6 @@ export const configuraciones = {
         connectionLimit: 20,
         queueLimit: 0
     },
-    NOMBREAPP:"SISTEMA TKD V.1"
+    NOMBREAPP:"SISTEMA TKD V.1",
+    NAMEPUBLIC:NAME_SERVER,
 }

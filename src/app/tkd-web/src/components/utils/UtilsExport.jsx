@@ -45,11 +45,6 @@ async function exportarLlaves(categorias, listaLLavesi) {
                             if (lsPele.length == 1) {
                                 for (var cmp of lsPele) {
                                     doc.setTextColor(0, 0, 255);
-                                    /*if (cmp.clubdos != null) {
-                                        doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
-                                        doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x, y + 10)
-                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno : ''}`, x, y + 15)
-                                    }*/
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                                     doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
                                     doc.setTextColor(0, 0, 255);
@@ -282,14 +277,19 @@ async function exportarLlaves(categorias, listaLLavesi) {
                     doc.text(`${comp.apellidos2 !== null ? comp.apellidos2 + ' Grado:' + comp.cinturondos : ''}`, x, y + 10)
                     doc.text(`${comp.edaddos !== null ? 'Edad: ' + comp.edaddos + ' Peso:' + comp.pesodos+' Altura:'+ comp.alturados : ''}`, x, y + 15)
                     doc.setTextColor(0, 0, 0);
-                    y = y + 50
+                    doc.addPage();
+                    x = 10;
+                    y = 5;
+                    numPag += 1;
+                    doc.setPage(numPag);
+                    /*y = y + 50
                     nbp += 1;
-                    if (nbp == 2) {
+                    if (true) {
                         nbp = 0;
                         doc.addPage();
                         numPag += 1;
                         doc.setPage(numPag);
-                    }
+                    }*/
                 }
 
             }

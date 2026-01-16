@@ -6,6 +6,7 @@ import Modal from 'react-bootstrap/Modal';
 import MsgUtils from './utils/MsgUtils';
 import UtilsCargador from './utils/UtilsCargador';
 import { server } from './utils/MsgUtils';
+import QrCode from './QrCode';
 
 function VistaInicio() {
   const navigate = useNavigate();
@@ -188,30 +189,37 @@ function VistaInicio() {
                 <label className="form-check-label" ><span className={inscripcionOpen == false ? 'badge bg-danger' : 'badge bg-success'}>{inscripcionOpen == true ? 'Inscripciones Abiertas' : 'Inscripciones Cerradas'}</span></label>
               </div>
             </div>}
-          {campeonato.nombre !== undefined && <div className='container-fluid'>
-            <div className='tituloInicial text-center text-light'>Pequeño resumen del Campeonato</div>
-            <div className='text-light letrasContenido'>{`Numero de alumnos sin Pelea: ${campeonato.SINPELEAS}`}</div>
-            <div className='text-light letrasContenido'>{`Inscritos en POOMSE: ${campeonato.NPP}`}</div>
-            <div className='text-light letrasContenido'>{`Inscritos en KIRUGUI: ${campeonato.NPK}`}</div>
-          </div>}
         </div>
       </div>
       <div className='container-fluid'>
         <div className='row row-cols-2 row-cols-sm-1 row-cols-md-2 g-1'>
           <div className='col'>
-            <div className="card bg-warning bg-gradient">
+            <div className="card bg-light bg-gradient">
               <div className="card-header text-dark text-center tituloInicial">
-                <i className="fa-solid fa-server fa-fade"></i> Direccion Ip del Servidor TKD <i className="fa-solid fa-server fa-fade"></i>
+                <i className="fa-solid fa-server fa-fade"></i> Datos Generales <i className="fa-solid fa-server fa-fade"></i>
               </div>
               {userLogin.serverIp !== undefined && <div className='card-body text-center'>
                 {userLogin.serverIp.map((item, index) => {
                   return (
-                    <div key={index}>
-                      <div className='letrasContenido text-dark' style={{ fontSize: '19px' }}>
-                        Red {item.name} la direccion Registro es = {item.ip}:4000
-                      </div>
-                      <div className='letrasContenido text-dark' style={{ fontSize: '19px' }}>
-                        Red {item.name} la direccion APK es = {item.ip}:4001
+                    <div key={index} className='container-fluid'>
+                      <div className='row row-cols row-cols-2'>
+                        <div className='col'>
+                          <div className='letrasContenido text-dark' style={{ fontSize: '14px' }}>WEB</div>
+                          <div className='letrasContenido text-dark' style={{ fontSize: '19px' }}>
+                            http://{item.ip}:4005
+                          </div>
+                          <div className='bg-light'>
+                          <QrCode texto={`http://${item.ip}:4005`} />
+                          </div>
+                        </div>
+                        <div className='col'>
+                          {campeonato.nombre !== undefined && <div className='container-fluid'>
+                            <div className='tituloInicial text-center text-dark'>Pequeño resumen del Campeonato</div>
+                            <div className='text-dark letrasContenido'>{`# Alumnos sin Pelea: ${campeonato.SINPELEAS}`}</div>
+                            <div className='text-dark letrasContenido'>{`Inscritos en POOMSE: ${campeonato.NPP}`}</div>
+                            <div className='text-dark letrasContenido'>{`Inscritos en KIRUGUI: ${campeonato.NPK}`}</div>
+                          </div>}
+                        </div>
                       </div>
                     </div>
                   )
@@ -219,18 +227,35 @@ function VistaInicio() {
               </div>}
             </div>
           </div>
-          <div className='col'>
-            <div className="card bg-dark bg-gradient">
-              <div className="card-header text-light text-center tituloInicial">
-                Bienvenidos Al Sistema TK
-              </div>
-              <div className="card-body">
-                <h5 className="card-title text-light letrasContenido">Sistema desarrollado en COCHABAMBA_BOLIVIA</h5>
-                <p className="card-text text-light letrasContenido">Ayuda a tener mas control, en competencias, y manejo de estudiantes
-                  en la asociacion de TEKWONDO CBBA, y manejo de los diferentes clubs de la misma.</p>
-                <p className="card-text text-light letrasContenido">Gracias por utilizar el sistema cualquier Información comunicarce con el DESARROLLADOR, JUAN JOSE SANCHEZ CHOQUECALLATA numero de referencia 60790682</p>
-              </div>
-            </div>
+          {userLogin.serverIp !== undefined &&
+            <div className='col'>
+              {userLogin.serverIp.map((item, index) => {
+                return (<div className='card bg-light bg-gradient'>
+                  <div className='card-header text-center'>
+                    <div className='letrasContenido text-dark' style={{ fontSize: '14px' }}>APK</div>
+                  </div>
+                  <div className='card-body text-center'>
+                    <div className='letrasContenido text-dark' style={{ fontSize: '19px' }}>
+                      http://{item.ip}:4001
+                    </div>
+                    <div className=''>
+                    <QrCode texto={`http://${item.ip}:4001`} />
+                    </div>
+                  </div>
+                </div>
+                )
+              })}
+            </div>}
+        </div>
+        <div className="card bg-dark bg-gradient">
+          <div className="card-header text-light text-center tituloInicial">
+            Bienvenidos Al Sistema TK
+          </div>
+          <div className="card-body">
+            <h5 className="card-title text-light letrasContenido">Sistema desarrollado en COCHABAMBA_BOLIVIA</h5>
+            <p className="card-text text-light letrasContenido">Ayuda a tener mas control, en competencias, y manejo de estudiantes
+              en la asociacion de TEKWONDO CBBA, y manejo de los diferentes clubs de la misma.</p>
+            <p className="card-text text-light letrasContenido">Gracias por utilizar el sistema cualquier Información comunicarce con el DESARROLLADOR, JUAN JOSE SANCHEZ CHOQUECALLATA numero de referencia 60790682</p>
           </div>
         </div>
       </div>
