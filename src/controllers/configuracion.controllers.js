@@ -38,8 +38,8 @@ export const getCategoria = async (info) => {
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query('SELECT * FROM categoria where genero=? and idcampeonato=? order by edadini;',
-            [info.genero, info.campeonato.idcampeonato])
+        const [result] = await conn.query('SELECT * FROM categoria where genero=? and idcampeonato=? and tipo=? order by edadini;',
+            [info.genero, info.campeonato.idcampeonato,info.tipo])
         return { "ok": result }
     } catch (error) {
         console.log(error);
@@ -71,8 +71,8 @@ export const getConfiCategoria = async (info) => {
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query('SELECT * FROM categoria where estado="A" and genero=? and idcampeonato=? order by edadini;',
-            [info.genero, info.idcampeonato]);
+        const [result] = await conn.query('SELECT * FROM categoria where estado="A" and genero=? and idcampeonato=? and tipo=? order by edadini;',
+            [info.genero, info.idcampeonato,info.tipo]);
         var information = []
         for (var categoria of result) {
             const [result] = await conn.query('SELECT * FROM subcategoria where idcategoria=? order by pesoini;', [categoria.idcategoria])
@@ -115,12 +115,12 @@ export const addCategoria = async ({ info }) => {
     try {
         conn = await pool.getConnection();
         if (info.selectCategoria.idcategoria === undefined) {
-            const [result] = await conn.query('INSERT INTO categoria (nombre,edadini,edadfin,idcampeonato,genero) value (?,?,?,?,?);',
-                [info.nombre, info.edadIni, info.edadFin, info.idcampeonato, info.genero])
+            const [result] = await conn.query('INSERT INTO categoria (nombre,edadini,edadfin,idcampeonato,genero,tipo) value (?,?,?,?,?,?);',
+                [info.nombre, info.edadIni, info.edadFin, info.idcampeonato, info.genero,info.tipo])
             return { "ok": result }
         } else {
-            const [result] = await conn.query('UPDATE categoria SET nombre=?,edadini=?,edadfin=?,idcampeonato=?,genero=? WHERE idcategoria=?;',
-                [info.nombre, info.edadIni, info.edadFin, info.idcampeonato, info.genero, info.selectCategoria.idcategoria])
+            const [result] = await conn.query('UPDATE categoria SET nombre=?,edadini=?,edadfin=?,idcampeonato=?,genero=?,tipo=? WHERE idcategoria=?;',
+                [info.nombre, info.edadIni, info.edadFin, info.idcampeonato, info.genero,info.tipo, info.selectCategoria.idcategoria])
             return { "ok": result }
         }
     } catch (error) {

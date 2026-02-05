@@ -3,7 +3,7 @@ import MsgUtils from '../utils/MsgUtils';
 import {server} from '../utils/MsgUtils';
 
 function AddEditCategoria(props) {
-    const {actualizar, setActualizar,setShowModal,selectCategoria,genero,categorias}=props
+    const {actualizar, setActualizar,setShowModal,selectCategoria,genero,categorias,tipo}=props
     const [nombre, setNombre] = useState('');
     const [edadIni,setEdadIni] = useState(0);
     const [edadFin,setEdadFin] = useState(0);
@@ -35,7 +35,7 @@ function AddEditCategoria(props) {
                     },
                     body: JSON.stringify({
                     info: {
-                        nombre,edadIni,edadFin,selectCategoria,genero,idcampeonato
+                        nombre,edadIni,edadFin,selectCategoria,genero,idcampeonato,tipo
                     }
                     })
                 })

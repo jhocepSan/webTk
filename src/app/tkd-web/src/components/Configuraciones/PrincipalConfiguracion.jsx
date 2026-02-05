@@ -8,7 +8,7 @@ import Modal from 'react-bootstrap/Modal';
 import PrincipalSubCategoria from './PrincipalSubCategoria';
 import GradosConfig from './GradosConfig';
 import Header from '../Header';
-import {server} from '../utils/MsgUtils';
+import { server } from '../utils/MsgUtils';
 import MsgDialogo from '../utils/MsgDialogo';
 import Configuraciones from '../PantallaPuntuacion/Configuraciones';
 import ConfiguracionAreaKirugui from './ConfiguracionAreaKirugui';
@@ -16,7 +16,7 @@ import ConfiguracionAreaPoomse from './ConfiguracionAreaPoomse';
 
 function PrincipalConfiguracion() {
   const navigate = useNavigate();
-  const { userLogin,setLogin, setUserLogin, campeonato, setCampeonato,listaCampeonatos } = useContext(ContextAplicacions);
+  const { userLogin, setLogin, setUserLogin, campeonato, setCampeonato, listaCampeonatos } = useContext(ContextAplicacions);
   const [ventana, setVentana] = useState(0);
   const [categorias, setCategorias] = useState([]);
   const [cargador, setCargador] = useState(false);
@@ -25,7 +25,8 @@ function PrincipalConfiguracion() {
   const [actualizar, setActualizar] = useState(false);
   const [selectCategoria, setSelectCategoria] = useState({});
   const [genero, setGenero] = useState('M');
-  const [showMessage,setShowMessage] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  const [tipo, setTipo] = useState('');
   const abrirSubCategoria = (dato) => {
     setSelectCategoria(dato);
     //setActualizar(!actualizar);
@@ -85,6 +86,7 @@ function PrincipalConfiguracion() {
       .catch(error => MsgUtils.msgError(error));
   }
   useEffect(() => {
+    if(tipo=='') return;
     setCargador(true);
     fetch(`${server}/config/getCategoria`, {
       method: 'POST',
@@ -93,7 +95,7 @@ function PrincipalConfiguracion() {
         'Content-Type': 'application/json;charset=utf-8',
       },
       body: JSON.stringify({
-        campeonato, genero
+        campeonato, genero,tipo
       })
     })
       .then(res => res.json())
@@ -111,7 +113,7 @@ function PrincipalConfiguracion() {
   useEffect(() => {
     var sessionActiva = JSON.parse(localStorage.getItem('login'));
     var cmp = JSON.parse(localStorage.getItem('campeonato'));
-    
+
     if (sessionActiva !== null) {
       setCampeonato(cmp);
       setLogin(true);
@@ -141,13 +143,35 @@ function PrincipalConfiguracion() {
       </div>
       {ventana === 0 && <>
         <div className='container-fluid bg-dark bg-gradient py-1'>
-          <div className="input-group input-group-sm" style={{ width: '200px' }}>
-            <span className="input-group-text bg-transparent text-light border-dark letraBtn" >Genero</span>
-            <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
-              value={genero} onChange={(e) => { setGenero(e.target.value); setActualizar(!actualizar) }}>
-              <option value={'M'}>Masculino</option>
-              <option value={'F'}>Femenino</option>
-            </select>
+          <div className='row row-cols g-2'>
+            <div className='col' style={{ minWidth: '200px',maxWidth: '200px' }}>
+              <div className="input-group input-group-sm" style={{ width: '200px' }}>
+                <span className="input-group-text bg-transparent text-light border-dark letraBtn" >Genero</span>
+                <select className="form-select form-select-sm bg-secondary text-light border-secondary letraBtn"
+                  value={genero} onChange={(e) => { setGenero(e.target.value); setActualizar(!actualizar) }}>
+                  <option value={'M'}>Masculino</option>
+                  <option value={'F'}>Femenino</option>
+                </select>
+              </div>
+            </div>
+            <div className='col' style={{ minWidth: '200px',maxWidth: '200px' }}>
+              <div className="input-group input-group-sm" style={{ width: '200px' }}>
+                <span className="input-group-text bg-transparent text-light border-dark letraBtn" >Tipo</span>
+                <select className="form-select form-select-sm btn-secondary" value={tipo}
+                  onChange={(e) => { setTipo(e.target.value); setActualizar(!actualizar) }}>
+                  <option value=''>Ninguno</option>
+                  <option value="C">Combate</option>
+                  <option value="P">Poomse</option>
+                  <option value="D">Demostraciones</option>
+                  <option value="R">Rompimiento</option>
+                </select>
+              </div>
+            </div>
+            <div className='col d-none' style={{ minWidth: '100px',maxWidth: '100px' }}>
+              <button className='btn btn-sm btn-success btn-gradient'>
+                Obtener
+              </button>
+            </div>
           </div>
         </div>
         <div className='container-fluid py-1 px-1'>
@@ -162,8 +186,11 @@ function PrincipalConfiguracion() {
                       <th className="col-2">Edad Fin</th>
                       <th className="col-2">Estado</th>
                       <th className="col text-end">
-                        {userLogin.tipo=='A'&&<button className='btn btn-sm btn-success bg-gradient'
-                          onClick={() => { setSelectCategoria({}); setTitulo("Registrar Nueva Categoria"); setShowModal(true) }}>
+                        {userLogin.tipo == 'A' && <button className='btn btn-sm btn-success bg-gradient'
+                          onClick={() => { 
+                            setSelectCategoria({}); 
+                            setTitulo("Registrar Nueva Categoria"); 
+                            setShowModal(true) }}>
                           <i className="fa-solid fa-circle-plus fa-fade fa-xl"></i> Agregar
                         </button>}
                       </th>
@@ -178,7 +205,7 @@ function PrincipalConfiguracion() {
                           <td>{item.edadfin}</td>
                           <td>
                             <div className="form-check form-switch">
-                              {userLogin.tipo=='A'&&<input className="form-check-input" type="checkbox"
+                              {userLogin.tipo == 'A' && <input className="form-check-input" type="checkbox"
                                 checked={item.estado === 'P' ? false : true}
                                 onChange={() => cambiarEstadoCate(item)} />}
                               <label className="form-check-label" ><span className={item.estado === 'P' ? 'badge bg-warning text-dark' : 'badge bg-success'}>{item.estado === 'P' ? 'No Llave' : 'Si Llave'}</span></label>
@@ -186,10 +213,10 @@ function PrincipalConfiguracion() {
                           </td>
                           <td className='text-end'>
                             <div className='btn-group btn-group-sm'>
-                              {userLogin.tipo=='A'&&<button className='btn btn-sm text-danger' onClick={() => {setShowMessage(true);setSelectCategoria(item)}}>
+                              {userLogin.tipo == 'A' && <button className='btn btn-sm text-danger' onClick={() => { setShowMessage(true); setSelectCategoria(item) }}>
                                 <i className="fa-solid fa-trash fa-xl"></i>
                               </button>}
-                              {userLogin.tipo=='A'&&<button className='btn btn-sm text-warning' onClick={() => editarCategoria(item)}>
+                              {userLogin.tipo == 'A' && <button className='btn btn-sm text-warning' onClick={() => editarCategoria(item)}>
                                 <i className="fa-solid fa-file-pen fa-xl"></i>
                               </button>}
                               <button className='btn btn-sm text-success' onClick={() => abrirSubCategoria(item)}>
@@ -206,15 +233,15 @@ function PrincipalConfiguracion() {
             </div>
             {selectCategoria.idcategoria !== undefined &&
               <div className='col'>
-                <PrincipalSubCategoria selectCategoria={selectCategoria} tipo={userLogin.tipo}/>
+                <PrincipalSubCategoria selectCategoria={selectCategoria} tipo={userLogin.tipo} />
               </div>}
           </div>
         </div></>}
       {ventana === 1 &&
-        <GradosConfig campeonato={campeonato} setCampeonato={setCampeonato} tipou={userLogin.tipo}/>
+        <GradosConfig campeonato={campeonato} setCampeonato={setCampeonato} tipou={userLogin.tipo} />
       }
-      {ventana ===2 && <ConfiguracionAreaKirugui/>}
-      {ventana ===3 && <ConfiguracionAreaPoomse/>}
+      {ventana === 2 && <ConfiguracionAreaKirugui />}
+      {ventana === 3 && <ConfiguracionAreaPoomse />}
       <Modal show={showModal} onHide={() => setShowModal(false)}
         aria-labelledby="contained-modal-title-vcenter"
         contentClassName='bg-dark bg-gradient'>
@@ -226,11 +253,11 @@ function PrincipalConfiguracion() {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body bsPrefix='modal-header m-0 p-0'>
-          <AddEditCategoria actualizar={actualizar} selectCategoria={selectCategoria}
+          <AddEditCategoria actualizar={actualizar} selectCategoria={selectCategoria} tipo={tipo}
             setActualizar={setActualizar} setShowModal={setShowModal} genero={genero} categorias={categorias} />
         </Modal.Body>
       </Modal>
-      <MsgDialogo show={showMessage} msg='Esta seguro de Eliminar esta categoria' okFunction={()=>eliminarCategoria(selectCategoria)} notFunction={()=>setShowMessage(false)}/>
+      <MsgDialogo show={showMessage} msg='Esta seguro de Eliminar esta categoria' okFunction={() => eliminarCategoria(selectCategoria)} notFunction={() => setShowMessage(false)} />
     </div>
   )
 }

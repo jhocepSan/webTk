@@ -208,10 +208,10 @@ export const getCompetidorClasificadoLista = async (info) => {
             (select nombre from club where idclub=c.idclub) as club, 
             (select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, 
             (SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado
-            FROM competidor c left join categoria cat on (c.edad>=cat.edadini and c.edad<=cat.edadfin and cat.idcampeonato=c.idcampeonato and c.genero=cat.genero)
+            FROM competidor c left join categoria cat on (c.edad>=cat.edadini and c.edad<=cat.edadfin and cat.idcampeonato=c.idcampeonato and c.genero=cat.genero and cat.tipo=c.tipo)
             WHERE c.idcampeonato=? and c.tipo=? and c.genero=?  and c.estado="A" 
             and (c.idclub=? or ?=0) )res left join subcategoria subcate on res.idcategoria=subcate.idcategoria
-            where (res.peso+0.001)>=subcate.pesoini and (res.peso-0.001)<=subcate.pesofin
+            where ((res.peso+0.001)>=subcate.pesoini and (res.peso-0.001)<=subcate.pesofin) or 'P'=?
             order by res.idcompetidor`
     var sql3 = `select count(idllave)as numLLaves from llave where idcampeonato=? and tipo=? and genero=? and estado='A';`
     var sql6 = `SELECT COUNT(idclasificacion) FROM clasificacion WHERE idcampeonato=? AND tipo=? AND genero=? AND estado='A';`
@@ -224,7 +224,7 @@ export const getCompetidorClasificadoLista = async (info) => {
     try {
         conn = await pool.getConnection();
         const [result] = await conn.query(sql,
-            [info.idCampeonato, info.tipo, info.genero, info.idClub, info.idClub])
+            [info.idCampeonato, info.tipo, info.genero, info.idClub, info.idClub,info.tipo])
         var sqlf=''
         if (info.tipo=='C'){
             sqlf=sql3;

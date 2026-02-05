@@ -114,7 +114,7 @@ function PrincipalListaCompetidor() {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json;charset=utf-8',
             },
-            body: JSON.stringify({ idcampeonato: info.idcampeonato, genero })
+            body: JSON.stringify({ idcampeonato: info.idcampeonato, genero,tipo })
         })
             .then(res => res.json())
             .then(data => {
@@ -482,9 +482,9 @@ function PrincipalListaCompetidor() {
     }
     useEffect(() => {
         if (genero != '') {
-            getInformacionCategoria({ idcampeonato: idCampeonato, genero })
+            getInformacionCategoria({ idcampeonato: idCampeonato, genero,tipo })
         }
-    }, [genero])
+    }, [genero,tipo])
     useEffect(() => {
         var info = JSON.parse(localStorage.getItem('campeonato'));
         var sessionActiva = JSON.parse(localStorage.getItem('login'));
@@ -620,7 +620,7 @@ function PrincipalListaCompetidor() {
                                 })}
                             </select>
                         </div>
-                        <div className='col' style={{ maxWidth: '130px', minWidth: '130px' }}>
+                        {tipo!='P'&&<div className='col' style={{ maxWidth: '130px', minWidth: '130px' }}>
                             <select className="form-select form-select-sm btn-dark letraBtn" value={idSubCategoria}
                                 onChange={(e) => cambiarSubCategoria(e.target.value)}>
                                 <option value={0}>Sub Categoria ?</option>
@@ -630,7 +630,7 @@ function PrincipalListaCompetidor() {
                                     )
                                 })}
                             </select>
-                        </div>
+                        </div>}
                         <div className='col' style={{ maxWidth: '187px', minWidth: '187px' }}>
                             <div className="input-group input-group-sm">
                                 <input type="text" className="form-control form-control-sm"
@@ -703,9 +703,10 @@ function PrincipalListaCompetidor() {
                                             <div className='container-fluid p-0 m-0' style={{ fontSize: '16px' }}>
                                                 <div className='letraMontserratr' >{'GRADO: ' + item.grado}</div>
                                                 <div className='letraMontserratr'>{'CATEGORIA: ' + item.nombrecategoria}</div>
-                                                <div className='letraMontserratr'>{'SUB-CATEGORIA: ' + item.nombresubcategoria}</div>
-                                                {(item.idsubcategoria == null || item.idcategoria == null || item.grado == null || item.cinturon == null) &&
+                                                {tipo!='P'&&<div className='letraMontserratr'>{'SUB-CATEGORIA: ' + item.nombresubcategoria}</div>}
+                                                {(item.idsubcategoria == null || item.idcategoria == null || item.grado == null || item.cinturon == null ) && tipo!='P'&&
                                                     <div className='badge bg-danger'>Inconcistencia</div>}
+                                                {tipo=='P' && item.idcategoria==null && <div className='badge bg-danger'>Inconcistencia</div>}
                                             </div>
                                         </td>
                                         {tipo == 'R' && renderTipoCmp(item)}
