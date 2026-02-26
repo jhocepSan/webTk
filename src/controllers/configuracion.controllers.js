@@ -87,9 +87,9 @@ export const getConfiCategoria = async (info) => {
     }
 }
 export const getConfiCategoriaUnido = async (info) => {
-    var sql = `SELECT * FROM categoria where estado="A" and idcampeonato=? 
-        union select -1,'Exibición',0,0,?,'F','A'
-        union select -1,'Exibición',0,0,?,'M','A'
+    var sql = `SELECT * FROM categoria where estado="A" and idcampeonato=? and tipo='C'
+        union select -1,'Exibición',0,0,?,'F','A','C'
+        union select -1,'Exibición',0,0,?,'M','A','C'
         order by genero,edadIni ;`
     var conn;
     try {

@@ -740,9 +740,9 @@ export const obtenerLlaves = async (info) => {
         subcat.nombre AS nombresubcategoria,subcat.pesoini,subcat.pesofin
         FROM llave lv 
         INNER JOIN 
-        (SELECT c.* from categoria c WHERE estado='A' 
-            UNION SELECT -1,'EXHIBICIÓN',1,1,?,'M','A'
-            UNION SELECT -1,'EXHIBICIÓN',1,1,?,'F','A') cat
+        (SELECT c.* from categoria c WHERE estado='A' and tipo='C' 
+            UNION SELECT -1,'EXHIBICIÓN',1,1,?,'M','A','C'
+            UNION SELECT -1,'EXHIBICIÓN',1,1,?,'F','A','C') cat
         ON lv.idcategoria=cat.idcategoria and lv.genero=cat.genero
         LEFT JOIN 
         (SELECT -1 AS idgrado,'MANUAL' AS nombre,'C'AS tipo,? AS idcampeonato,'A' AS estado UNION
