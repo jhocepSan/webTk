@@ -10,10 +10,11 @@ import Modal from 'react-bootstrap/Modal';
 import { server } from '../utils/MsgUtils';
 import SingUp from '../loginUser/SingUp';
 import MsgDialogo from '../utils/MsgDialogo';
-
+import Nav from 'react-bootstrap/Nav';
+import UsuarioConsultas from '../ConsultasApi/UsuarioConsultas';
 function AdminUsuario() {
     const navigate = useNavigate();
-    const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
+    const { login,setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
     const [cargador, setCargador] = useState(false);
     const [usuarios, setUsuarios] = useState([]);
     const [selectItem, setSelectItem] = useState({});
@@ -21,6 +22,7 @@ function AdminUsuario() {
     const [showModal, setShowModal] = useState(false);
     const [tipoModal, setTipoModal] = useState('');
     const [showMessage, setShowMessage] = useState(false);
+    const [estado,setEstado] = useState('K');
     function getEstadoUsuario(dato) {
         var descripcion = ''
         if (dato.estado == 'A') {
@@ -31,6 +33,8 @@ function AdminUsuario() {
             descripcion = 'Inactivo en el sistema TKD';
         } else if (dato.estado == 'K') {
             descripcion = 'Instructor Asociado en el sistema TKD';
+        } else if (dato.estado == 'M') {
+            descripcion = 'Mando Puntuación';
         }
         return (<div className='letraMontserratr'>{descripcion}</div>)
     }
@@ -105,14 +109,14 @@ function AdminUsuario() {
             })
             .catch(error => MsgUtils.msgError(error));
     }
-    function cambiarTipoAlbitro(valor,item) {
+    function cambiarTipoAlbitro(valor, item) {
         fetch(`${server}/usuario/cambiarTipoDeAlbitro`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json;charset=utf-8',
             },
-            body: JSON.stringify({ 'tipoAlbitro':valor, 'idusuario':item.idusuario })
+            body: JSON.stringify({ 'tipoAlbitro': valor, 'idusuario': item.idusuario })
         })
             .then(res => res.json())
             .then(data => {
@@ -146,6 +150,18 @@ function AdminUsuario() {
                 setActualizar(!actualizar);
             })
             .catch(error => MsgUtils.msgError(error));
+    }
+    const recuperarContrasenia = async(item)=>{
+        try{
+            var result = await UsuarioConsultas.recuperarContrasenia(item);
+            if(result.ok){
+                MsgUtils.msgCorrecto(result.ok);
+            }else{
+                MsgUtils.msgError(result.error);
+            }
+        }catch(error){
+            MsgUtils.msgError(error.message);
+        }
     }
     const cargarFoto = (e, tipo, usuario) => {
         setCargador(true);
@@ -193,12 +209,13 @@ function AdminUsuario() {
             setUserLogin(sessionActiva);
             navigate("/adminUser", { replace: true });
         }
-        fetch(`${server}/usuario/getUsuarios`, {
-            method: 'GET',
+        fetch(`${server}/usuario/getUsuarioClasificado`, {
+            method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json;charset=utf-8',
             },
+            body: JSON.stringify({ 'estado': estado })
         })
             .then(res => res.json())
             .then(data => {
@@ -211,7 +228,7 @@ function AdminUsuario() {
                 setCargador(false);
             })
             .catch(error => MsgUtils.msgError(error));
-    }, [actualizar])
+    }, [actualizar,estado])
     return (
         <div>
             <Header />
@@ -239,11 +256,33 @@ function AdminUsuario() {
                     </div>
                 </div>
             </div>
+            <Nav
+                justify
+                variant="tabs"
+                activeKey={estado}
+                className="bg-dark bg-gradient rounded shadow fw-bold" 
+                data-bs-theme="light"
+                onSelect={(e)=>setEstado(e)}
+            >
+                <Nav.Item >
+                    <Nav.Link eventKey="K">Usuarios</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link eventKey="I">Invitados</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link eventKey="A">Administradores</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link eventKey="M">Albitros</Nav.Link>
+                </Nav.Item>
+            </Nav>
+
             <div className='container-fluid text-center bg-light bg-gradient text-danger fw-bold'>
                 {`Numero de Usuarios del sistema: ${usuarios.length}`}
             </div>
             {cargador == false &&
-                <div className='table-responsive' style={{ height: '87vh' }}>
+                <div className='table-responsive' >
                     <table className="table table-dark table-hover table-bordered table-striped" id='competidoresLista' >
                         <thead>
                             <tr className='text-center'>
@@ -283,7 +322,7 @@ function AdminUsuario() {
                                                 </label>
                                             </div>
                                             <select className="form-select form-select-sm btn-secondary letraBtn" value={item.tipoalbitro}
-                                                onChange={(e) => { cambiarTipoAlbitro(e.target.value,item); }}>
+                                                onChange={(e) => { cambiarTipoAlbitro(e.target.value, item); }}>
                                                 <option value=''>Tipo (Ninguno)</option>
                                                 <option value="C">Combate</option>
                                                 <option value="P">Poomse</option>
@@ -303,6 +342,9 @@ function AdminUsuario() {
                                                 <button className='btn text-danger' onClick={() => { setSelectItem(item); setShowMessage(true); }}>
                                                     <i className="fa-solid fa-trash-can fa-xl"></i>
                                                 </button>
+                                                {login.id==1&&<button className='btn text-info' onClick={()=>{recuperarContrasenia(item)}}>
+                                                    <i className="fa-solid fa-key fa-xl"></i>
+                                                </button>}
                                             </div>
                                         </td>
                                     </tr>
@@ -357,6 +399,12 @@ function AdminUsuario() {
                                 <button className={`btn btn-sm w-100 letraBtn ${selectItem.estado == 'I' ? 'btn-success' : ''}`}
                                     onClick={() => cambiarEstadoUser(null, 'I')}>
                                     Invitado
+                                </button>
+                            </li>
+                            <li className="list-group-item m-0 p-0">
+                                <button className={`btn btn-sm w-100 letraBtn ${selectItem.estado == 'M' ? 'btn-success' : ''}`}
+                                    onClick={() => cambiarEstadoUser(null, 'M')}>
+                                    Mando
                                 </button>
                             </li>
                         </ul>

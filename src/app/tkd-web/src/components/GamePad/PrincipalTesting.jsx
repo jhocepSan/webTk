@@ -187,45 +187,53 @@ function PrincipalTesting() {
         return [rep_max, elem_max]
     }
     function lecturadeDatos(datos) {
-        console.log(datos)
-        if (puntoJuego.isPlay) {
-            var cont = parseInt(localStorage.getItem('contAux'));
-            if (cont < parseInt(configure.esperaTime)) {
-                var valores = functionContarPunto(datos)
-                console.log(valores)
-                if (valores[1] != '') {
-                    if (valores[0] >= parseInt(configure.maxJueces)) {
-                        var prePunt = puntoJuego
-                        console.log(prePunt)
-                        if (valores[1] == 'd' || valores[1] == 'D' || valores[1] == 'P' || valores[1] == 'c' || valores[1] == 'C') {
-                            prePunt.puntoA = prePunt.puntoA + parseInt(mapPuntos[valores[1]]);
-                        } else {
-                            prePunt.puntoR = prePunt.puntoR + parseInt(mapPuntos[valores[1]]);
-                        }
-                        localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': '' }))
-                        localStorage.setItem('contAux', 0);
-                        if (configure.enableDif) {
-                            if ((prePunt.puntoA - prePunt.puntoR) > parseInt(configure.diffPuntos)) {
-                                hayGanador('A');
-                                setPuntoJuego({ ...prePunt, isPlay: false });
-                                localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': 'A', isPlay: false }));
-                            } else if ((prePunt.puntoR - prePunt.puntoA) > parseInt(configure.diffPuntos)) {
-                                setPuntoJuego({ ...prePunt, isPlay: false })
-                                hayGanador('R');
-                                localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': 'R', isPlay: false }));
-                            }
-                            setPuntoJuego({ ...prePunt })
-                        }
-                        recetearValoresDb()
-                    } else {
-                        localStorage.setItem('contAux', cont + 1);
+        const [repeticiones, valorPunto] = datos; // Desestructuración para claridad [2, 'P']
+
+        if (puntoJuego.isPlay && valorPunto !== '') {
+            const minJueces = parseInt(configure.maxJueces);
+
+            if (repeticiones >= minJueces) {
+                // 1. CREAR UNA COPIA NUEVA DEL OBJETO (Inmutabilidad)
+                let nuevoPunto = { ...puntoJuego };
+                const valorASumar = parseInt(mapPuntos[valorPunto] || 0);
+
+                // 2. Actualizar la copia
+                if (['d', 'D', 'P', 'c', 'C'].includes(valorPunto)) {
+                    nuevoPunto.puntoA += valorASumar;
+                } else {
+                    nuevoPunto.puntoR += valorASumar;
+                }
+
+                // Lógica de ganador
+                let gano = '';
+                if (configure.enableDif) {
+                    const diff = nuevoPunto.puntoA - nuevoPunto.puntoR;
+                    const diffMax = parseInt(configure.diffPuntos);
+
+                    if (diff > diffMax) {
+                        gano = 'A';
+                        nuevoPunto.isPlay = false;
+                        hayGanador('A');
+                    } else if (diff < -diffMax) {
+                        gano = 'R';
+                        nuevoPunto.isPlay = false;
+                        hayGanador('R');
                     }
                 }
-            } else {
+
+                // 3. ACTUALIZAR ESTADO Y LOCALSTORAGE CON LA COPIA
+                setPuntoJuego(nuevoPunto);
                 localStorage.setItem('contAux', 0);
+                localStorage.setItem('doblePant', JSON.stringify({
+                    ...nuevoPunto,
+                    nombreA,
+                    nombreR,
+                    gano
+                }));
             }
         }
     }
+
     function recetearValoresDb() {
         fetch(`${server}/mandojuec/limpiarLecturas/${0}`, {
             method: 'GET',
@@ -399,7 +407,7 @@ function PrincipalTesting() {
                     <div className='col' style={{ maxWidth: '20%', minWidth: '20%' }}>
                         <VistaMandos datos={null} setActivarLectura={setActivarLectura} activarLectura={activarLectura}
                             configure={configure.numMandos != undefined ? configure : null} collback={lecturadeDatos}
-                            puntoJuego={puntoJuego} showStadistic={showStadistic} areaname={0}/>
+                            puntoJuego={puntoJuego} showStadistic={showStadistic} areaname={0} />
                     </div>
                     <div className='col' style={{ maxWidth: '80%', minWidth: '80%' }}>
                         <div className='container-fluid fondoControles '>
@@ -447,6 +455,7 @@ function PrincipalTesting() {
                                     <i className="fa-solid fa-repeat fa-xl"></i>(.)</button>
                             </div>
                         </div>
+
                         <div className='container-fluid'>
                             <div className='row row-cols-2 gx-0'>
                                 <div className='col bg-primary bg-gradient col-6'>

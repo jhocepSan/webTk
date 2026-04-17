@@ -10,7 +10,8 @@ import QrCode from './QrCode';
 
 function VistaInicio() {
   const navigate = useNavigate();
-  const { setLogin, setUserLogin, login, campeonato, setCampeonato, userLogin, listaCampeonatos, setListaCampeonatos, inscripcionOpen, setInscripcionOpen } = useContext(ContextAplicacions);
+  const { setLogin, setUserLogin, login, campeonato, setCampeonato, userLogin, 
+    listaCampeonatos, setListaCampeonatos, inscripcionOpen, setInscripcionOpen } = useContext(ContextAplicacions);
   const [campeonatos, setCampeonatos] = useState([]);
   const [idCampeonato, setIdCampeonato] = useState();
   const [showModal, setShowModal] = useState(false);
@@ -89,6 +90,7 @@ function VistaInicio() {
   }
   useEffect(() => {
     if (login) {
+      setCargador(true);
       fetch(`${server}/config/getCampeonato`, {
         method: 'GET',
         headers: {
@@ -113,7 +115,8 @@ function VistaInicio() {
             MsgUtils.msgError(data.error);
           }
         })
-        .catch(error => MsgUtils.msgError(error));
+        .catch(error => MsgUtils.msgError(error))
+        .finally(setCargador(false));
     }
   }, [login, actualizar])
   useEffect(() => {

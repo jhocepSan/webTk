@@ -262,7 +262,10 @@ function CompetidoresPdf(props) {
     }, [tipo])
     return (
         <>
-            <button className='btn btn-sm btn-success' onClick={() => descargarPdf()}>Descargar PDF</button>
+            <div className='btn-group'>
+                <button className='btn btn-sm btn-success' onClick={() => descargarPdf()}>Descargar PDF</button>
+                <button className='btn btn-sm btn-secondary bg-gradient mx-1' onClick={() => navigate(-1)}>PDF Control Pelea</button>
+            </div>
             <div className='container py-2 bg-light' ref={pdfRef}>
                 <div className='text-center tituloPdf'>Lista Del Campeonato {campeonato}</div>
                 <div className='text-center tituloPdf'>{getTipoLista()}</div>

@@ -143,23 +143,20 @@ function PrincipalListaCompetidor() {
         }
     }
     function cambiarCategoria(i) {
-        console.log(i, "categoria");
         setIdCategoria(i);
         var cat = categorias.filter((item) => item.idcategoria === parseInt(i));
-        console.log(cat);
+        
         if (cat.length !== 0) {
             setIdSubCategoria(0);
             setSubCategorias(cat[0].SUBCATEGORIA);
             buscarCategoria(i, 4);
         } else {
-            console.log("entro")
             setIdSubCategoria(0);
             setSubCategorias([]);
             buscarCategoria('', 4);
         }
     }
     function cambiarSubCategoria(i) {
-        console.log(i, "subcategoria");
         setIdSubCategoria(i);
         if (i != 0) {
             buscarCategoria(i, 5);
@@ -208,7 +205,6 @@ function PrincipalListaCompetidor() {
                 .then(data => {
                     setCargador(false);
                     if (data.ok.lista) {
-                        console.log(data.ok.lista)
                         if (data.ok.hayLlave[0].numLLaves != 0) {
                             setHayLlaves(true);
                         } else {
@@ -223,7 +219,6 @@ function PrincipalListaCompetidor() {
                 })
                 .catch(error => MsgUtils.msgError(error));
         } else if (tipo !== '' && tipo == 'D') {
-            console.log(tipo)
             setCargador(true);
             fetch(`${server}/competidor/getEquipoDemostration`, {
                 method: 'POST',
@@ -249,7 +244,6 @@ function PrincipalListaCompetidor() {
         }
     }
     function GenerarLlaves() {
-        console.log("generar llaves")
         if (tipo !== '' && genero !== '') {
             setCargador(true);
             if (listaCompetidores.length !== 0) {
@@ -512,7 +506,6 @@ function PrincipalListaCompetidor() {
                 .then(data => {
                     setCargador(false);
                     if (data.ok) {
-                        console.log(data.ok);
                         setListaClubs(data.ok);
                     } else {
                         MsgUtils.msgError(data.error);

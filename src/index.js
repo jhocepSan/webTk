@@ -27,7 +27,7 @@ async function InitServer() {
                 txt: { txtvers: '1', user: 'admin' } 
             });
 
-            console.log(`Servidor anunciado en la red local como: ${configuraciones.NOMBREAPP}.local`);
+            console.log(`Servidor anunciado en la red local como: ${configuraciones.NAMEPUBLIC}.local`);
 
             service.on('error', (error) => {
                 console.log("Error en publicación Bonjour:", error);

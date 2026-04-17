@@ -741,15 +741,15 @@ export const obtenerLlaves = async (info) => {
         FROM llave lv 
         INNER JOIN 
         (SELECT c.* from categoria c WHERE estado='A' and tipo='C' 
-            UNION SELECT -1,'EXHIBICIÓN',1,1,?,'M','A','C'
-            UNION SELECT -1,'EXHIBICIÓN',1,1,?,'F','A','C') cat
+            UNION SELECT -1,'EXHIBICION',1,1,?,'M','A','C'
+            UNION SELECT -1,'EXHIBICION',1,1,?,'F','A','C') cat
         ON lv.idcategoria=cat.idcategoria and lv.genero=cat.genero
         LEFT JOIN 
         (SELECT -1 AS idgrado,'MANUAL' AS nombre,'C'AS tipo,? AS idcampeonato,'A' AS estado UNION
         SELECT gr.* FROM grado gr WHERE gr.estado!='E') grad
         ON grad.idgrado=lv.idgrado
         LEFT JOIN 
-        (SELECT -1 AS idsubcategoria,-1 AS idcategoria,'EXHIBICIÓN' AS nombre,-1 AS pesoini,
+        (SELECT -1 AS idsubcategoria,-1 AS idcategoria,'EXHIBICION' AS nombre,-1 AS pesoini,
         -1 AS pesofin UNION SELECT subc.* FROM subcategoria subc) subcat
         ON subcat.idsubcategoria=lv.idsubcategoria
         WHERE lv.estado='A' and lv.idcampeonato=? AND (?=-2 OR lv.idcategoria=?) AND lv.tipo=? ORDER BY lv.area;`

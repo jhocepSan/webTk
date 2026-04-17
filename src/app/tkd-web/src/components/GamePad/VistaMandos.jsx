@@ -9,9 +9,12 @@ function VistaMandos(props) {
     const [showModal, setShowModal] = useState(false);
     const [entradaTexto, setEntradaTexto] = useState('');
     const [mandos, setMandos] = useState([])
-    const { lastJsonMessage, readyState } = useWebSocket(serverIo, {
+    const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(serverIo, {
         shouldReconnect: () => true,
-        enabled: !!serverIo
+        enabled: !!serverIo,
+        onOpen: () => {
+            sendJsonMessage({ type: 'IDENTIFY', area: '0C', role: 'SCREEN' });
+        }
     })
     function getDibujo(valor) {
         //'d': '', 'D': puntosCabezaGiro, 'P': puntosPunio, 'c': puntosPeto, 'C': puntosPetoGiro,
@@ -43,10 +46,8 @@ function VistaMandos(props) {
         setServerIo(entradaTexto.replace('http://', 'ws://').replace('https://', 'wss://'))
         setShowModal(false);
     }
-    useEffect(() => {
+    /*useEffect(() => {
         if (serverIo != null) {
-            /*collback(datos.ok.map(item=>item.dato));
-            setLecturas([datos.ok, ...lecturas]) */
             if (readyState == 1 && lastJsonMessage != null) {
                 if (areaname == lastJsonMessage.sector && lastJsonMessage.tipo == 'C') {
                     var datosl = mandos.filter(item => item.id == lastJsonMessage.id)
@@ -74,7 +75,60 @@ function VistaMandos(props) {
                 }
             }
         }
-    }, [readyState, lastJsonMessage])
+    }, [readyState, lastJsonMessage])*/
+    function functionContarPunto(lista) {
+        if (!lista.length) return [0, null];
+
+        let conteo = {};
+        let rep_max = 0;
+        let elem_max = null;
+
+        for (const element of lista) {
+            // Incrementamos el contador de forma elegante
+            conteo[element] = (conteo[element] || 0) + 1;
+
+            // Actualizamos el máximo en la misma pasada
+            if (conteo[element] > rep_max) {
+                rep_max = conteo[element];
+                elem_max = element;
+            }
+        }
+
+        return [rep_max, elem_max];
+    }
+
+    useEffect(() => {
+        console.log(lastJsonMessage)
+        if (readyState === 1 && lastJsonMessage?.tipo === 'C' && areaname == lastJsonMessage.sector) {
+
+            setMandos(prevMandos => {
+                // 1. Filtramos para quitar el ID si ya existe y agregamos el nuevo
+                const otrosMandos = prevMandos.filter(item => item.id !== lastJsonMessage.id);
+                const datoFinal = [...otrosMandos, lastJsonMessage].sort((a, b) => a.id - b.id);
+
+                // 2. Verificamos si ya completamos la cantidad necesaria
+                const numRequerido = parseInt(configure.numMandos);
+
+                if (datoFinal.length >= numRequerido - 1) {
+                    const datos = datoFinal.map(item => item.dato);
+                    const puntos = functionContarPunto(datos);
+                    collback(puntos);
+                    setLecturas(prevLecturas => [datoFinal, ...prevLecturas]);
+
+                    if (puntos[0] >= parseInt(configure.maxJueces) || datoFinal.leng ===numRequerido) {
+                        return[];
+                    }else{
+                        return datoFinal;
+                    }
+                } else {
+                    // Aún faltan mandos, solo actualizamos la lista
+                    setLecturas(prevLecturas => [datoFinal, ...prevLecturas]);
+                    return datoFinal;
+                }
+            });
+        }
+    }, [readyState, lastJsonMessage]);
+
     useEffect(() => {
         console.log("modificacion de la lectura de mandos")
         if (configure != null) {
@@ -107,7 +161,7 @@ function VistaMandos(props) {
                 </div>
                 <div className='table-responsive conainer-fluid' style={{ maxHeight: '58vh' }}>
                     <table className="table table-sm table-bordered bg-light text-center">
-                        {false&& <thead>
+                        {false && <thead>
                             <tr>
                                 {cantJueces.map((i, index) => {
                                     return (<th scope="col" key={index}>{'Mando ' + (index + 1)}</th>)
