@@ -292,7 +292,7 @@ export const getCompetidoresFestival = async (info) => {
 		  and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as idsubcategoria,         
 		  (select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria 
         where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria 
-        FROM competidor c WHERE c.idcampeonato=19 and c.tipo='C' and c.genero='M'  and c.estado="A" and (c.idclub=0 OR 0=0)`;
+        FROM competidor c WHERE c.idcampeonato=? and c.tipo=? and c.genero=?  and c.estado="A" and (c.idclub=? OR ?=0)) as res where res.idcategoria in (select idcategoria from categoria where estado="P") order by res.edad,res.peso;`;
     var sql1 = `select res.*,subcate.idsubcategoria,subcate.pesoini,subcate.pesofin,subcate.nombre as nombresubcategoria from 
             (SELECT c.*,cat.idcategoria,cat.nombre as nombrecategoria,cat.edadini,cat.edadfin,
             (select nombre from club where idclub=c.idclub) as club, 
