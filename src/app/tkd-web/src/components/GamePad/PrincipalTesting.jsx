@@ -444,7 +444,7 @@ function PrincipalTesting() {
                                     Round {puntoJuego.round}
                                 </div>
                                 <div className='text-center mx-1' style={{ fontSize: '45px', width: '230px' }} >
-                                    <RelojKirugui valor={puntoJuego} conf={configure} tipo='r' collback={() => ''} doble={false} />
+                                    <RelojKirugui valor={puntoJuego} conf={configure} tipo='r' collback={() => {setPuntoJuego({ ...puntoJuego,  });calcularResultado()}} doble={false} />
                                 </div>
                                 <div className='text-center mx-1' style={{ fontSize: '45px', width: '230px' }} >
                                     {puntoJuego.isPlay == false && <RelojKirugui valor={puntoJuego} conf={configure} tipo='s' collback={() => ''} doble={false} />}

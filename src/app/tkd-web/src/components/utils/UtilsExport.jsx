@@ -31,7 +31,7 @@ async function exportarLlaves(categorias, listaLLavesi) {
                     for (var peel of compe) {
                         var lsPele = peel.PELEAS.filter((item) => item.tipo == 0);
                         if (lsPele.length !== 0) {
-                            //doc.setTextColor(0, 0, 0);
+                            doc.setTextColor(0, 0, 0);
                             doc.setFontSize(12);
                             doc.text(`Pagina: ${numPag}`, (width / 2) - 20, y + 5);
                             doc.text(`Categoria: ${cat.nombre} -> Edad ${cat.edadini} - ${cat.edadfin} años`, x, y + 10);
@@ -45,13 +45,20 @@ async function exportarLlaves(categorias, listaLLavesi) {
                             if (lsPele.length == 1) {
                                 for (var cmp of lsPele) {
                                     doc.setTextColor(0, 0, 255);
+                                    doc.setDrawColor(0, 0, 255);
+                                    for (let i = 0; i < 3; i++) {
+                                        doc.text('# Llamada', x + 85, y)
+                                        doc.rect(x + 100 + (i * 6), y - 3, 4, 4, 'S');
+                                    }
+                                    doc.setDrawColor(0, 0, 0);
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                                     doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
                                     doc.setTextColor(0, 0, 255);
                                     doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x + 85, y + 5)
                                     doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x + 85, y + 10)
-                                    doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno : ''}`, x + 85, y + 15)
+                                    doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno + ' Altura:' + cmp.alturauno : ''}`, x + 85, y + 15)
                                     y = y + 20
+                                    doc.setDrawColor(0, 0, 0);
                                     doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                                     doc.setFontSize(15);
@@ -61,28 +68,75 @@ async function exportarLlaves(categorias, listaLLavesi) {
                                     doc.setFontSize(9)
                                     y = y + 50
                                     doc.setTextColor(0, 0, 0);
+                                    doc.setDrawColor(0, 0, 0);
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                                     doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
                                     y = y + 20
                                     doc.setTextColor(255, 0, 0);
                                     doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x + 85, y + 5)
                                     doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x + 85, y + 10)
-                                    doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x + 85, y + 15)
+                                    doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos + ' Altura:' + cmp.alturados : ''}`, x + 85, y + 15)
+                                    doc.setDrawColor(0, 0, 0);
                                     doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+                                    doc.setDrawColor(255, 0, 0);
+                                    for (let i = 0; i < 3; i++) {
+                                        doc.text('# Llamada', x + 85, y + 20)
+                                        doc.rect(x + 100 + (i * 6), y + 17, 4, 4, 'S');
+                                    }
                                     y = y + 50;
                                     doc.setTextColor(0, 0, 0);
+                                    doc.setDrawColor(0, 0, 0);
+                                    doc.setFontSize(12)
+                                    let header = ['#Pelea', '1 round', '2 round', '3 round', '4 round', 'Ganador'];
+                                    for (let i = 0; i < 6; i++) {
+                                        // Dibujar Header y Rectángulos base
+                                        doc.text(header[i], x + 57 + (i * 20), y + 9);
+                                        doc.rect(x + 55 + (i * 20), y + 10, 20, 7, 'S'); // Fila header
+                                        doc.rect(x + 55 + (i * 20), y + 17, 20, 7, 'S'); // Fila 1
+                                        doc.rect(x + 55 + (i * 20), y + 24, 20, 7, 'S'); // Fila 2
+                                        // Si no es la primera columna, dibujamos los dos cuadros (Azul y Rojo) juntos
+                                        if (i > 0) {
+                                            doc.setDrawColor(0, 0, 255);
+                                            doc.rect(x + 55 + (i * 20) + 4, y + 11.5, 4, 4, 'S'); // Azul (izquierda)
+                                            doc.setDrawColor(255, 0, 0);
+                                            doc.rect(x + 55 + (i * 20) + 12, y + 11.5, 4, 4, 'S');
+
+                                            // --- CUADROS EN FILA 1 ---
+                                            doc.setDrawColor(0, 0, 255);
+                                            doc.rect(x + 55 + (i * 20) + 4, y + 18.5, 4, 4, 'S'); // Azul (izquierda)
+                                            doc.setDrawColor(255, 0, 0);
+                                            doc.rect(x + 55 + (i * 20) + 12, y + 18.5, 4, 4, 'S'); // Rojo (derecha)
+
+                                            // --- CUADROS EN FILA 2 ---
+                                            doc.setDrawColor(0, 0, 255);
+                                            doc.rect(x + 55 + (i * 20) + 4, y + 25.5, 4, 4, 'S'); // Azul (izquierda)
+                                            doc.setDrawColor(255, 0, 0);
+                                            doc.rect(x + 55 + (i * 20) + 12, y + 25.5, 4, 4, 'S'); // Rojo (derecha)
+
+                                            // Resetear color a negro para los bordes de la tabla
+                                            doc.setDrawColor(0, 0, 0);
+                                        }
+                                    }
                                 }
                                 doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
                                 doc.line(x + 105, y - 85, x + 135, y - 85, 'S');
+
                             } else if (lsPele.length == 2) {
                                 for (var cmp of lsPele) {
                                     doc.setTextColor(0, 0, 255);
                                     if (cmp.clubdos != null) {
+                                        doc.setTextColor(0, 0, 255);
+                                        doc.setDrawColor(0, 0, 255);
+                                        for (let i = 0; i < 3; i++) {
+                                            doc.text('# Llamada', x, y)
+                                            doc.rect(x + 15 + (i * 6), y - 3, 4, 4, 'S');
+                                        }
                                         doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
                                         doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x, y + 10)
-                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno : ''}`, x, y + 15)
+                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno + ' Altura:' + cmp.alturauno : ''}`, x, y + 15)
                                     }
+                                    doc.setDrawColor(0, 0, 0);
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                                     doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
                                     doc.setFontSize(15);
@@ -92,39 +146,105 @@ async function exportarLlaves(categorias, listaLLavesi) {
                                     doc.setFontSize(9);
                                     if (cmp.clubuno == null) {
                                         doc.setTextColor(0, 0, 255);
+                                        doc.setDrawColor(0, 0, 255);
+                                        for (let i = 0; i < 3; i++) {
+                                            doc.text('# Llamada', x + 85, y)
+                                            doc.rect(x + 100 + (i * 6), y - 3, 4, 4, 'S');
+                                        }
                                         doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x + 85, y + 5)
                                         doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x + 85, y + 10)
-                                        doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x + 85, y + 15)
+                                        doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos + ' Altura:' + cmp.alturados : ''}`, x + 85, y + 15)
                                     }
                                     y = y + 20
                                     if (cmp.clubdos == null) {
                                         doc.setTextColor(255, 0, 0);
+                                        doc.setDrawColor(255, 0, 0);
+                                        for (let i = 0; i < 3; i++) {
+                                            doc.text('# Llamada', x + 85, y)
+                                            doc.rect(x + 100 + (i * 6), y - 3, 4, 4, 'S');
+                                        }
                                         doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x + 85, y + 5)
                                         doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x + 85, y + 10)
-                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno : ''}`, x + 85, y + 15)
+                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno + ' Altura:' + cmp.alturauno : ''}`, x + 85, y + 15)
                                     }
                                     if (cmp.clubuno != null) {
                                         doc.setTextColor(255, 0, 0);
+                                        doc.setDrawColor(255, 0, 0);
+                                        for (let i = 0; i < 3; i++) {
+                                            doc.text('# Llamada', x, y + 19)
+                                            doc.rect(x + 15 + (i * 6), y + 16, 4, 4, 'S');
+                                        }
                                         doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
                                         doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x, y + 10)
-                                        doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x, y + 15)
+                                        doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos + ' Altura:' + cmp.alturados : ''}`, x, y + 15)
                                     }
+                                    doc.setDrawColor(0, 0, 0);
                                     doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                                     y = y + 50
                                     doc.setTextColor(0, 0, 0);
                                 }
+                                doc.setTextColor(255, 0, 0);
+                                doc.setDrawColor(255, 0, 0);
+                                for (let i = 0; i < 3; i++) {
+                                    doc.text('# Llamada', x + 85, y - 50 + 2)
+                                    doc.rect(x + 100 + (i * 6), y - 51, 4, 4, 'S');
+                                }
+                                doc.setTextColor(0, 0, 255);
+                                doc.setDrawColor(0, 0, 255);
+                                for (let i = 0; i < 3; i++) {
+                                    doc.text('# Llamada', x + 85, y - 120 + 2)
+                                    doc.rect(x + 100 + (i * 6), y - 121, 4, 4, 'S');
+                                }
+                                doc.setDrawColor(0, 0, 0);
                                 doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
                                 doc.line(x + 105, y - 85, x + 135, y - 85, 'S');
+                                doc.setFontSize(12)
+                                let header = ['#Pelea', '1 round', '2 round', '3 round', '4 round', 'Ganador'];
+                                for (let i = 0; i < 6; i++) {
+                                    // Dibujar Header y Rectángulos base
+                                    doc.text(header[i], x + 57 + (i * 20), y + 9);
+                                    doc.rect(x + 55 + (i * 20), y + 10, 20, 7, 'S'); // Fila header
+                                    doc.rect(x + 55 + (i * 20), y + 17, 20, 7, 'S'); // Fila 1
+                                    doc.rect(x + 55 + (i * 20), y + 24, 20, 7, 'S'); // Fila 2
+                                    // Si no es la primera columna, dibujamos los dos cuadros (Azul y Rojo) juntos
+                                    if (i > 0) {
+                                        doc.setDrawColor(0, 0, 255);
+                                        doc.rect(x + 55 + (i * 20) + 4, y + 11.5, 4, 4, 'S'); // Azul (izquierda)
+                                        doc.setDrawColor(255, 0, 0);
+                                        doc.rect(x + 55 + (i * 20) + 12, y + 11.5, 4, 4, 'S');
+
+                                        // --- CUADROS EN FILA 1 ---
+                                        doc.setDrawColor(0, 0, 255);
+                                        doc.rect(x + 55 + (i * 20) + 4, y + 18.5, 4, 4, 'S'); // Azul (izquierda)
+                                        doc.setDrawColor(255, 0, 0);
+                                        doc.rect(x + 55 + (i * 20) + 12, y + 18.5, 4, 4, 'S'); // Rojo (derecha)
+
+                                        // --- CUADROS EN FILA 2 ---
+                                        doc.setDrawColor(0, 0, 255);
+                                        doc.rect(x + 55 + (i * 20) + 4, y + 25.5, 4, 4, 'S'); // Azul (izquierda)
+                                        doc.setDrawColor(255, 0, 0);
+                                        doc.rect(x + 55 + (i * 20) + 12, y + 25.5, 4, 4, 'S'); // Rojo (derecha)
+
+                                        // Resetear color a negro para los bordes de la tabla
+                                        doc.setDrawColor(0, 0, 0);
+                                    }
+                                }
                             }
                             if (lsPele.length == 4) {
                                 for (var cmp of lsPele) {
                                     doc.setTextColor(0, 0, 255);
                                     if (cmp.clubdos != null) {
+                                        doc.setDrawColor(0, 0, 255);
+                                        for (let i = 0; i < 3; i++) {
+                                            doc.text('# Llamada', x, y)
+                                            doc.rect(x + 15 + (i * 6), y - 3, 4, 4, 'S');
+                                        }
                                         doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
                                         doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x, y + 10)
-                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno: ''}`, x, y + 15)
+                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno + ' Altura:' + cmp.alturauno : ''}`, x, y + 15)
                                     }
+                                    doc.setDrawColor(0, 0, 0);
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                                     doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
                                     doc.setFontSize(15);
@@ -134,33 +254,133 @@ async function exportarLlaves(categorias, listaLLavesi) {
                                     doc.setFontSize(9);
                                     if (cmp.clubuno == null) {
                                         doc.setTextColor(0, 0, 255);
-                                        doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x + 85, y + 5)
-                                        doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x + 85, y + 10)
-                                        doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x + 85, y + 15)
+                                        doc.text(`${cmp.nombres2} `, x, y + 5)
+                                        if (cmp.apellidos2 !== null) {
+                                            doc.setDrawColor(0, 0, 255);
+                                            for (let i = 0; i < 3; i++) {
+                                                doc.text('# Llamada', x + 85, y)
+                                                doc.rect(x + 100 + (i * 6), y - 3, 4, 4, 'S');
+                                            }
+                                            doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x + 85, y + 5)
+                                            doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x + 85, y + 10)
+                                            doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos + ' Altura:' + cmp.alturados : ''}`, x + 85, y + 15)
+                                        } else {
+                                            doc.setDrawColor(0, 0, 255);
+                                            for (let i = 0; i < 3; i++) {
+                                                doc.text('# Llamada', x + 85, y)
+                                                doc.rect(x + 100 + (i * 6), y - 3, 4, 4, 'S');
+                                            }
+                                        }
+                                        doc.setDrawColor(0, 0, 0);
                                     }
                                     y = y + 20
                                     if (cmp.clubdos == null) {
                                         doc.setTextColor(255, 0, 0);
-                                        doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x + 85, y + 5)
-                                        doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x + 85, y + 10)
-                                        doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno : ''}`, x + 85, y + 15)
+                                        doc.text(`${cmp.nombres} `, x, y + 5)
+                                        if (cmp.apellidos !== null) {
+                                            doc.setDrawColor(255, 0, 0);
+                                            for (let i = 0; i < 3; i++) {
+                                                doc.text('# Llamada', x + 85, y)
+                                                doc.rect(x + 100 + (i * 6), y - 3, 4, 4, 'S');
+                                            }
+                                            doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x + 85, y + 5)
+                                            doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x + 85, y + 10)
+                                            doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno + ' Altura:' + cmp.alturauno : ''}`, x + 85, y + 15)
+                                        }
+                                        doc.setDrawColor(0, 0, 0);
                                     }
                                     if (cmp.clubuno != null) {
                                         doc.setTextColor(255, 0, 0);
+                                        doc.setDrawColor(255, 0, 0);
+                                        for (let i = 0; i < 3; i++) {
+                                            doc.text('# Llamada', x, y + 19)
+                                            doc.rect(x + 15 + (i * 6), y + 17, 4, 4, 'S');
+                                        }
                                         doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
                                         doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x, y + 10)
-                                        doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x, y + 15)
+                                        doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos + ' Altura:' + cmp.alturados : ''}`, x, y + 15)
                                     }
+                                    doc.setDrawColor(0, 0, 0);
                                     doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
-                                    y = y + 50
+                                    y = y + 30
                                     doc.setTextColor(0, 0, 0);
                                 }
-                                doc.line(x + 105, y - 265, x + 105, y - 190, 'S');
-                                doc.line(x + 105, y - 225, x + 135, y - 225, 'S');
-                                doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
-                                doc.line(x + 105, y - 85, x + 135, y - 85, 'S');
-                                doc.line(x + 135, y - 225, x + 135, y - 85, 'S');
+                                doc.line(x + 105, y - 182, x + 105, y - 132, 'S');
+                                doc.line(x + 105, y - 157, x + 135, y - 157, 'S');
+                                doc.line(x + 105, y - 82, x + 105, y - 32, 'S');
+                                doc.line(x + 105, y - 57, x + 135, y - 57, 'S');
+                                doc.line(x + 135, y - 157, x + 135, y - 57, 'S');
+                                doc.line(x + 135, y - 107, x + 165, y - 107, 'S');
+                                doc.setTextColor(0, 0, 255);
+                                doc.setDrawColor(0, 0, 255);
+                                for (let i = 0; i < 3; i++) {
+                                    doc.text('# Llamada', x + 110, y - 158)
+                                    doc.rect(x + 125 + (i * 6), y - 162, 4, 4, 'S');
+                                    doc.text('# Llamada', x + 85, y - 85)
+                                    doc.rect(x + 100 + (i * 6), y - 87, 4, 4, 'S');
+                                }
+                                doc.setTextColor(255, 0, 0);
+                                doc.setDrawColor(255, 0, 0);
+                                for (let i = 0; i < 3; i++) {
+                                    doc.text('# Llamada', x + 110, y - 53)
+                                    doc.rect(x + 125 + (i * 6), y - 55, 4, 4, 'S');
+                                    doc.text('# Llamada', x + 85, y - 128)
+                                    doc.rect(x + 100 + (i * 6), y - 131, 4, 4, 'S');
+                                }
+                                y=y-15
+                                doc.setTextColor(0, 0, 0);
+                                doc.setDrawColor(0, 0, 0);
+                                doc.setFontSize(12)
+                                let header = ['#Pelea', '1 round', '2 round', '3 round', '4 round', 'Ganador'];
+                                for (let i = 0; i < 6; i++) {
+                                    // Dibujar Header y Rectángulos base
+                                    doc.text(header[i], x + 57 + (i * 20), y + 9);
+                                    doc.rect(x + 55 + (i * 20), y + 10, 20, 7, 'S'); // Fila header
+                                    doc.rect(x + 55 + (i * 20), y + 17, 20, 7, 'S'); // Fila 1
+                                    doc.rect(x + 55 + (i * 20), y + 24, 20, 7, 'S'); // Fila 2
+                                    doc.rect(x + 55 + (i * 20), y + 31, 20, 7, 'S'); // Fila header
+                                    doc.rect(x + 55 + (i * 20), y + 38, 20, 7, 'S'); // Fila 1
+                                    doc.rect(x + 55 + (i * 20), y + 45, 20, 7, 'S');
+                                    // Si no es la primera columna, dibujamos los dos cuadros (Azul y Rojo) juntos
+                                    if (i > 0) {
+                                        doc.setDrawColor(0, 0, 255);
+                                        doc.rect(x + 55 + (i * 20) + 4, y + 11.5, 4, 4, 'S'); // Azul (izquierda)
+                                        doc.setDrawColor(255, 0, 0);
+                                        doc.rect(x + 55 + (i * 20) + 12, y + 11.5, 4, 4, 'S');
+
+                                        // --- CUADROS EN FILA 1 ---
+                                        doc.setDrawColor(0, 0, 255);
+                                        doc.rect(x + 55 + (i * 20) + 4, y + 18.5, 4, 4, 'S'); // Azul (izquierda)
+                                        doc.setDrawColor(255, 0, 0);
+                                        doc.rect(x + 55 + (i * 20) + 12, y + 18.5, 4, 4, 'S'); // Rojo (derecha)
+
+                                        // --- CUADROS EN FILA 2 ---
+                                        doc.setDrawColor(0, 0, 255);
+                                        doc.rect(x + 55 + (i * 20) + 4, y + 25.5, 4, 4, 'S'); // Azul (izquierda)
+                                        doc.setDrawColor(255, 0, 0);
+                                        doc.rect(x + 55 + (i * 20) + 12, y + 25.5, 4, 4, 'S'); // Rojo (derecha)
+
+                                        doc.setDrawColor(0, 0, 255);
+                                        doc.rect(x + 55 + (i * 20) + 4, y + 32.5, 4, 4, 'S'); // Azul (izquierda)
+                                        doc.setDrawColor(255, 0, 0);
+                                        doc.rect(x + 55 + (i * 20) + 12, y + 32.5, 4, 4, 'S');
+
+                                        // --- CUADROS EN FILA 1 ---
+                                        doc.setDrawColor(0, 0, 255);
+                                        doc.rect(x + 55 + (i * 20) + 4, y + 39.5, 4, 4, 'S'); // Azul (izquierda)
+                                        doc.setDrawColor(255, 0, 0);
+                                        doc.rect(x + 55 + (i * 20) + 12, y + 39.5, 4, 4, 'S'); // Rojo (derecha)
+
+                                        // --- CUADROS EN FILA 2 ---
+                                        doc.setDrawColor(0, 0, 255);
+                                        doc.rect(x + 55 + (i * 20) + 4, y + 46.5, 4, 4, 'S'); // Azul (izquierda)
+                                        doc.setDrawColor(255, 0, 0);
+                                        doc.rect(x + 55 + (i * 20) + 12, y + 46.5, 4, 4, 'S');
+                                        // Resetear color a negro para los bordes de la tabla
+                                        doc.setDrawColor(0, 0, 0);
+                                    }
+                                }
                             }
                             doc.addPage();
                             x = 10;
@@ -189,6 +409,7 @@ async function exportarLlaves(categorias, listaLLavesi) {
                     x = 10;
                     y = 5;
                     doc.setFontSize(12);
+                    doc.setTextColor(0, 0, 0);
                     doc.text(`Pagina: ${numPag}`, (width / 2) - 20, y + 5);
                     doc.text(`Peleas de Exhibición`, x, y + 10);
                     doc.text(`Genero: ${cmpe.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`, x, y + 15)
@@ -199,10 +420,17 @@ async function exportarLlaves(categorias, listaLLavesi) {
                     for (var cmp of lsPele) {
                         doc.setTextColor(0, 0, 255);
                         if (cmp.clubdos != null) {
+                            doc.setTextColor(0, 0, 255);
+                            doc.setDrawColor(0, 0, 255);
+                            for (let i = 0; i < 3; i++) {
+                                doc.text('# Llamada', x, y)
+                                doc.rect(x + 15 + (i * 6), y - 3, 4, 4, 'S');
+                            }
                             doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x, y + 5)
                             doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x, y + 10)
-                            doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno : ''}`, x, y + 15)
+                            doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno + ' Altura:' + cmp.alturauno : ''}`, x, y + 15)
                         }
+                        doc.setDrawColor(0, 0, 0);
                         doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                         doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
                         doc.setFontSize(15);
@@ -213,24 +441,48 @@ async function exportarLlaves(categorias, listaLLavesi) {
                         doc.setTextColor(255, 0, 0);
                         if (cmp.clubuno == null) {
                             doc.setTextColor(0, 0, 255);
+                            doc.setDrawColor(0, 0, 255);
+                            for (let i = 0; i < 3; i++) {
+                                doc.text('# Llamada', x + 85, y)
+                                doc.rect(x + 100 + (i * 6), y - 3, 4, 4, 'S');
+                            }
                             doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x + 85, y + 5)
                             doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x + 85, y + 10)
-                            doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x + 85, y + 15)
+                            doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos + ' Altura:' + cmp.alturados : ''}`, x + 85, y + 15)
                         }
 
                         y = y + 20
                         if (cmp.clubdos == null) {
+                            doc.setTextColor(0, 0, 255);
+                            doc.setDrawColor(0, 0, 255);
+                            for (let i = 0; i < 3; i++) {
+                                doc.text('# Llamada', x + 85, y - 79)
+                                doc.rect(x + 100 + (i * 6), y - 81, 4, 4, 'S');
+                            }
                             doc.setTextColor(255, 0, 0);
-                            doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x + 85, y + 5)
-                            doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x + 85, y + 10)
-                            doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno+' Altura:'+ cmp.alturauno : ''}`, x + 85, y + 15)
+                            doc.setDrawColor(255, 0, 0);
+                            for (let i = 0; i < 3; i++) {
+                                doc.text('# Llamada', x + 85, y + 2)
+                                doc.rect(x + 100 + (i * 6), y - 1, 4, 4, 'S');
+                            }
+                            doc.text(`${cmp.nombres} (${cmp.clubuno !== null ? cmp.clubuno : '-'})`, x + 85, y + 6)
+                            doc.text(`${cmp.apellidos !== null ? cmp.apellidos + ' Grado:' + cmp.cinturonuno : ''}`, x + 85, y + 11)
+                            doc.text(`${cmp.edaduno !== null ? 'Edad: ' + cmp.edaduno + ' Peso:' + cmp.pesouno + ' Altura:' + cmp.alturauno : ''}`, x + 85, y + 16)
                         }
                         if (cmp.clubuno != null) {
                             doc.setTextColor(255, 0, 0);
+                            doc.setDrawColor(255, 0, 0);
+                            for (let i = 0; i < 3; i++) {
+                                doc.text('# Llamada', x, y + 19)
+                                doc.rect(x + 15 + (i * 6), y + 16, 4, 4, 'S');
+                            }
                             doc.text(`${cmp.nombres2} (${cmp.clubdos !== null ? cmp.clubdos : '-'})`, x, y + 5)
                             doc.text(`${cmp.apellidos2 !== null ? cmp.apellidos2 + ' Grado:' + cmp.cinturondos : ''}`, x, y + 10)
-                            doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos+' Altura:'+ cmp.alturados : ''}`, x, y + 15)
+                            doc.text(`${cmp.edaddos !== null ? 'Edad: ' + cmp.edaddos + ' Peso:' + cmp.pesodos + ' Altura:' + cmp.alturados : ''}`, x, y + 15)
+
                         }
+
+                        doc.setDrawColor(0, 0, 0);
                         doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                         doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                         doc.setTextColor(0, 0, 0);
@@ -238,6 +490,53 @@ async function exportarLlaves(categorias, listaLLavesi) {
                     }
                     doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
                     doc.line(x + 105, y - 85, x + 135, y - 85, 'S');
+                    if (cmp.clubuno != null && cmp.clubdos != null) {
+                        doc.setTextColor(0, 0, 255);
+                        doc.setDrawColor(0, 0, 255);
+                        for (let i = 0; i < 3; i++) {
+                            doc.text('# Llamada', x + 85, y - 125)
+                            doc.rect(x + 100 + (i * 6), y - 127, 4, 4, 'S');
+                        }
+                        doc.setTextColor(255, 0, 0);
+                        doc.setDrawColor(255, 0, 0);
+                        for (let i = 0; i < 3; i++) {
+                            doc.text('# Llamada', x + 85, y - 48)
+                            doc.rect(x + 100 + (i * 6), y - 50, 4, 4, 'S');
+                        }
+                    }
+                    doc.setTextColor(0, 0, 0);
+                    doc.setDrawColor(0, 0, 0);
+                    doc.setFontSize(12)
+                    let header = ['#Pelea', '1 round', '2 round', '3 round', '4 round', 'Ganador'];
+                    for (let i = 0; i < 6; i++) {
+                        // Dibujar Header y Rectángulos base
+                        doc.text(header[i], x + 57 + (i * 20), y + 9);
+                        doc.rect(x + 55 + (i * 20), y + 10, 20, 7, 'S'); // Fila header
+                        doc.rect(x + 55 + (i * 20), y + 17, 20, 7, 'S'); // Fila 1
+                        doc.rect(x + 55 + (i * 20), y + 24, 20, 7, 'S'); // Fila 2
+                        // Si no es la primera columna, dibujamos los dos cuadros (Azul y Rojo) juntos
+                        if (i > 0) {
+                            doc.setDrawColor(0, 0, 255);
+                            doc.rect(x + 55 + (i * 20) + 4, y + 11.5, 4, 4, 'S'); // Azul (izquierda)
+                            doc.setDrawColor(255, 0, 0);
+                            doc.rect(x + 55 + (i * 20) + 12, y + 11.5, 4, 4, 'S');
+
+                            // --- CUADROS EN FILA 1 ---
+                            doc.setDrawColor(0, 0, 255);
+                            doc.rect(x + 55 + (i * 20) + 4, y + 18.5, 4, 4, 'S'); // Azul (izquierda)
+                            doc.setDrawColor(255, 0, 0);
+                            doc.rect(x + 55 + (i * 20) + 12, y + 18.5, 4, 4, 'S'); // Rojo (derecha)
+
+                            // --- CUADROS EN FILA 2 ---
+                            doc.setDrawColor(0, 0, 255);
+                            doc.rect(x + 55 + (i * 20) + 4, y + 25.5, 4, 4, 'S'); // Azul (izquierda)
+                            doc.setDrawColor(255, 0, 0);
+                            doc.rect(x + 55 + (i * 20) + 12, y + 25.5, 4, 4, 'S'); // Rojo (derecha)
+
+                            // Resetear color a negro para los bordes de la tabla
+                            doc.setDrawColor(0, 0, 0);
+                        }
+                    }
                     doc.addPage();
                     x = 10;
                     y = 5;
@@ -257,12 +556,18 @@ async function exportarLlaves(categorias, listaLLavesi) {
                     doc.setFontSize(17)
                     doc.text(`Area: ${cmpe.area != null ? cmpe.area : ''}`, x + 140, y + 15)
                     doc.setFontSize(9);
-                    y = y + 25
+                    y = y + 25;
                     doc.setTextColor(0, 0, 255);
+                    doc.setDrawColor(0, 0, 255);
+                    for (let i = 0; i < 3; i++) {
+                        doc.text('# Llamada', x, y)
+                        doc.rect(x + 15 + (i * 6), y - 3, 4, 4, 'S');
+                    }
+                    doc.setDrawColor(0, 0, 0);
                     doc.text(`${comp.nombres} (${comp.clubuno !== null ? comp.clubuno : '-'})`, x, y + 5)
                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                     doc.text(`${comp.apellidos !== null ? comp.apellidos + ' Grado:' + comp.cinturonuno : ''}`, x, y + 10)
-                    doc.text(`${comp.edaduno !== null ? 'Edad: ' + comp.edaduno + ' Peso:' + comp.pesouno+' Altura:'+ comp.alturauno : ''}`, x, y + 15)
+                    doc.text(`${comp.edaduno !== null ? 'Edad: ' + comp.edaduno + ' Peso:' + comp.pesouno + ' Altura:' + comp.alturauno : ''}`, x, y + 15)
                     doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
                     doc.setFontSize(15);
                     doc.setTextColor(0, 0, 0);
@@ -271,12 +576,36 @@ async function exportarLlaves(categorias, listaLLavesi) {
                     doc.setFontSize(9)
                     y = y + 20;
                     doc.setTextColor(255, 0, 0);
+                    doc.setDrawColor(255, 0, 0);
+                    for (let i = 0; i < 3; i++) {
+                        doc.text('# Llamada', x, y + 19)
+                        doc.rect(x + 15 + (i * 6), y + 17, 4, 4, 'S');
+                    }
+                    doc.setDrawColor(0, 0, 0);
                     doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
                     doc.text(`${comp.nombres2} (${comp.clubdos !== null ? comp.clubdos : '-'})`, x, y + 5)
                     doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
                     doc.text(`${comp.apellidos2 !== null ? comp.apellidos2 + ' Grado:' + comp.cinturondos : ''}`, x, y + 10)
-                    doc.text(`${comp.edaddos !== null ? 'Edad: ' + comp.edaddos + ' Peso:' + comp.pesodos+' Altura:'+ comp.alturados : ''}`, x, y + 15)
+                    doc.text(`${comp.edaddos !== null ? 'Edad: ' + comp.edaddos + ' Peso:' + comp.pesodos + ' Altura:' + comp.alturados : ''}`, x, y + 15)
+                    y = y + 30
                     doc.setTextColor(0, 0, 0);
+                    doc.setDrawColor(0, 0, 0);
+                    doc.setFontSize(12)
+                    let header = ['#Pelea', '1 round', '2 round', '3 round', '4 round', 'Ganador'];
+                    for (let i = 0; i < 6; i++) {
+                        // Dibujar Header y Rectángulos base
+                        doc.text(header[i], x + 57 + (i * 20), y + 9);
+                        doc.rect(x + 55 + (i * 20), y + 10, 20, 7, 'S'); // Fila header
+                        // Si no es la primera columna, dibujamos los dos cuadros (Azul y Rojo) juntos
+                        if (i > 0) {
+                            doc.setDrawColor(0, 0, 255);
+                            doc.rect(x + 55 + (i * 20) + 4, y + 11.5, 4, 4, 'S'); // Azul (izquierda)
+                            doc.setDrawColor(255, 0, 0);
+                            doc.rect(x + 55 + (i * 20) + 12, y + 11.5, 4, 4, 'S');
+                            // Resetear color a negro para los bordes de la tabla
+                            doc.setDrawColor(0, 0, 0);
+                        }
+                    }
                     doc.addPage();
                     x = 10;
                     y = 5;

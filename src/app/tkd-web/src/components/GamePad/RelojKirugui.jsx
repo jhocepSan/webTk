@@ -18,20 +18,30 @@ function RelojKirugui({ valor, conf, tipo, collback, doble }) {
     useEffect(() => {
         let intervalo = null;
 
+        // Resetear si es round y viene la señal de reset
         if (valor.reset && tipo === 'r') {
             setSegundo(0);
         }
 
-        if (valor.isPlay) {
+        // LÓGICA CLAVE: 
+        // Si es tipo 'r' (round), corre si isPlay es true.
+        // Si es tipo 's' (descanso), corre si isPlay es false.
+        const debeCorrer = (tipo === 'r' && valor.isPlay) || (tipo === 's' && !valor.isPlay);
+
+        if (debeCorrer) {
             intervalo = setInterval(() => {
                 setSegundo(prev => {
                     const nuevoSegundo = prev + 1;
-                    
-                    // Lógica de finalización
+
                     if (nuevoSegundo >= tiempoMaximo) {
+                        // Solo ejecutamos el callback si es el fin del round
                         if (tipo === 'r') {
-                            collback('FIN_ROUND'); // Llama directamente a la función, no al click
+                            clearInterval(intervalo);
+                            collback('FIN_ROUND');
+                            setSegundo(0);
                             localStorage.setItem('segundo', 0);
+                        }else{
+                            setSegundo(0);
                         }
                         return tiempoMaximo;
                     }
@@ -44,6 +54,7 @@ function RelojKirugui({ valor, conf, tipo, collback, doble }) {
 
         return () => clearInterval(intervalo);
     }, [valor.isPlay, valor.reset, tipo, tiempoMaximo]);
+
 
     // 4. Modificar reloj manualmente
     const modificarReloj = (nuevoSeg) => {
@@ -61,7 +72,7 @@ function RelojKirugui({ valor, conf, tipo, collback, doble }) {
                     <i className="fa-solid fa-circle-minus fa-2xl"></i>
                 </button>
             )}
-            
+
             <div className='text-center text-light fw-bold m-0 p-0 lh-1 my-auto'>
                 {formatearTiempo(tiempoRestante)}
             </div>
