@@ -83,7 +83,7 @@ function PrincipalListaSinPelea() {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json;charset=utf-8',
             },
-            body: JSON.stringify({ idcampeonato: info.idcampeonato, genero })
+            body: JSON.stringify({ idcampeonato: info.idcampeonato, genero,tipo:tipo })
         })
             .then(res => res.json())
             .then(data => {
