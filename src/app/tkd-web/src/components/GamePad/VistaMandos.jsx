@@ -13,7 +13,7 @@ function VistaMandos(props) {
         shouldReconnect: () => true,
         enabled: !!serverIo,
         onOpen: () => {
-            sendJsonMessage({ type: 'IDENTIFY', area: '0C', role: 'SCREEN' });
+            sendJsonMessage({ type: 'IDENTIFY', area: areaname+'C', role: 'SCREEN' });
         }
     })
     function getDibujo(valor) {

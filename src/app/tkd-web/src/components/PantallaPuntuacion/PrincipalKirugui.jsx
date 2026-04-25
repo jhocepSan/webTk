@@ -222,7 +222,7 @@ function PrincipalKirugui(props) {
         });
         return [rep_max, elem_max]
     }
-    function lecturadeDatos(datos) {
+    /*function lecturadeDatos(datos) {
         if (puntoJuego.isPlay) {
             var cont = parseInt(localStorage.getItem('contAux'));
             if (cont < parseInt(configure.esperaTime)) {
@@ -258,6 +258,53 @@ function PrincipalKirugui(props) {
                 }
             } else {
                 localStorage.setItem('contAux', 0);
+            }
+        }
+    }*/
+    function lecturadeDatos(datos) {
+        const [repeticiones, valorPunto] = datos; // Desestructuración para claridad [2, 'P']
+
+        if (puntoJuego.isPlay && valorPunto !== '') {
+            const minJueces = parseInt(configure.maxJueces);
+
+            if (repeticiones >= minJueces) {
+                // 1. CREAR UNA COPIA NUEVA DEL OBJETO (Inmutabilidad)
+                let nuevoPunto = { ...puntoJuego };
+                const valorASumar = parseInt(mapPuntos[valorPunto] || 0);
+
+                // 2. Actualizar la copia
+                if (['d', 'D', 'P', 'c', 'C'].includes(valorPunto)) {
+                    nuevoPunto.puntoA += valorASumar;
+                } else {
+                    nuevoPunto.puntoR += valorASumar;
+                }
+
+                // Lógica de ganador
+                let gano = '';
+                if (configure.enableDif) {
+                    const diff = nuevoPunto.puntoA - nuevoPunto.puntoR;
+                    const diffMax = parseInt(configure.diffPuntos);
+
+                    if (diff > diffMax) {
+                        gano = 'A';
+                        nuevoPunto.isPlay = false;
+                        hayGanador('A');
+                    } else if (diff < -diffMax) {
+                        gano = 'R';
+                        nuevoPunto.isPlay = false;
+                        hayGanador('R');
+                    }
+                }
+
+                // 3. ACTUALIZAR ESTADO Y LOCALSTORAGE CON LA COPIA
+                setPuntoJuego(nuevoPunto);
+                localStorage.setItem('contAux', 0);
+                localStorage.setItem('doblePant', JSON.stringify({
+                    ...nuevoPunto,
+                    nombreA,
+                    nombreR,
+                    gano
+                }));
             }
         }
     }
@@ -533,7 +580,7 @@ function PrincipalKirugui(props) {
                                     Round {puntoJuego.round}<br></br>AREA {idArea == 0 ? '?' : idArea}
                                 </div>
                                 <div className='text-center my-auto mx-1 mx-auto' style={{ fontSize: '45px', width: '230px' }} >
-                                    <RelojKirugui valor={puntoJuego} conf={configure} tipo='r' collback={() => ''} doble={false} />
+                                    <RelojKirugui valor={puntoJuego} conf={configure} tipo='r' collback={() => {calcularResultado()}} doble={false} />
                                 </div>
                                 <div className='text-center my-auto mx-1 mx-auto' style={{ fontSize: '45px', width: '230px' }} >
                                     {puntoJuego.isPlay == false &&
