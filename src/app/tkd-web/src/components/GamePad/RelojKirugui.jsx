@@ -73,7 +73,7 @@ function RelojKirugui({ valor, conf, tipo, collback, doble }) {
                 </button>
             )}
 
-            <div className='text-center text-light fw-bold m-0 p-0 lh-1 my-auto'>
+            <div className='text-center text-light fw-bold m-0 p-0 lh-1 my-auto' onClick={()=>{formatearTiempo(tiempoMaximo);setSegundo(0)}}>
                 {formatearTiempo(tiempoRestante)}
             </div>
 

@@ -44,7 +44,7 @@ function PrincipalPuntPoomse() {
       }
     }
   });
-
+  const [listaAux,setListaAux] = useState([]);
   function elegirCompetidor(dato) {
     console.log(dato);
     setSelectComp(dato.competidor)
@@ -107,6 +107,16 @@ function PrincipalPuntPoomse() {
     setPuntoLeido({});
     setHistorialPuntos([]);
   }
+
+  const agregarPuntacion=(valor)=>{
+    var existeVal = listaAux.filter(item=>item.player==valor);
+    if (existeVal.length()!=0){
+      listaAux.push({'player':val,'punto':[puntuacion],'promedio':})
+    }else{
+      listaAux.push({'player':val,'punto':[puntuacion],'promedio':})
+    }
+  }
+
   function sacarPromedio(lista) {
     var sumatoria = lista.reduce(function (acumulador, siguienteValor) {
       return acumulador + siguienteValor;
@@ -324,7 +334,7 @@ function PrincipalPuntPoomse() {
                       <div className="fs-2 text-light fw-bold">{selectComp.nombres + ' ' + selectComp.apellidos}</div>
                       <div className="fs-5 text-light fw-bold">{selectComp.club} - {selectItem.categoria} / {selectItem.nombre} / {selectItem.genero == 'M' ? 'Masculino' : 'Femenino'}</div>
                     </div>}
-                  <div className='col-md-4 col-lg-4 col-sm-12'>
+                  <div className='col-md-12 col-lg-12 col-sm-12'>
                     <div className="input-group mb-3">
                       <button className='btn btn-sm btn-transparent text-light fw-bold'
                         title='Guardar Punto, y seguir puntuando'
@@ -341,6 +351,18 @@ function PrincipalPuntPoomse() {
                         onChange={(e) => setPuntuacion(e.target.value)} />
                       <button className='btn btn-success btn-sm' onClick={() => recetearValores(1)}>
                         Guardar
+                      </button>
+                      <button className='btn btn-dark bg-gradient' onClick={()=>agregarPuntacion(1)}>
+                        1er
+                      </button>
+                      <button className='btn btn-dark bg-gradient' onClick={()=>agregarPuntacion(2)}>
+                        2do
+                      </button>
+                      <button className='btn btn-dark bg-gradient' onClick={()=>agregarPuntacion(3)}>
+                        3er
+                      </button>
+                      <button className='btn btn-dark bg-gradient' onClick={()=>agregarPuntacion(4)}>
+                        4to
                       </button>
                     </div>
                   </div>

@@ -35,6 +35,7 @@ function PrincipalTesting() {
     const [msgModal, setMsgModal] = useState({});
     const [resultPre, setResultPre] = useState([]);
     const [mandoLec, setMandoLec] = useState([]);
+    const [actualizar,setActualizar] = useState(false);
     /*const { isLoading, data, isError, error } = useQuery(
         {
             queryKey: ['mandos'],
@@ -129,6 +130,7 @@ function PrincipalTesting() {
             }
         }
     }
+
     function calcularResultado() {
         ejecutarJuego(false);
         if (configure.enableMaxRound) {
@@ -367,6 +369,9 @@ function PrincipalTesting() {
             document.getElementById('btnSumMin').click()
         }
     };
+    useEffect(()=>{
+        calcularResultado()
+    },[actualizar])
     useEffect(() => {
         //setCargador(true);
         localStorage.setItem("contAux", 0);
@@ -444,7 +449,7 @@ function PrincipalTesting() {
                                     Round {puntoJuego.round}
                                 </div>
                                 <div className='text-center mx-1' style={{ fontSize: '45px', width: '230px' }} >
-                                    <RelojKirugui valor={puntoJuego} conf={configure} tipo='r' collback={() => {setPuntoJuego({ ...puntoJuego,  });calcularResultado()}} doble={false} />
+                                    <RelojKirugui valor={puntoJuego} conf={configure} tipo='r' collback={() => {setActualizar(!actualizar)}} doble={false} />
                                 </div>
                                 <div className='text-center mx-1' style={{ fontSize: '45px', width: '230px' }} >
                                     {puntoJuego.isPlay == false && <RelojKirugui valor={puntoJuego} conf={configure} tipo='s' collback={() => ''} doble={false} />}
