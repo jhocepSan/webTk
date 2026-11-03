@@ -1,5 +1,5 @@
 import {DB_HOST,DB_NAME,DB_PASSWORD,
-DB_PORT,DB_USER,NAME_SERVER} from './configDeploy.js'
+DB_PORT,DB_USER,NAME_SERVER,BOT_TOKEN,CHAT_ID} from './configDeploy.js'
 export const configuraciones = {
     CONFIGDBRED:{
         user:'vq7v81dtac95ini7cia5',
@@ -25,4 +25,6 @@ export const configuraciones = {
     },
     NOMBREAPP:"SISTEMA TKD V.1",
     NAMEPUBLIC:NAME_SERVER,
+    BOT_TOKEN:BOT_TOKEN,
+    CHAT_ID:CHAT_ID
 }

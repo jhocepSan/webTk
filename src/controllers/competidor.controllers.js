@@ -1,9 +1,8 @@
 import { pool } from '../utils/connection.js'
-
+import TelegramReport from '../utils/telegramMsg.js';
 export const guardarRompimientoPuntos = async (info) => {
     var conn;
     try {
-        console.log(info);
         conn = await pool.getConnection();
         var datoOrdenado = info.competidores.sort((a, b) => b.rompio - a.rompio);
         var position = 1;
@@ -16,7 +15,11 @@ export const guardarRompimientoPuntos = async (info) => {
         }
         return { 'ok': 'Guardado la Puntuación' }
     } catch (error) {
-        console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -34,21 +37,25 @@ export const addEditCompetidor = async (info) => {
             const [result] = await conn.query(`INSERT INTO competidor (nombres,apellidos,fecha,edad,peso,ci,
                 idclub,idcinturon,idcampeonato,tipo,idgrado,genero,altura,idtipocompetencia,idadjunto) 
                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);`,
-                [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado, info.genero, info.altura, tipoComt,info.idAdjunto])
+                [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado, info.genero, info.altura, tipoComt, info.idAdjunto])
             await conn.commit()
             return { "ok": "GUARDADO" }
         } else {
             const [result] = await conn.query(`UPDATE competidor SET nombres=?,apellidos=?,fecha=?,
                 edad=?,peso=?,ci=?,idclub=?,idcinturon=?,idcampeonato=?,tipo=?,idgrado=?,genero=?,altura=?,
                 idtipocompetencia=?,idadjunto=? WHERE idcompetidor=?;`,
-                [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser, 
+                [info.nombres, info.apellidos, info.fecha, info.edad, info.peso, info.ciUser,
                 info.idClub, info.cinturon, info.idCampeonato, info.tipos, info.idGrado, info.genero,
-                 info.altura, tipoComt,info.idAdjunto,info.idCompetidor])
+                info.altura, tipoComt, info.idAdjunto, info.idCompetidor])
             await conn.commit()
             return { "ok": "ACTUALIZANDO" }
         }
     } catch (error) {
-        console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -71,7 +78,11 @@ export const addEditEquipo = async (info) => {
             return { "ok": "ACTUALIZANDO" }
         }
     } catch (error) {
-        console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -88,6 +99,11 @@ export const getEquipoDemostration = async (info) => {
         return { "ok": result }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -104,15 +120,20 @@ export const getCompetidores = async (info) => {
                 FROM competidor c WHERE c.idcampeonato=? and (0=? or c.idclub=?) and c.tipo=? 
                 and c.genero=? and c.estado!="E";`
             const [result] = await conn.query(sql,
-                [info.idCampeonato, info.club, info.club,info.tipo, info.genero])
+                [info.idCampeonato, info.club, info.club, info.tipo, info.genero])
             return { "ok": result }
         } else {
             const [result] = await conn.query('SELECT * from equipo where idcampeonato=? and (0=? or idclub=?) and estado!="E";',
-                [info.idCampeonato, info.club,info.club])
+                [info.idCampeonato, info.club, info.club])
             return { "ok": result }
         }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -128,6 +149,11 @@ export const deleteEquipo = async (info) => {
         return { "ok": result }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -143,6 +169,11 @@ export const deleteCompetidor = async (info) => {
         return { "ok": result }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -158,6 +189,11 @@ export const deleteCompetidorSP = async (info) => {
         return { "ok": result }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -185,6 +221,11 @@ export const getCompetidorClasificado = async (info) => {
         return { "ok": result }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -224,19 +265,24 @@ export const getCompetidorClasificadoLista = async (info) => {
     try {
         conn = await pool.getConnection();
         const [result] = await conn.query(sql,
-            [info.idCampeonato, info.tipo, info.genero, info.idClub, info.idClub,info.tipo])
-        var sqlf=''
-        if (info.tipo=='C'){
-            sqlf=sql3;
-        }else{
-            sqlf=sql6;
+            [info.idCampeonato, info.tipo, info.genero, info.idClub, info.idClub, info.tipo])
+        var sqlf = ''
+        if (info.tipo == 'C') {
+            sqlf = sql3;
+        } else {
+            sqlf = sql6;
         }
-        const [hayLlave] = await conn.query(sqlf,[info.idCampeonato,info.tipo,info.genero])
+        const [hayLlave] = await conn.query(sqlf, [info.idCampeonato, info.tipo, info.genero])
         await conn.query(sql4)
-        await conn.query(sql5,[info.idCampeonato])
-        return { "ok": {'lista':result,'hayLlave':hayLlave} }
+        await conn.query(sql5, [info.idCampeonato])
+        return { "ok": { 'lista': result, 'hayLlave': hayLlave } }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -273,6 +319,11 @@ export const getCompetidorSinPelea = async (info) => {
         return { "ok": result }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -312,6 +363,11 @@ export const getCompetidoresFestival = async (info) => {
         return { "ok": result }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -341,52 +397,104 @@ const getCompetidorClasificados = async (info) => {
             and c.idgrado=? )res left join subcategoria subcate on res.idcategoria=subcate.idcategoria
             where (res.peso+0.001)>=subcate.pesoini and (res.peso-0.001)<=subcate.pesofin
             and res.idcategoria=? and subcate.idsubcategoria=?;`;
+    var sql2 = `SELECT 
+            c.*,
+            cat.idcategoria,
+            cat.nombre AS nombrecategoria,
+            cat.edadini,
+            cat.edadfin,
+            cl.nombre AS club, 
+            cin.nombre AS cinturon, 
+            gr.nombre AS grado,
+            subcate.idsubcategoria,
+            subcate.pesoini,
+            subcate.pesofin,
+            subcate.nombre AS nombresubcategoria
+        FROM competidor c
+        -- JOINs directos para evitar subconsultas lentas
+        LEFT JOIN club cl ON cl.idclub = c.idclub
+        LEFT JOIN cinturon cin ON cin.idcinturon = c.idcinturon
+        LEFT JOIN grado gr ON gr.idgrado = cin.idgrado
+        -- Relación y filtros de categoría
+        LEFT JOIN categoria cat ON cat.idcategoria = ?
+        -- Relación y filtros de subcategoría
+        INNER JOIN subcategoria subcate ON subcate.idcategoria = cat.idcategoria 
+            AND subcate.idsubcategoria = ?
+        WHERE 
+            -- Filtros del competidor
+            c.idcampeonato = ? 
+            AND c.tipo = ? 
+            AND c.genero = ? 
+            AND c.estado = 'A' 
+            AND c.idgrado = ?
+            -- Rango de Edad inclusivo
+            AND c.edad >= cat.edadini 
+            AND c.edad <= cat.edadfin 
+            AND cat.idcampeonato = c.idcampeonato 
+            AND cat.genero = c.genero
+            -- Rango de Peso EXACTO y CERRADO (Ej: si peso es 30 o 36.9, entra perfectamente)
+            AND c.peso BETWEEN subcate.pesoini AND subcate.pesofin
+        ORDER BY 
+            cat.idcategoria, 
+            subcate.idsubcategoria;
+        `
     var conn;
     try {
         console.log(info)
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql1,
-            [info.idCampeonato, info.tipo, info.genero, info.idgrado, info.idcategoria, info.idsubcategoria])
+        const [result] = await conn.query(sql2,
+            [info.idcategoria, info.idsubcategoria,info.idCampeonato, info.tipo, info.genero, info.idgrado])
+            //[info.idCampeonato, info.tipo, info.genero, info.idgrado, info.idcategoria, info.idsubcategoria])
         return { "ok": result }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
     }
 }
-function getNumLL(numC){
-    if(numC<=4){
+function getNumLL(numC) {
+    if (numC <= 4) {
         return 4
-    }else if (numC>4&&numC<=8){
+    } else if (numC > 4 && numC <= 8) {
         return 8
-    }else if(numC>8&&numC<=16){
+    } else if (numC > 8 && numC <= 16) {
         return 16
-    }else{
+    } else {
         return 32
     }
 }
-const procesarLlave =async(info)=>{
+const procesarLlave = async (info) => {
     var sql = `SELECT idpelea,idllave,idganador,tipo FROM pelea WHERE idganador is not NULL
         AND idllave=? AND tipo=? ORDER BY idpelea;`
     var sql1 = 'INSERT INTO pelea (idllave,idcompetidor1,idcompetidor2,nropelea,idganador,tipo) VALUES (?,?,?,?,?,?);'
     var conn;
     try {
         conn = await pool.getConnection();
-        var [result]= await conn.query(sql,[info.idllave,info.nivel]);
-        if(result.length>1){
-            for (var i=0 ;i<result.length;i+=2){
-                if(Math.abs(result[i].idpelea-result[i+1].idpelea)==1){
-                    await conn.query(sql1,[info.idllave,result[i].idganador,result[i+1].idganador,0,null,info.nivel+1])
+        var [result] = await conn.query(sql, [info.idllave, info.nivel]);
+        if (result.length > 1) {
+            for (var i = 0; i < result.length; i += 2) {
+                if (Math.abs(result[i].idpelea - result[i + 1].idpelea) == 1) {
+                    await conn.query(sql1, [info.idllave, result[i].idganador, result[i + 1].idganador, 0, null, info.nivel + 1])
                     await conn.commit()
                 }
             }
         }
-        return {'ok':"okey "}
+        return { 'ok': "okey " }
     } catch (error) {
         await conn.rollback()
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
-    }finally {
+    } finally {
         if (conn) { await conn.release(); }
     }
 }
@@ -396,34 +504,39 @@ const generarPelea = async (info) => {
     try {
         var competidores = info.COMPETIDORES.sort(function (a, b) { return (Math.random() - 0.5) })
         var numCmp = competidores.length;
-        var listaId = competidores.map((item)=>item.idcompetidor);
+        var listaId = competidores.map((item) => item.idcompetidor);
         conn = await pool.getConnection();
-        if(listaId.length!=2){
-            var nBy = getNumLL(numCmp)-numCmp;
-            for (let i=0 ;i <nBy;i++){
-                if(i%2==0){
-                    listaId=[0].concat(listaId);
-                }else{
+        if (listaId.length != 2) {
+            var nBy = getNumLL(numCmp) - numCmp;
+            for (let i = 0; i < nBy; i++) {
+                if (i % 2 == 0) {
+                    listaId = [0].concat(listaId);
+                } else {
                     listaId.push(0);
-                }   
+                }
             }
         }
         for (let i = 0; i < listaId.length; i += 2) {
-            var idGanador=null;
-            if(listaId[i]==0){
-                idGanador=listaId[i+1];
-            }else if(listaId[i+1]==0){
-                idGanador=listaId[i];
-            }else if(listaId[i]==0 && listaId[i+1]){
-                idGanador=0;
+            var idGanador = null;
+            if (listaId[i] == 0) {
+                idGanador = listaId[i + 1];
+            } else if (listaId[i + 1] == 0) {
+                idGanador = listaId[i];
+            } else if (listaId[i] == 0 && listaId[i + 1]) {
+                idGanador = 0;
             }
-            const [result] = await conn.query(sql, [info.idllave, listaId[i], listaId[i + 1], 0,idGanador]);
+            const [result] = await conn.query(sql, [info.idllave, listaId[i], listaId[i + 1], 0, idGanador]);
             await conn.commit();
         }
-        await procesarLlave({'idllave':info.idllave,'nivel':0})
+        await procesarLlave({ 'idllave': info.idllave, 'nivel': 0 })
         return { "ok": "generado" }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -454,7 +567,7 @@ export const generarLlaveRompimientoFestival = async (info) => {
         var ordenP = 1;
         for (var grado of result) {
             for (var cat of info.categorias) {
-                var [competidores] = await conn.query(sql3, [info.idCampeonato, info.tipo,info.genero,grado.idgrado,cat.idcategoria]);
+                var [competidores] = await conn.query(sql3, [info.idCampeonato, info.tipo, info.genero, grado.idgrado, cat.idcategoria]);
                 if (competidores.length !== 0) {
                     competidores.sort(function (a, b) { return (Math.random() - 0.5) });
                     for (var tipoc of listaTipos) {
@@ -467,7 +580,7 @@ export const generarLlaveRompimientoFestival = async (info) => {
                             }
                         });
                         for (var fl of filtrado) {
-                            await conn.query(sql2, [fl.idcompetidor, fl.tipo, fl.idgrado, fl.idcategoria,0, fl.idcampeonato, fl.genero, tipoc.idtipo, ordenP]);
+                            await conn.query(sql2, [fl.idcompetidor, fl.tipo, fl.idgrado, fl.idcategoria, 0, fl.idcampeonato, fl.genero, tipoc.idtipo, ordenP]);
                             ordenP += 1;
                         }
                     }
@@ -477,6 +590,11 @@ export const generarLlaveRompimientoFestival = async (info) => {
         return { "ok": "Clasificación Correcta !" }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         await conn.rollback();
         return { "error": error.message }
     } finally {
@@ -531,6 +649,11 @@ export const generarLlaveRompimiento = async (info) => {
         return { "ok": "Clasificación Correcta !" }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         await conn.rollback();
         return { "error": error.message }
     } finally {
@@ -586,6 +709,11 @@ export const generateLLaves = async (info) => {
         return { "ok": "Generado llaves correctamente" }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -620,6 +748,11 @@ export const generateLLaveManual = async (info) => {
         return { "ok": "generado" }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -654,6 +787,11 @@ export const generateLLaveManualFestival = async (info) => {
         return { "ok": "generado" }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -698,6 +836,11 @@ export const generarLlavePoomse = async (info) => {
         return { "ok": "Generado llaves correctamente" }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release() }
@@ -723,6 +866,11 @@ export const obtenerLlaveRompimineto = async (info) => {
         return { "ok": result }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release() }
@@ -737,7 +885,7 @@ export const obtenerLlaves = async (info) => {
         'INNER JOIN subcategoria scat on scat.idsubcategoria=lv.idsubcategoria ' +
         'WHERE lv.tipo=? and lv.idcampeonato=? and lv.estado="A" and cat.idcategoria=? ' +
         'UNION SELECT idllave,fecha,tipo,idgrado,genero,idcategoria,idsubcategoria,idcampeonato,estado,0,"EXHIBICIÓN","EXHIBICIÓN","EXHIBICIÓN",1,1,1,1 FROM llave where idgrado=-1 and tipo=? and idcampeonato=? and estado="A" )res order by res.idllave,res.genero ;';
-    var sql =`SELECT lv.idllave,lv.fecha,lv.tipo,lv.genero,lv.idcategoria,lv.idsubcategoria,lv.idgrado,
+    var sql = `SELECT lv.idllave,lv.fecha,lv.tipo,lv.genero,lv.idcategoria,lv.idsubcategoria,lv.idgrado,
         lv.estado,lv.area,cat.nombre AS nombrecategoria,cat.edadini,cat.edadfin,grad.nombre AS nombregrado,
         subcat.nombre AS nombresubcategoria,subcat.pesoini,subcat.pesofin
         FROM llave lv 
@@ -791,20 +939,25 @@ export const obtenerLlaves = async (info) => {
         conn = await pool.getConnection();
         //const [result] = await conn.query(sql, [info.tipo, info.idCampeonato,info.idCategoria, info.tipo, info.idCampeonato]);
         const [result] = await conn.query(sql, [info.idCampeonato, info.idCampeonato,
-            info.idCampeonato,info.idCampeonato,info.idCategoria,info.idCategoria, info.tipo]);
+        info.idCampeonato, info.idCampeonato, info.idCategoria, info.idCategoria, info.tipo]);
         var resultado = []
         for (var llaves of result) {
-            if(llaves.idcategoria==-1){
+            if (llaves.idcategoria == -1) {
                 const [result] = await conn.query(sql2, [llaves.idllave]);
                 resultado.push({ ...llaves, "PELEAS": result })
-            }else{
-                const [result] = await conn.query(sql4, [info.idCampeonato,info.idCampeonato,llaves.idllave])   
+            } else {
+                const [result] = await conn.query(sql4, [info.idCampeonato, info.idCampeonato, llaves.idllave])
                 resultado.push({ ...llaves, "PELEAS": result })
             }
         }
         return { "ok": resultado }
     } catch (error) {
         console.log(error)
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release() }
@@ -827,11 +980,16 @@ export const obtenerLlavesManuales = async (info) => {
         var resultado = []
         for (var llaves of result) {
             const [result] = await conn.query(sql2, [llaves.idllave])
-            resultado.push({ ...llaves, "PELEAS": result})
+            resultado.push({ ...llaves, "PELEAS": result })
         }
         return { "ok": resultado }
     } catch (error) {
         console.log(error)
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release() }
@@ -839,27 +997,63 @@ export const obtenerLlavesManuales = async (info) => {
 }
 
 export const buscarCompetidor = async (info) => {
-    var sql = 'SELECT * FROM (SELECT *,(select nombre from club where idclub=c.idclub) as club, ' +
-        '(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, ' +
-        '(SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, ' +
-        '(select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin ' +
-        'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato limit 1) as idcategoria, ' +
-        '(select cate.nombre from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin ' +
-        'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato limit 1) as nombrecategoria, ' +
-        '(select subcate.idsubcategoria from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
-        'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as idsubcategoria, ' +
-        '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
-        'where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria, ' +
-        "(concat_ws(' ', nombres, apellidos)) as nombrex " +
-        "FROM competidor c ) as res where res.nombrex like '%" + info.competidor + "%' order by res.idcampeonato desc";
+    const sql = `
+        SELECT * FROM (
+            SELECT 
+                c.*,
+                cl.nombre AS club,
+                cin.nombre AS cinturon,
+                gr.nombre AS grado,
+                cate.idcategoria,
+                cate.nombre AS nombrecategoria,
+                subcate.idsubcategoria,
+                subcate.nombre AS nombresubcategoria,
+                CONCAT_WS(' ', c.nombres, c.apellidos) AS nombrex,
+                ROW_NUMBER() OVER(
+                    PARTITION BY CONCAT_WS(' ', c.nombres, c.apellidos) 
+                    ORDER BY c.idcampeonato DESC
+                ) as fila_num
+            FROM competidor c 
+            LEFT JOIN club cl ON cl.idclub = c.idclub
+            LEFT JOIN cinturon cin ON cin.idcinturon = c.idcinturon
+            LEFT JOIN grado gr ON gr.idgrado = cin.idgrado
+            LEFT JOIN categoria cate ON c.idcampeonato = cate.idcampeonato 
+                AND c.genero = cate.genero 
+                AND c.edad >= cate.edadini 
+                AND c.edad <= cate.edadfin
+            LEFT JOIN subcategoria subcate ON subcate.idcategoria = cate.idcategoria 
+                AND c.peso >= subcate.pesoini 
+                AND c.peso <= subcate.pesofin
+        ) as res 
+        WHERE res.nombrex LIKE '%${info.competidor}%' AND res.fila_num = 1 AND (0=${info.club} OR res.idclub=${info.club})
+        ORDER BY res.idcampeonato DESC;
+        `;
+
+    `SELECT * FROM (SELECT *,(select nombre from club where idclub=c.idclub) as club, 
+        (select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, 
+        (SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, 
+        (select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin 
+        and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato limit 1) as idcategoria, 
+        (select cate.nombre from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin 
+        and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato limit 1) as nombrecategoria, 
+        (select subcate.idsubcategoria from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria 
+        where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as idsubcategoria, 
+        (select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria 
+        where c.peso>=subcate.pesoini and c.peso<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria, 
+        (concat_ws(' ', nombres, apellidos)) as nombrex 
+        FROM competidor c ) as res where res.nombrex like '%""" += info.competidor + "%' order by res.idcampeonato desc";`
     var conn;
     try {
-        console.log(sql);
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql, [info.club,info.club])
+        const [result] = await conn.query(sql, [info.club, info.club])
         return { "ok": result }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -877,6 +1071,11 @@ export const cambiarNumPelea = async (info) => {
         return { "ok": "Se cambio el numero de pelea ..." }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -893,6 +1092,11 @@ export const cambiarAreaLlave = async (info) => {
         return { "ok": "Se cambio el numero de llave ..." }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -913,16 +1117,21 @@ export const obtenerDatosPuntuados = async (info) => {
         return { "ok": { "FP": resultP, "FC": resultC, 'SNP': resultSN } }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
     }
 }
-export const obtenerDatosPuntuadosR = async (info)=>{
-    var sql = "select res.*,(select nombre from club where idclub=res.idclub) as nombre from( "+
-        "select cl.posicion,sum(posicion) as total , cm.idclub "+
-        "from clasificacion cl inner join competidor cm on cm.idcompetidor=cl.idcompetidor where cl.estado='C' and cl.idcampeonato=? and cl.tipo=? "+
-        "and cl.idtipocompetencia in (select idtipo from tiposcampeonato where estado='A' and tipo='R' and idcampeonato=cl.idcampeonato ) "+
+export const obtenerDatosPuntuadosR = async (info) => {
+    var sql = "select res.*,(select nombre from club where idclub=res.idclub) as nombre from( " +
+        "select cl.posicion,sum(posicion) as total , cm.idclub " +
+        "from clasificacion cl inner join competidor cm on cm.idcompetidor=cl.idcompetidor where cl.estado='C' and cl.idcampeonato=? and cl.tipo=? " +
+        "and cl.idtipocompetencia in (select idtipo from tiposcampeonato where estado='A' and tipo='R' and idcampeonato=cl.idcampeonato ) " +
         "group by cm.idclub,cl.posicion order by cl.posicion asc)res;"
     var conn;
     try {
@@ -931,6 +1140,11 @@ export const obtenerDatosPuntuadosR = async (info)=>{
         return { "ok": resultP }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release(); }
@@ -950,37 +1164,47 @@ export const getInformacionRompimiento = async (info) => {
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql, [info.idCampeonato,info.estado,info.tipo]);
+        const [result] = await conn.query(sql, [info.idCampeonato, info.estado, info.tipo]);
         return { "ok": result }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release() }
     }
 }
-export const setPosition = async (info)=>{
+export const setPosition = async (info) => {
     console.log(info);
     var sql = "update clasificacion set posicion=? where estado='C' and idclasificacion=?;";
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql, [info.valor,info.idclasificacion]);
+        const [result] = await conn.query(sql, [info.valor, info.idclasificacion]);
         return { "ok": "Guardado" }
     } catch (error) {
         console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
     } finally {
         if (conn) { await conn.release() }
     }
 }
-export const eliminarPuntuacion = async (info)=>{
+export const eliminarPuntuacion = async (info) => {
     console.log(info);
     var sql = "update clasificacion set estado=? where idclasificacion=?;";
     var conn;
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql, [info.estado,info.selectCompetidor.idclasificacion]);
+        const [result] = await conn.query(sql, [info.estado, info.selectCompetidor.idclasificacion]);
         return { "ok": "Eliminado" }
     } catch (error) {
         console.log(error);
@@ -990,75 +1214,95 @@ export const eliminarPuntuacion = async (info)=>{
     }
 }
 
-export const eliminarLlavesGeneradas = async(info)=>{
+export const eliminarLlavesGeneradas = async (info) => {
     var conn;
     var sql = "update llave set estado='E' where idcampeonato=? and tipo=?;"
     var sql2 = "update competidorsinpelea set estado='E' where idcampeonato=? and tipo=?;"
     try {
         conn = await pool.getConnection();
-        await conn.query(sql,[info.idcampeonato,info.tipo]);
-        await conn.query(sql2,[info.idcampeonato,info.tipo]);
+        await conn.query(sql, [info.idcampeonato, info.tipo]);
+        await conn.query(sql2, [info.idcampeonato, info.tipo]);
         await conn.commit();
-        return {'ok':"Eliminacion Correcta"}
+        return { 'ok': "Eliminacion Correcta" }
     } catch (error) {
         console.log(error);
-        return {"error":error.message}
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
+        return { "error": error.message }
     } finally {
-        if (conn) {await conn.release()}
+        if (conn) { await conn.release() }
     }
 }
-export const eliminarLlaveManual = async(info)=>{
+export const eliminarLlaveManual = async (info) => {
     var conn;
     var sql = "update llave set estado='E' where idcampeonato=? and idllave=?;"
     var sql2 = "update competidorsinpelea set estado='A' where idcampeonato=? and tipo=? and idcompetidor=?;"
     try {
         conn = await pool.getConnection();
-        await conn.query(sql,[info.idcampeonato,info.idllave]);
-        for (var i of info.idCompetidor){
-            await conn.query(sql2,[info.idcampeonato,info.tipo,i]);
+        await conn.query(sql, [info.idcampeonato, info.idllave]);
+        for (var i of info.idCompetidor) {
+            await conn.query(sql2, [info.idcampeonato, info.tipo, i]);
         }
         await conn.commit();
-        return {'ok':"Eliminacion Correcta"}
+        return { 'ok': "Eliminacion Correcta" }
     } catch (error) {
         console.log(error);
-        return {"error":error.message}
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
+        return { "error": error.message }
     } finally {
-        if (conn) {await conn.release()}
+        if (conn) { await conn.release() }
     }
 }
-export const addSeguimientoPelea = async(info)=>{
+export const addSeguimientoPelea = async (info) => {
     var conn;
     var sql = `INSERT INTO pelea_seguimiento (idpelea,puntouno,faltasuno,puntodos,faltasdos,numround)
         VALUES (?,?,?,?,?,?);`
     try {
         conn = await pool.getConnection();
-        await conn.query(sql,[info.idpelea,info.puntoA,info.faltaA,
-            info.puntoR,info.faltaR,info.round]);
+        await conn.query(sql, [info.idpelea, info.puntoA, info.faltaA,
+        info.puntoR, info.faltaR, info.round]);
         await conn.commit();
-        return {'ok':"Guardado ..."}
+        return { 'ok': "Guardado ..." }
     } catch (error) {
         console.log(error);
         await conn.rollback();
-        return {"error":error.message}
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
+        return { "error": error.message }
     } finally {
-        if (conn) {await conn.release()}
+        if (conn) { await conn.release() }
     }
 }
-export const getSeguimientoPelea = async(info)=>{
+export const getSeguimientoPelea = async (info) => {
     var conn;
     var sql = `SELECT * FROM pelea_seguimiento WHERE idpelea=?;`
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql,[info.idpelea]);
-        return {'ok':result}
+        const [result] = await conn.query(sql, [info.idpelea]);
+        return { 'ok': result }
     } catch (error) {
         console.log(error);
-        return {"error":error.message}
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
+        return { "error": error.message }
     } finally {
-        if (conn) {await conn.release()}
+        if (conn) { await conn.release() }
     }
 }
-const procesarLlaveAuto =async(info)=>{
+const procesarLlaveAuto = async (info) => {
     var sql = `SELECT idpelea,idllave,idganador,tipo FROM pelea WHERE idganador is not NULL
         AND idllave=? AND tipo=? ORDER BY idpelea;`
     var sql1 = 'INSERT INTO pelea (idllave,idcompetidor1,idcompetidor2,nropelea,idganador,tipo) VALUES (?,?,?,?,?,?);'
@@ -1066,50 +1310,60 @@ const procesarLlaveAuto =async(info)=>{
     var conn;
     try {
         conn = await pool.getConnection();
-        var [result]= await conn.query(sql,[info.idllave,info.nivel]);
-        if(result.length>1){
-            for (var i=0 ;i<result.length;i+=2){
-                if(i<result.length-1){
-                    var [hayPelea] = await conn.query(sql2,[info.idllave,result[i].idganador,result[i].idganador,info.nivel+1]);
-                    if (hayPelea.length==0){
-                        var idganador=null;
-                        if(result[i].idganador==0){
-                            idganador=result[i+1].idganador
-                        }else if(result[i+1].idganador==0){
-                            idganador=result[i].idganador
+        var [result] = await conn.query(sql, [info.idllave, info.nivel]);
+        if (result.length > 1) {
+            for (var i = 0; i < result.length; i += 2) {
+                if (i < result.length - 1) {
+                    var [hayPelea] = await conn.query(sql2, [info.idllave, result[i].idganador, result[i].idganador, info.nivel + 1]);
+                    if (hayPelea.length == 0) {
+                        var idganador = null;
+                        if (result[i].idganador == 0) {
+                            idganador = result[i + 1].idganador
+                        } else if (result[i + 1].idganador == 0) {
+                            idganador = result[i].idganador
                         }
-                        await conn.query(sql1,[info.idllave,result[i].idganador,result[i+1].idganador,0,idganador,info.nivel+1])
+                        await conn.query(sql1, [info.idllave, result[i].idganador, result[i + 1].idganador, 0, idganador, info.nivel + 1])
                         await conn.commit()
                     }
                 }
             }
         }
-        return {'ok':"okey "}
+        return { 'ok': "okey " }
     } catch (error) {
         await conn.rollback()
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
         return { "error": error.message }
-    }finally {
+    } finally {
         if (conn) { await conn.release(); }
     }
 }
-export const saveFinalResultPelea = async (info)=>{
+export const saveFinalResultPelea = async (info) => {
     var conn;
-    var sql= `UPDATE pelea SET idganador=?,idperdedor=? WHERE idpelea=? AND idllave=?;`
+    var sql = `UPDATE pelea SET idganador=?,idperdedor=? WHERE idpelea=? AND idllave=?;`
     try {
         conn = await pool.getConnection();
-        const [result] = await conn.query(sql,[info.idganador,info.idperdedor,info.idpelea,info.idllave]);
+        const [result] = await conn.query(sql, [info.idganador, info.idperdedor, info.idpelea, info.idllave]);
         await conn.commit();
         var procesado = await procesarLlaveAuto(info);
-        if(procesado.ok){
-            return {'ok':"Correcto"}
-        }else{
+        if (procesado.ok) {
+            return { 'ok': "Correcto" }
+        } else {
             return procesado
         }
     } catch (error) {
         console.log(error);
         await conn.rollback();
-        return {"error":error.message}
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if(error.code || error.errno || error.sqlState){
+            return {"error":"Problemas con la base de datos"}
+        }
+        return { "error": error.message }
     } finally {
-        if (conn) {await conn.release()}
+        if (conn) { await conn.release() }
     }
 }

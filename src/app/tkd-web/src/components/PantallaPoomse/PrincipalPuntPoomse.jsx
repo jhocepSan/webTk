@@ -111,9 +111,9 @@ function PrincipalPuntPoomse() {
   const agregarPuntacion=(valor)=>{
     var existeVal = listaAux.filter(item=>item.player==valor);
     if (existeVal.length()!=0){
-      listaAux.push({'player':val,'punto':[puntuacion],'promedio':})
+      listaAux.push({'player':val,'punto':[puntuacion],'promedio':0})
     }else{
-      listaAux.push({'player':val,'punto':[puntuacion],'promedio':})
+      listaAux.push({'player':val,'punto':[puntuacion],'promedio':0})
     }
   }
 

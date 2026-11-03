@@ -739,7 +739,249 @@ async function exportarTargetaCompetidor(listaCompetidores, tipo) {
     }
 }
 
+/*
+ * Genera un PDF con llaves VACÍAS para rellenar a mano.
+ *
+ *   exportarLlavesVacias(1)      -> 1 pelea  = llave de 2 peleadores
+ *   exportarLlavesVacias(2)      -> 2 peleas = llave de 4 peleadores
+ *   exportarLlavesVacias(4)      -> 4 peleas = llave de 8 peleadores
+ *   exportarLlavesVacias(2, 5)   -> 5 hojas iguales de la llave de 4
+ *
+ * Mantiene la misma geometría, colores (azul / rojo), cuadros "# Llamada",
+ * "Pelea #" y tabla de rounds del generador de llaves original.
+ * Usa jsPDF igual que tu función actual (global o importado).
+ */
+
+const LV_AZUL = [0, 0, 255];
+const LV_ROJO = [255, 0, 0];
+const LV_NEGRO = [0, 0, 0];
+
+// Filas de la tabla de rounds por tamaño de llave (igual que el original).
+// Si quiere una fila por pelea de la llave: { 1: 1, 2: 3, 4: 7 }
+const LV_FILAS_TABLA = { 1: 3, 2: 3, 4: 6 };
+
+function lvColor(doc, c) {
+    doc.setTextColor(c[0], c[1], c[2]);
+    doc.setDrawColor(c[0], c[1], c[2]);
+}
+
+/*
+ * Dibuja una fila de formulario: texto, líneas para escribir y casillas.
+ *   string   -> texto
+ *   número   -> línea de ese largo (mm)
+ *   Infinity -> línea que se reparte el espacio libre hasta xFin
+ *   {caja:n} -> casilla cuadrada de n mm
+ * Devuelve la x final.
+ */
+function lvFila(doc, x, y, partes, xFin = 200, dyLinea = 0.9) {
+    let fijo = 0, elasticos = 0;
+    for (const p of partes) {
+        if (typeof p === 'string') fijo += doc.getTextWidth(p);
+        else if (p === Infinity) elasticos++;
+        else if (typeof p === 'number') fijo += p;
+        else fijo += p.caja;
+    }
+    const libre = elasticos ? Math.max((xFin - x - fijo) / elasticos, 8) : 0;
+    let cx = x;
+    for (const p of partes) {
+        if (typeof p === 'string') {
+            doc.text(p, cx, y);
+            cx += doc.getTextWidth(p);
+        } else if (p === Infinity || typeof p === 'number') {
+            const largo = p === Infinity ? libre : p;
+            doc.line(cx, y + dyLinea, cx + largo, y + dyLinea, 'S');
+            cx += largo;
+        } else {
+            doc.rect(cx, y - p.caja + 0.8, p.caja, p.caja, 'S');
+            cx += p.caja;
+        }
+    }
+    return cx;
+}
+
+function lvEncabezado(doc, x, y, width, numPag) {
+    doc.setFont('helvetica', 'normal');
+    lvColor(doc, LV_NEGRO);
+    doc.setFontSize(12);
+    doc.text(`Pagina: ${numPag}`, (width / 2) - 20, y + 5);
+    lvFila(doc, x, y + 10, ['Categoria: ', 40, '  ->  Edad ', 10, ' - ', 10, ' años']);
+    lvFila(doc, x, y + 15, ['Sub Categoria: ', 40, '  ->  Peso ', 10, ' - ', 10, ' kg']);
+    lvFila(doc, x, y + 20, ['Genero: ', { caja: 4 }, ' M   ', { caja: 4 }, ' F']);
+    lvFila(doc, x + 70, y + 20, ['Grado: ', 50]);
+    doc.setFontSize(17);
+    lvFila(doc, x + 140, y + 20, ['Area: ', 25]);
+    doc.setFontSize(9);
+}
+
+// "# Llamada" + 3 casillas
+function lvLlamada(doc, tx, ty, bx, by, color) {
+    lvColor(doc, color);
+    doc.setFontSize(9);
+    doc.text('# Llamada', tx, ty);
+    for (let i = 0; i < 3; i++) doc.rect(bx + (i * 6), by, 4, 4, 'S');
+}
+
+// Datos a rellenar del competidor: nombre/club, apellidos/grado, edad/peso/altura
+function lvDatos(doc, px, py, xFin, color, finFila1) {
+    lvColor(doc, color);
+    doc.setFontSize(9);
+    if (finFila1 !== undefined) {
+        // la línea del nombre se une con el brazo de la llave (y+7)
+        lvFila(doc, px, py + 5, ['Nombre: ', Infinity], finFila1, 2);
+    } else {
+        lvFila(doc, px, py + 5, ['Nombre: ', Infinity], xFin);
+    }
+    lvFila(doc, px, py + 10, ['Club: ', Infinity, '  Grado: ', Infinity], xFin);
+    lvFila(doc, px, py + 15, ['Edad: ', Infinity, '  Peso: ', Infinity, '  Altura: ', Infinity], xFin);
+}
+
+function lvPelea(doc, px, py, xFin) {
+    lvColor(doc, LV_NEGRO);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(15);
+    lvFila(doc, px, py, ['Pelea #', Infinity], xFin);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+}
+
+// Brazo en forma de corchete + salida de la pelea
+function lvBrazoSuperior(doc, x, y) {
+    lvColor(doc, LV_NEGRO);
+    doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+    doc.line(x + 75, y + 7, x + 75, y + 27, 'S');
+}
+function lvBrazoInferior(doc, x, y) {
+    lvColor(doc, LV_NEGRO);
+    doc.line(x + 75, y - 2, x + 105, y - 2, 'S');
+    doc.line(x + 35, y + 7, x + 75, y + 7, 'S');
+}
+
+// Tabla de rounds (azul / rojo por casilla)
+function lvTabla(doc, x, y, filas) {
+    const header = ['#Pelea', '1 round', '2 round', '3 round', '4 round', 'Ganador'];
+    lvColor(doc, LV_NEGRO);
+    doc.setFontSize(12);
+    for (let i = 0; i < 6; i++) {
+        doc.text(header[i], x + 57 + (i * 20), y + 9);
+        for (let f = 0; f < filas; f++) {
+            doc.setDrawColor(0, 0, 0);
+            doc.rect(x + 55 + (i * 20), y + 10 + (f * 7), 20, 7, 'S');
+            if (i > 0) {
+                doc.setDrawColor(0, 0, 255);
+                doc.rect(x + 55 + (i * 20) + 4, y + 11.5 + (f * 7), 4, 4, 'S');
+                doc.setDrawColor(255, 0, 0);
+                doc.rect(x + 55 + (i * 20) + 12, y + 11.5 + (f * 7), 4, 4, 'S');
+            }
+        }
+    }
+    doc.setDrawColor(0, 0, 0);
+    doc.setFontSize(9);
+}
+
+// Una pelea con los dos competidores a la izquierda (llaves de 4 y 8)
+function lvPeleaIzquierda(doc, x, y, yRojoBox) {
+    // azul
+    lvLlamada(doc, x, y, x + 15, y - 3, LV_AZUL);
+    lvDatos(doc, x, y, x + 70, LV_AZUL, x + 35);
+    lvBrazoSuperior(doc, x, y);
+    lvPelea(doc, x + 40, y + 20, x + 74);
+    y += 20;
+    // rojo
+    lvLlamada(doc, x, y + 19, x + 15, y + yRojoBox, LV_ROJO);
+    lvDatos(doc, x, y, x + 70, LV_ROJO, x + 35);
+    lvBrazoInferior(doc, x, y);
+    return y;
+}
+
+/* ---------- 1 pelea: llave de 2 peleadores ---------- */
+function lvLlave2(doc, x, y) {
+    // azul
+    lvLlamada(doc, x + 85, y, x + 100, y - 3, LV_AZUL);
+    lvDatos(doc, x + 85, y, x + 195, LV_AZUL);
+    lvBrazoSuperior(doc, x, y);
+    y += 20;
+    lvBrazoInferior(doc, x, y);
+    lvPelea(doc, x + 72, y + 30, x + 104);
+    y += 50;
+    lvBrazoSuperior(doc, x, y);
+    y += 20;
+    // rojo
+    lvDatos(doc, x + 85, y, x + 195, LV_ROJO);
+    lvBrazoInferior(doc, x, y);
+    lvLlamada(doc, x + 85, y + 20, x + 100, y + 17, LV_ROJO);
+    y += 50;
+    lvTabla(doc, x, y, LV_FILAS_TABLA[1]);
+    lvColor(doc, LV_NEGRO);
+    doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
+    doc.line(x + 105, y - 85, x + 135, y - 85, 'S');
+}
+
+/* ---------- 2 peleas: llave de 4 peleadores ---------- */
+function lvLlave4(doc, x, y) {
+    for (let k = 0; k < 2; k++) {
+        lvPeleaIzquierda(doc, x, y, 16);
+        y += 70;
+    }
+    lvLlamada(doc, x + 85, y - 48, x + 100, y - 51, LV_ROJO);
+    lvLlamada(doc, x + 85, y - 118, x + 100, y - 121, LV_AZUL);
+    lvColor(doc, LV_NEGRO);
+    doc.line(x + 105, y - 122, x + 105, y - 52, 'S');
+    doc.line(x + 105, y - 85, x + 135, y - 85, 'S');
+    lvTabla(doc, x, y, LV_FILAS_TABLA[2]);
+}
+
+/* ---------- 4 peleas: llave de 8 peleadores ---------- */
+function lvLlave8(doc, x, y) {
+    for (let k = 0; k < 4; k++) {
+        y = lvPeleaIzquierda(doc, x, y, 17);
+        y += 30;
+    }
+    lvColor(doc, LV_NEGRO);
+    doc.line(x + 105, y - 182, x + 105, y - 132, 'S');
+    doc.line(x + 105, y - 157, x + 135, y - 157, 'S');
+    doc.line(x + 105, y - 82, x + 105, y - 32, 'S');
+    doc.line(x + 105, y - 57, x + 135, y - 57, 'S');
+    doc.line(x + 135, y - 157, x + 135, y - 57, 'S');
+    doc.line(x + 135, y - 107, x + 165, y - 107, 'S');
+    lvLlamada(doc, x + 110, y - 158, x + 125, y - 162, LV_AZUL);
+    lvLlamada(doc, x + 85, y - 85, x + 100, y - 87, LV_AZUL);
+    lvLlamada(doc, x + 110, y - 53, x + 125, y - 55, LV_ROJO);
+    lvLlamada(doc, x + 85, y - 128, x + 100, y - 131, LV_ROJO);
+    y -= 15;
+    lvTabla(doc, x, y, LV_FILAS_TABLA[4]);
+}
+
+/*
+ * cantidad: número de peleas de la primera ronda (1, 2 o 4).
+ *           1 -> 2 peleadores, 2 -> 4 peleadores, 4 -> 8 peleadores.
+ * copias:   cuántas hojas iguales generar (por defecto 1).
+ */
+async function exportarLlavesVacias(cantidad, copias = 1) {
+    const n = Number(cantidad);
+    const plantillas = { 1: lvLlave2, 2: lvLlave4, 4: lvLlave8 };
+    if (!plantillas[n]) {
+        throw new Error('Cantidad de llaves no soportada. Use 1 (2 peleadores), 2 (4 peleadores) o 4 (8 peleadores).');
+    }
+    const doc = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'letter',
+        putOnlyUsedFonts: true,
+        floatPrecision: 16
+    });
+    const x = 10;
+    const y = 5;
+    const width = doc.internal.pageSize.getWidth();
+    for (let pag = 1; pag <= copias; pag++) {
+        if (pag > 1) doc.addPage();
+        lvEncabezado(doc, x, y, width, pag);
+        plantillas[n](doc, x, y + 25);
+    }
+    const fecha = new Date().toISOString().substring(0, 10);
+    doc.save(`llavesVacias_${n * 2}peleadores_${fecha}.pdf`);
+}
 export default {
     exportarLlaves,
-    exportarTargetaCompetidor
+    exportarTargetaCompetidor,
+    exportarLlavesVacias
 }

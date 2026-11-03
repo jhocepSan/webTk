@@ -20,14 +20,14 @@ function AddEditCompetidor(props) {
     const [edad, setEdad] = useState(0);
     const [idGrado, setIdGrado] = useState(0);
     const [genero, setGenero] = useState(generoee);
-    const [idAdjunto,setIdAdjunto] = useState(0);
-    const [urlImg,setUrlImg] = useState('');
-    const [cargador,setCargador] = useState(false);
+    const [idAdjunto, setIdAdjunto] = useState(0);
+    const [urlImg, setUrlImg] = useState('');
+    const [cargador, setCargador] = useState(false);
     const [itemTipoC, setItemTipo] = useState(0);
     const [listaCTipoC, setListaCTipoC] = useState([]);
     function validarDatos() {
-        if (nombres !== '' && apellidos !== '' && ciUser !== '' && 
-            idClub !== 0 && cinturon !== 0 && peso !== 0 && 
+        if (nombres !== '' && apellidos !== '' && ciUser !== '' &&
+            idClub !== 0 && cinturon !== 0 && peso !== 0 &&
             altura !== 0 && genero !== '') {
             return true;
         } else {
@@ -40,7 +40,7 @@ function AddEditCompetidor(props) {
             console.log({
                 idCompetidor, nombres, apellidos, ciUser, idClub, cinturon,
                 peso, altura, tipos, idCampeonato, edad, fecha, idGrado,
-                genero, listaCTipoC,idAdjunto
+                genero, listaCTipoC, idAdjunto
             })
             fetch(`${server}/competidor/addEditCompetidor`, {
                 method: 'POST',
@@ -51,7 +51,7 @@ function AddEditCompetidor(props) {
                 body: JSON.stringify({
                     idCompetidor, nombres, apellidos, ciUser, idClub, cinturon,
                     peso, altura, tipos, idCampeonato, edad, fecha, idGrado,
-                    genero, listaCTipoC,idAdjunto
+                    genero, listaCTipoC, idAdjunto
                 })
             })
                 .then(res => res.json())
@@ -113,9 +113,17 @@ function AddEditCompetidor(props) {
     }
     function cambiarFecha(date) {
         var fechaHoy = new Date();
-        var fechaEle = new Date(date);
-        setEdad(fechaHoy.getFullYear() - fechaEle.getFullYear());
+
+        // Convertimos el input a string y extraemos los primeros 4 dígitos (el año)
+        var anioInput = parseInt(date.toString().substring(0, 4), 10);
+
+        // Restamos directamente los años
+        var edad = fechaHoy.getFullYear() - anioInput;
+
+        // Actualizar los estados
+        setEdad(edad);
         setFecha(date);
+
     }
     function cargarFoto(e, tipo) {
         setCargador(true);
@@ -123,9 +131,9 @@ function AddEditCompetidor(props) {
         console.log(archiv)
         if (archiv.size / 1000000 < 3.5) {
             var formData = new FormData()
-            formData.append('FILE1', new Blob([archiv], 
+            formData.append('FILE1', new Blob([archiv],
                 { contentType: 'application/octet-stream', contentTransferEncoding: 'binary' }),
-                 archiv.name + "." + tipo + ".ESTU");
+                archiv.name + "." + tipo + ".ESTU");
             console.log(formData)
             try {
                 axios.post(`${server}/usuario/cargarAdjunto`, formData, {
@@ -207,24 +215,24 @@ function AddEditCompetidor(props) {
                     </div>
                 </div>
                 <div className='col col-2 my-auto'>
-                    {cargador==false&&idAdjunto==0&&selectItem.foto==null&&
-                    <div>
-                        <label for="file-upload" className="custom-file-upload text-light">
-                            <i className="fa fa-cloud-upload"></i> Foto
-                        </label>
-                        <input id="file-upload" type="file" accept='image/*'
-                            onChange={(e) => cargarFoto(e, 'IMG')} />
-                    </div>}
-                    {cargador==true && idAdjunto==0&&
+                    {cargador == false && idAdjunto == 0 && selectItem.foto == null &&
+                        <div>
+                            <label for="file-upload" className="custom-file-upload text-light">
+                                <i className="fa fa-cloud-upload"></i> Foto
+                            </label>
+                            <input id="file-upload" type="file" accept='image/*'
+                                onChange={(e) => cargarFoto(e, 'IMG')} />
+                        </div>}
+                    {cargador == true && idAdjunto == 0 &&
                         <div className='fa-fade'>
                             <div className='text-light fs-1'><i className="fa fa-cloud-upload"></i></div>
                             <div className='text-light fw-bold'>Espere Por Favor ...</div>
                         </div>}
-                    {cargador==false&&urlImg!=''&&
+                    {cargador == false && urlImg != '' &&
                         <div>
                             <img src={`${server}/adjunto/${urlImg}`} className='img-fluid'></img>
                         </div>}
-                    {cargador==false&&selectItem.foto!=null&&
+                    {cargador == false && selectItem.foto != null &&
                         <div className='img-fluid'>
                             <img src={`${server}/adjunto/${selectItem.foto}`} className='img-fluid'></img>
                         </div>
@@ -354,7 +362,7 @@ function AddEditCompetidor(props) {
                         Agregar
                     </button>
                 </div>
-                <div className='w-100 overflow-auto' style={{maxHeight:'100px'}}>
+                <div className='w-100 overflow-auto' style={{ maxHeight: '100px' }}>
                     {listaCTipoC.map((item, index) => {
                         return (
                             <div className='container-fluid py-1' key={index}>

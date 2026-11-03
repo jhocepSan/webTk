@@ -30,6 +30,7 @@ function PrincipalRegistroCompetidor() {
   const [tipoModal, setTipoModal] = useState('');
   const [listaTiposCam, setListaTiposCam] = useState([]);
   const [showMessage, setShowMessage] = useState(false);
+  const [nameBusqueda,setNameBusqueda] = useState(''); 
   const editarUsuario = (dato) => {
     setTipoModal('N');
     setSelectItem(dato);
@@ -278,8 +279,11 @@ function PrincipalRegistroCompetidor() {
           {tipo!='D'&&<div className='col' style={{ maxWidth: '160px', minWidth: '160px' }}>
             <div className="input-group input-group-sm">
               <input type="text" className="form-control form-control-sm"
-                placeholder="Buscar Competidor" id='competidor' onChange={() => buscarCompetidor()} />
-              <button className='btn btn-sm btn-danger m-0 p-0' onClick={() => { document.getElementById('competidor').value = ''; buscarCompetidor(); }}>
+                placeholder="Buscar Competidor" id='competidor' 
+                value={nameBusqueda}
+                onChange={(e) => {setNameBusqueda(e.target.value);buscarCompetidor()}} />
+              <button className='btn btn-sm btn-danger m-0 p-0' 
+                onClick={() => { document.getElementById('competidor').value = ''; buscarCompetidor(); }}>
                 <i className="fa-solid fa-delete-left fa-xl"></i>
               </button>
             </div>
@@ -316,7 +320,9 @@ function PrincipalRegistroCompetidor() {
             {listaCompetidores.map((item, index) => {
               return (
                 <tr key={index} style={{borderBottom:'1px',borderColor:'#ffff'}}>
-                  <td scope="row" style={{ minWidth: '260px' }}><Competidor user={item} /></td>
+                  <td scope="row" style={{ minWidth: '260px' }}>
+                    <Competidor user={item} busqueda={nameBusqueda?.value}/>
+                  </td>
                   <td style={{ minWidth: '200px' }}>
                     <div className='container-fluid p-0 m-0' style={{ fontSize: '16px' }}>
                       <div className='letraMontserratr' id='nombre'>{'Edad: ' + item.edad + ' años'}</div>

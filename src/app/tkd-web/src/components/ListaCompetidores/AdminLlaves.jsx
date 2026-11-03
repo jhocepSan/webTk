@@ -6,6 +6,7 @@ import ConfigConsultas from '../ConsultasApi/ConfigConsultas';
 import UtilsDate from '../utils/UtilsDate';
 import ImgUser from '../../assets/user.png';
 import MsgDialogo from '../utils/MsgDialogo';
+import ModalLlaveBlanca from '../utils/ModalLlaveBlanca'
 import UtilsExport from '../utils/UtilsExport';
 import UtilsBuffer from '../utils/UtilsBuffer';
 
@@ -18,6 +19,7 @@ function AdminLlaves(props) {
     const [actualizar, setActualizar] = useState(false);
     const [genero, setGenero] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [showGenLlave,setShowGenLlave] = useState(false);
     const [numeroPeleas, setNumeroPeleas] = useState([]);
     const obtenerLlaves = async (categoria) => {
         try {
@@ -166,6 +168,14 @@ function AdminLlaves(props) {
             setCargador(false);
         }
     }
+    const generarPdfLlaveVacias = async(llave,cantidad)=>{
+        try{
+            await UtilsExport.exportarLlavesVacias(llave,cantidad);
+            MsgUtils.msgCorrecto("Llave Generada")
+        }finally{
+            ()=>setCargador(false);
+        }
+    }
     useEffect(() => {
         if (idCategoria != null) {
             obtenerLlaves(idCategoria + '#' + genero);
@@ -178,11 +188,19 @@ function AdminLlaves(props) {
                     <div className='col text-light fw-bold text-center'>
                         Administrador - Cantidad Llaves {listaLlaves.length}
                     </div>
+
                     <div className='col' style={{ minWidth: '80px', maxWidth: '100px' }}>
                         <button className='btn btn-sm letraBtn btn-success w-100'
                             title='Exportar llaves a PDF'
                             onClick={() => exportPDF()}>
                             <i className="fa-solid fa-file-pdf fa-xl"></i> PDF
+                        </button>
+                    </div>
+                    <div className='col' style={{ minWidth: '80px', maxWidth: '100px' }}>
+                        <button className='btn btn-sm letraBtn btn-secondary w-100'
+                            title='Generar Llave Vacia'
+                            onClick={() => setShowGenLlave(true)}>
+                            <i className="fa-solid fa-file-pdf fa-xl"></i> Llave Blanca
                         </button>
                     </div>
                     <div className='col' style={{ minWidth: '80px', maxWidth: '100px' }}>
@@ -475,6 +493,10 @@ function AdminLlaves(props) {
             <MsgDialogo show={showModal} msg='Seguro de eliminar las llaves generadas'
                 okFunction={() => { setShowModal(false); eliminarLLaves(); }}
                 notFunction={() => setShowModal(false)} />
+
+            <ModalLlaveBlanca show={showGenLlave} msg='Genera un PDF con llave blanca'
+                okFunction={(llave,cantidad) => { generarPdfLlaveVacias(llave,cantidad);setShowGenLlave(false)}}
+                notFunction={() => setShowGenLlave(false)} />
         </>
     )
 }

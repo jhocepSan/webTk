@@ -1,5 +1,5 @@
 import {toast} from 'react-toastify'
-export const server= "http://192.168.0.193:4005"
+export const server= ""
 export const serverio = ""
 function msgError(mensaje){
     toast.error(mensaje, {

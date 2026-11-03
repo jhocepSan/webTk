@@ -14,7 +14,7 @@ ul li a:hover, ul li a:focus {
     margin-left: 2px;
 }
 body{
-    background-color: rgb(197, 197, 197);
+    background-color: rgba(1, 16, 43, 0.445);
 }
 .table-active{
     --bs-table-accent-bg: #1c91ff;

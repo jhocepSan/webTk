@@ -88,7 +88,7 @@ function BuscarCompetidor(props) {
                                 return (
                                     <tr key={index} onClick={() => setSelectItem(item)} className={`${(selectItem.idcompetidor === item.idcompetidor) ? 'colorSelection' : ''}`}>
                                         <td className='text-light' >
-                                            <Competidor user={item} />
+                                            <Competidor user={item} tipo={tipo} busqueda={competidor} />
                                         </td>
                                     </tr>
                                 )
