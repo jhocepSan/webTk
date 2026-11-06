@@ -9,6 +9,7 @@ import MsgDialogo from '../utils/MsgDialogo';
 import ModalLlaveBlanca from '../utils/ModalLlaveBlanca'
 import UtilsExport from '../utils/UtilsExport';
 import UtilsBuffer from '../utils/UtilsBuffer';
+import VistaLlave from './VistaLlaves';
 
 function AdminLlaves(props) {
     const { idCampeonato, tipo, setVentana, tipoL, setCargador, area, collback } = props;
@@ -246,7 +247,12 @@ function AdminLlaves(props) {
                         )
                     })}
                 </div>}
-            <div className='container-fluid'>
+            <VistaLlave
+                listaLlaves={listaLlaves} idCategoria={idCategoria} genero={genero}
+                tipoL={tipoL} areas={areas}
+                cambiarAreaLlave={cambiarAreaLlave} eliminarLLaveManual={eliminarLLaveManual}
+                cambiarNumPelea={cambiarNumPelea} collback={collback} />
+            {false&&<div className='container-fluid'>
                 {listaLlaves.length == 0 && <div className="alert alert-warning">
                     No hay Peleas en esta categoria
                 </div>}
@@ -489,7 +495,7 @@ function AdminLlaves(props) {
                         )
                     }
                 })}
-            </div>
+            </div>}
             <MsgDialogo show={showModal} msg='Seguro de eliminar las llaves generadas'
                 okFunction={() => { setShowModal(false); eliminarLLaves(); }}
                 notFunction={() => setShowModal(false)} />

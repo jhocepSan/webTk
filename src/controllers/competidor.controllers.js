@@ -458,18 +458,8 @@ const getCompetidorClasificados = async (info) => {
         if (conn) { await conn.release(); }
     }
 }
-function getNumLL(numC) {
-    if (numC <= 4) {
-        return 4
-    } else if (numC > 4 && numC <= 8) {
-        return 8
-    } else if (numC > 8 && numC <= 16) {
-        return 16
-    } else {
-        return 32
-    }
-}
-const procesarLlave = async (info) => {
+
+/*const procesarLlave = async (info) => {
     var sql = `SELECT idpelea,idllave,idganador,tipo FROM pelea WHERE idganador is not NULL
         AND idllave=? AND tipo=? ORDER BY idpelea;`
     var sql1 = 'INSERT INTO pelea (idllave,idcompetidor1,idcompetidor2,nropelea,idganador,tipo) VALUES (?,?,?,?,?,?);'
@@ -497,8 +487,8 @@ const procesarLlave = async (info) => {
     } finally {
         if (conn) { await conn.release(); }
     }
-}
-const generarPelea = async (info) => {
+}*/
+/*const generarPelea = async (info) => {
     var sql = 'INSERT INTO pelea (idllave,idcompetidor1,idcompetidor2,nropelea,idganador) VALUES (?,?,?,?,?);'
     var conn;
     try {
@@ -541,7 +531,120 @@ const generarPelea = async (info) => {
     } finally {
         if (conn) { await conn.release(); }
     }
+}*/
+function getNumLL(numC) {
+    let n = 2;
+    while (n < numC) n *= 2;
+    return n;
 }
+const procesarLlave = async (info) => {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        await conn.beginTransaction();
+
+        // Todas las peleas del nivel actual (con y sin ganador), en orden
+        const [actuales] = await conn.query(
+            'SELECT idpelea, idganador FROM pelea WHERE idllave=? AND tipo=? ORDER BY idpelea;',
+            [info.idllave, info.nivel]
+        );
+
+        // Peleas del siguiente nivel (ya creadas vacías)
+        const [siguientes] = await conn.query(
+            'SELECT idpelea FROM pelea WHERE idllave=? AND tipo=? ORDER BY idpelea;',
+            [info.idllave, info.nivel + 1]
+        );
+
+        // Si no hay siguiente nivel, esta era la final: no hay nada que avanzar
+        if (siguientes.length > 0) {
+            for (let j = 0; j < actuales.length; j++) {
+                const ganador = actuales[j].idganador;
+                if (ganador === null) continue;             // aún no se jugó
+
+                const destino = siguientes[Math.floor(j / 2)];
+                if (!destino) continue;                      // seguridad
+
+                const campo = (j % 2 === 0) ? 'idcompetidor1' : 'idcompetidor2';
+                await conn.query(
+                    `UPDATE pelea SET ${campo}=? WHERE idpelea=?;`,
+                    [ganador, destino.idpelea]
+                );
+            }
+        }
+
+        await conn.commit();
+        return { ok: 'okey' };
+    } catch (error) {
+        if (conn) await conn.rollback();
+        console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if (error.code || error.errno || error.sqlState) {
+            return { error: 'Problemas con la base de datos' };
+        }
+        return { error: error.message };
+    } finally {
+        if (conn) await conn.release();
+    }
+};
+const generarPelea = async (info) => {
+    const sql = 'INSERT INTO pelea (idllave,idcompetidor1,idcompetidor2,nropelea,idganador,tipo) VALUES (?,?,?,?,?,?);';
+    let conn;
+    try {
+        const competidores = info.COMPETIDORES.sort(() => Math.random() - 0.5);
+        const numCmp = competidores.length;
+        const copia = competidores.map((item) => item.idcompetidor);
+
+        conn = await pool.getConnection();
+        await conn.beginTransaction();
+
+        // ---------- RONDA 0: peleas con competidores ----------
+        const pares = [];
+        if (numCmp > 2) {
+            const nBy = getNumLL(numCmp) - numCmp;   // cantidad de pases libres (byes)
+            // cada bye se empareja con un competidor real (nunca 0 vs 0)
+            for (let k = 0; k < nBy; k++) pares.push([copia.shift(), 0]);
+        }
+        while (copia.length) pares.push([copia.shift(), copia.shift()]);
+        pares.sort(() => Math.random() - 0.5); // opcional: mezclar posición de los byes
+
+        let nroPelea = 0;
+        for (const [c1, c2] of pares) {
+            let idGanador = null;
+            if (c1 === 0) idGanador = c2;
+            else if (c2 === 0) idGanador = c1;
+            await conn.query(sql, [info.idllave, c1, c2, nroPelea, idGanador, 0]);
+        }
+
+        // ---------- RONDAS SIGUIENTES: peleas vacías ----------
+        let peleasNivel = pares.length;
+        let nivel = 1;
+        while (peleasNivel > 1) {
+            peleasNivel = peleasNivel / 2;
+            for (let i = 0; i < peleasNivel; i++) {
+                await conn.query(sql, [info.idllave, null, null, nroPelea, null, nivel]);
+            }
+            nivel++;
+        }
+
+        await conn.commit();
+        conn.release();
+        conn = null; 
+        await procesarLlave({ idllave: info.idllave, nivel: 0 });
+        return { ok: "generado" };
+    } catch (error) {
+        if (conn) await conn.rollback();
+        console.log(error);
+        const errorReport = TelegramReport.catch(error);
+        errorReport.enviarATelegram();
+        if (error.code || error.errno || error.sqlState) {
+            return { error: "Problemas con la base de datos" };
+        }
+        return { error: error.message };
+    } finally {
+        if (conn) await conn.release();
+    }
+};
 export const generarLlaveRompimientoFestival = async (info) => {
     var sql = 'SELECT idgrado,nombre,tipo FROM grado where estado="A" and idcampeonato=? and tipo=?;';
     var sql1 = 'SELECT idtipo,descripcion FROM tiposcampeonato where estado="A" and idcampeonato=? and tipo=?;'
@@ -690,6 +793,8 @@ export const generateLLaves = async (info) => {
                             var idllave = result.insertId;
                             var peleas = await generarPelea({ idllave, 'COMPETIDORES': competidores.ok })
                             if (peleas.error) {
+                                await conn.query('DELETE FROM llave WHERE idllave=?', [idllave]);
+                                await conn.commit();
                                 return { "error": peleas.error }
                             }
                         } else if (competidores.ok.length == 1) {
@@ -903,7 +1008,7 @@ export const obtenerLlaves = async (info) => {
         -1 AS pesofin UNION SELECT subc.* FROM subcategoria subc) subcat
         ON subcat.idsubcategoria=lv.idsubcategoria
         WHERE lv.estado='A' and lv.idcampeonato=? AND (?=-2 OR lv.idcategoria=?) AND lv.tipo=? ORDER BY lv.area;`
-    var sql4 = `SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,
+    var sql40 = `SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,
         res.nropelea,res.idganador,res.idperdedor,res.nombres,res.apellidos,res.clubuno,res.tipo,
         cm.nombres as nombres2,cm.apellidos as apellidos2,cm.idclub as idclubdos,cm.altura as alturados,res.idclubuno,
 		  (select cl.nombre from club cl where cl.idclub=cm.idclub) as clubdos,res.alturauno,
@@ -922,6 +1027,25 @@ export const obtenerLlaves = async (info) => {
 		  where idcampeonato=? and estado='A'
         UNION SELECT 0, 'SIN OPONENTE', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'A', NULL, NULL, NULL, NULL,NULL) cm 
         on cm.idcompetidor=res.idcompetidor2 WHERE res.idllave=? order by res.idpelea;`
+    var sql4 = `SELECT res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,
+        res.nropelea,res.idganador,res.idperdedor,res.nombres,res.apellidos,res.clubuno,res.tipo,
+        cm.nombres as nombres2,cm.apellidos as apellidos2,cm.idclub as idclubdos,cm.altura as alturados,res.idclubuno,
+        (select cl.nombre from club cl where cl.idclub=cm.idclub) as clubdos,res.alturauno,
+        cm.peso as pesodos,cm.edad as edaddos,res.edaduno,res.pesouno,cm.cinturondos,res.cinturonuno
+        FROM 
+        (SELECT p.idpelea,p.idpeleapadre,p.idllave,p.idcompetidor1,
+            p.idcompetidor2,p.nropelea,p.idganador,p.idperdedor,p.tipo,c.nombres,c.apellidos, 
+        (select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno,c.idclub as idclubuno,
+            c.edad AS edaduno,c.peso AS pesouno,c.cinturonuno,c.altura as alturauno
+        FROM pelea p LEFT JOIN (SELECT c.*,cnt.nombre AS cinturonuno FROM competidor c 
+        INNER JOIN cinturon cnt ON cnt.idcinturon=c.idcinturon
+            where idcampeonato=? and estado='A' 
+        UNION SELECT 0, 'SIN OPONENTE', NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL, NULL, NULL, 'A', NULL, NULL, NULL, NULL,NULL) c 
+            on c.idcompetidor=p.idcompetidor1) res
+        LEFT JOIN (SELECT c.*,cnt.nombre AS cinturondos FROM competidor c INNER JOIN cinturon cnt ON cnt.idcinturon=c.idcinturon
+            where idcampeonato=? and estado='A'
+        UNION SELECT 0, 'SIN OPONENTE', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'A', NULL, NULL, NULL, NULL,NULL) cm 
+        on cm.idcompetidor=res.idcompetidor2 WHERE res.idllave=? order by res.tipo, res.idpelea;`
     var sql2 = `select res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,res.nropelea,res.idganador,
         res.idperdedor,res.nombres,res.edad as edaduno,res.peso as pesouno,res.apellidos,res.clubuno,res.cinturonuno, 
         c.nombres as nombres2,c.apellidos as apellidos2,(select cl.nombre from club cl where cl.idclub=c.idclub) as clubdos,
