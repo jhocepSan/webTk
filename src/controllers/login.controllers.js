@@ -4,19 +4,26 @@ import bycript from 'bcrypt';
 
 function getIPAddress() {
     var interfaces = networkInterfaces();
-    console.log(interfaces);
-    var address = []
-    for (var devName in interfaces) {
-        if (devName == 'Wi-Fi' || devName == 'eth0') {
-            var iface = interfaces[devName];
-            for (var i = 0; i < iface.length; i++) {
-                var alias = iface[i];
-                if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal)
-                    address.push({ name: devName, ip: alias.address });
+    const addresses = [];
+
+    for (const devName in interfaces) {
+        const iface = interfaces[devName];
+        
+        for (let i = 0; i < iface.length; i++) {
+            const alias = iface[i];
+            
+            // Filtros clave: IPv4, no interna (no loopback) y que no sea una IP de Docker/VirtualBox común
+            if (alias.family === 'IPv4' && 
+                !alias.internal &&
+                !alias.address.startsWith('172.')) {
+                addresses.push({ 
+                    name: devName, 
+                    ip: alias.address 
+                });
             }
         }
     }
-    return address;
+    return addresses;
 }
 
 

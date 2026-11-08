@@ -21,6 +21,8 @@ function RelojKirugui({ valor, conf, tipo, collback, doble }) {
         // Resetear si es round y viene la señal de reset
         if (valor.reset && tipo === 'r') {
             setSegundo(0);
+            // La pantalla del publico lee el tiempo de aqui
+            localStorage.setItem('segundo', 0);
         }
 
         // LÓGICA CLAVE: 
@@ -73,7 +75,7 @@ function RelojKirugui({ valor, conf, tipo, collback, doble }) {
                 </button>
             )}
 
-            <div className='text-center text-light fw-bold m-0 p-0 lh-1 my-auto' onClick={()=>{formatearTiempo(tiempoMaximo);setSegundo(0)}}>
+            <div className='text-center text-light fw-bold m-0 p-0 lh-1 my-auto' onClick={() => { setSegundo(0); if (tipo === 'r') localStorage.setItem('segundo', 0); }}>
                 {formatearTiempo(tiempoRestante)}
             </div>
 

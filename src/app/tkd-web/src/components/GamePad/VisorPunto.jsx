@@ -1,15 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useMemo } from 'react'
 
 function VisorPunto(props) {
-    const {valor,tipo}=props;
-    const [punto,setPunto]= useState(valor.puntoA);
-    useEffect(()=>{
-        if(tipo=='A'){
-            setPunto(valor.puntoA);
-        }else{
-            setPunto(valor.puntoR);
-        }
-    },[valor])
+    const { valor, tipo } = props;
+    const punto = useMemo(() => tipo === 'A' ? valor.puntoA : valor.puntoR, [valor, tipo]);
+
     return (
         <div className='card fondoPuntuacion m-0 p-0'>
             <div className='card-body text-center m-0 p-0'>

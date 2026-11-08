@@ -380,6 +380,15 @@ function PrincipalListaCompetidor() {
             setCargador(false);
         }
     }
+    const generarTargetaVacias = async () => {
+        try {
+            await UtilsExport.exportarTarjetaVacia(8, tipo);
+        } catch (error) {
+            console.log(error.message);
+        } finally {
+            setCargador(false);
+        }
+    }
     function sgenerarTargetaComp() {
         var cmpSelect = JSON.parse(localStorage.getItem('campeonato'));
         var subtitulo = '';
@@ -652,11 +661,21 @@ function PrincipalListaCompetidor() {
                         </div>
                         <div className='col' style={{ maxWidth: '140px', minWidth: '140px' }}>
                             <button className='btn btn-sm btn-info w-100'
+                                title='Generar Tarjeta de Competidores'
                                 onClick={() => {
                                     setCargador(true);
                                     generarTargetaComp();
                                 }}>
-                                <i className="fa-solid fa-address-card"></i> Generar Tarjeta</button>
+                                <i className="fa-solid fa-address-card"></i> Tarjetas</button>
+                        </div>
+                        <div className='col' style={{ maxWidth: '140px', minWidth: '140px' }}>
+                            <button className='btn btn-sm btn-purple w-100 bg-gradient'
+                                title='Generar Targetas Vacias'
+                                onClick={() => {
+                                    setCargador(true);
+                                    generarTargetaVacias();
+                                }}>
+                                <i className="fa-solid fa-address-card"></i> Tarjeta Vacias</button>
                         </div>
                     </div>
                 </div>

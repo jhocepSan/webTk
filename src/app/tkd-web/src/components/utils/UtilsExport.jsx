@@ -2,7 +2,7 @@ import { server } from './MsgUtils';
 import imgTK from '../../assets/tkd.png'
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-
+/*
 async function exportarLlaves(categorias, listaLLavesi) {
     var optiones = {
         orientation: 'p',
@@ -611,14 +611,6 @@ async function exportarLlaves(categorias, listaLLavesi) {
                     y = 5;
                     numPag += 1;
                     doc.setPage(numPag);
-                    /*y = y + 50
-                    nbp += 1;
-                    if (true) {
-                        nbp = 0;
-                        doc.addPage();
-                        numPag += 1;
-                        doc.setPage(numPag);
-                    }*/
                 }
 
             }
@@ -626,6 +618,334 @@ async function exportarLlaves(categorias, listaLLavesi) {
     }
     var fecha = new Date();
     doc.save(`llavesGeneradas${fecha.toISOString().substring(0, 10)}.pdf`);
+}
+*/
+/* ============================================================
+   PDF de llaves
+   ------------------------------------------------------------
+   Cada llave llega con TODAS sus peleas:
+     tipo 0 = primera ronda, tipo 1 = siguiente, ... el último = final.
+   idcompetidor === 0     -> "SIN OPONENTE" (pase directo)
+   idcompetidor === null  -> espacio vacío (se completa a mano)
+   El bracket se dibuja a partir de esas rondas, ya no a partir de
+   cuántas preliminares hay.
+   ============================================================ */
+
+const AZUL = [0, 0, 255];
+const ROJO = [255, 0, 0];
+const NEGRO = [0, 0, 0];
+const X = 10;          // margen izquierdo
+const Y0 = 32;         // donde empieza el bracket (debajo del encabezado)
+const PASO_4 = 50;     // separación vertical entre peleas de 1ª ronda (8 cupos)
+const PASO_2 = 70;     // idem para 2 y 4 cupos
+const SIN_RIVAL = { idcompetidor1: 0, idcompetidor2: 0 };
+
+/* ---------------- datos ---------------- */
+
+const esPaseDirecto = (p) => p.idcompetidor1 === 0 || p.idcompetidor2 === 0;
+const esReal = (c) => c.id != null && c.id !== 0;
+
+// Saca los datos del competidor 1 o 2 de una fila de pelea
+function compDe(p, n) {
+    if (n === 1) {
+        return {
+            id: p.idcompetidor1 ?? null, nombres: p.nombres, apellidos: p.apellidos,
+            club: p.clubuno, cinturon: p.cinturonuno, edad: p.edaduno, peso: p.pesouno, altura: p.alturauno
+        };
+    }
+    return {
+        id: p.idcompetidor2 ?? null, nombres: p.nombres2, apellidos: p.apellidos2,
+        club: p.clubdos, cinturon: p.cinturondos, edad: p.edaddos, peso: p.pesodos, altura: p.alturados
+    };
+}
+
+// Arma las columnas del bracket: cols[0] = 1ª ronda, cols[1] = siguiente, ... última = final.
+// Si faltan peleas de rondas posteriores (llaves antiguas) las completa vacías.
+function armarColumnas(peleas, exhibicion) {
+    const porTipo = {};
+    for (const p of peleas) (porTipo[p.tipo] = porTipo[p.tipo] || []).push(p);
+    for (const t in porTipo) porTipo[t].sort((a, b) => a.idpelea - b.idpelea);
+
+    const primera = porTipo[0] || [];
+    if (primera.length === 0) return null;
+
+    // Solo 2 competidores: la única pelea es la final; se dibujan como si ya hubieran pasado de ronda
+    if (primera.length === 1 && !exhibicion) return [[SIN_RIVAL, SIN_RIVAL], [primera[0]]];
+
+    let n = 1;
+    while (n < primera.length) n *= 2;
+    const cols = [[...primera, ...Array(n - primera.length).fill(SIN_RIVAL)]];
+    for (let c = 1, cant = n / 2; cant >= 1; c++, cant /= 2) {
+        const reales = porTipo[c] || [];
+        cols.push(Array.from({ length: cant }, (_, j) => reales[j] || {}));
+    }
+    return cols;
+}
+
+// Competidor que ocupa el espacio k (0 = azul, 1 = rojo) de la pelea j de la columna c
+function competidorDeSlot(cols, c, j, k) {
+    let comp = compDe(cols[c][j], k + 1);
+    if (!esReal(comp) && c === 1) {
+        // por si la ronda siguiente aún no se actualizó: tomar al que pasó por pase directo
+        const hijo = cols[0][2 * j + k];
+        if (hijo && esPaseDirecto(hijo)) {
+            const a = compDe(hijo, 1), b = compDe(hijo, 2);
+            if (esReal(a)) comp = a; else if (esReal(b)) comp = b;
+        }
+    }
+    return comp;
+}
+
+/* ---------------- dibujo básico ---------------- */
+
+function pintar(doc, rgb) {
+    doc.setTextColor(...rgb);
+    doc.setDrawColor(...rgb);
+}
+
+function dibujarLlamadas(doc, x, y, rgb) {
+    pintar(doc, rgb);
+    doc.setFontSize(9);
+    doc.text('# Llamada', x, y);
+    for (let i = 0; i < 3; i++) doc.rect(x + 15 + i * 6, y - 3, 4, 4, 'S');
+}
+
+// 3 líneas de texto: y, y+5, y+10
+function dibujarCompetidor(doc, x, y, c, rgb) {
+    pintar(doc, rgb);
+    doc.setFontSize(9);
+    if (c.id === 0) { doc.text('SIN OPONENTE', x, y); return; }
+    if (c.id == null) return;
+    doc.text(`${c.nombres ?? ''} (${c.club ?? '-'})`, x, y);
+    if (c.apellidos != null) doc.text(`${c.apellidos} Grado:${c.cinturon ?? '-'}`, x, y + 5);
+    if (c.edad != null) doc.text(`Edad: ${c.edad} Peso:${c.peso} Altura:${c.altura}`, x, y + 10);
+}
+
+function dibujarNumero(doc, x, y, nro) {
+    pintar(doc, NEGRO);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(15);
+    doc.text(`Pelea #${nro ? nro : ''}`, x, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+}
+
+// Competidor que avanzó a una ronda posterior: azul sobre la línea, rojo debajo
+function dibujarSlot(doc, x, yLinea, c, arriba) {
+    const rgb = arriba ? AZUL : ROJO;
+    dibujarLlamadas(doc, x, arriba ? yLinea - 18 : yLinea + 22, rgb);
+    if (esReal(c)) dibujarCompetidor(doc, x, arriba ? yLinea - 13 : yLinea + 7, c, rgb);
+}
+
+/* ---------------- bracket ---------------- */
+
+function dibujarPrimeraRonda(doc, p, top) {
+    const salida = top + 18;
+    doc.setDrawColor(...NEGRO);
+    doc.line(X + 75, salida, X + 105, salida);
+    if (esPaseDirecto(p)) return;   // ese competidor se dibuja en la ronda siguiente
+
+    doc.line(X + 35, top + 7, X + 75, top + 7);
+    doc.line(X + 35, top + 27, X + 75, top + 27);
+    doc.line(X + 75, top + 7, X + 75, top + 27);
+    dibujarLlamadas(doc, X, top, AZUL);
+    dibujarCompetidor(doc, X, top + 5, compDe(p, 1), AZUL);
+    dibujarCompetidor(doc, X, top + 25, compDe(p, 2), ROJO);
+    dibujarLlamadas(doc, X, top + 39, ROJO);
+    dibujarNumero(doc, X + 50, top + 20, p.nropelea);
+}
+
+function dibujarTabla(ctx, yTop, filas) {
+    const { doc } = ctx;
+    const cab = ['#Pelea', '1 round', '2 round', '3 round', '4 round', 'Ganador'];
+    const altoFila = Math.max(3, Math.min(7, (ctx.alto - 10 - yTop) / filas.length));
+    const lado = Math.min(4, altoFila - 2);
+
+    pintar(doc, NEGRO);
+    doc.setFontSize(12);
+    cab.forEach((t, i) => doc.text(t, X + 57 + i * 20, yTop - 1));
+
+    filas.forEach((nro, k) => {
+        const yf = yTop + k * altoFila;
+        const yb = yf + (altoFila - lado) / 2;
+        cab.forEach((_, i) => {
+            const xc = X + 55 + i * 20;
+            doc.setDrawColor(...NEGRO);
+            doc.rect(xc, yf, 20, altoFila, 'S');
+            if (i === 0) {
+                if (nro) {
+                    doc.setTextColor(...NEGRO);
+                    doc.setFontSize(10);
+                    doc.text(String(nro), xc + 3, yf + altoFila / 2 + 1.5);
+                }
+            } else {
+                doc.setDrawColor(...AZUL);
+                doc.rect(xc + 4, yb, lado, lado, 'S');
+                doc.setDrawColor(...ROJO);
+                doc.rect(xc + 12, yb, lado, lado, 'S');
+            }
+        });
+    });
+    doc.setDrawColor(...NEGRO);
+    doc.setFontSize(9);
+}
+
+function dibujarBracket(ctx, cols, y0) {
+    const { doc } = ctx;
+    const n0 = cols[0].length;
+    const paso = n0 >= 4 ? PASO_4 : PASO_2;
+
+    // y de la línea de salida de cada pelea (hacia la siguiente ronda)
+    const salida = [cols[0].map((_, j) => y0 + j * paso + 18)];
+    for (let c = 1; c < cols.length; c++) {
+        salida.push(cols[c].map((_, j) => (salida[c - 1][2 * j] + salida[c - 1][2 * j + 1]) / 2));
+    }
+
+    doc.setFontSize(9);
+    cols[0].forEach((p, j) => dibujarPrimeraRonda(doc, p, y0 + j * paso));
+
+    for (let c = 1; c < cols.length; c++) {
+        const xv = X + 75 + 30 * c;   // x de la línea vertical de esta ronda
+        cols[c].forEach((p, j) => {
+            const a = salida[c - 1][2 * j];
+            const b = salida[c - 1][2 * j + 1];
+            const m = salida[c][j];
+            doc.setDrawColor(...NEGRO);
+            doc.line(xv, a, xv, b);
+            doc.line(xv, m, xv + 30, m);
+            dibujarNumero(doc, xv - 30, m + 3, p.nropelea);
+            dibujarSlot(doc, xv - 20, a, competidorDeSlot(cols, c, j, 0), true);
+            dibujarSlot(doc, xv - 20, b, competidorDeSlot(cols, c, j, 1), false);
+        });
+    }
+
+    // una fila por cada pelea que realmente se pelea (sin pases directos)
+    const filas = cols.flat().filter((p) => !esPaseDirecto(p)).map((p) => p.nropelea);
+    const fondo = y0 + (n0 - 1) * paso + 42;
+    dibujarTabla(ctx, fondo + 12, filas);
+}
+
+/* Llaves de más de 8 cupos: no caben en una hoja, se imprimen como lista por ronda */
+function textoLista(c) {
+    if (c.id === 0) return 'SIN OPONENTE';
+    if (c.id == null) return '______________________';
+    return `${c.nombres ?? ''} ${c.apellidos ?? ''} (${c.club ?? '-'})`;
+}
+
+function dibujarLista(ctx, cols, nuevaPagina) {
+    const { doc } = ctx;
+    let y = Y0;
+    cols.forEach((peleas, c) => {
+        const d = cols.length - 1 - c;
+        const titulo = d === 0 ? 'FINAL' : d === 1 ? 'SEMIFINAL' : d === 2 ? 'CUARTOS DE FINAL' : `RONDA ${c + 1}`;
+        if (y > ctx.alto - 30) y = nuevaPagina();
+        pintar(doc, NEGRO);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text(titulo, X, y);
+        y += 7;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        peleas.forEach((p) => {
+            if (p === SIN_RIVAL) return;
+            if (y > ctx.alto - 20) y = nuevaPagina();
+            pintar(doc, NEGRO);
+            doc.text(`Pelea #${p.nropelea ? p.nropelea : ''}`, X, y);
+            doc.setTextColor(...AZUL);
+            doc.text(textoLista(compDe(p, 1)), X + 25, y);
+            doc.setTextColor(...ROJO);
+            doc.text(textoLista(compDe(p, 2)), X + 25, y + 5);
+            y += 11;
+        });
+        y += 4;
+    });
+}
+
+/* ---------------- páginas ---------------- */
+
+function abrirPagina(ctx) {
+    if (ctx.numPag > 0) ctx.doc.addPage();   // evita la hoja en blanco final
+    ctx.numPag++;
+}
+
+function encabezadoCategoria(ctx, llave, cat, subcat) {
+    const { doc } = ctx;
+    const y = 5;
+    pintar(doc, NEGRO);
+    doc.setFontSize(12);
+    doc.text(`Pagina: ${ctx.numPag}`, ctx.ancho / 2 - 20, y + 5);
+    doc.text(`Categoria: ${cat.nombre} -> Edad ${cat.edadini} - ${cat.edadfin} años`, X, y + 10);
+    doc.text(`Sub Categoria: ${subcat.nombre} -> Peso ${subcat.pesoini} - ${subcat.pesofin} kg`, X, y + 15);
+    doc.text(`Genero: ${llave.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`, X, y + 20);
+    doc.text(`Grado: ${llave.nombregrado}`, X + 70, y + 20);
+    doc.setFontSize(17);
+    doc.text(`Area: ${llave.area != null ? llave.area : ''}`, X + 140, y + 15);
+    doc.setFontSize(9);
+}
+
+function encabezadoExhibicion(ctx, llave) {
+    const { doc } = ctx;
+    const y = 5;
+    pintar(doc, NEGRO);
+    doc.setFontSize(12);
+    doc.text(`Pagina: ${ctx.numPag}`, ctx.ancho / 2 - 20, y + 5);
+    doc.text('Peleas de Exhibición', X, y + 10);
+    doc.text(`Genero: ${llave.genero == 'M' ? 'MASCULINO' : 'FEMENINO'}`, X, y + 15);
+    doc.setFontSize(17);
+    doc.text(`Area: ${llave.area != null ? llave.area : ''}`, X + 140, y + 15);
+    doc.setFontSize(9);
+}
+
+function dibujarLlave(ctx, llave, encabezado) {
+    const cols = armarColumnas(llave.PELEAS, llave.idcategoria == -1);
+    if (!cols) return;
+    const nueva = () => { abrirPagina(ctx); encabezado(); return Y0; };
+    const y0 = nueva();
+    if (cols[0].length > 4) dibujarLista(ctx, cols, nueva);
+    else dibujarBracket(ctx, cols, y0);
+}
+
+/* ---------------- principal ---------------- */
+
+async function exportarLlaves(categorias, listaLLavesi) {
+    const doc = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'letter',
+        putOnlyUsedFonts: true,
+        floatPrecision: 16
+    });
+    const ctx = {
+        doc,
+        ancho: doc.internal.pageSize.getWidth(),
+        alto: doc.internal.pageSize.getHeight(),
+        numPag: 0
+    };
+
+    const areas = [...new Set(listaLLavesi.map((l) => l.area))];
+    for (const area of areas) {
+        const delArea = listaLLavesi.filter((l) => l.area == area);
+
+        // llaves por categoría / subcategoría
+        for (const cat of categorias.filter((c) => c.idcategoria != -1)) {
+            for (const subcat of cat.SUBCATEGORIA ?? []) {
+                const llaves = delArea.filter((l) => l.idcategoria == cat.idcategoria && l.idsubcategoria == subcat.idsubcategoria);
+                for (const llave of llaves) {
+                    dibujarLlave(ctx, llave, () => encabezadoCategoria(ctx, llave, cat, subcat));
+                }
+            }
+        }
+
+        // peleas de exhibición
+        for (const cat of categorias.filter((c) => c.idcategoria == -1)) {
+            const manuales = delArea.filter((l) => l.idcategoria == cat.idcategoria && l.genero == cat.genero);
+            for (const llave of manuales) {
+                dibujarLlave(ctx, llave, () => encabezadoExhibicion(ctx, llave));
+            }
+        }
+    }
+
+    doc.save(`llavesGeneradas${new Date().toISOString().substring(0, 10)}.pdf`);
 }
 async function getFondoTargeta(nombre) {
     try {
@@ -736,6 +1056,122 @@ async function exportarTargetaCompetidor(listaCompetidores, tipo) {
         doc.save(`Tarjetas${subtitulo}-${fechaDescarga.toISOString().substring(0, 10)}.pdf`);
     } catch (error) {
         console.log(error)
+    }
+}
+
+async function exportarTarjetaVacia(cantidad, tipo) {
+    try {
+        var cmpSelect = JSON.parse(localStorage.getItem('campeonato')) || { nombre: '____________________' };
+        var subtitulo = '';
+        if (tipo == 'C') {
+            subtitulo = 'KYORUGUI';
+        } else if (tipo == 'P') {
+            subtitulo = 'POOMSAE';
+        } else if (tipo == 'D') {
+            subtitulo = 'DEMOSTRACIONES';
+        } else if (tipo == 'R') {
+            subtitulo = 'ROMPIMIENTO';
+        }
+        
+        var optiones = {
+            orientation: 'l',
+            unit: 'mm',
+            format: 'A4',
+            putOnlyUsedFonts: true,
+            floatPrecision: 16
+        }
+        var doc = new jsPDF(optiones);
+        var imageBase64 = await getFondoTargeta('tarjetaUno');
+        var imageBasePie = await getFondoTargeta('tarjetaDos');
+        
+        var x = 10, y = 10, numCard = 0, numPag = 1;
+        
+        // Ahora iteramos por la cantidad de tarjetas numéricas deseadas
+        for (var i = 0; i < cantidad; i++) {
+            
+            doc.addImage(imageBase64, 'PNG', x - 2, y - 2, 70, 65);
+            doc.setFontSize(8);
+            doc.setTextColor(0, 0, 255);
+            doc.setFont('arial', 'bold');
+            doc.text('ASOCIACIÓN TRADICIONAL DE CLUBES', x + 1, y + 2);
+            doc.text('DE TAEKWONDO COCHABAMBA', x + 1, y + 6);
+            doc.setTextColor(252, 173, 3);
+            doc.setFontSize(11);
+            doc.text('Tarjeta de Competidor', x + 1, y + 11);
+            doc.setFontSize(13);
+            doc.text(subtitulo, x + 10, y + 16);
+            doc.addImage(imgTK, 'JPEG', x + 50, y + 4, 14, 14);
+            
+            // --- PARTE SUPERIOR VACÍA CON LÍNEAS PARA RELLENAR ---
+            doc.setFontSize(9);
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('arial', '');
+            doc.text('Nombre: __________________________________', x + 1, y + 21);
+            doc.text('Club.- ____________________________________', x + 1, y + 25);
+            doc.text('Peso/kg.- ___________  Grado.- ____________', x + 1, y + 29);
+            doc.text('Cinturón: _________________________________', x + 1, y + 34);
+            doc.text('Categoría.- _______________________________', x + 1, y + 39);
+            
+            doc.setFontSize(8);
+            doc.setTextColor(255, 0, 0);
+            doc.text(cmpSelect.nombre, x + 1, y + 43);
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(12);
+            doc.line(x + 25, y + 52, x + 42, y + 52, 'FD');
+            doc.setFont('arial', 'bold');
+            doc.text('Puesto', x + 25, y + 55);
+            
+            // --- PARTE INFERIOR VACÍA (TALÓN DE COMBATES) ---
+            doc.addImage(imageBasePie, 'PNG', x - 2, y + 64, 70, 29);
+            doc.setFontSize(12);
+            doc.line(x + 1, y + 73, x + 15, y + 73, 'FD');
+            doc.setFont('arial', 'bold');
+            doc.text('Puesto', x + 1, y + 77);
+            
+            doc.setFontSize(8);
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('arial', '');
+            
+            // Líneas en blanco para el talón desglosable
+            doc.text('Competidor: _______________________________', x + 16, y + 67);
+            doc.text('Club: _______________ / Peso: _________ kg', x + 16, y + 71);
+            doc.text('Cinto: _____________ / Cat: _______________', x + 16, y + 75);
+            
+            doc.line(x + 1, y + 78, x + 67, y + 78, 'FD');
+            doc.text('|    1ºCombate     |     2ºCombate     |     3ºCombate     |', x + 1, y + 81);
+            doc.line(x + 1, y + 83, x + 67, y + 83, 'FD');
+            doc.text('| Gano  |  Perdio  |  Gano  |  Perdio  |  Gano  |  Perdio  |', x + 1, y + 86);
+            doc.line(x + 1, y + 88, x + 67, y + 88, 'FD');
+            
+            // --- CONTROL DE POSICIONAMIENTO EN HOJA A4 (Se mantiene igual) ---
+            if (numCard <= 2) {
+                x += 71;
+                y = 10;
+            } else if (numCard == 3) {
+                x = 10;
+                y = 108;
+            } else if (numCard >= 4) {
+                x += 71;
+                y = 108;
+            }
+            
+            if (numCard == 7) {
+                x = 10;
+                y = 10;
+                numPag += 1;
+                numCard = 0;
+                doc.addPage();
+                doc.setPage(numPag);
+            } else {
+                numCard += 1;
+            }
+        }
+        
+        var fechaDescarga = new Date();
+        doc.save(`TarjetasVacias_${subtitulo}-${fechaDescarga.toISOString().substring(0, 10)}.pdf`);
+    } catch (error) {
+        console.log(error);
     }
 }
 
@@ -983,5 +1419,6 @@ async function exportarLlavesVacias(cantidad, copias = 1) {
 export default {
     exportarLlaves,
     exportarTargetaCompetidor,
-    exportarLlavesVacias
+    exportarLlavesVacias,
+    exportarTarjetaVacia
 }

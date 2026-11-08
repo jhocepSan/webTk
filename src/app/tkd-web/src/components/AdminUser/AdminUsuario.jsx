@@ -14,7 +14,7 @@ import Nav from 'react-bootstrap/Nav';
 import UsuarioConsultas from '../ConsultasApi/UsuarioConsultas';
 function AdminUsuario() {
     const navigate = useNavigate();
-    const { login,setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
+    const { login, setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
     const [cargador, setCargador] = useState(false);
     const [usuarios, setUsuarios] = useState([]);
     const [selectItem, setSelectItem] = useState({});
@@ -22,7 +22,7 @@ function AdminUsuario() {
     const [showModal, setShowModal] = useState(false);
     const [tipoModal, setTipoModal] = useState('');
     const [showMessage, setShowMessage] = useState(false);
-    const [estado,setEstado] = useState('K');
+    const [estado, setEstado] = useState('K');
     function getEstadoUsuario(dato) {
         var descripcion = ''
         if (dato.estado == 'A') {
@@ -151,53 +151,71 @@ function AdminUsuario() {
             })
             .catch(error => MsgUtils.msgError(error));
     }
-    const recuperarContrasenia = async(item)=>{
-        try{
+    const recuperarContrasenia = async (item) => {
+        try {
             var result = await UsuarioConsultas.recuperarContrasenia(item);
-            if(result.ok){
+            if (result.ok) {
                 MsgUtils.msgCorrecto(result.ok);
-            }else{
+            } else {
                 MsgUtils.msgError(result.error);
             }
-        }catch(error){
+        } catch (error) {
             MsgUtils.msgError(error.message);
         }
     }
-    const cargarFoto = (e, tipo, usuario) => {
+    const cargarFoto = async (e, tipo, usuario) => {
         setCargador(true);
         var archiv = e.target.files[0];
-        console.log(archiv)
-        if (archiv.size / 1000000 < 3.5) {
-            var formData = new FormData()
-            formData.append('FILE1', new Blob([archiv], { contentType: 'application/octet-stream', contentTransferEncoding: 'binary' }), archiv.name + "." + tipo + "." + usuario);
-            console.log(formData)
+        console.log(archiv);
+
+        if ((archiv.size / 1000000) < 3.5) {
+            var formData = new FormData();
+            // Simplificado: Pasamos el archivo directo sin envolverlo manualmente en un Blob complejo
+            formData.append('FILE1', archiv, `${archiv.name}.${tipo}.${usuario}`);
+
             try {
-                axios.post(`${server}/usuario/cargarAdjunto`, formData, {
-                    'Accept': 'application/json',
-                    'content-type': 'multipart/form-data'
-                }).then(res => {
-                    console.log(res.data);
-                    if (res.data.ok) {
-                        updateUsario(usuario, res.data.ok);
-                        MsgUtils.msgCorrecto("Imagen Cargada Correctamente")
-                    } else {
-                        setCargador(false);
-                        MsgUtils.msgError(res.data.error)
+                // Al usar 'await', el try/catch ahora SÍ atrapará cualquier error de red o de Axios
+                const res = await axios.post(`${server}/usuario/cargarAdjunto`, formData, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'multipart/form-data'
                     }
-                }).catch(error => {
-                    //MsgUtils.msgError(JSON.parse(error.request.response).error);
-                    console.log(error.message);
+                });
+
+                console.log(res.data);
+
+                if (res.data.ok) {
+                    updateUsario(usuario, res.data.ok);
+                    MsgUtils.msgCorrecto("Imagen Cargada Correctamente");
+                } else {
+                    // Captura errores controlados devueltos por tu backend: return { "error": "..." }
                     setCargador(false);
-                })
+                    MsgUtils.msgError(res.data.error || "Error desconocido en el servidor");
+                }
+
             } catch (error) {
-                MsgUtils.msgError(error.message);
-                console.error('Error al subir el archivo !!');
+                setCargador(false);
+                console.error('Error al subir el archivo:', error);
+
+                // Captura errores de respuesta del servidor (Ej: 500 Internal Server Error, 499 Timeout)
+                if (error.response && error.response.data && error.response.data.error) {
+                    MsgUtils.msgError(error.response.data.error);
+                }
+                // Captura errores cuando el backend no responde nada (Problemas de red local)
+                else if (error.request) {
+                    MsgUtils.msgError("El servidor tardó demasiado en responder o está caído. Intente de nuevo.");
+                }
+                // Cualquier otro error de configuración en Axios
+                else {
+                    MsgUtils.msgError(error.message);
+                }
             }
         } else {
             setCargador(false);
-            MsgUtils.msgError("Coloque Imagen < 3.5 Megas")
+            MsgUtils.msgError("Coloque Imagen < 3.5 Megas");
         }
-    }
+    };
+
     useEffect(() => {
         setCargador(true);
         var sessionActiva = JSON.parse(localStorage.getItem('login'));
@@ -228,7 +246,7 @@ function AdminUsuario() {
                 setCargador(false);
             })
             .catch(error => MsgUtils.msgError(error));
-    }, [actualizar,estado])
+    }, [actualizar, estado])
     return (
         <div>
             <Header />
@@ -260,9 +278,9 @@ function AdminUsuario() {
                 justify
                 variant="tabs"
                 activeKey={estado}
-                className="bg-dark bg-gradient rounded shadow fw-bold" 
+                className="bg-dark bg-gradient rounded shadow fw-bold"
                 data-bs-theme="light"
-                onSelect={(e)=>setEstado(e)}
+                onSelect={(e) => setEstado(e)}
             >
                 <Nav.Item >
                     <Nav.Link eventKey="K">Usuarios</Nav.Link>
@@ -342,7 +360,7 @@ function AdminUsuario() {
                                                 <button className='btn text-danger' onClick={() => { setSelectItem(item); setShowMessage(true); }}>
                                                     <i className="fa-solid fa-trash-can fa-xl"></i>
                                                 </button>
-                                                {login.id==1&&<button className='btn text-info' onClick={()=>{recuperarContrasenia(item)}}>
+                                                {login.id == 1 && <button className='btn text-info' onClick={() => { recuperarContrasenia(item) }}>
                                                     <i className="fa-solid fa-key fa-xl"></i>
                                                 </button>}
                                             </div>

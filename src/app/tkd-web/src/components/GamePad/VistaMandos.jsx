@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Modal from 'react-bootstrap/Modal';
 import useWebSocket from 'react-use-websocket'
 function VistaMandos(props) {
-    const { datos, setActivarLectura, activarLectura, configure, collback, puntoJuego, showStadistic, areaname } = props;
+    const { datos, setActivarLectura, activarLectura, configure, collback, puntoJuego, showStadistic, areaname, userLogin } = props;
     const [lecturas, setLecturas] = useState([]);
     const [cantJueces, setCantJueces] = useState([]);
     const [serverIo, setServerIo] = useState(null);
@@ -13,7 +13,7 @@ function VistaMandos(props) {
         shouldReconnect: () => true,
         enabled: !!serverIo,
         onOpen: () => {
-            sendJsonMessage({ type: 'IDENTIFY', area: areaname+'C', role: 'SCREEN' });
+            sendJsonMessage({ type: 'IDENTIFY', area: areaname + 'C', role: 'SCREEN' });
         }
     })
     function getDibujo(valor) {
@@ -115,9 +115,9 @@ function VistaMandos(props) {
                     collback(puntos);
                     setLecturas(prevLecturas => [datoFinal, ...prevLecturas]);
 
-                    if (puntos[0] >= parseInt(configure.maxJueces) || datoFinal.leng ===numRequerido) {
-                        return[];
-                    }else{
+                    if (puntos[0] >= parseInt(configure.maxJueces) || datoFinal.leng === numRequerido) {
+                        return [];
+                    } else {
                         return datoFinal;
                     }
                 } else {
@@ -144,14 +144,23 @@ function VistaMandos(props) {
             setShowModal(true);
         }
     }, [])
+    useEffect(() => {
+        if (userLogin != undefined) {
+            console.log(userLogin.serverIp)
+            if (userLogin.serverIp !== undefined && userLogin.serverIp.length != 0) {
+                var posibleIp = userLogin.serverIp[0].ip;
+                setEntradaTexto(`http://${posibleIp}:4001`)
+            }
+        }
+    }, [userLogin])
     return (
         <>
             <div className='card bg-dark bg-gradient'>
                 <div className='card-header m-0 p-0'>
                     <div className="input-group">
                         <span className="text-light mx-2" >Lectura Mando</span>
-                        <button className={`btn btn-sm ${activarLectura ? 'btn-success' : 'botonNegro'}`}
-                            onClick={() => setActivarLectura(!activarLectura)}>
+                        <button className={`btn btn-sm ${showModal ? 'btn-success' : 'botonNegro'}`}
+                            onClick={() => setShowModal(!showModal)}>
                             <i className="fa-solid fa-glasses"></i>{activarLectura ? '(l)' : '(L)'}</button>
                         <button className='btn btn-sm mx-2 botonNegro'
                             onClick={() => showStadistic(lecturas)}>
@@ -161,13 +170,6 @@ function VistaMandos(props) {
                 </div>
                 <div className='table-responsive conainer-fluid' style={{ maxHeight: '58vh' }}>
                     <table className="table table-sm table-bordered bg-light text-center">
-                        {false && <thead>
-                            <tr>
-                                {cantJueces.map((i, index) => {
-                                    return (<th scope="col" key={index}>{'Mando ' + (index + 1)}</th>)
-                                })}
-                            </tr>
-                        </thead>}
                         <tbody>
                             {lecturas.map((item, index) => {
                                 return (

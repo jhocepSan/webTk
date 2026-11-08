@@ -13,11 +13,11 @@ import estudianteRoutes from '../routes/estudiante.routes.js'
 import fileupload from 'express-fileupload'
 import {dirname, join} from 'path'
 import {fileURLToPath} from 'url'
-import {PORT}from '../config/configDeploy.js'
+import {configuraciones}from '../config/config.js'
 const app =express();
 const __dirname = dirname(fileURLToPath(import.meta.url))
 //Settings
-app.set('port',PORT);
+app.set('port',configuraciones.PORT);
 //Middlewares
 app.use(fileupload());
 app.use(cors());

@@ -8,6 +8,7 @@ import { ContextAplicacions } from '../Context/ContextAplicacion';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import { server } from '../utils/MsgUtils';
+import MsgDialogo from '../utils/MsgDialogo';
 
 function PrincipalListaSinPelea() {
     const tableRef = useRef(null);
@@ -30,6 +31,8 @@ function PrincipalListaSinPelea() {
     const [actualizar, setActualizar] = useState(false);
     const [listaClubs, setListaClubs] = useState([]);
     const [idClub, setIdClub] = useState(0);
+    const [showModal,setShowModal] = useState(false);
+    const [infoSelection,setInfoSelection] = useState({});
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
 
     function handleDownloadExcel() {
@@ -485,7 +488,7 @@ function PrincipalListaSinPelea() {
                                             </div>
                                         </td>
                                         <td className='my-auto text-center'>
-                                            <button className='btn text-danger' onClick={() => sacarDeListas(item)}>
+                                            <button className='btn text-danger' onClick={() => {setInfoSelection(item);setShowModal(true);}}>
                                                 <i className="fa-regular fa-circle-xmark fa-2xl"></i>
                                             </button>
                                         </td>
@@ -576,6 +579,9 @@ function PrincipalListaSinPelea() {
                     </div>
                 </div>
             }
+            <MsgDialogo show={showModal} msg={"Esta seguro de Eliminar al competidor?"} 
+                okFunction={()=>sacarDeListas(infoSelection)} 
+                notFunction={()=>setShowModal(false)}/>
         </div>
     )
 }

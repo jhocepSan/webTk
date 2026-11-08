@@ -4,5 +4,5 @@
 /src/app/tkd-web/node_modules
 /src/daemon
 /src/app/dist
-
+.env
 

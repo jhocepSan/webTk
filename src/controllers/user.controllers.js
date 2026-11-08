@@ -4,7 +4,17 @@ import { Buffer } from 'buffer'
 import { existsSync, unlink, writeFileSync } from 'fs'
 import { fileURLToPath } from 'url'
 import bycript from 'bcrypt';
+import { v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream';
+import {configuraciones} from '../config/config.js'
+import TelegramReport from '../utils/telegramMsg.js'
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+cloudinary.config({
+    cloud_name: configuraciones.CLOUDINARY_CLOUD_NAME,
+    api_key: configuraciones.CLOUDINARY_API_KEY,
+    api_secret: configuraciones.CLOUDINARY_API_SECRET
+});
 
 export const getUsuarios = async () => {
     var conn;
@@ -128,7 +138,7 @@ export const updateUsuarioImg = async (info) => {
         if (conn) { await conn.release(); }
     }
 }
-
+/*
 export const cargarAdjunto = async (data) => {
     var sql = "INSERT INTO adjunto (tipo,ruta) values (?,?) ;"
     var conn;
@@ -168,4 +178,56 @@ export const cargarAdjunto = async (data) => {
             await conn.close();
         }
     }
+}*/
+
+export const cargarAdjunto = async (data) => {
+    var sql = "INSERT INTO adjunto (tipo, ruta) values (?, ?) ;"
+    var conn;
+    try {
+        conn = await pool.getConnection();
+        
+        // 1. Convertimos el Buffer directo a un string DataURI base64 legible por Cloudinary
+        const base64Image = Buffer.from(data.data).toString('base64');
+        const dataURI = `data:${data.mimetype || 'image/png'};base64,${base64Image}`;
+
+        // 2. Subimos usando la función clásica con parámetros de timeout extendidos
+        const uploadToCloudinary = () => {
+            return cloudinary.uploader.upload(dataURI, {
+                folder: "campeonatos_adjuntos",
+                resource_type: "image",
+                // Forzamos credenciales
+                cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+                api_key: process.env.CLOUDINARY_API_KEY,
+                api_secret: process.env.CLOUDINARY_API_SECRET,
+                // Ajustes para conexiones lentas (Aumentamos el tiempo de espera)
+                timeout: 60000,          // 60 segundos máximos de espera
+                connection_timeout: 30000 // 30 segundos para conectar
+            });
+        };
+
+        // 3. Ejecutamos la subida
+        const cloudinaryResult = await uploadToCloudinary();
+        const urlInCloudinary = cloudinaryResult.secure_url;
+
+        // 4. Insertamos en la Base de Datos
+        var [result] = await conn.execute(sql, ['IMG', urlInCloudinary]);
+        
+        if (result.affectedRows != 0) {
+            await conn.commit();
+            return { "ok": result.insertId, "url": urlInCloudinary };
+        } else {
+            await conn.rollback();
+            return { "error": "Intente Nuevamente" };
+        }
+
+    } catch (error) {
+        if (conn) await conn.rollback();
+        console.log("error guardarFoto Cloudinary: ", error);
+        return { "error": error.message };
+    } finally {
+        if (conn) {
+            await conn.close();
+        }
+    }
 }
+

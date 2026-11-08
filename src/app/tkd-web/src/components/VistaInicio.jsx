@@ -147,7 +147,7 @@ function VistaInicio() {
           }
         })
         .catch(error => MsgUtils.msgError(error))
-        .finally(() => setCargador(false)); // antes: .finally(setCargador(false)) se ejecutaba de inmediato
+        .finally(() => setCargador(false)); 
     }
   }, [login, actualizar])
 
@@ -159,6 +159,7 @@ function VistaInicio() {
         .then(data => {
           setLogin(true);
           setUserLogin({ ...sessionActiva, serverIp: data.ok ? data.ok : [] });
+          localStorage.setItem("login",JSON.stringify({ ...sessionActiva, serverIp: data.ok ? data.ok : [] }));
           navigate("/inicio", { replace: true });
           if (!data.ok) MsgUtils.msgError(data.error);
         })

@@ -24,7 +24,9 @@ function Competidor({ user, tipo, busqueda }) {
 
     return (
         <div className="card bg-transparent flex-row m-0 p-0 lh-sm" style={{ border: 'none' }}>
-            {user.foto != null && <img width={50} height={50} src={`${server}/adjunto/${user.foto}`} className='my-auto' alt="Foto"></img>}
+            {user.foto != null && <img width={50} height={50} 
+                src={user.foto.startsWith('http') ? user.foto : `${server}/adjunto/${user.foto}`}
+                className='my-auto' alt="Foto"></img>}
             {user.foto == null && <div className='my-auto'><i className="fa-solid fa-house-flag fa-2xl"></i></div>}
             
             <div className='ps-2 my-auto' style={{ fontSize: '16px' }}>

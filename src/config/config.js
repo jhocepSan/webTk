@@ -1,18 +1,10 @@
-import {DB_HOST,DB_NAME,DB_PASSWORD,
-DB_PORT,DB_USER,NAME_SERVER,BOT_TOKEN,CHAT_ID} from './configDeploy.js'
+import {DB_HOST,DB_NAME,DB_PASSWORD,PORT,
+DB_PORT,DB_USER,NAME_SERVER,BOT_TOKEN,CHAT_ID,
+CLOUDINARY_CLOUD_NAME,CLOUDINARY_API_KEY,
+CLOUDINARY_API_SECRET} from './configDeploy.js';
+
 export const configuraciones = {
-    CONFIGDBRED:{
-        user:'vq7v81dtac95ini7cia5',
-        password:'pscale_pw_XvYBfU0owhu9KedXr1CpprHeYAVrRRy7oUu4I6SkDnR',
-        database: 'tkdb',
-        host: 'us-east.connect.psdb.cloud',
-        ssl:{
-            rejectUnauthorized:false
-        },
-        waitForConnections: true,
-        connectionLimit: 20,
-        queueLimit: 0
-    },
+    PORT:PORT,
     CONFIGDBLOCAL:{
         user:DB_USER,
         password:DB_PASSWORD,
@@ -26,5 +18,8 @@ export const configuraciones = {
     NOMBREAPP:"SISTEMA TKD V.1",
     NAMEPUBLIC:NAME_SERVER,
     BOT_TOKEN:BOT_TOKEN,
-    CHAT_ID:CHAT_ID
+    CHAT_ID:CHAT_ID,
+    CLOUDINARY_CLOUD_NAME:CLOUDINARY_CLOUD_NAME,
+    CLOUDINARY_API_KEY:CLOUDINARY_API_KEY,
+    CLOUDINARY_API_SECRET:CLOUDINARY_API_SECRET
 }
