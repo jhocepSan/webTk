@@ -233,6 +233,12 @@ function PrincipalTesting() {
         return cont;
     }, [resultPre]);
 
+    // Faltas de las rondas anteriores + las de la ronda en curso
+    const getFaltasTotales = useCallback((color) => {
+        const actual = color == 'A' ? (parseInt(puntoJuego.faltaA) || 0) : (parseInt(puntoJuego.faltaR) || 0);
+        return getFaltaAcumulada(color) + actual;
+    }, [getFaltaAcumulada, puntoJuego]);
+
     const functionContarPunto = useCallback((lista) => {
         if (!lista.length) return [0, null];
         let conteo = {};
@@ -508,7 +514,7 @@ function PrincipalTesting() {
                                     </div>
                                     <VisorPunto valor={puntoJuego} tipo='A' />
                                     <VisorFaltas valor={puntoJuego} tipo='A'
-                                        resultPre={getFaltaAcumulada('A')}
+                                        resultPre={getFaltasTotales('A')}
                                         botones={useMemo(() => Array(puntoJuego.faltaA || 0).fill(0).map((_, j) => (
                                             <button className='btn btn-sm btn-warning mx-2 text-light text-center fw-bold' key={j}>
                                                 F{j + 1}
@@ -527,7 +533,7 @@ function PrincipalTesting() {
                                     </div>
                                     <VisorPunto valor={puntoJuego} tipo='R' />
                                     <VisorFaltas valor={puntoJuego} tipo='R'
-                                        resultPre={getFaltaAcumulada('R')}
+                                        resultPre={getFaltasTotales('R')}
                                         botones={useMemo(() => Array(puntoJuego.faltaR || 0).fill(0).map((_, j) => (
                                             <button className='btn btn-sm btn-warning mx-2 text-light text-center fw-bold' key={j}>
                                                 F{j + 1}

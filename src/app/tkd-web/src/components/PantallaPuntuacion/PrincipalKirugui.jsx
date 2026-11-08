@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { server } from '../utils/MsgUtils';
 import { useNavigate, Link } from 'react-router-dom';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
@@ -14,10 +14,17 @@ import EstadisticaPelea from '../GamePad/EstadisticaPelea';
 import AdminLlaves from '../ListaCompetidores/AdminLlaves';
 import LlavesConsultas from '../ConsultasApi/LlavesConsultas';
 
+const accionesTeclado = {
+    r: 'puntoRN', R: 'puntoRP', L: 'L', l: 'L',
+    f: 'faltaAR', F: 'faltaA', A: 'puntoAP', a: 'puntoAN',
+    P: 'buttonPlay', Q: 'faltaR', q: 'faltaRR',
+    '.': 'btnReset', '-': 'btnSubMin', '+': 'btnSumMin'
+};
+
 function PrincipalKirugui(props) {
     const { area, setPagina } = props;
     const navigate = useNavigate();
-    const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
+    const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo,userLogin } = useContext(ContextAplicacions);
     const [activarLectura, setActivarLectura] = useState(false);
     const [frecLectura, setFrecLectura] = useState(1000);
     const [configure, setConfigure] = useState({});
@@ -222,45 +229,7 @@ function PrincipalKirugui(props) {
         });
         return [rep_max, elem_max]
     }
-    /*function lecturadeDatos(datos) {
-        if (puntoJuego.isPlay) {
-            var cont = parseInt(localStorage.getItem('contAux'));
-            if (cont < parseInt(configure.esperaTime)) {
-                var valores = functionContarPunto(datos)
-                if (valores[1] != '') {
-                    if (valores[0] >= parseInt(configure.maxJueces)) {
-                        var prePunt = puntoJuego
-                        if (valores[1] == 'd' || valores[1] == 'D' || valores[1] == 'P' || valores[1] == 'c' || valores[1] == 'C') {
-                            prePunt.puntoA = prePunt.puntoA + parseInt(mapPuntos[valores[1]]);
-                        } else {
-                            prePunt.puntoR = prePunt.puntoR + parseInt(mapPuntos[valores[1]]);
-                        }
-                        localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': '' }))
-                        localStorage.setItem('contAux', 0);
-                        if (configure.enableDif) {
-                            if ((prePunt.puntoA - prePunt.puntoR) > parseInt(configure.diffPuntos)) {
-                                hayGanador('A');
-                                setPuntoJuego({ ...prePunt, isPlay: false });
-                                localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': 'A', isPlay: false, 'reset': true }));
-                            } else if ((prePunt.puntoR - prePunt.puntoA) > parseInt(configure.diffPuntos)) {
-                                setPuntoJuego({ ...prePunt, isPlay: false })
-                                hayGanador('R');
-                                localStorage.setItem('doblePant', JSON.stringify({ ...prePunt, nombreA, nombreR, 'gano': 'R', isPlay: false, 'reset': true }));
-                            }
-                            setPuntoJuego({ ...prePunt })
-                        } else {
-                            setPuntoJuego({ ...prePunt })
-                        }
-                        recetearValoresDb()
-                    } else {
-                        localStorage.setItem('contAux', cont + 1);
-                    }
-                }
-            } else {
-                localStorage.setItem('contAux', 0);
-            }
-        }
-    }*/
+
     function lecturadeDatos(datos) {
         const [repeticiones, valorPunto] = datos; // Desestructuración para claridad [2, 'P']
 
@@ -331,8 +300,8 @@ function PrincipalKirugui(props) {
                 if (parseInt(configure.numRound) == puntoJuego.round) {
                     if (configure.enableMaxPoint) {
                         var sumaA = datos.map(item => parseInt(item.puntoA)).reduce((acumulador, numero) => acumulador + numero, 0);
-                        var sumaR = datos.map(item => parseInt(item.puntoA)).reduce((acumulador, numero) => acumulador + numero, 0);
-                        setMsgModal({ 'azul': sumaA, 'rojo': sumaR })
+                        var sumaR = datos.map(item => parseInt(item.puntoR)).reduce((acumulador, numero) => acumulador + numero, 0);
+                        setMsgModal({ 'azul': sumaA, 'rojo': sumaR, 'tipo': 'sumaPuntos' })
                         if (sumaA > sumaR) {
                             setTipoM('AP');
                             localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'A', isPlay: false }))
@@ -346,7 +315,7 @@ function PrincipalKirugui(props) {
                     } else if (configure.enableMaxRound) {
                         var roundA = datos.filter((item) => item.gano == 'A');
                         var roundR = datos.filter((item) => item.gano == 'R');
-                        setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length })
+                        setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length, 'tipo': 'conteoRondas' })
                         if (roundA.length > roundR.length) {
                             setTipoM('AR');
                         } else if (roundR.length > roundA.length) {
@@ -364,11 +333,11 @@ function PrincipalKirugui(props) {
                         localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true }))
                         if ((parseInt(configure.numRound) - roundA.length) == 1) {
                             localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true, 'reset': true }))
-                            setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length })
+                            setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length, 'tipo': 'conteoRondas' })
                             setTipoM('AR');
                         } else if ((parseInt(configure.numRound) - roundR.length) == 1) {
                             localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true, 'reset': true }))
-                            setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length })
+                            setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length, 'tipo': 'conteoRondas' })
                             setTipoM('RR');
                         } else {
                             setShowModal(false);
@@ -441,56 +410,64 @@ function PrincipalKirugui(props) {
         var cont = 0;
         for (var valPre of resultPre) {
             if (color == 'A') {
-                cont += parseInt(valPre.faltaA);
+                cont += parseInt(valPre.faltaA) || 0;
             } else if (color == 'R') {
-                cont += parseInt(valPre.faltaR);
+                cont += parseInt(valPre.faltaR) || 0;
             }
         }
         return cont;
+    }
+
+    // Faltas de las rondas anteriores + las de la ronda en curso
+    function getFaltasTotales(color) {
+        var actual = color == 'A' ? parseInt(puntoJuego.faltaA) || 0 : parseInt(puntoJuego.faltaR) || 0;
+        return getFaltaAcumulada(color) + actual;
     }
     function showStadistic(valor) {
         setMandoLec(valor);
         setTipoM('S');
         setShowModal(true);
     }
-    const manejarAtajoTeclado = (event) => {
-        //console.log(event)
-        if (event.key == 'r') {
-            document.getElementById('puntoRN').click()
-        } else if (event.key == 'R') {
-            document.getElementById('puntoRP').click()
-        } else if (event.key == 'L') {
+    const manejarAtajoTeclado = useCallback((event) => {
+        const id = accionesTeclado[event.key];
+        if (id === 'L') {
             setActivarLectura(true);
-        } else if (event.key == 'l') {
+        } else if (id === 'l') {
             setActivarLectura(false);
-        } else if (event.key == 'f') {
-            document.getElementById('faltaAR').click()
-        } else if (event.key == 'F') {
-            document.getElementById('faltaA').click()
-        } else if (event.key == 'A') {
-            document.getElementById('puntoAP').click()
-        } else if (event.key == 'a') {
-            document.getElementById('puntoAN').click()
-        } else if (event.key == 'P') {
-            document.getElementById('buttonPlay').click()
-        } else if (event.key == 'Q') {
-            document.getElementById('faltaR').click()
-        } else if (event.key == 'q') {
-            document.getElementById('faltaRR').click()
-        } else if (event.key == '.') {
-            document.getElementById('btnReset').click()
-        } else if (event.key == '-') {
-            document.getElementById('btnSubMin').click()
-        } else if (event.key == '+') {
-            document.getElementById('btnSumMin').click()
+        } else if (id) {
+            document.getElementById(id)?.click();
         }
-    };
+    }, []);
+    const refreshConfiguration = () => {
+        var conf = JSON.parse(localStorage.getItem('kirugui'));
+        if (conf !== null) {
+            setMapPuntos({
+                'd': conf.puntosCabeza, 'D': conf.puntosCabezaGiro, 'P': conf.puntosPunio, 'c': conf.puntosPeto, 'C': conf.puntosPetoGiro,
+                'b': conf.puntosCabeza, 'B': conf.puntosCabezaGiro, 'E': conf.puntosPunio, 'a': conf.puntosPeto, 'A': conf.puntosPetoGiro
+            });
+            setFrecLectura(parseInt(conf.frecLectura));
+            setConfigure(conf);
+            var listaAr = []
+            for (var i = 0; i < parseInt(conf.cantAreas); i++) {
+                listaAr.push({ 'id': i + 1, 'nombre': 'Area ' + (i + 1) })
+            }
+            setAreas(listaAr)
+            MsgUtils.msgCorrecto("Configuracion de Combate Realizado ...")
+        } else {
+            MsgUtils.msgError("Configuracion no Existente ....");
+        }
+    }
+    useEffect(() => {
+        window.addEventListener('keydown', manejarAtajoTeclado);
+        return () => {
+            window.removeEventListener('keydown', manejarAtajoTeclado);
+        };
+    }, [manejarAtajoTeclado]);
     useEffect(() => {
         //setCargador(true);
         localStorage.setItem("contAux", 0);
         var sessionActiva = JSON.parse(localStorage.getItem('login'));
         var cmp = JSON.parse(localStorage.getItem('campeonato'));
-        var conf = JSON.parse(localStorage.getItem('kirugui'));
         if (sessionActiva !== null) {
             setTitulo('PUNTUACION COMBATE');
             setCampeonato(cmp);
@@ -499,29 +476,8 @@ function PrincipalKirugui(props) {
             navigate("/nuevaPantallaK", { replace: true });
             getClubes(cmp);
         }
-        if (conf !== null) {
-            setMapPuntos({
-                'd': conf.puntosCabeza, 'D': conf.puntosCabezaGiro, 'P': conf.puntosPunio, 'c': conf.puntosPeto, 'C': conf.puntosPetoGiro,
-                'b': conf.puntosCabeza, 'B': conf.puntosCabezaGiro, 'E': conf.puntosPunio, 'a': conf.puntosPeto, 'A': conf.puntosPetoGiro
-            })
-            setFrecLectura(parseInt(conf.frecLectura));
-            setConfigure(conf);
-            var listaAr = []
-            for (var i = 0; i < parseInt(conf.cantAreas); i++) {
-                listaAr.push({ 'id': i + 1, 'nombre': 'Area ' + (i + 1) })
-            }
-            setAreas(listaAr)
-        } else {
-            MsgUtils.msgError("Configuracion no Existente ....")
-        }
-        window.addEventListener('keydown', manejarAtajoTeclado);
-
-        // Limpiar el evento de escucha al desmontar el componente
-        return () => {
-            window.removeEventListener('keydown', manejarAtajoTeclado);
-        };
+        refreshConfiguration();
     }, [])
-
     return (
         <div>
             <div className='container-fluid py-2' id='PuntoKirugui'>
@@ -539,10 +495,10 @@ function PrincipalKirugui(props) {
                             activarLectura={activarLectura}
                             configure={configure.numMandos != undefined ? configure : null}
                             collback={lecturadeDatos}
-                            puntoJuego={puntoJuego} showStadistic={showStadistic} areaname={area} />
+                            puntoJuego={puntoJuego} showStadistic={showStadistic} areaname={area} userLogin={userLogin}/>
                     </div>
                     <div className='col col-sm-12 col-md-10'>
-                        <div className='container-fluid fondoControles '>
+                        <div className='container-fluid'>
                             <div className="row row-cols g-0">
                                 <button type="button" className="btn btn-sm mx-1 btn-sm botonMenu d-none"
                                     id='buttonFinal'
@@ -580,11 +536,19 @@ function PrincipalKirugui(props) {
                                     Round {puntoJuego.round}<br></br>AREA {idArea == 0 ? '?' : idArea}
                                 </div>
                                 <div className='text-center my-auto mx-1 mx-auto' style={{ fontSize: '45px', width: '230px' }} >
-                                    <RelojKirugui valor={puntoJuego} conf={configure} tipo='r' collback={() => {calcularResultado()}} doble={false} />
+                                    <RelojKirugui valor={puntoJuego} conf={configure} tipo='r' collback={() => { calcularResultado() }} doble={false} />
                                 </div>
                                 <div className='text-center my-auto mx-1 mx-auto' style={{ fontSize: '45px', width: '230px' }} >
                                     {puntoJuego.isPlay == false &&
                                         <RelojKirugui valor={puntoJuego} conf={configure} tipo='s' collback={() => ''} doble={false} />}
+                                </div>
+                                <div className='col my-auto' style={{ minWidth: '65px', maxWidth: '65px' }}>
+                                    <button type="button" className="btn mx-1 btn-sm botonMenu"
+                                        text='Recargar Configuracion de Combates'
+                                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Iniciar Competencia" id='buttonPlay'
+                                        onClick={() => refreshConfiguration()}>
+                                        <span className='fs-2 fh-1'>⚙️</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -601,7 +565,7 @@ function PrincipalKirugui(props) {
                                             </h4>}
                                     </div>
                                     <VisorPunto valor={puntoJuego} tipo='A' />
-                                    <VisorFaltas valor={puntoJuego} tipo='A' resultPre={getFaltaAcumulada('A')} />
+                                    <VisorFaltas valor={puntoJuego} tipo='A' resultPre={getFaltasTotales('A')} />
                                 </div>
                                 <div className='col bg-danger bg-gradient col-md-6'>
                                     <div className='w-100 p-2 lh-1'>
@@ -614,7 +578,7 @@ function PrincipalKirugui(props) {
                                             </h4>}
                                     </div>
                                     <VisorPunto valor={puntoJuego} tipo='R' />
-                                    <VisorFaltas valor={puntoJuego} tipo='R' resultPre={getFaltaAcumulada('R')} />
+                                    <VisorFaltas valor={puntoJuego} tipo='R' resultPre={getFaltasTotales('R')} />
                                 </div>
                             </div>
                         </div>
@@ -792,10 +756,22 @@ function PrincipalKirugui(props) {
                             <div className='row row-cols-2 gx-2' >
                                 <div className='col text-primary fw-bold tituloMenu text-center '
                                     style={{ fontSize: '90px' }}>
-                                    <div className='bg-light'>{msgModal.azul}</div>
+                                    <div className='bg-light'>
+                                        {msgModal.tipo === 'conteoRondas'
+                                            ? `Rondas ${msgModal.azul}`
+                                            : msgModal.tipo === 'sumaPuntos'
+                                                ? `Puntos ${msgModal.azul}`
+                                                : msgModal.azul}
+                                    </div>
                                 </div>
                                 <div className='col text-danger fw-bold tituloMenu text-center' style={{ fontSize: '90px' }}>
-                                    <div className='bg-light'>{msgModal.rojo}</div>
+                                    <div className='bg-light'>
+                                        {msgModal.tipo === 'conteoRondas'
+                                            ? `Rondas ${msgModal.rojo}`
+                                            : msgModal.tipo === 'sumaPuntos'
+                                                ? `Puntos ${msgModal.rojo}`
+                                                : msgModal.rojo}
+                                    </div>
                                 </div>
                             </div>
                         </div>}
