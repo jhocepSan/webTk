@@ -21,7 +21,7 @@ async function InitServer() {
         var port = app.get('port')
         app.listen(port,()=>{
             console.log('funcionando servidos en puerto '+ port);
-            const service = instanceBonjour.publish({
+            /*const service = instanceBonjour.publish({
                 name: configuraciones.NAMEPUBLIC,
                 type: 'http',                    
                 port: port,                      
@@ -32,7 +32,7 @@ async function InitServer() {
 
             service.on('error', (error) => {
                 console.log("Error en publicación Bonjour:", error);
-            });
+            });*/
         });
     } catch (error) {
         console.log("Error iniciar Servidor : " + error)
