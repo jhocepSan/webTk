@@ -128,8 +128,9 @@ function scoreCombate() {
   // por eso el ganador tambien abre el panel
   const mostrarPanel = !puntoJuego.isPlay || hayGanador || empate;
 
-  // Serpentinas cuando aparece un ganador (fin de round o resultado final)
-  const claveFestejo = resultadoFinal ? `final-${resultadoFinal.gano}`
+  // Serpentinas solo cuando aparece un ganador (nunca en un empate)
+  const claveFestejo = resultadoFinal
+    ? (resultadoFinal.gano === 'A' || resultadoFinal.gano === 'R' ? `final-${resultadoFinal.gano}` : '')
     : hayGanador ? `round-${puntoJuego.round}-${puntoJuego.gano}`
       : '';
   const festejado = useRef('');
@@ -206,13 +207,25 @@ function scoreCombate() {
               <div className='fa-fade' style={{ fontSize: 'clamp(40px, 9vw, 190px)' }}>{nombreGanador}</div>
               <div style={{ fontSize: 'clamp(26px, 5vw, 110px)' }}>{puntoJuego.puntoR} - {puntoJuego.puntoA}</div>
             </div>}
-          {!resultadoFinal && !hayGanador &&
+          {!resultadoFinal && !hayGanador && empate &&
+            <div className='lh-1'>
+              <div style={{ fontSize: 'clamp(20px, 3.5vw, 70px)' }}>ROUND {puntoJuego.round}</div>
+              <div className='fa-fade' style={{ fontSize: 'clamp(40px, 9vw, 190px)' }}>EMPATE</div>
+              <div style={{ fontSize: 'clamp(26px, 5vw, 110px)' }}>{puntoJuego.puntoR} - {puntoJuego.puntoA}</div>
+              <div className='fw-normal' style={{ fontSize: 'clamp(14px, 1.8vw, 34px)' }}>
+                {nombreR} / {nombreA}
+              </div>
+              <div className='reloj-digitaP text-light fw-bold mx-auto' style={{ borderRadius: '15px', fontSize: 'clamp(26px, 6vw, 110px)' }}>
+                {formatearTiempo(restanteDescanso)}
+              </div>
+            </div>}
+          {!resultadoFinal && !hayGanador && !empate &&
             <div className='lh-1'>
               <div className='reloj-digitaP text-light fw-bold mx-auto' style={{ borderRadius: '15px', fontSize: 'clamp(30px, 8vw, 160px)' }}>
                 {formatearTiempo(restanteDescanso)}
               </div>
               <div style={{ fontSize: 'clamp(24px, 6vw, 120px)' }}>
-                {empate ? 'EMPATE' : 'PAUSA'}
+                PAUSA
               </div>
             </div>}
         </div>}

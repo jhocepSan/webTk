@@ -1,10 +1,8 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react'
-import { server } from '../utils/MsgUtils';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom';
 import { ContextAplicacions } from '../Context/ContextAplicacion';
 import VistaMandos from '../GamePad/VistaMandos';
-import { useQuery } from '@tanstack/react-query';
-import { getMandosPuntuados, getListaClubs } from '../utils/UtilsConsultas';
+import { getListaClubs } from '../utils/UtilsConsultas';
 import RelojKirugui from '../GamePad/RelojKirugui';
 import VisorPunto from '../GamePad/VisorPunto';
 import VisorFaltas from '../GamePad/VisorFaltas';
@@ -15,19 +13,67 @@ import AdminLlaves from '../ListaCompetidores/AdminLlaves';
 import LlavesConsultas from '../ConsultasApi/LlavesConsultas';
 
 const accionesTeclado = {
-    r: 'puntoRN', R: 'puntoRP', L: 'L', l: 'L',
+    r: 'puntoRN', R: 'puntoRP', L: 'L', l: 'l',
     f: 'faltaAR', F: 'faltaA', A: 'puntoAP', a: 'puntoAN',
     P: 'buttonPlay', Q: 'faltaR', q: 'faltaRR',
     '.': 'btnReset', '-': 'btnSubMin', '+': 'btnSumMin'
 };
 
-function PrincipalKirugui(props) {
-    const { area, setPagina } = props;
+// Forma unica del estado de un combate: evita objetos con campos que aparecen y desaparecen
+const PUNTAJE_INICIAL = {
+    'isPlay': false, 'round': 1, 'reset': false, 'newRound': false,
+    'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'gano': '', 'final': null
+};
+
+// Valores numericos de configuracion con su valor por defecto (evita los NaN)
+const CONFIG_POR_DEFECTO = {
+    'falta': 1, 'diffPuntos': 0, 'maxFaltas': 0, 'numRound': 0, 'maxJueces': 0
+};
+
+// tipoM -> color ganador ('AP' = azul por puntos, 'RR' = rojo por rondas, etc.)
+const COLOR_GANADOR = { 'A': 'A', 'AP': 'A', 'AR': 'A', 'R': 'R', 'RP': 'R', 'RR': 'R' };
+
+const NOTAS = [261, 277, 293, 311, 329, 349, 369, 392, 415, 440, 466, 493];
+
+function aEntero(valor, porDefecto = 0) {
+    const numero = parseInt(valor, 10);
+    return Number.isFinite(numero) ? numero : porDefecto;
+}
+
+function leerJSON(clave, porDefecto = null) {
+    try {
+        const valor = localStorage.getItem(clave);
+        return valor ? JSON.parse(valor) : porDefecto;
+    } catch (error) {
+        return porDefecto;
+    }
+}
+
+// Deja la configuracion con todos sus numeros validos, conservando el resto de claves
+function normalizarConfig(conf) {
+    const origen = (conf && typeof conf === 'object') ? conf : {};
+    const normalizada = { ...origen };
+    Object.keys(CONFIG_POR_DEFECTO).forEach((clave) => {
+        normalizada[clave] = aEntero(origen[clave], CONFIG_POR_DEFECTO[clave]);
+    });
+    return normalizada;
+}
+
+// Un solo AudioContext para toda la pantalla: los navegadores limitan cuantos se pueden crear
+let contextoAudio = null;
+function obtenerContextoAudio() {
+    const Constructor = window.AudioContext || window.webkitAudioContext;
+    if (!Constructor) return null;
+    if (!contextoAudio || contextoAudio.state === 'closed') contextoAudio = new Constructor();
+    if (contextoAudio.state === 'suspended') contextoAudio.resume().catch(() => { });
+    return contextoAudio;
+}
+
+function PrincipalKirugui({ area = 0, setPagina }) {
     const navigate = useNavigate();
-    const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo,userLogin } = useContext(ContextAplicacions);
+    const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo, userLogin } = useContext(ContextAplicacions);
     const [activarLectura, setActivarLectura] = useState(false);
-    const [frecLectura, setFrecLectura] = useState(1000);
-    const [configure, setConfigure] = useState({});
+    const [configure, setConfigure] = useState(() => normalizarConfig(null));
     const [clubes, setClubes] = useState([]);
     const [idClubA, setIdClubA] = useState(-1);
     const [idClubR, setIdClubR] = useState(-1);
@@ -36,29 +82,64 @@ function PrincipalKirugui(props) {
     const [showModal, setShowModal] = useState(false);
     const [tipoM, setTipoM] = useState('');
     const [mapPuntos, setMapPuntos] = useState({});
-    const [puntoJuego, setPuntoJuego] = useState({
-        'isPlay': false, 'round': 1, 'reset': false,
-        'puntoA': 0, 'faltaA': 0,
-        'puntoR': 0, 'faltaR': 0
-    });
-    const [areas, setAreas] = useState([]);
+    const [puntoJuego, setPuntoJuego] = useState({ ...PUNTAJE_INICIAL });
     const [idArea, setIdArea] = useState(area);
     const [msgModal, setMsgModal] = useState({});
     const [resultPre, setResultPre] = useState([]);
     const [mandoLec, setMandoLec] = useState([]);
     const [ventana, setVentana] = useState(0);
     const [selectPelea, setSelectPelea] = useState(null);
-    /*const { isLoading, data, isError, error } = useQuery(
-        {
-            queryKey: ['mandos'],
-            queryFn: () => getMandosPuntuados(
-                {
-                    sector: area,
-                    cont: localStorage.getItem('contAux') != undefined ? 0 : localStorage.getItem('contAux')
-                }),
-            refetchInterval: activarLectura ? frecLectura : false
+    const [enviando, setEnviando] = useState(false);
+
+    // Resumen de las rondas ya cerradas: se calcula una sola vez por cambio de resultPre
+    const resumenPre = useMemo(() => {
+        let faltasA = 0, faltasR = 0, roundsA = 0, roundsR = 0;
+        for (const item of resultPre) {
+            faltasA += aEntero(item.faltaA);
+            faltasR += aEntero(item.faltaR);
+            if (item.gano === 'A') roundsA += 1;
+            else if (item.gano === 'R') roundsR += 1;
         }
-    )*/
+        return { faltasA, faltasR, roundsA, roundsR };
+    }, [resultPre]);
+
+    // Faltas de las rondas anteriores + las de la ronda en curso
+    function getFaltasTotales(color) {
+        return color === 'A'
+            ? resumenPre.faltasA + aEntero(puntoJuego.faltaA)
+            : resumenPre.faltasR + aEntero(puntoJuego.faltaR);
+    }
+
+    function getRoundWin(color) {
+        return color === 'A' ? resumenPre.roundsA : resumenPre.roundsR;
+    }
+
+    // Unica salida hacia la pantalla extendida: siempre con los mismos campos
+    function publicarPantalla(estado, extra = {}) {
+        localStorage.setItem('doblePant', JSON.stringify({
+            ...PUNTAJE_INICIAL, ...estado, nombreA, nombreR, area: idArea, ...extra
+        }));
+    }
+
+    // Cambia el estado y lo publica en un solo paso
+    function aplicarEstado(cambios, extra = {}) {
+        const nuevo = { ...puntoJuego, ...cambios };
+        setPuntoJuego(nuevo);
+        publicarPantalla(nuevo, extra);
+        return nuevo;
+    }
+
+    // Regla de diferencia de puntos: se cierra al alcanzar la diferencia configurada
+    function evaluarDiferencia(puntos) {
+        if (!configure.enableDif) return '';
+        const diferenciaMaxima = aEntero(configure.diffPuntos);
+        if (diferenciaMaxima <= 0) return '';
+        const diferencia = aEntero(puntos.puntoA) - aEntero(puntos.puntoR);
+        if (diferencia >= diferenciaMaxima) return 'A';
+        if (-diferencia >= diferenciaMaxima) return 'R';
+        return '';
+    }
+
     function hayGanador(color) {
         Sonido(5);
         setTipoM(color);
@@ -69,309 +150,271 @@ function PrincipalKirugui(props) {
         setNombreR('');
         setIdClubA(-1);
         setIdClubR(-1);
-        setPuntoJuego({
-            'isPlay': false, 'round': 1, 'reset': true,
-            'puntoA': 0, 'faltaA': 0,
-            'puntoR': 0, 'faltaR': 0
-        })
+        setPuntoJuego({ ...PUNTAJE_INICIAL, 'reset': true });
         setResultPre([]);
         setSelectPelea(null);
         setMsgModal({});
-        localStorage.setItem('doblePant', JSON.stringify({
-            'isPlay': false, 'round': 1, 'reset': true, 'puntoA': 0, 'faltaA': 0,
-            'puntoR': 0, 'faltaR': 0, 'nombreA': '', 'nombreR': '', 'gano': '', 'area': idArea
-        }))
+        publicarPantalla({ ...PUNTAJE_INICIAL, 'reset': true }, { nombreA: '', nombreR: '' });
     }
     const getClubes = async () => {
-        if (clubes.length == 0) {
-            var resut = await getListaClubs();
+        if (clubes.length > 0) return;
+        try {
+            const resut = await getListaClubs();
             if (resut.ok) {
                 setClubes(resut.ok);
             } else {
                 MsgUtils.msgError(resut.error);
             }
+        } catch (error) {
+            MsgUtils.msgError(error.message);
         }
     }
     function getClubesNombre(id) {
-        var nombre = clubes.filter((item) => item.idclub == id)[0]
-        return nombre.nombre;
+        const club = clubes.find((item) => item.idclub == id);
+        return club ? club.nombre : '';
     }
     function procesarFalta(tipo, valor) {
-        if (tipo) {
-            if ((parseInt(valor) < 0 && puntoJuego.faltaA > 0) || (parseInt(valor) > 0 && puntoJuego.faltaA >= 0)) {
-                setPuntoJuego({ ...puntoJuego, faltaA: puntoJuego.faltaA + valor, puntoR: puntoJuego.puntoR + (valor * parseInt(configure.falta)) });
-                localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, faltaA: puntoJuego.faltaA + valor, nombreA, nombreR, puntoR: puntoJuego.puntoR + (valor * parseInt(configure.falta)), 'gano': '' }))
-                if (puntoJuego.faltaA + valor == configure.maxFaltas) {
-                    hayGanador('R');
-                    setPuntoJuego({ ...puntoJuego, isPlay: false, faltaA: puntoJuego.faltaA + valor, 'reset': true, puntoR: puntoJuego.puntoR + (valor * parseInt(configure.falta)) });
-                    localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, isPlay: false, faltaA: puntoJuego.faltaA + valor, nombreA, nombreR, 'gano': 'R', 'reset': true, puntoR: puntoJuego.puntoR + (valor * parseInt(configure.falta)) }))
-                }
-            }
-        } else {
-            if ((parseInt(valor) < 0 && puntoJuego.faltaR > 0) || (parseInt(valor) > 0 && puntoJuego.faltaR >= 0)) {
-                setPuntoJuego({ ...puntoJuego, faltaR: puntoJuego.faltaR + valor, puntoA: puntoJuego.puntoA + (valor * parseInt(configure.falta)) });
-                localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, faltaR: puntoJuego.faltaR + valor, nombreA, nombreR, 'gano': '', puntoA: puntoJuego.puntoA + (valor * parseInt(configure.falta)) }))
-                if (puntoJuego.faltaR + valor == configure.maxFaltas) {
-                    setPuntoJuego({ ...puntoJuego, isPlay: false, faltaR: puntoJuego.faltaR + valor, 'reset': true, puntoA: puntoJuego.puntoA + (valor * parseInt(configure.falta)) });
-                    localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, isPlay: false, 'reset': true, faltaR: puntoJuego.faltaR + valor, nombreA, nombreR, 'gano': 'A', puntoA: puntoJuego.puntoA + (valor * parseInt(configure.falta)) }))
-                    hayGanador('A');
-                }
-            }
+        const delta = aEntero(valor);
+        const campoFalta = tipo ? 'faltaA' : 'faltaR';
+        const campoRival = tipo ? 'puntoR' : 'puntoA';
+        const faltaActual = aEntero(puntoJuego[campoFalta]);
+        if (delta < 0 && faltaActual <= 0) return;
+
+        const nuevaFalta = Math.max(0, faltaActual + delta);
+        const puntosFalta = aEntero(configure.falta);
+        const nuevo = {
+            ...puntoJuego,
+            [campoFalta]: nuevaFalta,
+            [campoRival]: aEntero(puntoJuego[campoRival]) + (delta * puntosFalta),
+            'gano': '', 'final': null
+        };
+
+        const maxFaltas = aEntero(configure.maxFaltas);
+        if (maxFaltas > 0 && nuevaFalta >= maxFaltas) {
+            const ganoFalta = tipo ? 'R' : 'A';
+            const finalizado = { ...nuevo, 'isPlay': false, 'reset': true, 'gano': ganoFalta };
+            setPuntoJuego(finalizado);
+            publicarPantalla(finalizado);
+            hayGanador(ganoFalta);
+            return;
         }
+
+        aplicarEstado(nuevo);
     }
     function procesarPunto(color, valor) {
-        var puntoj = puntoJuego;
-        if (color) {
-            if ((parseInt(valor) < 0 && puntoJuego.puntoA > 0) || (parseInt(valor) > 0 && puntoJuego.puntoA >= 0)) {
-                puntoj.puntoA += valor;
-                setPuntoJuego({ ...puntoJuego, puntoA: puntoj.puntoA });
-                localStorage.setItem('doblePant', JSON.stringify({ ...puntoj, nombreA, nombreR, 'gano': '' }))
-            }
-        } else {
-            if ((parseInt(valor) < 0 && puntoJuego.puntoR > 0) || (parseInt(valor) > 0 && puntoJuego.puntoR >= 0)) {
-                puntoj.puntoR += valor;
-                setPuntoJuego({ ...puntoJuego, puntoR: puntoj.puntoR });
-                localStorage.setItem('doblePant', JSON.stringify({ ...puntoj, nombreA, nombreR, 'gano': '' }))
-            }
+        const delta = aEntero(valor);
+        const campo = color ? 'puntoA' : 'puntoR';
+        const actual = aEntero(puntoJuego[campo]);
+        if (delta < 0 && actual <= 0) return;
+
+        const nuevo = { ...puntoJuego, [campo]: Math.max(0, actual + delta), 'gano': '', 'final': null };
+        const ganoDiferencia = evaluarDiferencia(nuevo);
+        if (ganoDiferencia) {
+            aplicarEstado({ ...nuevo, 'isPlay': false, 'reset': true, 'gano': ganoDiferencia });
+            hayGanador(ganoDiferencia);
+            return;
         }
-        if (configure.enableDif) {
-            if (puntoj.puntoA - puntoj.puntoR >= parseInt(configure.diffPuntos)) {
-                hayGanador('A');
-                setPuntoJuego({ ...puntoj, isPlay: false, 'reset': true, })
-                Sonido(5);
-                localStorage.setItem('doblePant', JSON.stringify({ ...puntoj, isPlay: false, nombreA, nombreR, 'gano': 'A', 'reset': true }))
-            } else if (puntoj.puntoR - puntoj.puntoA >= parseInt(configure.diffPuntos)) {
-                hayGanador('R');
-                Sonido(5);
-                setPuntoJuego({ ...puntoj, isPlay: false, 'reset': true, })
-                localStorage.setItem('doblePant', JSON.stringify({ ...puntoj, isPlay: false, nombreA, nombreR, 'gano': 'R', 'reset': true }))
-            }
-        }
+        aplicarEstado(nuevo);
     }
+
+    // Cierra la ronda/combate cuando se acaba el tiempo: una sola regla decide
     function calcularResultado() {
         ejecutarJuego(false);
         if (configure.enableMaxRound) {
-            if (parseInt(puntoJuego.puntoA) > parseInt(puntoJuego.puntoR)) {
-                hayGanador('A');
-                localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'A', isPlay: false }))
-            } else if (parseInt(puntoJuego.puntoR) > parseInt(puntoJuego.puntoA)) {
-                hayGanador('R');
-                localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'R', isPlay: false }))
-            }
-        }
-        if (configure.enableMaxPoint) {
-            if (parseInt(puntoJuego.puntoA) > parseInt(puntoJuego.puntoR)) {
-                hayGanador('A');
-                localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'A', isPlay: false }))
-            } else if (parseInt(puntoJuego.puntoR) > parseInt(puntoJuego.puntoA)) {
-                hayGanador('R');
-                localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'R', isPlay: false }))
-            } else {
-                hayGanador('EM');
-                localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'EM', isPlay: false }))
-            }
+            const diferencia = aEntero(puntoJuego.puntoA) - aEntero(puntoJuego.puntoR);
+            if (diferencia > 0) declararFinPeriodo('A');
+            else if (diferencia < 0) declararFinPeriodo('R');
+            // Ronda empatada: el combate no puede quedarse sin cerrar
+            else declararFinPeriodo('EM');
+        } else if (configure.enableMaxPoint) {
+            const diferencia = aEntero(puntoJuego.puntoA) - aEntero(puntoJuego.puntoR);
+            if (diferencia > 0) declararFinPeriodo('A');
+            else if (diferencia < 0) declararFinPeriodo('R');
+            else declararFinPeriodo('EM');
         }
     }
+
+    function declararFinPeriodo(color) {
+        // El modal muestra los puntos de esta ronda, nunca los de un combate anterior
+        setMsgModal({
+            'azul': aEntero(puntoJuego.puntoA),
+            'rojo': aEntero(puntoJuego.puntoR),
+            'tipo': 'puntosActuales'
+        });
+        aplicarEstado({ 'gano': color, 'isPlay': false, 'final': null });
+        hayGanador(color);
+    }
+
     function declararGanador(punto, color) {
-        if (color == 'A') {
-            setPuntoJuego({ ...puntoJuego, puntoA: punto });
-            hayGanador('A');
-            localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, puntoA: punto, nombreA, nombreR, 'gano': 'A' }))
-        } else if (color == 'R') {
-            setPuntoJuego({ ...puntoJuego, puntoR: punto });
-            hayGanador('R');
-            localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, puntoA: punto, nombreA, nombreR, 'gano': 'R' }))
-        }
+        if (color == 'A') aplicarEstado({ 'puntoA': aEntero(punto), 'gano': 'A' });
+        else if (color == 'R') aplicarEstado({ 'puntoR': aEntero(punto), 'gano': 'R' });
+        hayGanador(color);
     }
-    const resultadoFinal = async () => {
-        console.log(msgModal)
-        console.log(resultPre)
-        console.log(puntoJuego)
-        console.log(selectPelea)
-        var idganador, idperdedor;
+
+    // El ganador sale del resultado del combate (tipoM), nunca del texto del modal
+    const resultadoFinal = async (colorForzado) => {
+        const colorGanador = colorForzado || COLOR_GANADOR[tipoM] || '';
+        if (!colorGanador) {
+            MsgUtils.msgError('Combate empatado: elija quien gana antes de guardar.');
+            return;
+        }
+        if (!selectPelea) {
+            MsgUtils.msgError('Elija una pelea antes de guardar ...');
+            return;
+        }
+        if (enviando) return;
+        setEnviando(true);
         try {
-            if (msgModal.azul > msgModal.rojo) {
-                idganador = selectPelea.idcompetidor1;
-                idperdedor = selectPelea.idcompetidor2;
-            } else {
-                idganador = selectPelea.idcompetidor2;
-                idperdedor = selectPelea.idcompetidor1;
-            }
-            var result = await LlavesConsultas.procesarLlavePelea({
+            const esAzul = colorGanador === 'A';
+            const idganador = esAzul ? selectPelea.idcompetidor1 : selectPelea.idcompetidor2;
+            const idperdedor = esAzul ? selectPelea.idcompetidor2 : selectPelea.idcompetidor1;
+            const result = await LlavesConsultas.procesarLlavePelea({
                 idganador, idperdedor, 'nivel': selectPelea.tipo, 'idpelea': selectPelea.idpelea, 'idllave': selectPelea.idllave
             });
             if (result.ok) {
                 MsgUtils.msgCorrecto(result.ok);
-                setResultPre([])
                 setShowModal(false);
-                document.getElementById('btnReset').click();
+                recetearValores();
             } else {
                 MsgUtils.msgError(result.error)
             }
         } catch (error) {
             MsgUtils.msgError(error.message);
+        } finally {
+            setEnviando(false);
         }
     }
-    function functionContarPunto(lista) {
-        let conteo = {}
-        let rep_max = 0;
-        let elem_max;
-        lista.map(element => {
-            if (conteo[element]) {
-                conteo[element] += 1;
-            } else {
-                conteo[element] = 1;
-            }
-            if (rep_max < conteo[element]) {
-                rep_max = conteo[element];
-                elem_max = element
-            }
-        });
-        return [rep_max, elem_max]
-    }
-
     function lecturadeDatos(datos) {
         const [repeticiones, valorPunto] = datos; // Desestructuración para claridad [2, 'P']
+        if (!puntoJuego.isPlay || valorPunto === '') return;
 
-        if (puntoJuego.isPlay && valorPunto !== '') {
-            const minJueces = parseInt(configure.maxJueces);
+        const minJueces = aEntero(configure.maxJueces);
+        // Sin configuracion de jueces no se otorgan puntos por lectura
+        if (minJueces <= 0 || repeticiones < minJueces) return;
 
-            if (repeticiones >= minJueces) {
-                // 1. CREAR UNA COPIA NUEVA DEL OBJETO (Inmutabilidad)
-                let nuevoPunto = { ...puntoJuego };
-                const valorASumar = parseInt(mapPuntos[valorPunto] || 0);
+        const valorASumar = aEntero(mapPuntos[valorPunto]);
+        const campo = ['d', 'D', 'P', 'c', 'C'].includes(valorPunto) ? 'puntoA' : 'puntoR';
+        const nuevoPunto = {
+            ...puntoJuego,
+            [campo]: aEntero(puntoJuego[campo]) + valorASumar,
+            'gano': '', 'final': null
+        };
 
-                // 2. Actualizar la copia
-                if (['d', 'D', 'P', 'c', 'C'].includes(valorPunto)) {
-                    nuevoPunto.puntoA += valorASumar;
-                } else {
-                    nuevoPunto.puntoR += valorASumar;
-                }
-
-                // Lógica de ganador
-                let gano = '';
-                if (configure.enableDif) {
-                    const diff = nuevoPunto.puntoA - nuevoPunto.puntoR;
-                    const diffMax = parseInt(configure.diffPuntos);
-
-                    if (diff > diffMax) {
-                        gano = 'A';
-                        nuevoPunto.isPlay = false;
-                        hayGanador('A');
-                    } else if (diff < -diffMax) {
-                        gano = 'R';
-                        nuevoPunto.isPlay = false;
-                        hayGanador('R');
-                    }
-                }
-
-                // 3. ACTUALIZAR ESTADO Y LOCALSTORAGE CON LA COPIA
-                setPuntoJuego(nuevoPunto);
-                localStorage.setItem('contAux', 0);
-                localStorage.setItem('doblePant', JSON.stringify({
-                    ...nuevoPunto,
-                    nombreA,
-                    nombreR,
-                    gano
-                }));
-            }
+        const gano = evaluarDiferencia(nuevoPunto);
+        if (gano) {
+            nuevoPunto.isPlay = false;
+            nuevoPunto.reset = true;
+            nuevoPunto.gano = gano;
+            hayGanador(gano);
         }
-    }
-    function recetearValoresDb() {
-        fetch(`${server}/mandojuec/limpiarLecturas/${0}`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json;charset=utf-8',
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
 
-            })
-            .catch(error => MsgUtils.msgError(error));
+        setPuntoJuego(nuevoPunto);
+        localStorage.setItem('contAux', 0);
+        publicarPantalla(nuevoPunto);
     }
-    const guardarCombate = async () => {
+    const guardarCombate = async (colorForzado) => {
+        if (enviando) return;
+        if (!selectPelea) {
+            MsgUtils.msgError('Elija una pelea antes de guardar ...');
+            return;
+        }
+        setEnviando(true);
         try {
-            var result = await LlavesConsultas.addSeguimientoPelea({ ...puntoJuego, 'idpelea': selectPelea.idpelea });
-            if (result.ok) {
-                setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }])
-                var datos = [...resultPre, { ...puntoJuego, 'gano': tipoM }]
-                if (parseInt(configure.numRound) == puntoJuego.round) {
-                    if (configure.enableMaxPoint) {
-                        var sumaA = datos.map(item => parseInt(item.puntoA)).reduce((acumulador, numero) => acumulador + numero, 0);
-                        var sumaR = datos.map(item => parseInt(item.puntoR)).reduce((acumulador, numero) => acumulador + numero, 0);
-                        setMsgModal({ 'azul': sumaA, 'rojo': sumaR, 'tipo': 'sumaPuntos' })
-                        if (sumaA > sumaR) {
-                            setTipoM('AP');
-                            localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'A', isPlay: false }))
-                        } else if (sumaR > sumaA) {
-                            setTipoM('RP');
-                            localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, nombreA, nombreR, 'gano': 'R', isPlay: false }))
-                        } else {
-                            setTipoM('EP');
-                        }
-                        //setShowModal(true);
-                    } else if (configure.enableMaxRound) {
-                        var roundA = datos.filter((item) => item.gano == 'A');
-                        var roundR = datos.filter((item) => item.gano == 'R');
-                        setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length, 'tipo': 'conteoRondas' })
-                        if (roundA.length > roundR.length) {
-                            setTipoM('AR');
-                        } else if (roundR.length > roundA.length) {
-                            setTipoM('RR');
-                        } else {
-                            setTipoM('ER');
-                        }
-                        //setShowModal(true);
+            const result = await LlavesConsultas.addSeguimientoPelea({ ...puntoJuego, 'idpelea': selectPelea.idpelea });
+            if (!result.ok) {
+                MsgUtils.msgError(result.error);
+                return;
+            }
+
+            // Se guarda una sola vez por ronda: el boton queda bloqueado mientras se envia
+            // colorForzado decide el ganador de una ronda empatada (modo max round)
+            const datos = [...resultPre, { ...puntoJuego, 'gano': colorForzado || tipoM }];
+            setResultPre(datos);
+            const totalRondas = aEntero(configure.numRound);
+
+            if (totalRondas === aEntero(puntoJuego.round)) {
+                if (configure.enableMaxPoint) {
+                    const sumaA = datos.reduce((acumulador, item) => acumulador + aEntero(item.puntoA), 0);
+                    const sumaR = datos.reduce((acumulador, item) => acumulador + aEntero(item.puntoR), 0);
+                    const final = { 'tipo': 'puntos', 'azul': sumaA, 'rojo': sumaR };
+                    setMsgModal({ 'azul': sumaA, 'rojo': sumaR, 'tipo': 'sumaPuntos' });
+                    if (sumaA > sumaR) {
+                        setTipoM('AP');
+                        aplicarEstado({ 'gano': 'A', 'isPlay': false, 'final': { ...final, 'gano': 'A' } });
+                    } else if (sumaR > sumaA) {
+                        setTipoM('RP');
+                        aplicarEstado({ 'gano': 'R', 'isPlay': false, 'final': { ...final, 'gano': 'R' } });
+                    } else {
+                        // Empate en el combate: la pantalla del publico muestra EMPATE
+                        setTipoM('EP');
+                        aplicarEstado({ 'gano': 'EM', 'isPlay': false, 'final': { ...final, 'gano': 'EM' } });
                     }
-                } else {
-                    if (configure.enableMaxRound == true) {
-                        var roundA = datos.filter((item) => item.gano == 'A');
-                        var roundR = datos.filter((item) => item.gano == 'R');
-                        setPuntoJuego({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true });
-                        localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true }))
-                        if ((parseInt(configure.numRound) - roundA.length) == 1) {
-                            localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true, 'reset': true }))
-                            setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length, 'tipo': 'conteoRondas' })
-                            setTipoM('AR');
-                        } else if ((parseInt(configure.numRound) - roundR.length) == 1) {
-                            localStorage.setItem('doblePant', JSON.stringify({ 'round': puntoJuego.round + 1, 'puntoA': 0, 'faltaA': 0, 'puntoR': 0, 'faltaR': 0, 'isPlay': false, 'newRound': true, 'reset': true }))
-                            setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length, 'tipo': 'conteoRondas' })
-                            setTipoM('RR');
-                        } else {
-                            setShowModal(false);
-                        }
-                    }
-                    if (configure.enableMaxPoint == true) {
-                        console.log("esta porocesando maximo puntos")
-                        //setResultPre([...resultPre, { ...puntoJuego, 'gano': tipoM }]);
-                        setPuntoJuego({ ...puntoJuego, 'round': puntoJuego.round + 1, 'isPlay': false, 'newRound': true })
-                        setShowModal(false);
-                        localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, 'round': puntoJuego.round + 1, 'isPlay': false, 'newRound': true }))
+                } else if (configure.enableMaxRound) {
+                    const roundA = datos.filter((item) => item.gano == 'A');
+                    const roundR = datos.filter((item) => item.gano == 'R');
+                    const final = { 'tipo': 'rounds', 'azul': roundA.length, 'rojo': roundR.length };
+                    setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length, 'tipo': 'conteoRondas' });
+                    if (roundA.length > roundR.length) {
+                        setTipoM('AR');
+                        aplicarEstado({ 'gano': 'A', 'isPlay': false, 'final': { ...final, 'gano': 'A' } });
+                    } else if (roundR.length > roundA.length) {
+                        setTipoM('RR');
+                        aplicarEstado({ 'gano': 'R', 'isPlay': false, 'final': { ...final, 'gano': 'R' } });
+                    } else {
+                        setTipoM('ER');
+                        aplicarEstado({ 'gano': 'EM', 'isPlay': false, 'final': { ...final, 'gano': 'EM' } });
                     }
                 }
-            } else {
-                MsgUtils.msgError(result.error);
+                return;
+            }
+
+            const siguienteRound = aEntero(puntoJuego.round) + 1;
+            if (configure.enableMaxRound) {
+                const roundA = datos.filter((item) => item.gano == 'A');
+                const roundR = datos.filter((item) => item.gano == 'R');
+                const final = { 'tipo': 'rounds', 'azul': roundA.length, 'rojo': roundR.length };
+                // Combate decidido por rounds aunque todavia queden rounds por pelear
+                const ganoCombate = (totalRondas - roundA.length) === 1 ? 'A'
+                    : (totalRondas - roundR.length) === 1 ? 'R' : '';
+                aplicarEstado({
+                    ...PUNTAJE_INICIAL, 'round': siguienteRound, 'newRound': true, 'reset': true,
+                    // El publico tambien anuncia al ganador del combate
+                    'gano': ganoCombate,
+                    'final': ganoCombate ? { ...final, 'gano': ganoCombate } : null
+                });
+                if (ganoCombate == 'A') {
+                    setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length, 'tipo': 'conteoRondas' });
+                    setTipoM('AR');
+                } else if (ganoCombate == 'R') {
+                    setMsgModal({ 'azul': roundA.length, 'rojo': roundR.length, 'tipo': 'conteoRondas' });
+                    setTipoM('RR');
+                } else {
+                    setShowModal(false);
+                }
+            }
+            if (configure.enableMaxPoint) {
+                aplicarEstado({ 'round': siguienteRound, 'isPlay': false, 'newRound': true, 'reset': true });
+                setShowModal(false);
             }
         } catch (error) {
             MsgUtils.msgError(error.message);
+        } finally {
+            setEnviando(false);
         }
-
     }
     function Sonido(nota) {
-        var Sonidos = [261, 277, 293, 311, 329, 349, 369, 392, 415, 440, 466, 493];
-        var context = new (window.AudioContext || window.webkitAudioContext)();
-        var osc = context.createOscillator();
+        const context = obtenerContextoAudio();
+        if (!context) return;
+        const osc = context.createOscillator();
         // admite: sine, square, sawtooth, triangle
         osc.type = 'sawtooth';
-        osc.frequency.value = Sonidos[nota];
+        osc.frequency.value = NOTAS[nota] || NOTAS[5];
         osc.connect(context.destination);
         osc.start();
         osc.stop(context.currentTime + .5);
     }
     function elegirCompetidor(pelea) {
-        document.getElementById('botonVistaPuntuado').click();
+        document.getElementById('PuntoKirugui')?.scrollIntoView();
         setSelectPelea(pelea);
         if (pelea.idcompetidor1 != 0) {
             setNombreA(pelea.nombres)
@@ -388,40 +431,14 @@ function PrincipalKirugui(props) {
             setIdClubR(-1)
         }
     }
-    function getRoundWin(color) {
-        var roundA = resultPre.filter((item) => item.gano == color);
-        return roundA.length
-    }
     function ejecutarJuego(valor) {
-        if (selectPelea != null) {
-            if (valor) {
-                Sonido(11);
-            } else {
-                Sonido(5);
-            }
-            localStorage.setItem('contAux', 0);
-            setPuntoJuego({ ...puntoJuego, isPlay: valor, reset: false, 'newRound': false })
-            localStorage.setItem('doblePant', JSON.stringify({ ...puntoJuego, isPlay: valor, reset: false, nombreA, nombreR, 'gano': '' }))
-        } else {
-            MsgUtils.msgError("Elija una pelea antes de iniciar ...")
+        if (selectPelea == null) {
+            MsgUtils.msgError("Elija una pelea antes de iniciar ...");
+            return;
         }
-    }
-    function getFaltaAcumulada(color) {
-        var cont = 0;
-        for (var valPre of resultPre) {
-            if (color == 'A') {
-                cont += parseInt(valPre.faltaA) || 0;
-            } else if (color == 'R') {
-                cont += parseInt(valPre.faltaR) || 0;
-            }
-        }
-        return cont;
-    }
-
-    // Faltas de las rondas anteriores + las de la ronda en curso
-    function getFaltasTotales(color) {
-        var actual = color == 'A' ? parseInt(puntoJuego.faltaA) || 0 : parseInt(puntoJuego.faltaR) || 0;
-        return getFaltaAcumulada(color) + actual;
+        Sonido(valor ? 11 : 5);
+        localStorage.setItem('contAux', 0);
+        aplicarEstado({ 'isPlay': valor, 'reset': false, 'newRound': false, 'gano': '', 'final': null });
     }
     function showStadistic(valor) {
         setMandoLec(valor);
@@ -429,6 +446,8 @@ function PrincipalKirugui(props) {
         setShowModal(true);
     }
     const manejarAtajoTeclado = useCallback((event) => {
+        // No puntuar mientras se repite la tecla ni al usar atajos del navegador (Ctrl+R, etc.)
+        if (event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
         const id = accionesTeclado[event.key];
         if (id === 'L') {
             setActivarLectura(true);
@@ -438,24 +457,19 @@ function PrincipalKirugui(props) {
             document.getElementById(id)?.click();
         }
     }, []);
-    const refreshConfiguration = () => {
-        var conf = JSON.parse(localStorage.getItem('kirugui'));
-        if (conf !== null) {
-            setMapPuntos({
-                'd': conf.puntosCabeza, 'D': conf.puntosCabezaGiro, 'P': conf.puntosPunio, 'c': conf.puntosPeto, 'C': conf.puntosPetoGiro,
-                'b': conf.puntosCabeza, 'B': conf.puntosCabezaGiro, 'E': conf.puntosPunio, 'a': conf.puntosPeto, 'A': conf.puntosPetoGiro
-            });
-            setFrecLectura(parseInt(conf.frecLectura));
-            setConfigure(conf);
-            var listaAr = []
-            for (var i = 0; i < parseInt(conf.cantAreas); i++) {
-                listaAr.push({ 'id': i + 1, 'nombre': 'Area ' + (i + 1) })
-            }
-            setAreas(listaAr)
-            MsgUtils.msgCorrecto("Configuracion de Combate Realizado ...")
-        } else {
+    // mostrarMensaje=false en la carga inicial: no avisar de algo que el usuario no pidio
+    const refreshConfiguration = (mostrarMensaje = true) => {
+        const conf = leerJSON('kirugui', null);
+        if (conf === null) {
             MsgUtils.msgError("Configuracion no Existente ....");
+            return;
         }
+        setMapPuntos({
+            'd': conf.puntosCabeza, 'D': conf.puntosCabezaGiro, 'P': conf.puntosPunio, 'c': conf.puntosPeto, 'C': conf.puntosPetoGiro,
+            'b': conf.puntosCabeza, 'B': conf.puntosCabezaGiro, 'E': conf.puntosPunio, 'a': conf.puntosPeto, 'A': conf.puntosPetoGiro
+        });
+        setConfigure(normalizarConfig(conf));
+        if (mostrarMensaje) MsgUtils.msgCorrecto("Configuracion de Combate Realizado ...");
     }
     useEffect(() => {
         window.addEventListener('keydown', manejarAtajoTeclado);
@@ -464,19 +478,18 @@ function PrincipalKirugui(props) {
         };
     }, [manejarAtajoTeclado]);
     useEffect(() => {
-        //setCargador(true);
         localStorage.setItem("contAux", 0);
-        var sessionActiva = JSON.parse(localStorage.getItem('login'));
-        var cmp = JSON.parse(localStorage.getItem('campeonato'));
+        const sessionActiva = leerJSON('login', null);
+        const cmp = leerJSON('campeonato', null);
         if (sessionActiva !== null) {
             setTitulo('PUNTUACION COMBATE');
             setCampeonato(cmp);
             setLogin(true);
             setUserLogin(sessionActiva);
             navigate("/nuevaPantallaK", { replace: true });
-            getClubes(cmp);
+            getClubes();
         }
-        refreshConfiguration();
+        refreshConfiguration(false);
     }, [])
     return (
         <div>
@@ -495,7 +508,7 @@ function PrincipalKirugui(props) {
                             activarLectura={activarLectura}
                             configure={configure.numMandos != undefined ? configure : null}
                             collback={lecturadeDatos}
-                            puntoJuego={puntoJuego} showStadistic={showStadistic} areaname={area} userLogin={userLogin}/>
+                            puntoJuego={puntoJuego} showStadistic={showStadistic} areaname={area} userLogin={userLogin} />
                     </div>
                     <div className='col col-sm-12 col-md-10'>
                         <div className='container-fluid'>
@@ -509,12 +522,9 @@ function PrincipalKirugui(props) {
                                 <div className='col my-auto' style={{ minWidth: '40px', maxWidth: '40px' }}>
                                     <Link className='btn btn-sm botonMenu my-auto mx-auto'
                                         title="Abrir pantalla extendida"
-                                        onClick={() => localStorage.setItem('doblePant', JSON.stringify({
-                                            'isPlay': false, 'round': 1, 'reset': false,
-                                            'puntoA': 0, 'faltaA': 0, 'gano': '',
-                                            'puntoR': 0, 'faltaR': 0, nombreA, nombreR, 'area': idArea
-                                        }))}
-                                        to={'/scoreDobleK'} target='blanck'>
+                                        aria-label="Abrir pantalla extendida"
+                                        onClick={() => publicarPantalla(puntoJuego)}
+                                        to={'/scoreDobleK'} target='_blank'>
                                         <i className="fa-brands fa-windows fa-2xl"></i>
                                     </Link>
                                 </div>
@@ -544,8 +554,8 @@ function PrincipalKirugui(props) {
                                 </div>
                                 <div className='col my-auto' style={{ minWidth: '65px', maxWidth: '65px' }}>
                                     <button type="button" className="btn mx-1 btn-sm botonMenu"
-                                        text='Recargar Configuracion de Combates'
-                                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="Iniciar Competencia" id='buttonPlay'
+                                        id='btnRefresh' title="Recargar configuracion de combate"
+                                        aria-label="Recargar configuracion de combate"
                                         onClick={() => refreshConfiguration()}>
                                         <span className='fs-2 fh-1'>⚙️</span>
                                     </button>
@@ -559,26 +569,37 @@ function PrincipalKirugui(props) {
                                         <h1 className='text-start tituloMenu text-light lh-1' style={{ fontSize: '30px' }}>
                                             {nombreA != '' ? nombreA : 'TKD AZUL'}
                                         </h1>
-                                        {idClubA != -1 &&
+                                        {getClubesNombre(idClubA) !== '' &&
                                             <h4 className='text-start tituloMenu text-light lh-1'>
                                                 {getClubesNombre(idClubA)}
                                             </h4>}
                                     </div>
                                     <VisorPunto valor={puntoJuego} tipo='A' />
-                                    <VisorFaltas valor={puntoJuego} tipo='A' resultPre={getFaltasTotales('A')} />
+                                    <VisorFaltas valor={puntoJuego} tipo='A'
+                                        resultPre={getFaltasTotales('A')} maxFaltas={configure.maxFaltas}
+                                        botones={useMemo(() => Array(puntoJuego.faltaA || 0).fill(0).map((_, j) => (
+                                            <button className='btn btn-sm btn-warning mx-2 text-light text-center fw-bold' key={j}>
+                                                F{j + 1}
+                                            </button>
+                                        )), [puntoJuego.faltaA])} />
                                 </div>
                                 <div className='col bg-danger bg-gradient col-md-6'>
                                     <div className='w-100 p-2 lh-1'>
                                         <h1 className='text-end tituloMenu text-light lh-1' style={{ fontSize: '30px' }}>
                                             {nombreR != '' ? nombreR : 'TKD ROJO'}
                                         </h1>
-                                        {idClubR != -1 &&
+                                        {getClubesNombre(idClubR) !== '' &&
                                             <h4 className='text-end tituloMenu text-light lh-1'>
                                                 {getClubesNombre(idClubR)}
                                             </h4>}
                                     </div>
                                     <VisorPunto valor={puntoJuego} tipo='R' />
-                                    <VisorFaltas valor={puntoJuego} tipo='R' resultPre={getFaltasTotales('R')} />
+                                    <VisorFaltas valor={puntoJuego} tipo='R' resultPre={getFaltasTotales('R')} maxFaltas={configure.maxFaltas}
+                                        botones={useMemo(() => Array(puntoJuego.faltaR || 0).fill(0).map((_, j) => (
+                                            <button className='btn btn-sm btn-warning mx-2 text-light text-center fw-bold' key={j}>
+                                                F{j + 1}
+                                            </button>
+                                        )), [puntoJuego.faltaR])} />
                                 </div>
                             </div>
                         </div>
@@ -595,17 +616,20 @@ function PrincipalKirugui(props) {
                                         </div>
                                         <div className='container-fluid'>
                                             <div className="btn-group btn-group-sm">
-                                                <button className='btn btn-sm btnScore text-light m-0 p-0 '
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrota por nocaut">
+                                                <button className='btn btn-sm btnScore text-light m-0 p-0'
+                                                    type="button" disabled
+                                                    title="Derrota por nocaut (todavia no implementado)">
                                                     <i className="fa-solid fa-skull-crossbones fa-2xl"></i>
                                                 </button>
                                                 <button className='btn btn-sm btnScore text-info m-0 p-0 mx-2'
-                                                    title='declarar ganador'
+                                                    type="button" title='Declarar ganador azul'
+                                                    aria-label='Declarar ganador azul'
                                                     onClick={() => declararGanador(puntoJuego.puntoA + 1, 'A')}>
                                                     <i className="fa-solid fa-trophy fa-2xl"></i>
                                                 </button>
                                                 <button className='btn btn-sm btnScore text-warning m-0 p-0'
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrotado por el GAM-JEON">
+                                                    type="button" disabled
+                                                    title="Derrotado por el GAM-JEON (todavia no implementado)">
                                                     <i className="fa-solid fa-diamond fa-2xl"></i>
                                                 </button>
                                             </div>
@@ -617,10 +641,14 @@ function PrincipalKirugui(props) {
                                         </div>
                                         <div className='container-fluid'>
                                             <div className="btn-group btn-group-sm">
-                                                <button className='btn btn-sm btnScore m-0 p-0 ' id='faltaA' onClick={() => procesarFalta(true, 1)}>
+                                                <button className='btn btn-sm btnScore m-0 p-0 ' id='faltaA'
+                                                    type="button" title="Gam-jeom al azul (F)"
+                                                    onClick={() => procesarFalta(true, 1)}>
                                                     <i className="fa-solid fa-circle-plus fa-2xl"></i>(F)
                                                 </button>
-                                                <button className='btn btn-sm btnScore m-0 p-0' id='faltaAR' onClick={() => procesarFalta(true, -1)}>
+                                                <button className='btn btn-sm btnScore m-0 p-0' id='faltaAR'
+                                                    type="button" title="Quitar gam-jeom al azul (f)"
+                                                    onClick={() => procesarFalta(true, -1)}>
                                                     <i className="fa-solid fa-circle-minus fa-2xl"></i>(f)
                                                 </button>
                                             </div>
@@ -632,10 +660,14 @@ function PrincipalKirugui(props) {
                                         </div>
                                         <div className='container-fluid'>
                                             <div className="btn-group btn-group-sm">
-                                                <button className='btn btn-sm btnScore m-0 p-0' id='puntoAP' onClick={() => procesarPunto(true, 1)}>
+                                                <button className='btn btn-sm btnScore m-0 p-0' id='puntoAP'
+                                                    type="button" title="Sumar punto al azul (A)"
+                                                    onClick={() => procesarPunto(true, 1)}>
                                                     <i className="fa-solid fa-circle-plus fa-2xl"></i>(A)
                                                 </button>
-                                                <button className='btn btn-sm btnScore m-0 p-0' id='puntoAN' onClick={() => procesarPunto(true, -1)}>
+                                                <button className='btn btn-sm btnScore m-0 p-0' id='puntoAN'
+                                                    type="button" title="Quitar punto al azul (a)"
+                                                    onClick={() => procesarPunto(true, -1)}>
                                                     <i className="fa-solid fa-circle-minus fa-2xl"></i>(a)
                                                 </button>
                                             </div>
@@ -653,10 +685,14 @@ function PrincipalKirugui(props) {
                                         </div>
                                         <div className='container-fluid'>
                                             <div className="btn-group btn-group-sm">
-                                                <button className='btn btn-sm btnScore m-0 p-0' id='puntoRP' onClick={() => procesarPunto(false, 1)}>
+                                                <button className='btn btn-sm btnScore m-0 p-0' id='puntoRP'
+                                                    type="button" title="Sumar punto al rojo (R)"
+                                                    onClick={() => procesarPunto(false, 1)}>
                                                     <i className="fa-solid fa-circle-plus fa-2xl"></i>(R)
                                                 </button>
-                                                <button className='btn btn-sm btnScore m-0 p-0' id='puntoRN' onClick={() => procesarPunto(false, -1)}>
+                                                <button className='btn btn-sm btnScore m-0 p-0' id='puntoRN'
+                                                    type="button" title="Quitar punto al rojo (r)"
+                                                    onClick={() => procesarPunto(false, -1)}>
                                                     <i className="fa-solid fa-circle-minus fa-2xl"></i>(r)
                                                 </button>
                                             </div>
@@ -668,10 +704,14 @@ function PrincipalKirugui(props) {
                                         </div>
                                         <div className='container-fluid'>
                                             <div className="btn-group btn-group-sm">
-                                                <button className='btn btn-sm btnScore m-0 p-0' id='faltaR' onClick={() => procesarFalta(false, 1)}>
+                                                <button className='btn btn-sm btnScore m-0 p-0' id='faltaR'
+                                                    type="button" title="Gam-jeom al rojo (Q)"
+                                                    onClick={() => procesarFalta(false, 1)}>
                                                     <i className="fa-solid fa-circle-plus fa-2xl"></i>(Q)
                                                 </button>
-                                                <button className='btn btn-sm btnScore m-0 p-0' id='faltaRR' onClick={() => procesarFalta(false, -1)}>
+                                                <button className='btn btn-sm btnScore m-0 p-0' id='faltaRR'
+                                                    type="button" title="Quitar gam-jeom al rojo (q)"
+                                                    onClick={() => procesarFalta(false, -1)}>
                                                     <i className="fa-solid fa-circle-minus fa-2xl"></i>(q)
                                                 </button>
                                             </div>
@@ -684,17 +724,19 @@ function PrincipalKirugui(props) {
                                         <div className='container-fluid'>
                                             <div className="btn-group btn-group-sm">
                                                 <button className='btn btn-sm btnScore text-warning m-0 p-0'
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Derrotado por GAM-JEON">
+                                                    type="button" disabled
+                                                    title="Derrotado por GAM-JEON (todavia no implementado)">
                                                     <i className="fa-solid fa-diamond fa-2xl"></i>
                                                 </button>
                                                 <button className='btn btn-sm btnScore text-info m-0 p-0 mx-2'
-                                                    title='Declarar ganador'
+                                                    type="button" title='Declarar ganador rojo'
+                                                    aria-label='Declarar ganador rojo'
                                                     onClick={() => declararGanador(puntoJuego.puntoR + 1, 'R')}>
                                                     <i className="fa-solid fa-trophy fa-2xl"></i>
                                                 </button>
                                                 <button className='btn btn-sm btnScore text-light m-0 p-0'
-                                                    data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                    title="Derrotado por nocaut">
+                                                    type="button" disabled
+                                                    title="Derrota por nocaut (todavia no implementado)">
                                                     <i className="fa-solid fa-skull-crossbones fa-2xl"></i>
                                                 </button>
                                             </div>
@@ -734,14 +776,16 @@ function PrincipalKirugui(props) {
                 </div>
             }
             <Modal show={showModal} onHide={() => setShowModal(false)}
-                size={`${tipoM == 'S' ? 'lm' : 'xl'}`}
+                size={tipoM == 'S' ? 'lg' : 'xl'}
                 backdrop="static"
                 aria-labelledby="contained-modal-title-vcenter"
                 contentClassName={`${(tipoM == 'A' || tipoM == 'AP' || tipoM == 'AR') ? 'bg-primary' : (tipoM == 'R' || tipoM == 'RP' || tipoM == 'RR') ? 'bg-danger' : 'bg-dark'} bg-gradient`}>
                 {tipoM != 'S' &&
                     <Modal.Header bsPrefix='modal-header m-0 p-0 px-2 w-100 ' closeButton={false} closeVariant='white'>
                         <div className='fa-fade tituloMenu text-light fw-bold mx-auto' style={{ fontSize: '100px' }}>
-                            {configure.enableMaxRound == true ? 'Ganador ...!!' : 'DESCANSO ...!!'}
+                            {['EM', 'EP', 'ER'].includes(tipoM)
+                                ? 'Empate ...!!'
+                                : configure.enableMaxRound == true ? 'Ganador ...!!' : 'DESCANSO ...!!'}
                         </div>
                     </Modal.Header>}
                 {tipoM == 'S' &&
@@ -779,13 +823,45 @@ function PrincipalKirugui(props) {
                     </Modal.Body>
                 }
                 <Modal.Footer>
-                    {tipoM != 'S' && (tipoM == 'A' || tipoM == 'R' || tipoM == 'EM') &&
-                        <button className='btn btn-sm btn-info' onClick={() => { guardarCombate(); }}>
+                    {tipoM != 'S' && (tipoM == 'A' || tipoM == 'R') &&
+                        <button type='button' className='btn btn-sm btn-info' disabled={enviando}
+                            onClick={() => guardarCombate()}>
                             <i className="fa-solid fa-thumbs-up fa-2xl"></i>Aceptar
                         </button>}
-                    {tipoM != 'S' && tipoM !== 'A' && tipoM !== 'R' && tipoM !== 'EM' &&
-                        <button className='btn btn-sm btn-info' onClick={() => { resultadoFinal(); }}>
+                    {tipoM == 'EM' && configure.enableMaxRound &&
+                        <>
+                            {/* Ronda empatada en modo rounds: el arbitro decide a quien se la anota */}
+                            <button type='button' className='btn btn-sm btn-primary' disabled={enviando}
+                                onClick={() => setShowModal(false)}>
+                                <i className="fa-solid fa-thumbs-up fa-2xl"></i> Aceptar
+                            </button>
+                        </>}
+                    {tipoM == 'EM' && !configure.enableMaxRound &&
+                        <button type='button' className='btn btn-sm btn-info' disabled={enviando}
+                            onClick={() => guardarCombate()}>
+                            <i className="fa-solid fa-thumbs-up fa-2xl"></i>Aceptar
+                        </button>}
+                    {tipoM != 'S' && (tipoM == 'EP' || tipoM == 'ER') &&
+                        <>
+                            <button type='button' className='btn btn-sm btn-primary' disabled={enviando}
+                                onClick={() => resultadoFinal('A')}>
+                                <i className="fa-solid fa-thumbs-up fa-2xl"></i> Gana Azul
+                            </button>
+                            <button type='button' className='btn btn-sm btn-danger' disabled={enviando}
+                                onClick={() => resultadoFinal('R')}>
+                                <i className="fa-solid fa-thumbs-up fa-2xl"></i> Gana Rojo
+                            </button>
+                        </>
+                    }
+                    {tipoM != 'S' && tipoM !== 'A' && tipoM !== 'R' && tipoM !== 'EM' && tipoM !== 'EP' && tipoM !== 'ER' &&
+                        <button type='button' className='btn btn-sm btn-info' disabled={enviando}
+                            onClick={() => resultadoFinal()}>
                             <i className="fa-solid fa-thumbs-up fa-2xl"></i> Aceptar
+                        </button>}
+                    {tipoM != 'S' && (tipoM == 'EP' || tipoM == 'ER') &&
+                        <button type='button' className='btn btn-sm btn-secondary' disabled={enviando}
+                            onClick={() => setShowModal(false)}>
+                            Cerrar
                         </button>}
                 </Modal.Footer>
             </Modal>
