@@ -17,8 +17,8 @@ export const guardarRompimientoPuntos = async (info) => {
     } catch (error) {
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -53,8 +53,8 @@ export const addEditCompetidor = async (info) => {
     } catch (error) {
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -80,8 +80,8 @@ export const addEditEquipo = async (info) => {
     } catch (error) {
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -101,8 +101,8 @@ export const getEquipoDemostration = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -131,8 +131,8 @@ export const getCompetidores = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -151,8 +151,8 @@ export const deleteEquipo = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -171,8 +171,8 @@ export const deleteCompetidor = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -191,8 +191,8 @@ export const deleteCompetidorSP = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -223,8 +223,8 @@ export const getCompetidorClasificado = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -254,7 +254,7 @@ export const getCompetidorClasificadoLista = async (info) => {
             and (c.idclub=? or ?=0) )res left join subcategoria subcate on res.idcategoria=subcate.idcategoria
             where ((res.peso+0.001)>=subcate.pesoini and (res.peso-0.001)<=subcate.pesofin) or 'P'=?
             order by res.idcompetidor`
-    var sql=`SELECT c.*,
+    var sql = `SELECT c.*,
             cat.idcategoria, cat.nombre AS nombrecategoria, cat.edadini, cat.edadfin,
             cl.nombre  AS club,
             cin.nombre AS cinturon,
@@ -268,13 +268,13 @@ export const getCompetidorClasificadoLista = async (info) => {
             AND c.edad BETWEEN cat.edadini AND cat.edadfin
         LEFT JOIN subcategoria sc
             ON sc.idcategoria = cat.idcategoria
-            AND c.peso BETWEEN sc.pesoini - 0.001 AND sc.pesofin + 0.001
+            AND c.peso BETWEEN sc.pesoini AND sc.pesofin
         LEFT JOIN club     cl  ON cl.idclub = c.idclub
         LEFT JOIN cinturon cin ON cin.idcinturon = c.idcinturon
         LEFT JOIN grado    gr  ON gr.idgrado = cin.idgrado
         WHERE c.idcampeonato = ? AND c.tipo = ? AND c.genero = ? AND c.estado = 'A'
         AND (c.idclub = ? OR ? = 0)
-        AND (sc.idsubcategoria IS NOT NULL OR 'P' = ?)
+        AND (sc.idsubcategoria IS NOT NULL OR 'P' = ? OR 'R'=?)
         ORDER BY c.idcompetidor;`
     var sql3 = `select count(idllave)as numLLaves from llave where idcampeonato=? and tipo=? and genero=? and estado='A';`
     var sql6 = `SELECT COUNT(idclasificacion) FROM clasificacion WHERE idcampeonato=? AND tipo=? AND genero=? AND estado='A';`
@@ -287,7 +287,7 @@ export const getCompetidorClasificadoLista = async (info) => {
     try {
         conn = await pool.getConnection();
         const [result] = await conn.query(sql,
-            [info.idCampeonato, info.tipo, info.genero, info.idClub, info.idClub, info.tipo])
+            [info.idCampeonato, info.tipo, info.genero, info.idClub, info.idClub, info.tipo,info.tipo])
         var sqlf = ''
         if (info.tipo == 'C') {
             sqlf = sql3;
@@ -302,8 +302,8 @@ export const getCompetidorClasificadoLista = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -356,8 +356,8 @@ export const getCompetidorSinPelea = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -400,8 +400,8 @@ export const getCompetidoresFestival = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -478,15 +478,15 @@ const getCompetidorClasificados = async (info) => {
         console.log(info)
         conn = await pool.getConnection();
         const [result] = await conn.query(sql2,
-            [info.idcategoria, info.idsubcategoria,info.idCampeonato, info.tipo, info.genero, info.idgrado])
-            //[info.idCampeonato, info.tipo, info.genero, info.idgrado, info.idcategoria, info.idsubcategoria])
+            [info.idcategoria, info.idsubcategoria, info.idCampeonato, info.tipo, info.genero, info.idgrado])
+        //[info.idCampeonato, info.tipo, info.genero, info.idgrado, info.idcategoria, info.idsubcategoria])
         return { "ok": result }
     } catch (error) {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -664,7 +664,7 @@ const generarPelea = async (info) => {
 
         await conn.commit();
         conn.release();
-        conn = null; 
+        conn = null;
         await procesarLlave({ idllave: info.idllave, nivel: 0 });
         return { ok: "generado" };
     } catch (error) {
@@ -730,8 +730,8 @@ export const generarLlaveRompimientoFestival = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         await conn.rollback();
         return { "error": error.message }
@@ -789,8 +789,8 @@ export const generarLlaveRompimiento = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         await conn.rollback();
         return { "error": error.message }
@@ -851,8 +851,8 @@ export const generateLLaves = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -870,7 +870,17 @@ export const generateLLaveManual = async (info) => {
         const [result] = await conn.query(sql2, [info.tipo, -1, info.genero, -1, -1, info.idCampeonato])
         await conn.commit();
         var idllave = result.insertId;
-        var competidores = info.listaManual.sort(function (a, b) { return (Math.random() - 0.5) })
+        var peleas = await generarPelea({ idllave, 'COMPETIDORES': info.listaManual})
+        if (peleas.error) {
+            await conn.query('DELETE FROM llave WHERE idllave=?', [idllave]);
+            await conn.commit();
+            return { "error": peleas.error }
+        }
+        for (let i=0;i<info.listaManual.length;i++){
+            await conn.query(sql3,[info.listaManual[i].idcompetidor]);
+            await conn.commit();
+        }
+        /*var competidores = info.listaManual.sort(function (a, b) { return (Math.random() - 0.5) })
         var numPelea = 1;
         for (let i = 0; i < competidores.length; i += 2) {
             if (i + 1 <= competidores.length - 1) {
@@ -884,14 +894,14 @@ export const generateLLaveManual = async (info) => {
                 await conn.query(sql3, [competidores[i].idcompetidor]);
                 await conn.commit();
             }
-        }
+        }*/
         return { "ok": "generado" }
     } catch (error) {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -929,8 +939,8 @@ export const generateLLaveManualFestival = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -941,19 +951,33 @@ export const generateLLaveManualFestival = async (info) => {
 export const generarLlavePoomse = async (info) => {
     var conn;
     var sql = 'SELECT idgrado,nombre,tipo FROM grado where estado="A" and idcampeonato=? and tipo=?;'
-    var sql1 = 'SELECT * FROM (SELECT *,(select nombre from club where idclub=c.idclub) as club, ' +
-        '(select nombre from cinturon where idcinturon=c.idcinturon) as cinturon, ' +
-        '(SELECT gr.nombre FROM grado gr inner join cinturon cin on cin.idgrado=gr.idgrado where cin.idcinturon=c.idcinturon) as grado, ' +
-        '(select cate.idcategoria from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin ' +
-        'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as idcategoria, ' +
-        '(select cate.nombre from categoria cate where c.edad>=cate.edadini and c.edad<=cate.edadfin ' +
-        'and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato) as nombrecategoria, ' +
-        '(select subcate.idsubcategoria from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
-        'where (c.peso+0.01)>=subcate.pesoini and (c.peso-0.01)<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as idsubcategoria, ' +
-        '(select subcate.nombre from categoria cate inner join subcategoria subcate on subcate.idcategoria=cate.idcategoria ' +
-        'where (c.peso+0.01)>=subcate.pesoini and (c.peso-0.01)<=subcate.pesofin and cate.genero=c.genero and cate.idcampeonato=c.idcampeonato and c.edad>=cate.edadini and c.edad<=cate.edadfin and cate.idcampeonato=c.idcampeonato) as nombresubcategoria ' +
-        'FROM competidor c WHERE c.estado="A" and c.idcampeonato=? and c.tipo=? and c.genero=? and c.idgrado=?)res ' +
-        'where res.idcategoria=?'
+    var sql1 = `SELECT c.*,
+            cl.nombre  AS club,
+            cin.nombre AS cinturon,
+            gr.nombre  AS grado,
+            cat.idcategoria,
+            cat.nombre AS nombrecategoria,
+            sc.idsubcategoria,
+            sc.nombre  AS nombresubcategoria
+        FROM competidor c
+        INNER JOIN categoria cat
+                ON cat.idcampeonato = c.idcampeonato
+            AND cat.tipo   = c.tipo
+            AND cat.genero = c.genero
+            AND c.edad BETWEEN cat.edadini AND cat.edadfin
+        LEFT JOIN subcategoria sc
+                ON sc.idcategoria = cat.idcategoria
+            AND c.peso BETWEEN sc.pesoini AND sc.pesofin
+        LEFT JOIN club     cl  ON cl.idclub = c.idclub
+        LEFT JOIN cinturon cin ON cin.idcinturon = c.idcinturon
+        LEFT JOIN grado    gr  ON gr.idgrado = cin.idgrado
+        WHERE c.estado = 'A'
+        AND c.idcampeonato = ?
+        AND c.tipo = ?
+        AND c.genero = ?
+        AND c.idgrado = ?
+        AND cat.idcategoria = ?
+        ORDER BY c.idcompetidor;`
     var sql2 = 'insert into clasificacion (idcompetidor,tipo,idgrado,idcategoria,idsubcategoria,idcampeonato,genero,idcinturon) values (?,?,?,?,?,?,?,?);';
     try {
         console.log(info);
@@ -978,8 +1002,8 @@ export const generarLlavePoomse = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1008,8 +1032,8 @@ export const obtenerLlaveRompimineto = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1082,16 +1106,29 @@ export const obtenerLlaves = async (info) => {
         UNION SELECT 0, 'SIN OPONENTE', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'A', NULL, NULL, NULL, NULL,NULL) cm 
         on cm.idcompetidor=res.idcompetidor2 WHERE res.idllave=? order by res.tipo, res.idpelea;`
     var sql2 = `select res.idpelea,res.idpeleapadre,res.idllave,res.idcompetidor1,res.idcompetidor2,res.nropelea,res.idganador,
-        res.idperdedor,res.nombres,res.edad as edaduno,res.peso as pesouno,res.apellidos,res.clubuno,res.cinturonuno, 
-        c.nombres as nombres2,c.apellidos as apellidos2,(select cl.nombre from club cl where cl.idclub=c.idclub) as clubdos,
-        (select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturondos,c.idclub AS idclubdos, 
-        c.peso as pesodos,c.edad as edaddos,c.altura as alturados,res.tipo,res.idclubuno,res.alturauno
-        from(select p.idpelea,p.idpeleapadre,p.idllave,p.idcompetidor1,p.idcompetidor2,p.nropelea,p.idganador,p.idperdedor,p.tipo,c.nombres,c.apellidos, 
-        (select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno,c.edad,c.peso,genero,c.idclub AS idclubuno, 
-        (select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturonuno,c.altura as alturauno
-        from pelea p inner join competidorsinpelea c on p.idcompetidor1=c.idcompetidor) res inner join 
-		(select * from competidorsinpelea union select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null) c on res.idcompetidor2=c.idcompetidor 
-        where res.idllave=? order by res.idpelea;`;
+            res.idperdedor,res.nombres,res.edad as edaduno,res.peso as pesouno,res.apellidos,res.clubuno,res.cinturonuno,
+            c.nombres as nombres2,c.apellidos as apellidos2,
+            (select cl.nombre from club cl where cl.idclub=c.idclub) as clubdos,
+            (select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturondos,
+            c.idclub AS idclubdos,
+            c.peso as pesodos,c.edad as edaddos,c.altura as alturados,res.tipo,res.idclubuno,res.alturauno
+        from (select p.idpelea,p.idpeleapadre,p.idllave,p.idcompetidor1,p.idcompetidor2,p.nropelea,p.idganador,
+                    p.idperdedor,p.tipo,c.nombres,c.apellidos,
+                    (select cl.nombre from club cl where cl.idclub=c.idclub) as clubuno,
+                    c.edad,c.peso,c.genero,c.idclub AS idclubuno,
+                    (select cin.nombre from cinturon cin where cin.idcinturon=c.idcinturon) as cinturonuno,
+                    c.altura as alturauno
+            from pelea p
+            left join (select * from competidorsinpelea
+                        union
+                        select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null) c
+                    on p.idcompetidor1=c.idcompetidor
+            where p.idllave=?) res
+        left join (select * from competidorsinpelea
+                union
+                select 0,"SIN OPONENTE",null,null,null,null,null,null,null,null,null,null,"A",null,null) c
+            on res.idcompetidor2=c.idcompetidor
+        order by res.tipo, res.idpelea;`;
     var conn;
     try {
         console.log(info)
@@ -1114,8 +1151,8 @@ export const obtenerLlaves = async (info) => {
         console.log(error)
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1146,8 +1183,8 @@ export const obtenerLlavesManuales = async (info) => {
         console.log(error)
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1210,8 +1247,8 @@ export const buscarCompetidor = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1232,8 +1269,8 @@ export const cambiarNumPelea = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1253,8 +1290,8 @@ export const cambiarAreaLlave = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1278,8 +1315,8 @@ export const obtenerDatosPuntuados = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1301,8 +1338,8 @@ export const obtenerDatosPuntuadosR = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1310,16 +1347,55 @@ export const obtenerDatosPuntuadosR = async (info) => {
     }
 }
 export const getInformacionRompimiento = async (info) => {
-    var sql = "select cls.idclasificacion,cls.idcompetidor,cls.tipo,cls.idgrado,cls.idcategoria,cls.idcampeonato,cls.idsubcategoria," +
-        " cls.estado,cls.genero,cls.idtipocompetencia,cmp.nombres,cmp.apellidos,cmp.edad,cmp.peso,cmp.idclub," +
-        " (select nombre from club where cmp.idclub=idclub) as club, (select nombre from grado where cls.idgrado=idgrado) as grado," +
-        " cat.nombre,cat.edadini,cat.edadfin,sbcat.nombre,sbcat.pesoini,sbcat.pesofin,cls.orden," +
-        " (select descripcion from tiposcampeonato where cls.idtipocompetencia=idtipo and estado='A')as tiponombre,cls.idcinturon," +
-        " (select nombre from cinturon where idcinturon=cls.idcinturon) as cinturon,cls.puntuacion,cls.rompio,cls.norompio,cls.posicion" +
-        " from clasificacion cls inner join competidor cmp on cmp.idcompetidor=cls.idcompetidor" +
-        " inner join categoria cat on cls.idcategoria=cat.idcategoria" +
-        " inner join ((select * from subcategoria) union (select 0,0,'',0,0 )) sbcat on sbcat.idsubcategoria=cls.idsubcategoria" +
-        " where cls.idcampeonato=? and cls.estado =? and cls.tipo=? order by cls.puntuacion desc;";
+    var sql = `SELECT 
+            cls.idclasificacion,
+            cls.idcompetidor,
+            cls.tipo,
+            cls.idgrado,
+            cls.idcategoria,
+            cls.idcampeonato,
+            cls.idsubcategoria, 
+            cls.estado,
+            cls.genero,
+            cls.idtipocompetencia,
+            cmp.nombres,
+            cmp.apellidos,
+            cmp.edad,
+            cmp.peso,
+            cmp.idclub,
+            clb.nombre AS club,
+            grd.nombre AS grado,
+            cat.nombre AS categoria_nombre,
+            cat.edadini,
+            cat.edadfin,
+            IFNULL(sbcat.nombre, 'Sin Subcategoría') AS subcategoria_nombre,
+            IFNULL(sbcat.pesoini, 0) AS pesoini,
+            IFNULL(sbcat.pesofin, 0) AS pesofin,
+            cls.orden,
+            tc.descripcion AS tiponombre,
+            cls.idcinturon,
+            cin.nombre AS cinturon,
+            cls.puntuacion,
+            cls.rompio,
+            cls.norompio,
+            cls.posicion 
+        FROM clasificacion cls 
+        INNER JOIN competidor cmp ON cmp.idcompetidor = cls.idcompetidor 
+        INNER JOIN categoria cat ON cls.idcategoria = cat.idcategoria 
+        -- 1. SOLUCIÓN AL FILTRADO: Usamos LEFT JOIN para incluir competidores sin subcategoría (idsubcategoria = 0)
+        LEFT JOIN subcategoria sbcat ON sbcat.idsubcategoria = cls.idsubcategoria 
+        -- 2. OPTIMIZACIÓN: Cambiamos subconsultas lentas por JOINs directos
+        LEFT JOIN club clb ON cmp.idclub = clb.idclub
+        LEFT JOIN grado grd ON cls.idgrado = grd.idgrado
+        LEFT JOIN cinturon cin ON cls.idcinturon = cin.idcinturon
+        LEFT JOIN tiposcampeonato tc ON cls.idtipocompetencia = tc.idtipo AND tc.estado = 'A'
+        WHERE 
+            cls.idcampeonato = ? 
+            AND cls.estado = ? 
+            AND cls.tipo = ? 
+        ORDER BY 
+            cls.puntuacion DESC;
+        `;
     var conn;
     try {
         conn = await pool.getConnection();
@@ -1329,8 +1405,8 @@ export const getInformacionRompimiento = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1349,8 +1425,8 @@ export const setPosition = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1387,8 +1463,8 @@ export const eliminarLlavesGeneradas = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1411,8 +1487,8 @@ export const eliminarLlaveManual = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1434,8 +1510,8 @@ export const addSeguimientoPelea = async (info) => {
         await conn.rollback();
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1453,8 +1529,8 @@ export const getSeguimientoPelea = async (info) => {
         console.log(error);
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1492,8 +1568,8 @@ const procesarLlaveAuto = async (info) => {
         await conn.rollback()
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {
@@ -1518,8 +1594,8 @@ export const saveFinalResultPelea = async (info) => {
         await conn.rollback();
         const errorReport = TelegramReport.catch(error);
         errorReport.enviarATelegram();
-        if(error.code || error.errno || error.sqlState){
-            return {"error":"Problemas con la base de datos"}
+        if (error.code || error.errno || error.sqlState) {
+            return { "error": "Problemas con la base de datos" }
         }
         return { "error": error.message }
     } finally {

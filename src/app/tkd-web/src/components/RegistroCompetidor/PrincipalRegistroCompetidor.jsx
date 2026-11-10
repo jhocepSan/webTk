@@ -30,6 +30,8 @@ function PrincipalRegistroCompetidor() {
   const [tipoModal, setTipoModal] = useState('');
   const [listaTiposCam, setListaTiposCam] = useState([]);
   const [showMessage, setShowMessage] = useState(false);
+  const [mesageText,setMesageText] = useState('');
+  const [tipoMsg,setTipoMsg] = useState('');
   const [nameBusqueda,setNameBusqueda] = useState(''); 
   const editarUsuario = (dato) => {
     setTipoModal('N');
@@ -89,16 +91,39 @@ function PrincipalRegistroCompetidor() {
       cambiarEstadoD(dato);
     }
   }
-  function cambiarEstado(dato) {
-    if (dato.estado === 'P') {
-      dato.estado = 'A';
-    } else {
-      dato.estado = 'P';
+  function validarCompetidor(dato){
+    if(tipo=='P'){
+      const camposCriticos = ['idcategoria', 'idgrado','grado','idcinturon','cinturon'];
+      const alMenosUnaEsNull = camposCriticos.some(llave => dato[llave] === null);
+      return alMenosUnaEsNull
+    }else if(tipo=='C'){
+      const camposCriticos = ['idcategoria', 'idgrado','grado','idcinturon','cinturon','idsubcategoria'];
+      const alMenosUnaEsNull = camposCriticos.some(llave => dato[llave] === null);
+      return alMenosUnaEsNull
+    }else if(tipo=='R'){
+      const camposCriticos = ['idcategoria', 'idgrado','grado','idcinturon','cinturon','idtipocompetencia'];
+      const alMenosUnaEsNull = camposCriticos.some(llave => dato[llave] === null);
+      return alMenosUnaEsNull
     }
-    if(tipo!=='D'){
-      cambiarEstadoC(dato);
+  }
+  function cambiarEstado(dato) {
+    console.log(dato);
+    var validado;
+    if(validarCompetidor(dato)==false){
+      if (dato.estado === 'P') {
+        dato.estado = 'A';
+      } else {
+        dato.estado = 'P';
+      }
+      if(tipo!=='D'){
+        cambiarEstadoC(dato);
+      }else{
+        cambiarEstadoD(dato);
+      }
     }else{
-      cambiarEstadoD(dato);
+      setMesageText(`El competidor "${dato.nombres}" esta con problemas, revisa sus datos, editando su informacion si es necesario...`);
+      setShowMessage(true);
+      setTipoMsg('I');
     }
   }
   function actualizarDatos() {
@@ -348,10 +373,17 @@ function PrincipalRegistroCompetidor() {
                   {getPermiso()&&<td className='text-end' style={{ minWidth: '100px' }}>
                     <div className="btn-group btn-group-sm" role="group" aria-label="Basic example">
                       <button type="button" className="btn btn-sm text-danger m-0 p-0"
-                        onClick={() => { setSelectItem(item); setShowMessage(true) }}>
+                        title={`Eliminar el competidor ${item.nombres}`}
+                        onClick={() => { 
+                          setSelectItem(item); 
+                          setMesageText(`Esta seguro de eliminar a ${item.nombres}, Del campeonato actual ... ?`);
+                          setShowMessage(true);
+                          setTipoMsg('R');
+                          }}>
                         <i className="fa-solid fa-trash-can fa-xl"></i>
                       </button>
                       <button type="button" className="btn btn-sm text-warning m-0 p-0 mx-2"
+                        title={`Editar datos del competidor ${item.nombres}`}
                         onClick={() => editarUsuario(item)}>
                         <i className="fa-solid fa-pen-to-square fa-xl"></i>
                       </button>
@@ -386,7 +418,7 @@ function PrincipalRegistroCompetidor() {
                   <td className='text-end' style={{ minWidth: '100px' }}>
                     <div className="btn-group" role="group" aria-label="Basic example">
                       <button type="button" className="btn btn-sm text-danger m-0 p-0"
-                        onClick={() => { setSelectItem(item); setShowMessage(true) }}>
+                        onClick={() => { setSelectItem(item); setShowMessage(true);setTipoMsg('R');setMesageText("Seguro de elimnirar?") }}>
                         <i className="fa-solid fa-trash-can fa-xl"></i>
                       </button>
                       <button type="button" className="btn btn-sm text-warning m-0 p-0 mx-2"
@@ -418,7 +450,9 @@ function PrincipalRegistroCompetidor() {
           {tipoModal === 'D'&& <AddEditEquipo club={club} actualizar={actualizarDatos} selectItem={selectItem}/>}
         </Modal.Body>
       </Modal>
-      <MsgDialogo show={showMessage} msg='Esta seguro de Eliminar AL COMPETIDOR' okFunction={() => eliminarUsuario(selectItem)} notFunction={() => setShowMessage(false)} />
+      <MsgDialogo show={showMessage} msg={mesageText} 
+        okFunction={() => tipoMsg=='R'?eliminarUsuario(selectItem):setShowMessage(false)} 
+        notFunction={() => setShowMessage(false)} />
     </>
   )
 }

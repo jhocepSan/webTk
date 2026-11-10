@@ -19,7 +19,7 @@ const connectionStatus = {
 };
 function PrincipalPuntPoomse() {
   const navigate = useNavigate();
-  const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo } = useContext(ContextAplicacions);
+  const { setLogin, setUserLogin, campeonato, setCampeonato, setTitulo,userLogin } = useContext(ContextAplicacions);
   const [config, setConfig] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [showResultado, setShowResultado] = useState(true);
@@ -34,7 +34,7 @@ function PrincipalPuntPoomse() {
   const [serverIo, setServerIo] = useState(null);
   const [entradaTexto, setEntradaTexto] = useState('');
   const [historialPuntos, setHistorialPuntos] = useState([]);
-  const [mostrarFelicitacion,setMostrarFelicitacion] = useState(false);
+  const [mostrarFelicitacion, setMostrarFelicitacion] = useState(false);
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(serverIo, {
     shouldReconnect: () => true,
     enabled: !!serverIo,
@@ -44,7 +44,7 @@ function PrincipalPuntPoomse() {
       }
     }
   });
-  const [listaAux,setListaAux] = useState([]);
+  const [listaAux, setListaAux] = useState([]);
   function elegirCompetidor(dato) {
     console.log(dato);
     setSelectComp(dato.competidor)
@@ -108,12 +108,12 @@ function PrincipalPuntPoomse() {
     setHistorialPuntos([]);
   }
 
-  const agregarPuntacion=(valor)=>{
-    var existeVal = listaAux.filter(item=>item.player==valor);
-    if (existeVal.length()!=0){
-      listaAux.push({'player':val,'punto':[puntuacion],'promedio':0})
-    }else{
-      listaAux.push({'player':val,'punto':[puntuacion],'promedio':0})
+  const agregarPuntacion = (valor) => {
+    var existeVal = listaAux.filter(item => item.player == valor);
+    if (existeVal.length() != 0) {
+      listaAux.push({ 'player': val, 'punto': [puntuacion], 'promedio': 0 })
+    } else {
+      listaAux.push({ 'player': val, 'punto': [puntuacion], 'promedio': 0 })
     }
   }
 
@@ -216,7 +216,15 @@ function PrincipalPuntPoomse() {
       MsgUtils.msgError("No tiene la configuracion de poomse.")
     }
   }, [])
-
+  useEffect(() => {
+    if (userLogin != undefined) {
+      console.log(userLogin.serverIp)
+      if (userLogin.serverIp !== undefined && userLogin.serverIp.length != 0) {
+        var posibleIp = userLogin.serverIp[0].ip;
+        setEntradaTexto(`http://${posibleIp}:4001`)
+      }
+    }
+  }, [userLogin])
   return (
     <div className='vh-100 bg-primary bg-gradient' tabIndex={0} onKeyDown={(e) => { }}>
       <Header puntuacion={true} />
@@ -260,7 +268,7 @@ function PrincipalPuntPoomse() {
                     {historialPuntos.length > 0 && (
                       <div className='col-auto ps-2' style={{ height: '40px', display: 'flex', alignItems: 'center' }}>
                         <button className='btn btn-sm btn-success p-1'
-                          onClick={() => setPuntuacion((historialPuntos.reduce((a, b) => a + parseFloat(b), 0) / historialPuntos.length).toFixed(2)) }>
+                          onClick={() => setPuntuacion((historialPuntos.reduce((a, b) => a + parseFloat(b), 0) / historialPuntos.length).toFixed(2))}>
                           <i className="fa-solid fa-calculator fa-lg"></i>
                         </button>
                       </div>
@@ -352,16 +360,16 @@ function PrincipalPuntPoomse() {
                       <button className='btn btn-success btn-sm' onClick={() => recetearValores(1)}>
                         Guardar
                       </button>
-                      <button className='btn btn-dark bg-gradient' onClick={()=>agregarPuntacion(1)}>
+                      <button className='btn btn-dark bg-gradient' onClick={() => agregarPuntacion(1)}>
                         1er
                       </button>
-                      <button className='btn btn-dark bg-gradient' onClick={()=>agregarPuntacion(2)}>
+                      <button className='btn btn-dark bg-gradient' onClick={() => agregarPuntacion(2)}>
                         2do
                       </button>
-                      <button className='btn btn-dark bg-gradient' onClick={()=>agregarPuntacion(3)}>
+                      <button className='btn btn-dark bg-gradient' onClick={() => agregarPuntacion(3)}>
                         3er
                       </button>
-                      <button className='btn btn-dark bg-gradient' onClick={()=>agregarPuntacion(4)}>
+                      <button className='btn btn-dark bg-gradient' onClick={() => agregarPuntacion(4)}>
                         4to
                       </button>
                     </div>

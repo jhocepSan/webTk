@@ -1,10 +1,10 @@
 import {configuraciones} from './config/config.js'
 import app from './utils/app.js';
 import {pool} from './utils/connection.js';
-import {Bonjour} from 'bonjour-service'
+//import {Bonjour} from 'bonjour-service'
 import path from 'path';
 
-const instanceBonjour = new Bonjour(); 
+//const instanceBonjour = new Bonjour(); 
 
 async function InitServer() {
     console.log(configuraciones.NOMBREAPP, '....');

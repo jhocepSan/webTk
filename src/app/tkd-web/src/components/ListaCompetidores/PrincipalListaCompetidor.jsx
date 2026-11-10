@@ -18,6 +18,7 @@ import UtilsBuffer from '../utils/UtilsBuffer';
 import imgTK from '../../assets/tkd.png'
 import AdminLlaves from './AdminLlaves';
 import UtilsExport from '../utils/UtilsExport';
+import MsgDialogo from '../utils/MsgDialogo';
 
 function PrincipalListaCompetidor() {
     const navigate = useNavigate();
@@ -43,6 +44,8 @@ function PrincipalListaCompetidor() {
     const [idClub, setIdClub] = useState(0);
     const [listaTiposCam, setListaTiposCam] = useState([]);
     const [ventana, setVentana] = useState(0);
+    const [showAlerta,setShowAlerta] = useState(false);
+    const [msgAlerta,setMsgAlerta] = useState('');
     const header = ["Nombres", "Apellidos", "Edad", "Peso", "Altura", "Club", "Cinturon", "Grado", "Categoria", "Sub-Categoria"];
 
     function handleDownloadExcel() {
@@ -114,7 +117,7 @@ function PrincipalListaCompetidor() {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json;charset=utf-8',
             },
-            body: JSON.stringify({ idcampeonato: info.idcampeonato, genero,tipo })
+            body: JSON.stringify({ idcampeonato: info.idcampeonato, genero, tipo })
         })
             .then(res => res.json())
             .then(data => {
@@ -145,7 +148,7 @@ function PrincipalListaCompetidor() {
     function cambiarCategoria(i) {
         setIdCategoria(i);
         var cat = categorias.filter((item) => item.idcategoria === parseInt(i));
-        
+
         if (cat.length !== 0) {
             setIdSubCategoria(0);
             setSubCategorias(cat[0].SUBCATEGORIA);
@@ -165,29 +168,49 @@ function PrincipalListaCompetidor() {
         }
     }
     function obtenerLLaves() {
-        fetch(`${server}/competidor/obtenerLlaves`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json;charset=utf-8',
-            },
-            body: JSON.stringify({ idCampeonato, genero, tipo })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.ok) {
-                    setListaLlaves(data.ok);
-                    var filtroGenero = data.ok.filter((item) => item.genero == genero)
-                    if (filtroGenero.length !== 0) {
-                        setHayLlaves(true);
-                    } else {
-                        setHayLlaves(false);
-                    }
-                } else {
-                    MsgUtils.msgError(data.error);
-                }
+        if (tipo == 'C') {
+            fetch(`${server}/competidor/obtenerLlaves`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json;charset=utf-8',
+                },
+                body: JSON.stringify({ idCampeonato, genero, tipo })
             })
-            .catch(error => MsgUtils.msgError(error));
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok) {
+                        setListaLlaves(data.ok);
+                        var filtroGenero = data.ok.filter((item) => item.genero == genero)
+                        if (filtroGenero.length !== 0) {
+                            setHayLlaves(true);
+                        } else {
+                            setHayLlaves(false);
+                        }
+                    } else {
+                        MsgUtils.msgError(data.error);
+                    }
+                })
+                .catch(error => MsgUtils.msgError(error));
+        } else if (tipo === 'P') {
+            fetch(`${server}/competidor/getInformacionRompimiento`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json;charset=utf-8',
+                },
+                body: JSON.stringify({ 'idCampeonato': idCampeonato, 'estado': 'A', tipo })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok) {
+                        setListaLlaves(data.ok);
+                    } else {
+                        MsgUtils.msgError(data.error);
+                    }
+                })
+                .catch(error => MsgUtils.msgError(error));
+        }
     }
 
     function buscarCompetidores() {
@@ -321,11 +344,42 @@ function PrincipalListaCompetidor() {
             setNoValido(false);
         }
     }
+    function validarRompimientos(modo){
+        if(modo=='R'){
+            var filtro = listaCompetidores.filter((item)=>item.idtipocompetencia ==null)
+            if(filtro.length !==0){
+                return false;
+            }
+            return true;
+        }else if(modo=='G'){
+            var filtro = listaCompetidores.filter((item)=>item.idcinturon ==null || item.idgrado ==null || item.grado)
+            if(filtro.length !==0){
+                return false;
+            }
+            return true;
+        }
+    }
     const handleDownload = () => {
         if (tipo !== 'D') {
-            setTipoM('P');
-            setTituloModal('Clasificación de Competidores');
-            setShowModal(true);
+            if(tipo=='R'){
+                if(validarRompimientos('R')){
+                    if(validarRompimientos('G')){
+                        setTipoM('P');
+                        setTituloModal('Clasificación de Competidores');
+                        setShowModal(true);
+                    }else{
+                        setMsgAlerta("Hay competidores que estan inscritos, Pero no tienen cinturon o grado ... revisa!!!")
+                        setShowAlerta(true);    
+                    }
+                }else{
+                    setMsgAlerta("Hay competidores que no estan inscritos en ningun rompimiento, verifique eso en las inscriptciones...")
+                    setShowAlerta(true);
+                }
+            }else{
+                setTipoM('P');
+                setTituloModal('Clasificación de Competidores');
+                setShowModal(true);
+            }
         } else {
             console.log("generar pdf ")
         }
@@ -485,9 +539,9 @@ function PrincipalListaCompetidor() {
     }
     useEffect(() => {
         if (genero != '') {
-            getInformacionCategoria({ idcampeonato: idCampeonato, genero,tipo })
+            getInformacionCategoria({ idcampeonato: idCampeonato, genero, tipo })
         }
-    }, [genero,tipo])
+    }, [genero, tipo])
     useEffect(() => {
         var info = JSON.parse(localStorage.getItem('campeonato'));
         var sessionActiva = JSON.parse(localStorage.getItem('login'));
@@ -597,7 +651,7 @@ function PrincipalListaCompetidor() {
                         <div className='col d-none' style={{ maxWidth: '150px', minWidth: '150px' }}>
                             <button className='btn btn-sm btn-light letraBtn w-100'
                                 title='Lista total de Estudiantes incritos por club '
-                                onClick={() => {}}>
+                                onClick={() => { }}>
                                 <i className="fa-solid fa-list-check"></i> Lista Inscritos
                             </button>
                         </div>
@@ -622,7 +676,7 @@ function PrincipalListaCompetidor() {
                                 })}
                             </select>
                         </div>
-                        {tipo!='P'&&<div className='col' style={{ maxWidth: '130px', minWidth: '130px' }}>
+                        {tipo != 'P' && <div className='col' style={{ maxWidth: '130px', minWidth: '130px' }}>
                             <select className="form-select form-select-sm btn-dark letraBtn" value={idSubCategoria}
                                 onChange={(e) => cambiarSubCategoria(e.target.value)}>
                                 <option value={0}>Sub Categoria ?</option>
@@ -715,10 +769,11 @@ function PrincipalListaCompetidor() {
                                             <div className='container-fluid p-0 m-0' style={{ fontSize: '16px' }}>
                                                 <div className='letraMontserratr' >{'GRADO: ' + item.grado}</div>
                                                 <div className='letraMontserratr'>{'CATEGORIA: ' + item.nombrecategoria}</div>
-                                                {tipo!='P'&&<div className='letraMontserratr'>{'SUB-CATEGORIA: ' + item.nombresubcategoria}</div>}
-                                                {(item.idsubcategoria == null || item.idcategoria == null || item.grado == null || item.cinturon == null ) && tipo!='P'&&
+                                                {!['P','R'].includes(tipo) && <div className='letraMontserratr'>{'SUB-CATEGORIA: ' + item.nombresubcategoria}</div>}
+                                                {(item.idsubcategoria == null || item.idcategoria == null || item.grado == null || item.cinturon == null) && !['P','R'].includes(tipo)  &&
                                                     <div className='badge bg-danger'>Inconcistencia</div>}
-                                                {tipo=='P' && item.idcategoria==null && <div className='badge bg-danger'>Inconcistencia</div>}
+                                                {tipo == 'P' && tipo =='R' && item.idcategoria == null && <div className='badge bg-danger'>Inconcistencia Categoria</div>}
+                                                {tipo =='R' && item.grado == null && <div className='badge bg-danger'>Inconcistencia Grado</div>}
                                             </div>
                                         </td>
                                         {tipo == 'R' && renderTipoCmp(item)}
@@ -779,7 +834,7 @@ function PrincipalListaCompetidor() {
                     {tipoM === 'L' && tipo === 'P' && <PrincipalLlavePoomse categorias={categorias} idcampeonato={idCampeonato} genero={genero} llaves={listaLlaves} tipo={tipo} tipoL={'E'} />}
                 </Modal.Body>
             </Modal>
-
+            <MsgDialogo show={showAlerta} msg={msgAlerta} okFunction={()=>setShowAlerta(false)} notFunction={()=>setShowAlerta(false)}/>
         </>
     )
 }
