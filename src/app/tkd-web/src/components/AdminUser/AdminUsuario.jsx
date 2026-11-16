@@ -294,6 +294,9 @@ function AdminUsuario() {
                 <Nav.Item>
                     <Nav.Link eventKey="M">Albitros</Nav.Link>
                 </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link eventKey="P">Inactivos</Nav.Link>
+                </Nav.Item>
             </Nav>
 
             <div className='container-fluid text-center bg-light bg-gradient text-danger fw-bold'>
