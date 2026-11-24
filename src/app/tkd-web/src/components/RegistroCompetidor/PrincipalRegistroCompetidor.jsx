@@ -109,7 +109,7 @@ function PrincipalRegistroCompetidor() {
   function cambiarEstado(dato) {
     console.log(dato);
     var validado;
-    if(validarCompetidor(dato)==false){
+    if(validarCompetidor(dato)==false || tipo=='D'){
       if (dato.estado === 'P') {
         dato.estado = 'A';
       } else {
